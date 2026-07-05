@@ -1,7 +1,8 @@
-import { Component, Input, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, Input, ViewChild } from '@angular/core';
 
 import { DataGridComponent } from '@app/frontend-gui/src/lib/data-grid/data-grid.component';
+
 import { RelationGridTable } from '../../data-tables.util';
 
 /**

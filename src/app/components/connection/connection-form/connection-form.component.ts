@@ -24,6 +24,7 @@ import {LoadingOverlayService} from "@app/services/loading-overlay.service";
 import {LoggerService} from '@app/services/logger.service';
 import {NotificationService} from '@app/services/notification.service';
 import {UtilsService} from '@app/services/utils.service';
+import {config} from '@config';
 
 
 /**
@@ -224,16 +225,23 @@ export class ConnectionFormComponent extends BaseFormComponent<Connection> {
           id: 'id',
           typeId: 'typeId'
         }),
-        this.utils.getNonEditableColumnDef('entity.taskType.label', 'typeName'),
+        this.utils.getNonEditableColumnDef('entity.taskType.label', 'typeTitle'),
       ])
       .withRelationsOrder('name')
       .withRelationsFetcher(() => {
         if (this.isNew()) {
           return of([]);
         }
-        return this.entityToEdit.getRelationArrayEx(TaskProjection, 'tasks', {projection: 'view'})
+        return this.entityToEdit.getRelationArrayEx(TaskProjection, 'tasks', {
+          projection: 'view',
+          lang: this.currentUiLanguage()
+        })
       })
       .build();
+  }
+
+  private currentUiLanguage(): string {
+    return localStorage.getItem('lang') || config.defaultLang;
   }
 
   private hasRequiredConnectionFields(): boolean {

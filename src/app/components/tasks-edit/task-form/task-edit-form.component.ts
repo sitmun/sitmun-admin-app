@@ -529,7 +529,7 @@ export class TaskEditFormComponent extends BaseFormComponent<TaskProjection> {
   getValidationFieldLabelKeys(): Record<string, string> {
     const base: Record<string, string> = {
       name: 'common.form.name',
-      scope: 'common.form.type',
+      scope: 'entity.task.scope.label',
       taskGroupId: 'entity.taskGroup.label',
     };
     const scope = this.entityForm?.get('scope')?.value;

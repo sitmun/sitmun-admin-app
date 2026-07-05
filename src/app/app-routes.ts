@@ -31,6 +31,8 @@ import {ServiceComponent} from '@app/components/service/service.component';
 import {AuthenticatedLayoutComponent} from '@app/components/shared/authenticated-layout/authenticated-layout.component';
 import {TaskGroupFormComponent} from '@app/components/task-group/task-group-form/task-group-form.component';
 import {TaskGroupComponent} from '@app/components/task-group/task-group.component';
+import {TaskTypeFormComponent} from '@app/components/task-type/task-type-form/task-type-form.component';
+import {TaskTypeComponent} from '@app/components/task-type/task-type.component';
 import {TaskUIFormComponent} from '@app/components/task-ui/task-ui-form/task-ui-form.component';
 import {TaskUIComponent} from '@app/components/task-ui/task-ui.component';
 import {TaskBasicFormComponent} from "@app/components/tasks-basic/task-form/task-basic-form.component";
@@ -125,6 +127,8 @@ export const APP_ROUTES: Routes = [
       {path: 'territoryType', component: TerritoryTypeComponent, canDeactivate: [CanDeactivateGuard]},
       {path: 'territoryType/:id/territoryTypeForm', component: TerritoryTypeFormComponent, canDeactivate: [CanDeactivateGuard]},
       {path: 'territoryType/:id/territoryTypeForm/:idDuplicate', component: TerritoryTypeFormComponent, canDeactivate: [CanDeactivateGuard]},
+      {path: 'taskType', component: TaskTypeComponent, canDeactivate: [CanDeactivateGuard]},
+      {path: 'taskType/:id/taskTypeForm', component: TaskTypeFormComponent, canDeactivate: [CanDeactivateGuard]},
       {path: 'codelistValue', component: CodelistValueComponent, canDeactivate: [CanDeactivateGuard]},
       {path: 'codelistValue/:id/codelistValueForm', component: CodelistValueFormComponent, canDeactivate: [CanDeactivateGuard]},
       {path: 'codelistValue/:id/codelistValueForm/:idDuplicate', component: CodelistValueFormComponent, canDeactivate: [CanDeactivateGuard]},

@@ -31,22 +31,6 @@ export const config = {
     'VISEdition': 13,
     'HIDDENEdition': 14
   },
-  tasksTypesNames:{
-    'basic': "Basic",
-    'download': "Download",
-    'document': "Document",
-    'locator': "Locator",
-    'query': "Query",
-    'moreInfo': "More info task",
-    'report': "Report",
-    'editionWFS': "Cartography table (WFS)",
-    'thematic': "Thematic",
-    'extraction': "Extraction (FME)",
-    'NUMEdition': "Data table",
-    'RELEdition': "Relation table",
-    'VISEdition': "Location view",
-    'HIDDENEdition': "edicionHIDDEN"
-  },
   taskSelectorFieldsForm:{
     "groupId": "group",
     "uiId": "ui",

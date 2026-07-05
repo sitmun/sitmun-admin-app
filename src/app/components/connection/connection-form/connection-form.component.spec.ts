@@ -87,6 +87,7 @@ describe('ConnectionFormComponent', () => {
 
   afterEach(() => {
     httpMock.verify();
+    localStorage.removeItem('lang');
     fixture?.destroy();
   });
   afterAll(() => TestBed.resetTestingModule());
@@ -233,6 +234,30 @@ describe('ConnectionFormComponent', () => {
         (col: { cellRendererParams?: { route?: string } }) => col.cellRendererParams?.route != null
       ) as { cellRendererParams: { route: string } };
       expect(nameColumn.cellRendererParams.route).toBe('/tasks/:id/:typeId');
+    });
+
+    it('requests task type titles using the active UI language', () => {
+      localStorage.setItem('lang', 'es');
+      component.entityID = 2;
+      component.entityToEdit = Object.assign(new Connection(), {
+        id: 2,
+        _links: {
+          tasks: {
+            href: 'http://localhost/api/connections/2/tasks{?projection,lang}',
+          },
+        },
+      });
+
+      component.tasksTable.relationsFetchFn().subscribe(tasks => {
+        expect(tasks).toEqual([]);
+      });
+
+      const req = httpMock.expectOne(request =>
+        request.urlWithParams.includes('/connections/2/tasks')
+        && request.urlWithParams.includes('projection=view')
+        && request.urlWithParams.includes('lang=es')
+      );
+      req.flush({ _embedded: { tasks: [] } });
     });
   });
 

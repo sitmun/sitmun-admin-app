@@ -190,7 +190,7 @@ export class TaskGroupFormComponent extends BaseFormComponent<TaskGroup> {
             typeId: 'typeId',
             id: 'id',
           }),
-        this.utils.getNonEditableColumnDef('common.form.type', 'typeName'),
+        this.utils.getNonEditableColumnDef('common.form.type', 'typeTitle'),
         this.utils.getStatusColumnDef()])
       .withRelationsOrder('name')
       .withRelationsFetcher(() => {
@@ -218,7 +218,7 @@ export class TaskGroupFormComponent extends BaseFormComponent<TaskGroup> {
       .withTargetsColumns([
         this.utils.getSelCheckboxColumnDef(),
         this.utils.getNonEditableColumnDef('common.form.name', 'name'),
-        this.utils.getNonEditableColumnDef('common.form.type', 'typeName', 300),
+        this.utils.getNonEditableColumnDef('common.form.type', 'typeTitle', 300),
       ])
       .withTargetsOrder('name')
       .withTargetsFetcher(() => this.taskService.fetchProjectionItems(TaskProjection))

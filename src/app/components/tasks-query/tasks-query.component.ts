@@ -89,7 +89,7 @@ export class TasksQueryComponent extends BaseListComponent<Task> {
     nameCol.flex = 3;
     nameCol.tooltipField = 'name';
 
-    const scopeCol: any = this.utils.getNonEditableColumnWithCodeListDef('common.form.type', 'properties.scope', this.codeList('queryTask.scope'));
+    const scopeCol: any = this.utils.getNonEditableColumnWithCodeListDef('entity.task.scope.label', 'properties.scope', this.codeList('queryTask.scope'));
     scopeCol.sortable = true;
     scopeCol.cellRendererParams = {...scopeCol.cellRendererParams, sortField: 'properties.scope'};
     scopeCol.minWidth = 160;

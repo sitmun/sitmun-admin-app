@@ -34,13 +34,12 @@ import {
   TerritoryTypeService,
   TranslationService,
   TreeNodeService
-} from '@app/domain';
+, CartographyGroupProjection } from '@app/domain';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
 import { MaterialModule } from '@app/material-module';
 import {LoggerService} from '@app/services/logger.service';
 import {configureLoggerForTests, provideErrorHandlerForTests} from '@app/testing/test-helpers';
 import {constants} from '@environments/constants';
-import { CartographyGroupProjection } from '@app/domain';
 
 import { LayersFormComponent } from './layers-form.component';
 

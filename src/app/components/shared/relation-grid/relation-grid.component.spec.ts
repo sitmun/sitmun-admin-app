@@ -2,11 +2,13 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
-import { of, ReplaySubject, Subject } from 'rxjs';
+
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
+import { of, ReplaySubject, Subject } from 'rxjs';
+
+import { DataGridComponent, GridEventType } from '@app/frontend-gui/src/lib/data-grid/data-grid.component';
 
 import { RelationGridComponent } from './relation-grid.component';
-import { DataGridComponent, GridEventType } from '@app/frontend-gui/src/lib/data-grid/data-grid.component';
 import { RelationGridTable } from '../../data-tables.util';
 
 describe('RelationGridComponent', () => {

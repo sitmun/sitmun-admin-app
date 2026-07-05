@@ -77,16 +77,27 @@ export class TasksEditComponent extends BaseListComponent<Task> {
     );
   }
 
+  override async preFetchData(): Promise<void> {
+    await this.initCodeLists(['editTask.scope']);
+  }
+
   override async postFetchData(): Promise<void> {
     const nameCol: any = this.utils.getRouterLinkColumnDef('common.form.name', 'name', `taskEdit/:id/${config.tasksTypes.edit}`, {id: 'id'}, 220);
     nameCol.sortable = true;
     nameCol.cellRendererParams = {...nameCol.cellRendererParams, sortField: 'name'};
-    nameCol.flex = 1;
+    nameCol.flex = 3;
     nameCol.tooltipField = 'name';
+
+    const scopeCol: any = this.utils.getNonEditableColumnWithCodeListDef('entity.task.scope.label', 'properties.scope', this.codeList('editTask.scope'));
+    scopeCol.sortable = true;
+    scopeCol.cellRendererParams = {...scopeCol.cellRendererParams, sortField: 'properties.scope'};
+    scopeCol.minWidth = 160;
+    scopeCol.flex = 1;
 
     this.entityListConfig.columnDefs = [
       this.utils.getRowCheckboxColumnDef(),
       nameCol,
+      scopeCol,
     ];
   }
 

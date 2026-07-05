@@ -381,6 +381,22 @@ export class Configuration {
   };
 
   /**
+   * Task type configuration
+   */
+  static readonly TASK_TYPE: FormConfiguration = {
+    id: 'taskType',
+    labelSingular: 'entity.taskType.label',
+    labelPlural: 'entity.taskType.plural',
+    icon: 'label',
+    font: 'material-icons-round',
+    route: 'taskType',
+    formRoute: ':id/taskTypeForm',
+    duplicateRoute: '',
+    component: 'TaskTypeComponent',
+    formComponent: 'TaskTypeFormComponent'
+  };
+
+  /**
    * Code List Value configuration
    */
   static readonly CODELIST_VALUE: FormConfiguration = {
@@ -437,6 +453,7 @@ export class Configuration {
       Configuration.APPLICATION,
       Configuration.LANGUAGE,
       Configuration.TERRITORY_TYPE,
+      Configuration.TASK_TYPE,
       Configuration.CODELIST_VALUE,
       Configuration.CONFIGURATION_PARAMETER
     ];
@@ -503,6 +520,7 @@ export class Configuration {
         Configuration.toMenuItem(Configuration.TASK_UI),
         Configuration.toMenuItem(Configuration.LANGUAGE),
         Configuration.toMenuItem(Configuration.TERRITORY_TYPE),
+        Configuration.toMenuItem(Configuration.TASK_TYPE),
         Configuration.toMenuItem(Configuration.CODELIST_VALUE),
         Configuration.toMenuItem(Configuration.CONFIGURATION_PARAMETER)
       ]

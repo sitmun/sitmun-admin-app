@@ -15,7 +15,7 @@
   *ngIf="dataLoaded"
   [form]="entityForm"
   entityLabelPrefix="entity.task"
-  [fieldLabelKeys]="{ name: 'common.form.name', scope: 'common.form.type', command: 'entity.task.query.sql', connectionId: 'entity.task.query.connection', cartographyId: 'entity.task.query.cartography', taskGroupId: 'entity.taskGroup.label' }">
+  [fieldLabelKeys]="{ name: 'common.form.name', scope: 'entity.task.scope.label', command: 'entity.task.query.sql', connectionId: 'entity.task.query.connection', cartographyId: 'entity.task.query.cartography', taskGroupId: 'entity.taskGroup.label' }">
 </app-entity-form-alerts>
 
 <mat-tab-group

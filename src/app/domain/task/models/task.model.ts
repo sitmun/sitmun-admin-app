@@ -92,6 +92,7 @@ export class TaskProjection extends Resource {
   connectionName: string;
   typeId: number;
   typeName: string;
+  typeTitle: string;
 
   /**
    * Creates a new TaskProjection instance copying only the properties declared in TaskProjection and Resource classes
@@ -107,7 +108,7 @@ export class TaskProjection extends Resource {
       // TaskProjection properties
       'id', 'name', 'createdDate', 'order', 'groupName', 'groupId',
       'uiId', 'properties', 'serviceId', 'serviceName',
-      'cartographyId', 'cartographyName', 'typeId', 'typeName',
+      'cartographyId', 'cartographyName', 'typeId', 'typeName', 'typeTitle',
       'connectionId', 'connectionName'
     ];
     // Copy only defined properties that exist in our class

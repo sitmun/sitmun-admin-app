@@ -261,7 +261,7 @@ export class RoleFormComponent extends BaseFormComponent<Role> {
           id: 'id',
           typeId: 'typeId'
         }),
-        this.utils.getNonEditableColumnDef('entity.taskType.label', 'typeName'),
+        this.utils.getNonEditableColumnDef('entity.taskType.label', 'typeTitle'),
         this.utils.getStatusColumnDef()
       ])
       .withRelationsOrder('name')
@@ -279,7 +279,7 @@ export class RoleFormComponent extends BaseFormComponent<Role> {
       .withTargetsColumns([
         this.utils.getSelCheckboxColumnDef(),
         this.utils.getNonEditableColumnDef('common.form.name', 'name'),
-        this.utils.getNonEditableColumnDef('entity.taskType.label', 'typeName', 100, 500),
+        this.utils.getNonEditableColumnDef('entity.taskType.label', 'typeTitle', 100, 500),
       ])
       .withTargetsOrder('name')
       .withTargetsFetcher(() => this.tasksService.fetchProjectionItems(TaskProjection))

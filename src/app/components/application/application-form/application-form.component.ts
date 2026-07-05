@@ -9,6 +9,7 @@ import {map} from 'rxjs/operators';
 
 import {BaseFormComponent} from "@app/components/base-form.component";
 import {DataTableDefinition, TemplateDialog} from '@app/components/data-tables.util';
+import {RelationGridComponent} from '@app/components/shared/relation-grid/relation-grid.component';
 import {Configuration} from "@app/core/config/configuration";
 import {HalOptions} from '@app/core/hal/rest/rest.service';
 import {MessagesInterceptorStateService} from '@app/core/interceptors/messages.interceptor';
@@ -35,7 +36,6 @@ import {
   UserService
 } from '@app/domain';
 import {ApplicationHeaderParameter} from '@app/domain/application/models/application-header-parameter.model';
-import {RelationGridComponent} from '@app/components/shared/relation-grid/relation-grid.component';
 import {
   isActive,
   onCreate,

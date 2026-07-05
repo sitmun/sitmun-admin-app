@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, OnDestroy, OnInit, QueryList, ViewChildren, DestroyRef, inject} from "@angular/core";
+import {AfterViewInit, ChangeDetectorRef, Component, OnDestroy, OnInit, QueryList, ViewChildren, DestroyRef, inject} from "@angular/core";
 import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 import {FormControl, UntypedFormGroup} from "@angular/forms";
 import {MatDialog} from "@angular/material/dialog";
@@ -136,6 +136,8 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
   defaultLang = config.defaultLang;
 
   protected destroyRef = inject(DestroyRef);
+
+  private readonly changeDetectorRef = inject(ChangeDetectorRef);
 
   /**
    * Creates an instance of SitmunBaseComponent.
@@ -484,7 +486,7 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
    */
   async onSaveButtonClicked(): Promise<boolean> {
     this.loggerService.info('onSaveButtonClicked', this.explainFormValidity());
-    if (this.canSave()) {
+    if (this.canSaveEntity) {
       const duplicated = this.isDuplicated();
       try {
         await this.saveEntity();
@@ -775,6 +777,7 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
           .pipe(takeUntilDestroyed(this.destroyRef))
           .subscribe(() => {
             this.checkControlModified(form, key);
+            this.changeDetectorRef.markForCheck();
           });
       }
     });
@@ -890,6 +893,7 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
     const dialogResult = await this.openTranslationDialog(propertyTranslation.map, defaultLanguageValue, maxLength, useTextarea);
     if (dialogResult && dialogResult.event == 'Accept') {
       propertyTranslation.modified = true;
+      this.changeDetectorRef.markForCheck();
     }
   }
 

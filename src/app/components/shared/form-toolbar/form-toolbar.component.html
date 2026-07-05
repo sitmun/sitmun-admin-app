@@ -11,7 +11,7 @@
     [matTooltip]="'common.button.save' | translate"
     mat-mini-fab
     class="add-half-gap"
-    [disabled]="!canSave"
+    [disabled]="!dataLoaded || !canSave"
     (click)="save.emit()"
     color="primary">
     <mat-icon fontSet="material-icons-round">save</mat-icon>
