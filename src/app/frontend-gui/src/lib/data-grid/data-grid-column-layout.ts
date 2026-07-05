@@ -171,3 +171,54 @@ export function usesContentBasedColumnSizing(
   }
   return !usesFlexColumnLayout(columnDefs);
 }
+
+/** Max width for a single fixed label column in flex-layout relation grids. */
+export const FLEX_LAYOUT_FIXED_COLUMN_MAX_PX = 320;
+
+/** Max share of viewport width a single fixed label column may take. */
+export const FLEX_LAYOUT_FIXED_COLUMN_VIEWPORT_FRACTION = 0.4;
+
+/** True for flex:0 data columns that should be auto-sized to content (not checkbox/status/icon-fixed). */
+export function isFixedDisplayColumn(colDef: DataGridColumnDef): boolean {
+  if (colDef.checkboxSelection) {
+    return false;
+  }
+  if (colDef.flex !== 0) {
+    return false;
+  }
+  if (!colDef.field && !colDef.colId) {
+    return false;
+  }
+  if (colDef.field === 'status') {
+    return false;
+  }
+  if (colDef.maxWidth !== undefined && colDef.maxWidth === colDef.minWidth) {
+    return false;
+  }
+  return true;
+}
+
+/** Clamp auto-sized fixed column width between minWidth and viewport-aware cap. */
+export function clampFlexLayoutFixedColumnWidth(
+  contentWidth: number,
+  minWidth: number,
+  viewportWidth: number,
+  maxPx: number = FLEX_LAYOUT_FIXED_COLUMN_MAX_PX,
+  viewportFraction: number = FLEX_LAYOUT_FIXED_COLUMN_VIEWPORT_FRACTION
+): number {
+  const cap = Math.min(maxPx, Math.floor(Math.max(minWidth, viewportWidth) * viewportFraction));
+  return Math.min(Math.max(contentWidth, minWidth), Math.max(minWidth, cap));
+}
+
+/** Auto-size strategy for prepared column defs; undefined when flex layout or infinite mode applies. */
+export function resolveAutoSizeStrategy(
+  rowModelMode: 'infinite' | 'clientSide',
+  preparedColumnDefs: DataGridColumnDef[]
+): {type: 'fitCellContents'} | undefined {
+  if (rowModelMode === 'infinite') {
+    return undefined;
+  }
+  return usesContentBasedColumnSizing(rowModelMode, preparedColumnDefs)
+    ? {type: 'fitCellContents'}
+    : undefined;
+}

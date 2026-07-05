@@ -549,6 +549,43 @@ h4 > .mat-icon {
 
 // Ag-Grid
 
+.ag-header-cell.sitmun-centered-header {
+  padding: 0 !important;
+  justify-content: center;
+
+  .ag-header-cell-comp-wrapper {
+    display: none;
+  }
+
+  .ag-header-select-all {
+    display: flex;
+    justify-content: center;
+    margin: 0;
+    width: 100%;
+  }
+}
+
+.ag-cell.sitmun-centered-cell {
+  .ag-cell-wrapper {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    margin: 0 !important;
+  }
+
+  .ag-selection-checkbox {
+    margin: 0 !important;
+  }
+
+  .ag-selection-checkbox + .ag-cell-value {
+    display: none !important;
+    width: 0 !important;
+    min-width: 0 !important;
+    flex: 0 0 0 !important;
+  }
+}
+
 .force-padding {
   padding-left: 11px !important;
 }

@@ -45,8 +45,11 @@ import {UtilsService} from '@app/services/utils.service';
 import {constants} from '@environments/constants';
 
 import {
+  clampFlexLayoutFixedColumnWidth,
+  isFixedDisplayColumn,
   prepareClientSideColumnDefs,
   prepareInfiniteColumnDefs,
+  resolveAutoSizeStrategy,
   usesContentBasedColumnSizing,
   usesFlexColumnLayout,
 } from './data-grid-column-layout';
@@ -222,13 +225,13 @@ export class Executor<T> {
         left: 50%;
         position: absolute;
         top: 50%;
-        transform: translate(calc(-50% + 4px), -50%);
+        transform: translate(-50%, -50%);
         animation: sitmun-loading-cell-spin 0.8s linear infinite;
       }
 
       @keyframes sitmun-loading-cell-spin {
         to {
-          transform: translate(calc(-50% + 4px), -50%) rotate(360deg);
+          transform: translate(-50%, -50%) rotate(360deg);
         }
       }
 
@@ -995,13 +998,20 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
     return textWidth;
   }
 
-  private configureAutoSizeStrategy(): void {
-    if (this.rowModelMode === 'infinite' || usesFlexColumnLayout(this.columnDefs ?? [])) {
+  private configureAutoSizeStrategy(preparedColumnDefs = this.columnDefs): void {
+    const strategy = resolveAutoSizeStrategy(this.rowModelMode, preparedColumnDefs ?? []);
+    if (strategy) {
+      this.gridOptions.autoSizeStrategy = strategy;
+    } else {
       delete this.gridOptions.autoSizeStrategy;
+    }
+  }
+
+  private syncAutoSizeStrategyToGrid(): void {
+    if (!this.gridApi || this.gridApi.isDestroyed()) {
       return;
     }
-
-    this.gridOptions.autoSizeStrategy = {type: 'fitCellContents'};
+    this.gridApi.setGridOption('autoSizeStrategy', this.gridOptions.autoSizeStrategy);
   }
 
   /**
@@ -1142,14 +1152,60 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
       this.hasHiddenColumns = false;
       return;
     }
-    const totalMinWidth = columns.reduce((total: number, column: any) => {
-      const colDef = column.getColDef?.() ?? {};
-      return total + (colDef.minWidth ?? colDef.width ?? 100);
-    }, 0);
+
+    this.autoSizeFixedDisplayColumns();
+
+    const displayedColumns = this.gridApi?.getAllDisplayedColumns?.() ?? [];
     const viewportWidth = this.getGridViewportWidth();
-    this.hasHiddenColumns = totalMinWidth > viewportWidth + 2;
+    const totalWidth = displayedColumns.reduce((total: number, column: any) => {
+      return total + (column.getActualWidth?.() ?? column.getColDef?.()?.minWidth ?? 100);
+    }, 0);
+    this.hasHiddenColumns = totalWidth > viewportWidth + 2;
     this.gridApi.setGridOption('suppressHorizontalScroll', !this.hasHiddenColumns);
     this.gridApi.setGridOption('alwaysShowHorizontalScroll', this.hasHiddenColumns);
+  }
+
+  /** One-shot content sizing for flex:0 label columns; flex-grow columns keep filling the remainder. */
+  private autoSizeFixedDisplayColumns(): void {
+    if (!this.gridApi || this.gridApi.isDestroyed()) {
+      return;
+    }
+
+    const fixedColIds = this.columnDefs
+      .filter(isFixedDisplayColumn)
+      .map((col) => this.getColumnDefId(col))
+      .filter((colId): colId is string => !!colId);
+
+    if (fixedColIds.length === 0) {
+      return;
+    }
+
+    try {
+      this.gridApi.autoSizeColumns(fixedColIds);
+    } catch (error) {
+      this.loggerService.warn('AG Grid: Could not auto-size fixed display columns', error);
+      return;
+    }
+
+    const viewportWidth = this.getGridViewportWidth();
+    const state = fixedColIds.flatMap((colId) => {
+      const column = this.gridApi.getColumn?.(colId);
+      if (!column) {
+        return [];
+      }
+      const colDef = column.getColDef?.() ?? {};
+      const minWidth = colDef.minWidth ?? colDef.width ?? 100;
+      const actualWidth = column.getActualWidth?.() ?? minWidth;
+      const width = clampFlexLayoutFixedColumnWidth(actualWidth, minWidth, viewportWidth);
+      if (width === actualWidth) {
+        return [];
+      }
+      return [{colId, flex: null, width}];
+    });
+
+    if (state.length > 0) {
+      this.gridApi.applyColumnState({state, applyOrder: false});
+    }
   }
 
   /**
@@ -1184,6 +1240,9 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
 
     // Apply the updated column definitions
     this.gridApi.updateGridOptions({columnDefs: this.columnDefs});
+
+    this.configureAutoSizeStrategy(this.columnDefs);
+    this.syncAutoSizeStrategyToGrid();
 
     this.applyDefaultColumnSorting();
 

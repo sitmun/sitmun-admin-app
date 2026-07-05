@@ -1,111 +1,65 @@
 import {
-  estimateHeaderMinWidth,
+  clampFlexLayoutFixedColumnWidth,
+  FLEX_LAYOUT_FIXED_COLUMN_MAX_PX,
+  isFixedDisplayColumn,
   prepareClientSideColumnDefs,
-  prepareInfiniteColumnDefs,
+  resolveAutoSizeStrategy,
   usesContentBasedColumnSizing,
   usesFlexColumnLayout,
 } from './data-grid-column-layout';
 
 describe('data-grid-column-layout', () => {
-  describe('prepareInfiniteColumnDefs', () => {
-    it('narrows checkbox and disables wrap/autoHeight', () => {
-      const checkboxSelection = (params: {data?: unknown}) => !!params.data;
-      const result = prepareInfiniteColumnDefs([
-        {checkboxSelection, width: 56, maxWidth: 56, flex: 0, wrapText: true, autoHeight: true},
-        {field: 'name', wrapText: true, autoHeight: true, width: 150, maxWidth: 300},
-        {field: 'description', wrapText: true, autoHeight: true, flex: 2, maxWidth: 400},
-      ]);
+  const relationGridSourceDefs = [
+    {headerName: '', checkboxSelection: true, headerCheckboxSelection: true},
+    {headerName: 'Name', field: 'name'},
+    {headerName: 'Task type', field: 'typeName'},
+  ];
 
-      expect(result[0]).toEqual(
-        expect.objectContaining({checkboxSelection, width: 56, maxWidth: 56, flex: 0, wrapText: false, autoHeight: false})
-      );
-      expect(result[1]).toEqual(
-        expect.objectContaining({
-          field: 'name',
-          wrapText: false,
-          autoHeight: false,
-          flex: 0,
-          width: 150,
-          maxWidth: 300,
-          resizable: true,
-        })
-      );
-      expect(result[2]).toEqual(
-        expect.objectContaining({field: 'description', wrapText: false, autoHeight: false, flex: 2, resizable: true})
-      );
-      expect(result[2].width).toBeUndefined();
-      expect(result[2].maxWidth).toBeUndefined();
-    });
+  it('prepares relation grids with last column flex grow', () => {
+    const prepared = prepareClientSideColumnDefs(relationGridSourceDefs);
+
+    expect(prepared[0]).toEqual(expect.objectContaining({checkboxSelection: true, flex: 0, width: 56}));
+    expect(prepared[1]).toEqual(expect.objectContaining({field: 'name', flex: 0}));
+    expect(prepared[2]).toEqual(expect.objectContaining({field: 'typeName', flex: 1}));
+    expect(usesFlexColumnLayout(prepared)).toBe(true);
   });
 
-  describe('prepareClientSideColumnDefs', () => {
-    it('honors explicit flex columns and 56px checkbox', () => {
-      const checkboxSelection = () => true;
-      const result = prepareClientSideColumnDefs([
-        {headerCheckboxSelection: true, checkboxSelection, maxWidth: 80},
-        {field: 'role', flex: 2, minWidth: 140},
-        {field: 'territory', flex: 3, minWidth: 160},
-        {field: 'status', flex: 0, minWidth: 180, maxWidth: 180},
-      ]);
+  it('does not use content-based sizing for prepared relation grids', () => {
+    const prepared = prepareClientSideColumnDefs(relationGridSourceDefs);
 
-      expect(result[0]).toEqual(
-        expect.objectContaining({checkboxSelection, flex: 0, width: 56, maxWidth: 56, minWidth: 56})
-      );
-      expect(result[1]).toEqual(
-        expect.objectContaining({field: 'role', flex: 2, minWidth: 140, wrapText: false, autoHeight: false})
-      );
-      expect(result[1].width).toBeUndefined();
-      expect(result[2]).toEqual(expect.objectContaining({field: 'territory', flex: 3, minWidth: 160}));
-      expect(result[3]).toEqual(
-        expect.objectContaining({field: 'status', flex: 0, minWidth: 180, maxWidth: 180})
-      );
-      expect(usesFlexColumnLayout(result)).toBe(true);
-    });
-
-    it('gives last column flex when no explicit flex grow columns exist', () => {
-      const result = prepareClientSideColumnDefs([
-        {field: 'a', width: 100},
-        {field: 'b'},
-      ]);
-
-      expect(result[0].flex).toBe(0);
-      expect(result[0].width).toBe(100);
-      expect(result[1].flex).toBe(1);
-      expect(result[1].width).toBeUndefined();
-    });
-
-    it('raises minWidth to fit header text and sort chrome', () => {
-      const result = prepareClientSideColumnDefs([
-        {field: 'email', headerName: 'Correo electrónico', flex: 2, minWidth: 120},
-      ]);
-
-      expect(result[0].minWidth).toBeGreaterThanOrEqual(
-        estimateHeaderMinWidth('Correo electrónico') + 32
-      );
-    });
+    expect(usesContentBasedColumnSizing('clientSide', prepared)).toBe(false);
+    expect(resolveAutoSizeStrategy('clientSide', prepared)).toBeUndefined();
   });
 
-  describe('estimateHeaderMinWidth', () => {
-    it('returns zero for blank headers', () => {
-      expect(estimateHeaderMinWidth('   ')).toBe(0);
-    });
+  it('uses fitCellContents when no column has flex grow', () => {
+    const sourceDefs = [
+      {headerName: 'A', field: 'a', flex: 0, width: 120},
+      {headerName: 'B', field: 'b', flex: 0, width: 120},
+    ];
+    const prepared = prepareClientSideColumnDefs(sourceDefs);
 
-    it('scales with header label length', () => {
-      expect(estimateHeaderMinWidth('Tipo')).toBeLessThan(estimateHeaderMinWidth('Correo electrónico'));
-    });
+    expect(usesFlexColumnLayout(prepared)).toBe(false);
+    expect(resolveAutoSizeStrategy('clientSide', prepared)).toEqual({type: 'fitCellContents'});
   });
 
-  describe('usesContentBasedColumnSizing', () => {
-    it('is false for infinite mode', () => {
-      expect(usesContentBasedColumnSizing('infinite', [{field: 'a', flex: 2}])).toBe(false);
-    });
+  it('returns undefined auto-size strategy for infinite mode', () => {
+    const prepared = prepareClientSideColumnDefs(relationGridSourceDefs);
 
-    it('is false for clientSide flex layouts', () => {
-      expect(usesContentBasedColumnSizing('clientSide', [{field: 'a', flex: 2}])).toBe(false);
-    });
+    expect(resolveAutoSizeStrategy('infinite', prepared)).toBeUndefined();
+  });
 
-    it('is true for legacy clientSide grids without flex grow', () => {
-      expect(usesContentBasedColumnSizing('clientSide', [{field: 'a'}, {field: 'b'}])).toBe(true);
-    });
+  it('identifies fixed display columns for one-shot content sizing', () => {
+    const prepared = prepareClientSideColumnDefs(relationGridSourceDefs);
+
+    expect(isFixedDisplayColumn(prepared[0])).toBe(false);
+    expect(isFixedDisplayColumn(prepared[1])).toBe(true);
+    expect(isFixedDisplayColumn(prepared[2])).toBe(false);
+    expect(isFixedDisplayColumn({field: 'status', flex: 0, minWidth: 160, maxWidth: 160})).toBe(false);
+  });
+
+  it('clamps fixed column width using minWidth and viewport cap', () => {
+    expect(clampFlexLayoutFixedColumnWidth(400, 116, 971)).toBe(FLEX_LAYOUT_FIXED_COLUMN_MAX_PX);
+    expect(clampFlexLayoutFixedColumnWidth(200, 116, 971)).toBe(200);
+    expect(clampFlexLayoutFixedColumnWidth(80, 116, 971)).toBe(116);
   });
 });

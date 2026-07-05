@@ -10,6 +10,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - **Connections**: connection form adds field hints (name, driver, user, password, JDBC URL, validate) and a Tasks tab intro, aligned with service/layer form patterns.
+- **Data grid**: relation-grid label columns (e.g. Name) auto-size to cell content once after load, capped so flex filler columns still expand.
+
+### Fixed
+
+- **Data grid**: relation-grid selection checkbox header/body alignment and flex column fill fixed (missing centered-header CSS; `autoSizeStrategy` now resolved after column prep).
 
 ## [1.2.7] - 2026-06-05
 

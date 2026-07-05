@@ -108,6 +108,56 @@ describe('DataGridComponent', () => {
     expect(component.gridApi.updateGridOptions).toHaveBeenCalledWith({columnDefs: component.columnDefs});
   });
 
+  it('clears autoSizeStrategy after preparing relation-grid column defs on grid ready', () => {
+    component.rowModelMode = 'clientSide';
+    component.columnDefs = [
+      {headerName: '', checkboxSelection: true, headerCheckboxSelection: true},
+      {headerName: 'Name', field: 'name'},
+      {headerName: 'Task type', field: 'typeName'},
+    ];
+    component.gridOptions = {autoSizeStrategy: {type: 'fitCellContents'}};
+    component.gridApi = {
+      updateGridOptions: jest.fn(),
+      setGridOption: jest.fn(),
+      addEventListener: jest.fn(),
+      isDestroyed: () => false,
+    } as any;
+    component.loadData = jest.fn();
+
+    component.onGridReady({api: component.gridApi, columnApi: {}});
+
+    expect(component.columnDefs[2]).toEqual(expect.objectContaining({field: 'typeName', flex: 1}));
+    expect(component.gridOptions.autoSizeStrategy).toBeUndefined();
+    expect(component.gridApi.setGridOption).toHaveBeenCalledWith('autoSizeStrategy', undefined);
+  });
+
+  it('auto-sizes fixed display columns in flex-layout relation grids', () => {
+    component.rowModelMode = 'clientSide';
+    component.columnDefs = [
+      {headerName: '', checkboxSelection: true, flex: 0, width: 56},
+      {headerName: 'Name', field: 'name', flex: 0, width: 150, minWidth: 116},
+      {headerName: 'Task type', field: 'typeName', flex: 1, minWidth: 100},
+    ];
+    const nameColumn = {
+      getColDef: () => ({minWidth: 116, flex: 0}),
+      getActualWidth: () => 240,
+    };
+    component.gridApi = {
+      getAllDisplayedColumns: jest.fn(() => [nameColumn, nameColumn]),
+      autoSizeColumns: jest.fn(),
+      getColumn: jest.fn((colId: string) => (colId === 'name' ? nameColumn : null)),
+      applyColumnState: jest.fn(),
+      setGridOption: jest.fn(),
+      isDestroyed: () => false,
+    } as any;
+    component.params = {eGridDiv: {clientWidth: 971, querySelector: () => ({clientWidth: 971})}} as any;
+
+    component['applyFlexColumnLayoutSizing']();
+
+    expect(component.gridApi.autoSizeColumns).toHaveBeenCalledWith(['name']);
+    expect(component.gridApi.applyColumnState).not.toHaveBeenCalled();
+  });
+
   it('ignores refresh events replayed before the grid is ready', fakeAsync(() => {
     component.eventRefreshSubscription = of(true);
     component.dataGrid = {nativeElement: document.createElement('div')} as any;
