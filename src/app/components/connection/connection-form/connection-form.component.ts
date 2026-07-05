@@ -293,7 +293,7 @@ export class ConnectionFormComponent extends BaseFormComponent<Connection> {
   }
 
   private resetPasswordFieldState(): void {
-    if (this.isDuplicated()) {
+    if (this.isNew() || this.isDuplicated()) {
       this.passwordSet = false;
     } else {
       this.passwordSet = this.entityToEdit?.passwordSet ?? false;

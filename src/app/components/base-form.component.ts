@@ -221,12 +221,16 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
    * @returns {void}
    */
   ngOnInit(): void {
-    this.fetchData()
-      .then(() => {
-        this.afterFetch();
-      })
-      .catch((reason) => {
-        this.errorHandler.handleError(reason, 'common.error.initialization');
+    this.activatedRoute.params
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.fetchData()
+          .then(() => {
+            this.afterFetch();
+          })
+          .catch((reason) => {
+            this.errorHandler.handleError(reason, 'common.error.initialization');
+          });
       });
   }
 
@@ -313,7 +317,7 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
    * @throws {Error} Throws an error if route params are invalid to abort fetchData
    */
   async processRouteParams(): Promise<void> {
-    const params = await firstValueFrom(this.activatedRoute.params);
+    const params = this.activatedRoute.snapshot.params;
     this.entityID = params.id != null ? Number(params.id) : -1;
     this.duplicateID = params.idDuplicate != null ? Number(params.idDuplicate) : -1;
 

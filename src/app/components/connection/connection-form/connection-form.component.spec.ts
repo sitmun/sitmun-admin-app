@@ -142,6 +142,17 @@ describe('ConnectionFormComponent', () => {
       expect(component.isPasswordBeingEdited).toBe(false);
     });
 
+    it('initializes empty password for new connection even when entity carries passwordSet', () => {
+      component.entityID = -1;
+      component.duplicateID = -1;
+      component.entityToEdit = Object.assign(component.empty(), { passwordSet: true });
+      component.postFetchData();
+      flushCodeListRequests();
+
+      expect(component.passwordSet).toBe(false);
+      expect(component.entityForm.get('newPassword').value).toBe('');
+    });
+
     it('does not send password on save after focus and blur without editing', () => {
       setupConnectionWithExistingPassword();
       component.onPasswordFocus();
