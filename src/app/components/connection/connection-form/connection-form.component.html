@@ -51,26 +51,19 @@
             </mat-hint>
           </mat-form-field>
 
-          <mat-form-field *ngIf="isPasswordBeingEdited" appearance="outline" class="half">
+          <mat-form-field appearance="outline" class="half">
             <mat-label>{{ 'common.form.password.label' | translate }}</mat-label>
             <input matInput
                    formControlName="newPassword"
-                   type="text"
+                   type="password"
                    [maxlength]="50"
+                   (focus)="onPasswordFocus()"
+                   (blur)="onPasswordBlur()"
                    (input)="onPasswordChange()"
                    class="password-input">
-            <mat-hint align="end">
+            <mat-hint align="end" *ngIf="isPasswordBeingEdited || !passwordSet">
               {{ entityForm.get('newPassword') | characterCount }}
             </mat-hint>
-          </mat-form-field>
-          <mat-form-field *ngIf="!isPasswordBeingEdited" appearance="outline" class="half">
-            <mat-label>{{ 'common.form.password.label' | translate }}</mat-label>
-            <input (input)="passwordChanged($event)"
-                   [formControlName]="'newPassword'"
-                   [maxlength]="50"
-                   [type]="'text'"
-                   class="password-input"
-                   matInput>
           </mat-form-field>
           <mat-form-field appearance="outline" class="full">
             <mat-label>{{ 'entity.connection.url' | translate }}</mat-label>
@@ -84,6 +77,7 @@
             mat-raised-button
             type="button"
             [disabled]="!canValidateConnection()"
+            [matTooltip]="!canValidateConnection() ? ('entity.connection.test.disabledHint' | translate) : ''"
             (click)="validateConnection()"
             color="primary"
           >

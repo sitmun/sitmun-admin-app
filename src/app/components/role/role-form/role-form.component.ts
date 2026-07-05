@@ -257,7 +257,7 @@ export class RoleFormComponent extends BaseFormComponent<Role> {
     return DataTableDefinition.builder<TaskProjection, TaskProjection>(this.dialog, this.errorHandler, this.loadingService)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
-        this.utils.getRouterLinkColumnDef('common.form.name', 'name', '/taskQuery/:id/:typeId', {
+        this.utils.getRouterLinkColumnDef('common.form.name', 'name', '/tasks/:id/:typeId', {
           id: 'id',
           typeId: 'typeId'
         }),

@@ -93,7 +93,7 @@
               <mat-option [value]="null">{{ 'common.form.none' | translate }}</mat-option>
               <mat-option [value]="connection.id" *ngFor="let connection of connections">
                 <div>
-                  <a [routerLink]="['/connections', connection.id, 'connectionForm']"
+                  <a [routerLink]="['/connection', connection.id, 'connectionForm']"
                      (click)="$event.stopPropagation()" class="router-link">
                     <span>{{ connection.name }}</span>
                   </a>
@@ -254,7 +254,7 @@
               <mat-option [value]="null">{{ 'common.form.none' | translate }}</mat-option>
               <mat-option [value]="connection.id" *ngFor="let connection of connections">
                 <div>
-                  <a [routerLink]="['/connections', connection.id, 'connectionForm']"
+                  <a [routerLink]="['/connection', connection.id, 'connectionForm']"
                      (click)="$event.stopPropagation()" class="router-link">
                     <span>{{ connection.name }}</span>
                   </a>

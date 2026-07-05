@@ -450,6 +450,11 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
     return this.canSaveEntity;
   }
 
+  protected override hasPendingChanges(): boolean {
+    return super.hasPendingChanges()
+      || (this.treeNodesComponent?.hasUnsavedChangesForToolbar() ?? false);
+  }
+
   /**
    * Computed property that determines if the save button should be enabled.
    * Extends base implementation to include tree node change detection.

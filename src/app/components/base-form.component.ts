@@ -10,10 +10,12 @@ import { tap} from "rxjs/operators";
 
 import {DataTablesRegistry} from "@app/components/data-tables.util";
 import {HalOptions, HalParam, Resource} from "@app/core";
+import {CanComponentDeactivate} from '@app/core/guards/can-deactivate-guard.service';
 import {MessagesInterceptorStateService} from "@app/core/interceptors/messages.interceptor";
 import {CodeList, CodeListService, Language, Translation, TranslationService} from "@app/domain";
 import {DataGridComponent} from "@app/frontend-gui/src/lib/data-grid/data-grid.component";
 import {DialogTranslationComponent} from "@app/frontend-gui/src/lib/dialog-translation/dialog-translation.component";
+import {DIALOG_EVENTS, DialogMessageComponent} from '@app/frontend-gui/src/lib/public_api';
 import {ErrorHandlerService} from "@app/services/error-handler.service";
 import {LoadingOverlayService} from "@app/services/loading-overlay.service";
 import {LoggerService} from "@app/services/logger.service";
@@ -40,7 +42,7 @@ import {constants} from "@environments/constants";
     template: '',
     standalone: false
 })
-export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewInit, OnDestroy {
+export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewInit, OnDestroy, CanComponentDeactivate {
 
   /**
    * Query list of all data-grid components in the template.
@@ -398,6 +400,37 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
   }
 
   /**
+   * Whether the form, grids, or translations have unsaved changes.
+   */
+  protected hasPendingChanges(): boolean {
+    return (this.entityForm?.dirty ?? false)
+      || this.dataTablesHaveChanges
+      || this.hasTranslationChanges();
+  }
+
+  /**
+   * Prompts before leaving when there are unsaved changes.
+   */
+  async canDeactivate(): Promise<boolean> {
+    if (!this.hasPendingChanges()) {
+      return true;
+    }
+
+    const dialogRef = this.dialog.open(DialogMessageComponent, {
+      width: '400px',
+      data: {
+        title: 'common.unsavedChanges.title',
+        message: 'common.unsavedChanges.message',
+        acceptLabel: 'common.unsavedChanges.discard',
+        cancelLabel: 'common.unsavedChanges.keepEditing',
+        destructive: true,
+      },
+    });
+    const result = await firstValueFrom(dialogRef.afterClosed());
+    return result?.event === DIALOG_EVENTS.ACCEPT;
+  }
+
+  /**
    * Handles the save button click event.
    * Validates the form, saves the entity, updates related data, and navigates as needed.
    *
@@ -497,7 +530,7 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
    * @returns {boolean} true if any property has modified translations, false otherwise
    * @private
    */
-  private hasTranslationChanges(): boolean {
+  protected hasTranslationChanges(): boolean {
     return Array.from(this.propertyTranslations.values()).some(pt => pt.modified);
   }
 

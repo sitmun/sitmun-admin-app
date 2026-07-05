@@ -93,7 +93,7 @@
               <mat-option [value]="null">{{ 'common.form.none' | translate }}</mat-option>
               <mat-option [value]="connection.id" *ngFor="let connection of connections">
                 <div>
-                  <a [routerLink]="['/connections', connection.id, 'connectionForm']"
+                  <a [routerLink]="['/connection', connection.id, 'connectionForm']"
                      (click)="$event.stopPropagation()" class="router-link">
                     <span>{{ connection.name }}</span>
                   </a>
@@ -146,7 +146,7 @@
             </mat-form-field>
             <mat-form-field appearance="outline" class="half">
               <mat-label>{{ 'entity.service.password' | translate }}</mat-label>
-              <input matInput type="text" formControlName="password" [maxlength]="50">
+              <input matInput type="password" formControlName="password" [maxlength]="50">
               <mat-hint align="end">{{ entityForm.get('password') | characterCount }}</mat-hint>
             </mat-form-field>
             <div class="break"></div>
@@ -170,7 +170,7 @@
             </mat-form-field>
             <mat-form-field appearance="outline" class="quarter">
               <mat-label>{{ 'entity.task.query.apiKeyHeaderValue' | translate }}</mat-label>
-              <input matInput type="text" formControlName="apiKeyHeaderValue">
+              <input matInput type="password" formControlName="apiKeyHeaderValue">
             </mat-form-field>
             <div class="break"></div>
           </ng-container>

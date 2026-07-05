@@ -150,7 +150,7 @@
             </mat-form-field>
             <mat-form-field appearance="outline" class="half sitmun-cartography-rich-hint-field" subscriptSizing="dynamic">
               <mat-label>{{ 'entity.service.password' | translate }}</mat-label>
-              <input matInput [type]="'text'" formControlName="password" [maxlength]="50">
+              <input matInput type="password" formControlName="password" [maxlength]="50">
               <mat-hint align="start">{{ 'entity.service.hint.password' | translate }}</mat-hint>
               <mat-hint align="end">{{ entityForm.get('password') | characterCount }}</mat-hint>
             </mat-form-field>
