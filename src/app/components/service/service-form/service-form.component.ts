@@ -444,20 +444,6 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
   }
 
   /**
-   * Creates a duplicate of the selected parameters with modified names.
-   * Each duplicated parameter will have:
-   * - A new ID (undefined)
-   * - No links (_links: undefined)
-   * - A name prefixed with the translation of 'copy_'
-   *
-   * @param {ServiceParameter[]} parameters - Array of parameters to duplicate
-   * @throws Error as this method is not yet implemented
-   */
-  duplicateParameters(_parameters: ServiceParameter[]) {
-    throw new Error("Not implemented")
-  }
-
-  /**
    * Updates service metadata from WMS capabilities.
    * Opens a confirmation dialog before retrieving metadata.
    * Updates name, description, and supported projections after confirmation.

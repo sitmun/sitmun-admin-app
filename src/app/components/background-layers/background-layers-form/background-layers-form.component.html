@@ -59,66 +59,24 @@
     </form>
   </mat-tab>
   <mat-tab label=" {{ 'entity.permissionGroup.layers.header' | translate }}">
-    <app-data-grid [changeHeightButton]="true"
-                   [allNewElements]="isNewOrDuplicated()"
-                   [columnDefs]="membersTable.relationsColumnsDefs"
-                   [getAll]='membersTable.relationsFetchFn'
-                   [eventAddItemsSubscription]='membersTable.addCommandEvent$.asObservable()'
-                   [eventGetAllRowsSubscription]='membersTable.saveCommandEvent$.asObservable()'
-                   [eventRefreshSubscription]='membersTable.refreshCommandEvent$.asObservable()'
-                   [actionButton]=true
-                   [discardChangesButton]=true
-                   [redoButton]=true
-                   [undoButton]=true
-                   [deleteButton]=true
-                   [addButton]=true
-                   [hideDuplicateButton]=true
-                   [defaultColumnSorting]='membersTable.defaultRelationsSorting()'
-                   (getAllRows)="membersTable.handleSaveRelations($event)"
-                   (add)="membersTable.openDialog($event)"
-                   *ngIf="dataLoaded"
-    > </app-data-grid>
+    <app-relation-grid
+      *ngIf="dataLoaded"
+      [table]="membersTable"
+      [allNewElements]="isNewOrDuplicated()">
+    </app-relation-grid>
   </mat-tab>
   <mat-tab label="{{ 'entity.permissionGroup.roles.header' | translate }}">
-    <app-data-grid [changeHeightButton]="true"
-                   [allNewElements]="isNewOrDuplicated()"
-                   [columnDefs]="rolesTable.relationsColumnsDefs"
-                   [getAll]='rolesTable.relationsFetchFn'
-                   [eventAddItemsSubscription]='rolesTable.addCommandEvent$.asObservable()'
-                   [eventGetAllRowsSubscription]='rolesTable.saveCommandEvent$.asObservable()'
-                   [eventRefreshSubscription]='rolesTable.refreshCommandEvent$.asObservable()'
-                   [actionButton]=true
-                   [discardChangesButton]=true
-                   [redoButton]=true
-                   [undoButton]=true
-                   [deleteButton]=true
-                   [addButton]=true
-                   [hideDuplicateButton]=true
-                   [defaultColumnSorting]='rolesTable.defaultRelationsSorting()'
-                   (getAllRows)="rolesTable.handleSaveRelations($event)"
-                   (add)="rolesTable.openDialog($event)"
-                   *ngIf="dataLoaded"
-    > </app-data-grid>
+    <app-relation-grid
+      *ngIf="dataLoaded"
+      [table]="rolesTable"
+      [allNewElements]="isNewOrDuplicated()">
+    </app-relation-grid>
   </mat-tab>
   <mat-tab label="{{ 'entity.permissionGroup.applications.header' | translate }}">
-    <app-data-grid [changeHeightButton]="true"
-                   [allNewElements]="isNewOrDuplicated()"
-                   [columnDefs]="applicationBackgroundsTable.relationsColumnsDefs"
-                   [getAll]='applicationBackgroundsTable.relationsFetchFn'
-                   [eventAddItemsSubscription]='applicationBackgroundsTable.addCommandEvent$.asObservable()'
-                   [eventGetAllRowsSubscription]='applicationBackgroundsTable.saveCommandEvent$.asObservable()'
-                   [eventRefreshSubscription]='applicationBackgroundsTable.refreshCommandEvent$.asObservable()'
-                   [actionButton]=true
-                   [discardChangesButton]=true
-                   [redoButton]=true
-                   [undoButton]=true
-                   [deleteButton]=true
-                   [addButton]=true
-                   [hideDuplicateButton]=true
-                   [defaultColumnSorting]='applicationBackgroundsTable.defaultRelationsSorting()'
-                   (getAllRows)="applicationBackgroundsTable.handleSaveRelations($event)"
-                   (add)="applicationBackgroundsTable.openDialog($event)"
-                   *ngIf="dataLoaded"
-    > </app-data-grid>
+    <app-relation-grid
+      *ngIf="dataLoaded"
+      [table]="applicationBackgroundsTable"
+      [allNewElements]="isNewOrDuplicated()">
+    </app-relation-grid>
   </mat-tab>
 </mat-tab-group>

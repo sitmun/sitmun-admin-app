@@ -1524,5 +1524,25 @@ describe('ServiceFormComponent', () => {
 
     expect(component.isWMS()).toBeFalsy();
   });
+
+  describe('Grid capability classification', () => {
+    it('parametersTable should have template-dialog, updater, and status capabilities', () => {
+      const table = component['parametersTable'];
+      expect(table.hasTemplateDialogs()).toBe(true);
+      expect(table.hasRelationsUpdater()).toBe(true);
+      expect(table.hasStatusColumn()).toBe(true);
+      expect(table.supportsDuplicate()).toBe(false);
+      expect(table.hasPickerAdd()).toBe(false);
+    });
+
+    it('layersTable should have updater and status, no picker/template/duplicate', () => {
+      const table = component['layersTable'];
+      expect(table.hasRelationsUpdater()).toBe(true);
+      expect(table.hasStatusColumn()).toBe(true);
+      expect(table.hasPickerAdd()).toBe(false);
+      expect(table.hasTemplateDialogs()).toBe(false);
+      expect(table.supportsDuplicate()).toBe(false);
+    });
+  });
 });
 

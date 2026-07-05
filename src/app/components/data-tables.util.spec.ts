@@ -6,7 +6,7 @@ import { firstValueFrom, toArray , of } from 'rxjs';
 import { ErrorHandlerService } from '@app/services/error-handler.service';
 import { LoadingOverlayService } from '@app/services/loading-overlay.service';
 
-import { DataTableDefinition, TemplateDialog } from './data-tables.util';
+import { DataTableDefinition, DataTable2Definition, TemplateDialog } from './data-tables.util';
 
 describe('DataTableDefinitionBuilder', () => {
   let builder: ReturnType<typeof DataTableDefinition.builder>;
@@ -125,6 +125,323 @@ describe('DataTableDefinitionBuilder', () => {
           maxWidth: '90vw',
         })
       );
+    });
+  });
+
+  describe('Capability flags', () => {
+    describe('default builder', () => {
+      it('should have no picker add capability', () => {
+        const definition = builder.build();
+        expect(definition.hasPickerAdd()).toBe(false);
+      });
+
+      it('should have no relations updater capability', () => {
+        const definition = builder.build();
+        expect(definition.hasRelationsUpdater()).toBe(false);
+      });
+
+      it('should have no duplicate capability', () => {
+        const definition = builder.build();
+        expect(definition.supportsDuplicate()).toBe(false);
+      });
+
+      it('should have no template dialogs capability', () => {
+        const definition = builder.build();
+        expect(definition.hasTemplateDialogs()).toBe(false);
+      });
+
+      it('should have no status column when no columns defined', () => {
+        const definition = builder.build();
+        expect(definition.hasStatusColumn()).toBe(false);
+      });
+    });
+
+    describe('withRelationsUpdater', () => {
+      it('should enable relations updater capability', () => {
+        const updater = jest.fn().mockResolvedValue(undefined);
+        const definition = builder
+          .withRelationsUpdater(updater)
+          .build();
+        
+        expect(definition.hasRelationsUpdater()).toBe(true);
+      });
+
+      it('should not enable other capabilities', () => {
+        const updater = jest.fn().mockResolvedValue(undefined);
+        const definition = builder
+          .withRelationsUpdater(updater)
+          .build();
+        
+        expect(definition.hasPickerAdd()).toBe(false);
+        expect(definition.supportsDuplicate()).toBe(false);
+        expect(definition.hasTemplateDialogs()).toBe(false);
+      });
+    });
+
+    describe('picker configuration', () => {
+      it('should enable picker add when all picker components configured', () => {
+        const definition = builder
+          .withTargetsColumns([{ field: 'name' }])
+          .withTargetsFetcher(() => of([]))
+          .withTargetToRelation((items) => items as any)
+          .build();
+        
+        expect(definition.hasPickerAdd()).toBe(true);
+      });
+
+      it('should not enable picker add with only columns', () => {
+        const definition = builder
+          .withTargetsColumns([{ field: 'name' }])
+          .build();
+        
+        expect(definition.hasPickerAdd()).toBe(false);
+      });
+
+      it('should not enable picker add with only fetcher', () => {
+        const definition = builder
+          .withTargetsFetcher(() => of([]))
+          .build();
+        
+        expect(definition.hasPickerAdd()).toBe(false);
+      });
+
+      it('should not enable picker add with columns and fetcher but no converter', () => {
+        const definition = builder
+          .withTargetsColumns([{ field: 'name' }])
+          .withTargetsFetcher(() => of([]))
+          .build();
+        
+        expect(definition.hasPickerAdd()).toBe(false);
+      });
+    });
+
+    describe('withRelationsDuplicate', () => {
+      it('should enable duplicate capability', () => {
+        const duplicator = (item: any) => ({ ...item });
+        const definition = builder
+          .withRelationsDuplicate(duplicator)
+          .build();
+        
+        expect(definition.supportsDuplicate()).toBe(true);
+      });
+
+      it('should not enable other capabilities', () => {
+        const duplicator = (item: any) => ({ ...item });
+        const definition = builder
+          .withRelationsDuplicate(duplicator)
+          .build();
+        
+        expect(definition.hasPickerAdd()).toBe(false);
+        expect(definition.hasRelationsUpdater()).toBe(false);
+        expect(definition.hasTemplateDialogs()).toBe(false);
+      });
+    });
+
+    describe('status column detection', () => {
+      it('should detect status column in relations columns', () => {
+        const definition = builder
+          .withRelationsColumns([
+            { field: 'name' },
+            { field: 'status' },
+            { field: 'value' }
+          ])
+          .build();
+        
+        expect(definition.hasStatusColumn()).toBe(true);
+      });
+
+      it('should not detect status column when not present', () => {
+        const definition = builder
+          .withRelationsColumns([
+            { field: 'name' },
+            { field: 'value' }
+          ])
+          .build();
+        
+        expect(definition.hasStatusColumn()).toBe(false);
+      });
+
+      it('should handle null/undefined column definitions', () => {
+        const definition = builder
+          .withRelationsColumns([
+            { field: 'name' },
+            null,
+            undefined,
+            { field: 'value' }
+          ] as any)
+          .build();
+        
+        expect(definition.hasStatusColumn()).toBe(false);
+      });
+    });
+
+    describe('withTemplateDialog', () => {
+      it('should enable template dialogs capability', () => {
+        const definition = builder
+          .withTemplateDialog('test', () => TemplateDialog.builder()
+            .withReference({} as any)
+            .withTitle('Test')
+            .withForm(new FormGroup({}))
+            .build())
+          .build();
+        
+        expect(definition.hasTemplateDialogs()).toBe(true);
+      });
+
+      it('should not enable other capabilities', () => {
+        const definition = builder
+          .withTemplateDialog('test', () => TemplateDialog.builder()
+            .withReference({} as any)
+            .withTitle('Test')
+            .withForm(new FormGroup({}))
+            .build())
+          .build();
+        
+        expect(definition.hasPickerAdd()).toBe(false);
+        expect(definition.hasRelationsUpdater()).toBe(false);
+        expect(definition.supportsDuplicate()).toBe(false);
+      });
+    });
+  });
+});
+
+describe('DataTable2DefinitionBuilder', () => {
+  let builder: ReturnType<typeof DataTable2Definition.builder>;
+  let matDialog: jest.Mocked<MatDialog>;
+  let errorHandler: jest.Mocked<ErrorHandlerService>;
+  let loadingService: jest.Mocked<LoadingOverlayService>;
+
+  beforeEach(() => {
+    matDialog = {} as any;
+    errorHandler = {
+      handleError: jest.fn()
+    } as any;
+    loadingService = {
+      wrap: jest.fn().mockImplementation((fn) => fn())
+    } as any;
+
+    builder = DataTable2Definition.builder(matDialog, errorHandler, loadingService);
+  });
+
+  it('should create', () => {
+    expect(builder).toBeTruthy();
+  });
+
+  describe('Capability flags', () => {
+    describe('default builder', () => {
+      it('should have no picker add capability', () => {
+        const definition = builder.build();
+        expect(definition.hasPickerAdd()).toBe(false);
+      });
+
+      it('should have no relations updater capability', () => {
+        const definition = builder.build();
+        expect(definition.hasRelationsUpdater()).toBe(false);
+      });
+
+      it('should have no duplicate capability', () => {
+        const definition = builder.build();
+        expect(definition.supportsDuplicate()).toBe(false);
+      });
+
+      it('should have no template dialogs capability for DataTable2Definition', () => {
+        const definition = builder.build();
+        expect(definition.hasTemplateDialogs()).toBe(false);
+      });
+
+      it('should have no status column when no columns defined', () => {
+        const definition = builder.build();
+        expect(definition.hasStatusColumn()).toBe(false);
+      });
+    });
+
+    describe('withRelationsUpdater', () => {
+      it('should enable relations updater capability', () => {
+        const updater = jest.fn().mockResolvedValue(undefined);
+        const definition = builder
+          .withRelationsUpdater(updater)
+          .build();
+        
+        expect(definition.hasRelationsUpdater()).toBe(true);
+      });
+    });
+
+    describe('dual-target picker configuration', () => {
+      it('should enable picker add when all dual-target components configured', () => {
+        const definition = builder
+          .withTargetsLeftColumns([{ field: 'name' }])
+          .withTargetsRightColumns([{ field: 'role' }])
+          .withTargetsLeftFetcher(() => of([]))
+          .withTargetsRightFetcher(() => of([]))
+          .withTargetToRelation((left, right) => [] as any)
+          .build();
+        
+        expect(definition.hasPickerAdd()).toBe(true);
+      });
+
+      it('should not enable picker add with only left columns', () => {
+        const definition = builder
+          .withTargetsLeftColumns([{ field: 'name' }])
+          .build();
+        
+        expect(definition.hasPickerAdd()).toBe(false);
+      });
+
+      it('should not enable picker add with columns but missing fetchers', () => {
+        const definition = builder
+          .withTargetsLeftColumns([{ field: 'name' }])
+          .withTargetsRightColumns([{ field: 'role' }])
+          .build();
+        
+        expect(definition.hasPickerAdd()).toBe(false);
+      });
+
+      it('should not enable picker add with columns and fetchers but no converter', () => {
+        const definition = builder
+          .withTargetsLeftColumns([{ field: 'name' }])
+          .withTargetsRightColumns([{ field: 'role' }])
+          .withTargetsLeftFetcher(() => of([]))
+          .withTargetsRightFetcher(() => of([]))
+          .build();
+        
+        expect(definition.hasPickerAdd()).toBe(false);
+      });
+    });
+
+    describe('withRelationsDuplicate', () => {
+      it('should enable duplicate capability', () => {
+        const duplicator = (item: any) => ({ ...item });
+        const definition = builder
+          .withRelationsDuplicate(duplicator)
+          .build();
+        
+        expect(definition.supportsDuplicate()).toBe(true);
+      });
+    });
+
+    describe('status column detection', () => {
+      it('should detect status column in relations columns', () => {
+        const definition = builder
+          .withRelationsColumns([
+            { field: 'name' },
+            { field: 'status' },
+            { field: 'value' }
+          ])
+          .build();
+        
+        expect(definition.hasStatusColumn()).toBe(true);
+      });
+
+      it('should not detect status column when not present', () => {
+        const definition = builder
+          .withRelationsColumns([
+            { field: 'name' },
+            { field: 'value' }
+          ])
+          .build();
+        
+        expect(definition.hasStatusColumn()).toBe(false);
+      });
     });
   });
 });

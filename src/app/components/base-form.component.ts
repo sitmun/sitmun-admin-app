@@ -9,6 +9,7 @@ import {firstValueFrom, Observable} from "rxjs";
 import { tap} from "rxjs/operators";
 
 import {DataTablesRegistry} from "@app/components/data-tables.util";
+import {RelationGridComponent} from "@app/components/shared/relation-grid/relation-grid.component";
 import {HalOptions, HalParam, Resource} from "@app/core";
 import {CanComponentDeactivate} from '@app/core/guards/can-deactivate-guard.service';
 import {MessagesInterceptorStateService} from "@app/core/interceptors/messages.interceptor";
@@ -49,6 +50,17 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
    * Automatically populated by Angular after view initialization.
    */
   @ViewChildren(DataGridComponent) dataGrids!: QueryList<DataGridComponent>;
+
+  /**
+   * Query list of all relation-grid wrapper components in the template.
+   * Automatically populated by Angular after view initialization.
+   */
+  @ViewChildren(RelationGridComponent) relationGrids!: QueryList<RelationGridComponent>;
+
+  /**
+   * Tracks registered DataGridComponent instances to prevent duplicate subscriptions.
+   */
+  private registeredGrids = new WeakSet<DataGridComponent>();
 
   /**
    * Tracks the ID of the entity currently being edited.
@@ -248,18 +260,48 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
 
   /**
    * Angular lifecycle hook called after view and child views are initialized.
-   * Automatically registers all data-grid components for change tracking.
+   * Automatically registers all data-grid components for change tracking,
+   * including those wrapped by RelationGridComponent.
    */
   ngAfterViewInit(): void {
-    if (this.dataGrids) {
-      this.dataGrids.forEach(grid => this.registerDataGrid(grid));
+    this.registerCurrentDataGrids();
 
-      // Re-register if grids are added dynamically
+    // Re-register if grids are added dynamically
+    if (this.dataGrids) {
       this.dataGrids.changes
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe(() => {
-          this.dataGrids.forEach(grid => this.registerDataGrid(grid));
+          this.registerCurrentDataGrids();
         });
+    }
+
+    if (this.relationGrids) {
+      this.relationGrids.changes
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(() => {
+          this.registerCurrentDataGrids();
+        });
+    }
+  }
+
+  /**
+   * Registers all current data grids for change tracking.
+   * Includes both direct DataGridComponent instances and those wrapped by RelationGridComponent.
+   * @private
+   */
+  private registerCurrentDataGrids(): void {
+    // Register direct data grids
+    if (this.dataGrids) {
+      this.dataGrids.forEach(grid => this.registerDataGrid(grid));
+    }
+
+    // Register data grids wrapped by RelationGridComponent
+    if (this.relationGrids) {
+      this.relationGrids.forEach(relationGrid => {
+        if (relationGrid.dataGrid) {
+          this.registerDataGrid(relationGrid.dataGrid);
+        }
+      });
     }
   }
 
@@ -541,12 +583,14 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
   /**
    * Registers a data-grid component with change tracking.
    * Subscribes to the grid's modification events to enable/disable the save button.
+   * Prevents duplicate subscriptions using a WeakSet.
    *
    * @param {DataGridComponent} grid - The data grid component to register
    * @private
    */
   private registerDataGrid(grid: DataGridComponent): void {
-    if (grid && grid.gridModified) {
+    if (grid && grid.gridModified && !this.registeredGrids.has(grid)) {
+      this.registeredGrids.add(grid);
       grid.gridModified
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe((_hasChanges: boolean) => {
@@ -559,12 +603,16 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
   /**
    * Updates the dataTablesHaveChanges flag by checking all registered grids.
    * Sets to true if ANY grid has unsaved changes.
+   * Checks both direct DataGridComponent instances and those wrapped by RelationGridComponent.
    *
    * @private
    */
   private updateDataTablesChangeFlag(): void {
+    let hasChanges = false;
+
+    // Check direct data grids
     if (this.dataGrids) {
-      this.dataTablesHaveChanges = this.dataGrids.some(grid =>
+      hasChanges = this.dataGrids.some(grid =>
         grid && (
           grid.changeCounter > 0 ||
           grid.someStatusHasChanged === true ||
@@ -572,6 +620,20 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
         )
       );
     }
+
+    // Check wrapped data grids
+    if (!hasChanges && this.relationGrids) {
+      hasChanges = this.relationGrids.some(relationGrid => {
+        const grid = relationGrid.dataGrid;
+        return grid && (
+          grid.changeCounter > 0 ||
+          grid.someStatusHasChanged === true ||
+          grid.someStatusHasChangedToDelete === true
+        );
+      });
+    }
+
+    this.dataTablesHaveChanges = hasChanges;
   }
 
   /**

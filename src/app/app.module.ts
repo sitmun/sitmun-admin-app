@@ -116,6 +116,7 @@ import {
 } from '@app/domain';
 import {DataGridComponent} from '@app/frontend-gui/src/lib/data-grid/data-grid.component';
 import {DialogGridComponent} from '@app/frontend-gui/src/lib/dialog-grid/dialog-grid.component';
+import {RelationGridComponent} from '@app/components/shared/relation-grid/relation-grid.component';
 import {ImagePreviewComponent} from '@app/frontend-gui/src/lib/image-preview/image-preview.component';
 import {SitmunFrontendGuiModule} from '@app/frontend-gui/src/lib/public_api';
 import {config} from '@config';
@@ -333,6 +334,7 @@ function getDefaultLanguage(languages: any[], appConfigService?: AppConfigServic
         ServicesModule,
         SitmunFrontendGuiModule,
         DataGridComponent,
+        RelationGridComponent,
         DialogGridComponent,
         MaterialModule,
         RouterModule,

@@ -235,4 +235,15 @@ describe('ConnectionFormComponent', () => {
       expect(nameColumn.cellRendererParams.route).toBe('/tasks/:id/:typeId');
     });
   });
+
+  describe('Grid capability classification', () => {
+    it('tasksTable should be read-only display grid with no edit capabilities', () => {
+      const table = component['tasksTable'];
+      expect(table.hasPickerAdd()).toBe(false);
+      expect(table.hasRelationsUpdater()).toBe(false);
+      expect(table.hasStatusColumn()).toBe(false);
+      expect(table.hasTemplateDialogs()).toBe(false);
+      expect(table.supportsDuplicate()).toBe(false);
+    });
+  });
 });

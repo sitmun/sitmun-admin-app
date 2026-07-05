@@ -109,26 +109,11 @@
         </app-card-lead>
       </mat-card-header>
       <mat-card-content>
-        <app-data-grid [changeHeightButton]="true"
-                       [globalSearch]="true"
-                       [allNewElements]="isNewOrDuplicated()"
-                       [columnDefs]="tasksTable.relationsColumnsDefs"
-                       [getAll]='tasksTable.relationsFetchFn'
-                       [eventAddItemsSubscription]='tasksTable.addCommandEvent$.asObservable()'
-                       [eventGetAllRowsSubscription]='tasksTable.saveCommandEvent$.asObservable()'
-                       [eventRefreshSubscription]='tasksTable.refreshCommandEvent$.asObservable()'
-                       [actionButton]=false
-                       [discardChangesButton]=false
-                       [redoButton]=false
-                       [undoButton]=false
-                       [deleteButton]=false
-                       [addButton]=false
-                       [hideReplaceButton]=true
-                       [defaultColumnSorting]='tasksTable.defaultRelationsSorting()'
-                       [hideDuplicateButton]=true
-                       (getAllRows)="tasksTable.handleSaveRelations($event)"
-                       *ngIf="dataLoaded"
-        ></app-data-grid>
+        <app-relation-grid
+          *ngIf="dataLoaded"
+          [table]="tasksTable"
+          [readOnly]="true"
+        ></app-relation-grid>
       </mat-card-content>
     </mat-card>
   </mat-tab>

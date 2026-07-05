@@ -10,6 +10,7 @@ import {Observable, firstValueFrom, map, of} from 'rxjs';
 
 import {BaseFormComponent} from '@app/components/base-form.component';
 import {DataTableDefinition} from '@app/components/data-tables.util';
+import {RelationGridComponent} from '@app/components/shared/relation-grid/relation-grid.component';
 import {Configuration} from "@app/core/config/configuration";
 import {MessagesInterceptorStateService} from '@app/core/interceptors/messages.interceptor';
 import {
@@ -80,7 +81,7 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
   /** Tab to restore after priming finishes; null when no prime is in flight. */
   private pendingRestoreTabIdx: number | null = null;
   @ViewChild('tabGroup') tabGroup: MatTabGroup;
-  @ViewChild('applicationsGrid') applicationsGrid: any;
+  @ViewChild('applicationsGrid') applicationsGrid?: RelationGridComponent;
 
   private _treeNodesComponent: TreeNodesComponent | undefined;
 
@@ -825,6 +826,7 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
         // This preserves the original fieldRestrictionWithDifferentName behavior
         return !applications.some(app => app.name === target.name);
       })
+      .withTargetToRelation((items) => items)
       .withTargetsTitle('entity.permissionGroup.applications.header')
       .build();
   }
@@ -864,6 +866,7 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
       ])
       .withTargetsOrder('name')
       .withTargetsFetcher(() => this.roleService.fetchAllItems())
+      .withTargetToRelation((items) => items)
       .withTargetsTitle('entity.tree.roles')
       .build();
   }

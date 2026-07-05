@@ -286,6 +286,7 @@ export class RoleFormComponent extends BaseFormComponent<Role> {
       .withTargetInclude((tasks: (TaskProjection)[]) => (item: TaskProjection) => {
         return !tasks.some((task) => task.id === item.id);
       })
+      .withTargetToRelation((items) => items)
       .withTargetsTitle('entity.role.tasks.title')
       .withTargetsOrder('name')
       .build();
@@ -322,6 +323,7 @@ export class RoleFormComponent extends BaseFormComponent<Role> {
       .withTargetInclude((applications: (Application)[]) => (item: Application) => {
         return !applications.some((application) => application.id === item.id);
       })
+      .withTargetToRelation((items) => items)
       .withTargetsTitle('entity.role.applications.title')
       .withTargetsOrder('name')
       .build();

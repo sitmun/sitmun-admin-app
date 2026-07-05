@@ -149,79 +149,33 @@
     <mat-tab label="{{ 'entity.cartography.territories.header' | translate }}">
       <mat-card appearance="outlined">
         <mat-card-content>
-          <app-data-grid [changeHeightButton]="true"
-                         [globalSearch]="true"
-                         [allNewElements]="isNewOrDuplicated()"
-                         [columnDefs]="territoryAvailabilitiesTable.relationsColumnsDefs"
-                         [getAll]='territoryAvailabilitiesTable.relationsFetchFn'
-                         [eventAddItemsSubscription]='territoryAvailabilitiesTable.addCommandEvent$.asObservable()'
-                         [eventGetAllRowsSubscription]='territoryAvailabilitiesTable.saveCommandEvent$.asObservable()'
-                         [eventRefreshSubscription]='territoryAvailabilitiesTable.refreshCommandEvent$.asObservable()'
-                         [discardChangesButton]=true
-                         [redoButton]=true
-                         [undoButton]=true
-                         [deleteButton]=true
-                         [addButton]=true
-                         [hideDuplicateButton]=true
-                         [hideReplaceButton]=true
-                         [defaultColumnSorting]='territoryAvailabilitiesTable.defaultRelationsSorting()'
-                         (getAllRows)="territoryAvailabilitiesTable.handleSaveRelations($event)"
-                         (add)="territoryAvailabilitiesTable.openDialog($event)"
-                         *ngIf="dataLoaded"
-          >
-          </app-data-grid>
+          <app-relation-grid
+            *ngIf="dataLoaded"
+            [table]="territoryAvailabilitiesTable"
+            [allNewElements]="isNewOrDuplicated()">
+          </app-relation-grid>
         </mat-card-content>
       </mat-card>
     </mat-tab>
     <mat-tab label="{{ 'entity.cartography.permissions.header' | translate }}">
       <mat-card appearance="outlined">
         <mat-card-content>
-          <app-data-grid [changeHeightButton]="true"
-                         [globalSearch]="true"
-                         [allNewElements]="isNewOrDuplicated()"
-                         [columnDefs]="cartographyPermissionsTable.relationsColumnsDefs"
-                         [getAll]='cartographyPermissionsTable.relationsFetchFn'
-                         [eventAddItemsSubscription]='cartographyPermissionsTable.addCommandEvent$.asObservable()'
-                         [eventGetAllRowsSubscription]='cartographyPermissionsTable.saveCommandEvent$.asObservable()'
-                         [eventRefreshSubscription]='cartographyPermissionsTable.refreshCommandEvent$.asObservable()'
-                         [discardChangesButton]=true
-                         [redoButton]=true
-                         [undoButton]=true
-                         [deleteButton]=true
-                         [addButton]=true
-                         [hideDuplicateButton]=true
-                         [hideReplaceButton]=true
-                         [defaultColumnSorting]='cartographyPermissionsTable.defaultRelationsSorting()'
-                         (getAllRows)="cartographyPermissionsTable.handleSaveRelations($event)"
-                         (add)="cartographyPermissionsTable.openDialog($event)"
-                         *ngIf="dataLoaded"
-          >
-          </app-data-grid>
+          <app-relation-grid
+            *ngIf="dataLoaded"
+            [table]="cartographyPermissionsTable"
+            [allNewElements]="isNewOrDuplicated()">
+          </app-relation-grid>
         </mat-card-content>
       </mat-card>
     </mat-tab>
     <mat-tab label="{{ 'entity.cartography.trees.header' | translate }}">
       <mat-card appearance="outlined">
         <mat-card-content>
-          <app-data-grid [changeHeightButton]="true"
-                         [globalSearch]="true"
-                         [allNewElements]="isNewOrDuplicated()"
-                         [columnDefs]="treesNodesTable.relationsColumnsDefs"
-                         [getAll]='treesNodesTable.relationsFetchFn'
-                         [eventAddItemsSubscription]='treesNodesTable.addCommandEvent$.asObservable()'
-                         [eventGetAllRowsSubscription]='treesNodesTable.saveCommandEvent$.asObservable()'
-                         [eventRefreshSubscription]='treesNodesTable.refreshCommandEvent$.asObservable()'
-                         [discardChangesButton]=false
-                         [redoButton]=true
-                         [undoButton]=true
-                         [addButton]=false
-                         [hideDuplicateButton]=true
-                         [hideReplaceButton]=true
-                         [defaultColumnSorting]='treesNodesTable.defaultRelationsSorting()'
-                         (getAllRows)="treesNodesTable.handleSaveRelations($event)"
-                         *ngIf="dataLoaded"
-          >
-          </app-data-grid>
+          <app-relation-grid
+            *ngIf="dataLoaded"
+            [table]="treesNodesTable"
+            [readOnly]="true"
+          ></app-relation-grid>
         </mat-card-content>
       </mat-card>
     </mat-tab>
@@ -262,27 +216,12 @@
         <ng-container *appFeatureFlag="'LAYERS_QUERYABLE_FEATURE'">
           <mat-card appearance="outlined" class="sitmun-mat-card-margin">
             <mat-card-content>
-              <app-data-grid [changeHeightButton]="true"
-                            [globalSearch]="true"
-                            [allNewElements]="isNewOrDuplicated()"
-                            [columnDefs]="parametersTable.relationsColumnsDefs"
-                            [getAll]='parametersTable.relationsFetchFn'
-                            [eventAddItemsSubscription]='parametersTable.addCommandEvent$.asObservable()'
-                            [eventGetAllRowsSubscription]='parametersTable.saveCommandEvent$.asObservable()'
-                            [eventRefreshSubscription]='parametersTable.refreshCommandEvent$.asObservable()'
-                            [discardChangesButton]=true
-                            [redoButton]=true
-                            [undoButton]=true
-                            [deleteButton]=true
-                            [newButton]=true
-                            [hideDuplicateButton]=true
-                            [hideReplaceButton]=true
-                            [defaultColumnSorting]='parametersTable.defaultRelationsSorting()'
-                            (getAllRows)="parametersTable.handleSaveRelations($event)"
-                            (new)="parametersTable.openTemplateDialog('newParameterDialog')"
-                            *ngIf="dataLoaded"
-              >
-              </app-data-grid>
+              <app-relation-grid
+                *ngIf="dataLoaded"
+                [table]="parametersTable"
+                [allNewElements]="isNewOrDuplicated()"
+                templateDialogName="newParameterDialog"
+              ></app-relation-grid>
             </mat-card-content>
           </mat-card>
         </ng-container>
@@ -314,27 +253,12 @@
         </mat-card>
         <mat-card appearance="outlined" class="sitmun-mat-card-margin">
           <mat-card-content>
-            <app-data-grid [changeHeightButton]="true"
-                           [globalSearch]="true"
-                           [allNewElements]="isNewOrDuplicated()"
-                           [columnDefs]="territorialFiltersTable.relationsColumnsDefs"
-                           [getAll]='territorialFiltersTable.relationsFetchFn'
-                           [eventAddItemsSubscription]='territorialFiltersTable.addCommandEvent$.asObservable()'
-                           [eventGetAllRowsSubscription]='territorialFiltersTable.saveCommandEvent$.asObservable()'
-                           [eventRefreshSubscription]='territorialFiltersTable.refreshCommandEvent$.asObservable()'
-                           [discardChangesButton]=true
-                           [redoButton]=true
-                           [undoButton]=true
-                           [deleteButton]=true
-                           [newButton]=true
-                           [hideDuplicateButton]=true
-                           [hideReplaceButton]=true
-                           [defaultColumnSorting]='territorialFiltersTable.defaultRelationsSorting()'
-                           (getAllRows)="territorialFiltersTable.handleSaveRelations($event)"
-                           (new)="territorialFiltersTable.openTemplateDialog('newTerritorialFilterDialog')"
-                           *ngIf="dataLoaded"
-            >
-            </app-data-grid>
+            <app-relation-grid
+              *ngIf="dataLoaded"
+              [table]="territorialFiltersTable"
+              [allNewElements]="isNewOrDuplicated()"
+              templateDialogName="newTerritorialFilterDialog"
+            ></app-relation-grid>
           </mat-card-content>
         </mat-card>
       </mat-tab>
@@ -395,27 +319,12 @@
         </mat-card>
         <mat-card appearance="outlined">
           <mat-card-content>
-            <app-data-grid [changeHeightButton]="true"
-                           [globalSearch]="true"
-                           [allNewElements]="isNewOrDuplicated()"
-                           [columnDefs]="stylesTable.relationsColumnsDefs"
-                           [getAll]='stylesTable.relationsFetchFn'
-                           [eventAddItemsSubscription]='stylesTable.addCommandEvent$.asObservable()'
-                           [eventGetAllRowsSubscription]='stylesTable.saveCommandEvent$.asObservable()'
-                           [eventRefreshSubscription]='stylesTable.refreshCommandEvent$.asObservable()'
-                           [discardChangesButton]=true
-                           [redoButton]=true
-                           [undoButton]=true
-                           [deleteButton]=true
-                           [newButton]=true
-                           [hideDuplicateButton]=true
-                           [hideReplaceButton]=true
-                           [defaultColumnSorting]='stylesTable.defaultRelationsSorting()'
-                           (getAllRows)="stylesTable.handleSaveRelations($event)"
-                           (new)="stylesTable.openTemplateDialog('newStyleDialog')"
-                           *ngIf="dataLoaded"
-            >
-            </app-data-grid>
+            <app-relation-grid
+              *ngIf="dataLoaded"
+              [table]="stylesTable"
+              [allNewElements]="isNewOrDuplicated()"
+              templateDialogName="newStyleDialog"
+            ></app-relation-grid>
           </mat-card-content>
         </mat-card>
       </mat-tab>

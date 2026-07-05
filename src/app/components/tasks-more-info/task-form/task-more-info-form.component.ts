@@ -596,6 +596,7 @@ export class TaskMoreInfoFormComponent extends BaseFormComponent<TaskProjection>
       ])
       .withTargetsOrder('name')
       .withTargetsFetcher(() => this.roleService.fetchAllItems())
+      .withTargetToRelation((items) => items)
       .withTargetsTitle(this.translateService.instant('entity.task.roles.title'))
       .build();
   }

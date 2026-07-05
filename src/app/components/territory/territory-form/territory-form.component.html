@@ -172,130 +172,55 @@
   <mat-tab label="{{'entity.territory.permissions.header' | translate }}">
     <mat-card appearance="outlined" class="sitmun-mat-card-margin">
       <mat-card-content>
-        <app-data-grid (add)="permitsTable.openDialog($event)"
-                       (getAllRows)="permitsTable.handleSaveRelations($event)"
-                       *ngIf="dataLoaded"
-                       [actionButton]=true
-                       [addButton]=true
-                       [allNewElements]="isNewOrDuplicated()"
-                       [changeHeightButton]="true"
-                       [columnDefs]="permitsTable.relationsColumnsDefs"
-                       [defaultColumnSorting]='permitsTable.defaultRelationsSorting()'
-                       [deleteButton]=true
-                       [discardChangesButton]=true
-                       [eventAddItemsSubscription]='permitsTable.addCommandEvent$.asObservable()'
-                       [eventGetAllRowsSubscription]='permitsTable.saveCommandEvent$.asObservable()'
-                       [eventRefreshSubscription]='permitsTable.refreshCommandEvent$.asObservable()'
-                       [getAll]='permitsTable.relationsFetchFn'
-                       [hideDuplicateButton]=true
-                       [hideReplaceButton]=true
-                       [redoButton]=true
-                       [undoButton]=true>
-        </app-data-grid>
+        <app-relation-grid
+          *ngIf="dataLoaded"
+          [table]="permitsTable"
+          [allNewElements]="isNewOrDuplicated()">
+        </app-relation-grid>
       </mat-card-content>
     </mat-card>
   </mat-tab>
   <mat-tab *ngIf="!currentTypeTop" label="{{'entity.territory.memberOfTerritories.header' | translate }}">
     <mat-card appearance="outlined" class="sitmun-mat-card-margin">
       <mat-card-content>
-        <app-data-grid (add)="membersOfTable.openDialog($event)"
-                       (getAllRows)="membersOfTable.handleSaveRelations($event)"
-                       *ngIf="dataLoaded"
-                       [actionButton]=true
-                       [addButton]=true
-                       [allNewElements]="isNewOrDuplicated()"
-                       [changeHeightButton]="true"
-                       [columnDefs]="membersOfTable.relationsColumnsDefs"
-                       [defaultColumnSorting]='membersOfTable.defaultRelationsSorting()'
-                       [deleteButton]=true
-                       [discardChangesButton]=true
-                       [eventAddItemsSubscription]='membersOfTable.addCommandEvent$.asObservable()'
-                       [eventGetAllRowsSubscription]='membersOfTable.saveCommandEvent$.asObservable()'
-                       [eventRefreshSubscription]='membersOfTable.refreshCommandEvent$.asObservable()'
-                       [getAll]='membersOfTable.relationsFetchFn'
-                       [hideDuplicateButton]=true
-                       [hideReplaceButton]=true
-                       [redoButton]=true
-                       [undoButton]=true>
-        </app-data-grid>
+        <app-relation-grid
+          *ngIf="dataLoaded"
+          [table]="membersOfTable"
+          [allNewElements]="isNewOrDuplicated()">
+        </app-relation-grid>
       </mat-card-content>
     </mat-card>
   </mat-tab>
   <mat-tab *ngIf="!currentTypeBottom" label="{{'entity.territory.members.header' | translate }}">
     <mat-card appearance="outlined" class="sitmun-mat-card-margin">
       <mat-card-content>
-        <app-data-grid (add)="membersTable.openDialog($event)"
-                       (getAllRows)="membersTable.handleSaveRelations($event)"
-                       *ngIf="dataLoaded"
-                       [actionButton]=true
-                       [addButton]=true
-                       [allNewElements]="isNewOrDuplicated()"
-                       [changeHeightButton]="true"
-                       [columnDefs]="membersTable.relationsColumnsDefs"
-                       [defaultColumnSorting]='membersTable.defaultRelationsSorting()'
-                       [deleteButton]=true
-                       [discardChangesButton]=true
-                       [eventAddItemsSubscription]='membersTable.addCommandEvent$.asObservable()'
-                       [eventGetAllRowsSubscription]='membersTable.saveCommandEvent$.asObservable()'
-                       [eventRefreshSubscription]='membersTable.refreshCommandEvent$.asObservable()'
-                       [getAll]='membersTable.relationsFetchFn'
-                       [hideDuplicateButton]=true
-                       [hideReplaceButton]=true
-                       [redoButton]=true
-                       [undoButton]=true>
-        </app-data-grid>
+        <app-relation-grid
+          *ngIf="dataLoaded"
+          [table]="membersTable"
+          [allNewElements]="isNewOrDuplicated()">
+        </app-relation-grid>
       </mat-card-content>
     </mat-card>
   </mat-tab>
   <mat-tab label="{{'entity.territory.cartography.header' | translate }}">
     <mat-card appearance="outlined" class="sitmun-mat-card-margin">
       <mat-card-content>
-        <app-data-grid (add)="cartographiesTable.openDialog($event)"
-                       (getAllRows)="cartographiesTable.handleSaveRelations($event)"
-                       *ngIf="dataLoaded"
-                       [actionButton]=true
-                       [addButton]=true
-                       [allNewElements]="isNewOrDuplicated()"
-                       [changeHeightButton]="true"
-                       [columnDefs]="cartographiesTable.relationsColumnsDefs"
-                       [defaultColumnSorting]='cartographiesTable.defaultRelationsSorting()'
-                       [deleteButton]=true
-                       [discardChangesButton]=true
-                       [eventAddItemsSubscription]='cartographiesTable.addCommandEvent$.asObservable()'
-                       [eventGetAllRowsSubscription]='cartographiesTable.saveCommandEvent$.asObservable()'
-                       [eventRefreshSubscription]='cartographiesTable.refreshCommandEvent$.asObservable()'
-                       [getAll]='cartographiesTable.relationsFetchFn'
-                       [hideDuplicateButton]=true
-                       [hideReplaceButton]=true
-                       [redoButton]=true
-                       [undoButton]=true>
-        </app-data-grid>
+        <app-relation-grid
+          *ngIf="dataLoaded"
+          [table]="cartographiesTable"
+          [allNewElements]="isNewOrDuplicated()">
+        </app-relation-grid>
       </mat-card-content>
     </mat-card>
   </mat-tab>
   <mat-tab label="{{'entity.territory.tasks.header' | translate }}">
     <mat-card appearance="outlined" class="sitmun-mat-card-margin">
       <mat-card-content>
-        <app-data-grid (add)="tasksTable.openDialog($event)"
-                       (getAllRows)="tasksTable.handleSaveRelations($event)"
-                       *ngIf="dataLoaded"
-                       [actionButton]=true
-                       [addButton]=true
-                       [allNewElements]="isNewOrDuplicated()"
-                       [changeHeightButton]="true"
-                       [columnDefs]="tasksTable.relationsColumnsDefs"
-                       [defaultColumnSorting]='tasksTable.defaultRelationsSorting()'
-                       [deleteButton]=true
-                       [discardChangesButton]=true
-                       [eventAddItemsSubscription]='tasksTable.addCommandEvent$.asObservable()'
-                       [eventGetAllRowsSubscription]='tasksTable.saveCommandEvent$.asObservable()'
-                       [eventRefreshSubscription]='tasksTable.refreshCommandEvent$.asObservable()'
-                       [getAll]='tasksTable.relationsFetchFn'
-                       [hideDuplicateButton]=true
-                       [hideReplaceButton]=true
-                       [redoButton]=true
-                       [undoButton]=true>
-        </app-data-grid>
+        <app-relation-grid
+          *ngIf="dataLoaded"
+          [table]="tasksTable"
+          [allNewElements]="isNewOrDuplicated()">
+        </app-relation-grid>
       </mat-card-content>
     </mat-card>
   </mat-tab>

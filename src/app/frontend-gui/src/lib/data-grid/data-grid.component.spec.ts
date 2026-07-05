@@ -414,6 +414,215 @@ describe('DataGridComponent', () => {
     });
   });
 
+  describe('semantic toolbar defaults', () => {
+    beforeEach(() => {
+      component.changeTracking = 'auto';
+      component.readOnly = false;
+      component.discardChangesButton = undefined;
+      component.undoButton = undefined;
+      component.redoButton = undefined;
+      component.rowModelMode = 'clientSide';
+    });
+
+    it('shows discard/undo/redo when statusColumn is present and inputs are unset', () => {
+      component.statusColumn = true;
+      component.someColumnIsEditable = false;
+
+      expect(component.showDiscardChangesButton).toBe(true);
+      expect(component.showUndoButton).toBe(true);
+      expect(component.showRedoButton).toBe(true);
+    });
+
+    it('shows discard/undo/redo when someColumnIsEditable is true and inputs are unset', () => {
+      component.statusColumn = false;
+      component.someColumnIsEditable = true;
+
+      expect(component.showDiscardChangesButton).toBe(true);
+      expect(component.showUndoButton).toBe(true);
+      expect(component.showRedoButton).toBe(true);
+    });
+
+    it('hides discard/undo/redo when only addButton is set without grid-owned pending changes', () => {
+      component.statusColumn = false;
+      component.someColumnIsEditable = false;
+      component.addButton = true;
+
+      expect(component.showDiscardChangesButton).toBe(false);
+      expect(component.showUndoButton).toBe(false);
+      expect(component.showRedoButton).toBe(false);
+    });
+
+    it('hides discard/undo/redo when only deleteButton is set without grid-owned pending changes', () => {
+      component.statusColumn = false;
+      component.someColumnIsEditable = false;
+      component.deleteButton = true;
+
+      expect(component.showDiscardChangesButton).toBe(false);
+      expect(component.showUndoButton).toBe(false);
+      expect(component.showRedoButton).toBe(false);
+    });
+
+    it('hides discard/undo/redo when only newButton is set without grid-owned pending changes', () => {
+      component.statusColumn = false;
+      component.someColumnIsEditable = false;
+      component.newButton = true;
+
+      expect(component.showDiscardChangesButton).toBe(false);
+      expect(component.showUndoButton).toBe(false);
+      expect(component.showRedoButton).toBe(false);
+    });
+
+    it('shows discard/undo/redo when changeTracking is enabled even without detected capability', () => {
+      component.changeTracking = 'enabled';
+      component.statusColumn = false;
+      component.someColumnIsEditable = false;
+
+      expect(component.showDiscardChangesButton).toBe(true);
+      expect(component.showUndoButton).toBe(true);
+      expect(component.showRedoButton).toBe(true);
+    });
+
+    it('hides discard/undo/redo when changeTracking is disabled despite detected capability', () => {
+      component.changeTracking = 'disabled';
+      component.statusColumn = true;
+      component.someColumnIsEditable = true;
+
+      expect(component.showDiscardChangesButton).toBe(false);
+      expect(component.showUndoButton).toBe(false);
+      expect(component.showRedoButton).toBe(false);
+    });
+
+    it('hides discard/undo/redo when readOnly even if changeTracking is enabled', () => {
+      component.readOnly = true;
+      component.changeTracking = 'enabled';
+
+      expect(component.showDiscardChangesButton).toBe(false);
+      expect(component.showUndoButton).toBe(false);
+      expect(component.showRedoButton).toBe(false);
+    });
+
+    it('hides mutating action buttons when readOnly', () => {
+      component.readOnly = true;
+      component.deleteButton = true;
+      component.newButton = true;
+      component.addButton = true;
+      component.registerButton = true;
+      component.hideReplaceButton = false;
+      component.hideDuplicateButton = false;
+
+      expect(component.showDeleteButton).toBe(false);
+      expect(component.showNewButton).toBe(false);
+      expect(component.showAddButton).toBe(false);
+      expect(component.showRegisterButton).toBe(false);
+      expect(component.showReplaceControls).toBe(false);
+      expect(component.showDuplicateButton).toBe(false);
+    });
+
+    it('hides duplicate when hideDuplicateButton is true and grid is editable', () => {
+      component.readOnly = false;
+      component.hideDuplicateButton = true;
+
+      expect(component.showDuplicateButton).toBe(false);
+    });
+
+    it('shows duplicate when hideDuplicateButton is false and grid is editable', () => {
+      component.readOnly = false;
+      component.hideDuplicateButton = false;
+
+      expect(component.showDuplicateButton).toBe(true);
+    });
+
+    it('respects explicit undoButton=false override', () => {
+      component.statusColumn = true;
+      component.undoButton = false;
+
+      expect(component.showUndoButton).toBe(false);
+      expect(component.showDiscardChangesButton).toBe(true);
+    });
+
+    it('respects explicit discardChangesButton=true override when not read-only', () => {
+      component.discardChangesButton = true;
+      component.statusColumn = false;
+      component.someColumnIsEditable = false;
+
+      expect(component.showDiscardChangesButton).toBe(true);
+    });
+
+    it('hides discard/undo/redo in infinite mode even when changeTracking is enabled', () => {
+      component.rowModelMode = 'infinite';
+      component.changeTracking = 'enabled';
+
+      expect(component.showDiscardChangesButton).toBe(false);
+      expect(component.showUndoButton).toBe(false);
+      expect(component.showRedoButton).toBe(false);
+    });
+  });
+
+  describe('grid capability detection', () => {
+    it('detects someColumnIsEditable from default column editability', () => {
+      component.nonEditable = false;
+      component.readOnly = false;
+      component.columnDefs = [{field: 'name'}, {field: 'status', editable: false}];
+
+      component['detectGridCapabilities'](component.columnDefs);
+
+      expect(component.someColumnIsEditable).toBe(true);
+      expect(component.statusColumn).toBe(true);
+    });
+
+    it('does not treat explicit editable:false columns as editable when default is editable', () => {
+      component.nonEditable = false;
+      component.readOnly = false;
+      component.columnDefs = [
+        {field: 'name', editable: false},
+        {field: 'type', editable: false},
+      ];
+
+      component['detectGridCapabilities'](component.columnDefs);
+
+      expect(component.someColumnIsEditable).toBe(false);
+    });
+
+    it('applies readOnly to prepared column defs on grid ready', () => {
+      component.readOnly = true;
+      component.rowModelMode = 'clientSide';
+      component.columnDefs = [{field: 'name', editable: true}];
+      component.gridOptions = {};
+      component.gridApi = {
+        updateGridOptions: jest.fn(),
+        setGridOption: jest.fn(),
+        addEventListener: jest.fn(),
+        isDestroyed: () => false,
+      } as any;
+      component.loadData = jest.fn();
+
+      component.onGridReady({api: component.gridApi, columnApi: {}});
+
+      expect(component.columnDefs[0].editable).toBe(false);
+      expect(component.someColumnIsEditable).toBe(false);
+    });
+
+    it('resets capability flags on grid ready refresh', () => {
+      component.statusColumn = true;
+      component.someColumnIsEditable = true;
+      component.rowModelMode = 'clientSide';
+      component.columnDefs = [{field: 'name', editable: false}];
+      component.gridOptions = {};
+      component.gridApi = {
+        updateGridOptions: jest.fn(),
+        setGridOption: jest.fn(),
+        addEventListener: jest.fn(),
+        isDestroyed: () => false,
+      } as any;
+      component.loadData = jest.fn();
+
+      component.onGridReady({api: component.gridApi, columnApi: {}});
+
+      expect(component.statusColumn).toBe(false);
+      expect(component.someColumnIsEditable).toBe(false);
+    });
+  });
+
   function setupInfiniteSearchFixture(options?: {
     progressiveLocalFilter?: boolean;
     backendSearch?: boolean;

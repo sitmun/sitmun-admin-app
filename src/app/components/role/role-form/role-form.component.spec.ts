@@ -4,6 +4,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 
 import {TranslateLoader, TranslateModule} from '@ngx-translate/core';
 import {of} from 'rxjs';
@@ -50,7 +52,7 @@ describe('RoleFormComponent', () => {
           })
         }
       })],
-      providers: [provideErrorHandlerForTests(), RoleService, UserService, TerritoryService, ApplicationService, CodeListService,
+      providers: [provideHttpClient(), provideHttpClientTesting(), provideErrorHandlerForTests(), RoleService, UserService, TerritoryService, ApplicationService, CodeListService,
         CartographyGroupService,UserConfigurationService, CartographyService, TaskService,ResourceService,ExternalService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
@@ -151,6 +153,32 @@ describe('RoleFormComponent', () => {
   it('Role form fields', () => {
     expect(component.entityForm.get('description')).toBeTruthy();
     expect(component.entityForm.get('name')).toBeTruthy();
+  });
+
+  describe('Grid capability classification', () => {
+    it('userConfigurationsTable should have picker, updater, and status capabilities (dual-target)', () => {
+      const table = component['userConfigurationsTable'];
+      expect(table.hasPickerAdd()).toBe(true);
+      expect(table.hasRelationsUpdater()).toBe(true);
+      expect(table.hasStatusColumn()).toBe(true);
+      expect(table.hasTemplateDialogs()).toBe(false);
+    });
+
+    it('tasksTable should have picker, updater, and status capabilities', () => {
+      const table = component['tasksTable'];
+      expect(table.hasPickerAdd()).toBe(true);
+      expect(table.hasRelationsUpdater()).toBe(true);
+      expect(table.hasStatusColumn()).toBe(true);
+      expect(table.hasTemplateDialogs()).toBe(false);
+    });
+
+    it('applicationsTable should have picker, updater, and status capabilities', () => {
+      const table = component['applicationsTable'];
+      expect(table.hasPickerAdd()).toBe(true);
+      expect(table.hasRelationsUpdater()).toBe(true);
+      expect(table.hasStatusColumn()).toBe(true);
+      expect(table.hasTemplateDialogs()).toBe(false);
+    });
   });
 
 });

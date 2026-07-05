@@ -692,4 +692,59 @@ describe('LayersFormComponent', () => {
     });
   });
 
+  describe('grid type classification for wrapper migration', () => {
+    it('should have simple editable relation grids (territoryAvailabilitiesTable)', () => {
+      expect(component['territoryAvailabilitiesTable']).toBeDefined();
+      expect(component['territoryAvailabilitiesTable'].hasPickerAdd()).toBe(true);
+      expect(component['territoryAvailabilitiesTable'].hasRelationsUpdater()).toBe(true);
+      expect(component['territoryAvailabilitiesTable'].hasStatusColumn()).toBe(true);
+      expect(component['territoryAvailabilitiesTable'].hasTemplateDialogs()).toBe(false);
+    });
+
+    it('should have simple editable relation grids (cartographyPermissionsTable)', () => {
+      expect(component['cartographyPermissionsTable']).toBeDefined();
+      expect(component['cartographyPermissionsTable'].hasPickerAdd()).toBe(true);
+      expect(component['cartographyPermissionsTable'].hasRelationsUpdater()).toBe(true);
+      expect(component['cartographyPermissionsTable'].hasStatusColumn()).toBe(true);
+      expect(component['cartographyPermissionsTable'].hasTemplateDialogs()).toBe(false);
+    });
+
+    it('should have read-only grid (treesNodesTable)', () => {
+      const table = component['treesNodesTable'];
+      expect(table).toBeDefined();
+      expect(table.hasPickerAdd()).toBe(false);
+      expect(table.hasRelationsUpdater()).toBe(false);
+      expect(table.hasStatusColumn()).toBe(false);
+      expect(table.hasTemplateDialogs()).toBe(false);
+      expect(table.supportsDuplicate()).toBe(false);
+    });
+
+    it('parametersTable should have template-dialog, updater, and status capabilities', () => {
+      const table = component['parametersTable'];
+      expect(table.hasTemplateDialogs()).toBe(true);
+      expect(table.hasRelationsUpdater()).toBe(true);
+      expect(table.hasStatusColumn()).toBe(true);
+      expect(table.supportsDuplicate()).toBe(false);
+      expect(table.hasPickerAdd()).toBe(false);
+    });
+
+    it('territorialFiltersTable should have template-dialog, updater, and status capabilities', () => {
+      const table = component['territorialFiltersTable'];
+      expect(table.hasTemplateDialogs()).toBe(true);
+      expect(table.hasRelationsUpdater()).toBe(true);
+      expect(table.hasStatusColumn()).toBe(true);
+      expect(table.supportsDuplicate()).toBe(false);
+      expect(table.hasPickerAdd()).toBe(false);
+    });
+
+    it('stylesTable should have template-dialog, updater, and status capabilities', () => {
+      const table = component['stylesTable'];
+      expect(table.hasTemplateDialogs()).toBe(true);
+      expect(table.hasRelationsUpdater()).toBe(true);
+      expect(table.hasStatusColumn()).toBe(true);
+      expect(table.supportsDuplicate()).toBe(false);
+      expect(table.hasPickerAdd()).toBe(false);
+    });
+  });
+
 });

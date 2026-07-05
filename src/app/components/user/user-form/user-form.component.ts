@@ -4,7 +4,7 @@ import {MatDialog} from '@angular/material/dialog';
 import {ActivatedRoute, Router} from '@angular/router';
 
 import {TranslateService} from "@ngx-translate/core";
-import { firstValueFrom, map, of, ReplaySubject} from 'rxjs';
+import { firstValueFrom, map, of } from 'rxjs';
 
 import {BaseFormComponent} from "@app/components/base-form.component";
 import {DataTable2Definition, DataTableDefinition} from "@app/components/data-tables.util";
@@ -68,6 +68,8 @@ export class UserFormComponent extends BaseFormComponent<UserProjection> {
 
   protected readonly userPositionsTable: DataTableDefinition<UserPositionProjection, TerritoryProjection>
 
+  protected readonly applicationsAsContactTable: DataTableDefinition<Application, Application>
+
   /** Flag indicating if the password is set */
   passwordSet = false;
 
@@ -92,18 +94,6 @@ export class UserFormComponent extends BaseFormComponent<UserProjection> {
   /** Flag indicating if this is the built-in public user */
   isBuiltInPublic = false;
 
-  /** Applications where this user is the point of contact */
-  applicationsAsContact: Application[] = [];
-
-  private readonly applicationsAsContactRefresh$ = new ReplaySubject<boolean>(1);
-
-  readonly applicationsAsContactFetchFn = () => of(this.applicationsAsContact);
-
-  readonly applicationsAsContactRefresh = this.applicationsAsContactRefresh$.asObservable();
-
-  readonly applicationsAsContactColumnDefs: any[] = [];
-
-
   constructor(
     dialog: MatDialog,
     translateService: TranslateService,
@@ -126,11 +116,7 @@ export class UserFormComponent extends BaseFormComponent<UserProjection> {
     super(dialog, translateService, translationService, codeListService, loggerService, errorHandler, activatedRoute, router, loadingService, messagesInterceptorState);
     this.userConfigurationsTable = this.defineUserConfigurationsTable();
     this.userPositionsTable = this.defineUserPositionsTable();
-    (this.applicationsAsContactColumnDefs as any[]).push(
-      Object.assign(this.utils.getRouterLinkColumnDef('common.form.name', 'name', '/application/:id/applicationForm', {id: 'id'}), {flex: 3, minWidth: 160, tooltipField: 'name'}),
-      Object.assign(this.utils.getNonEditableColumnDef('entity.application.type.generic.title', 'title'), {flex: 3, minWidth: 160, tooltipField: 'title'}),
-      Object.assign(this.utils.getNonEditableColumnDef('common.form.type', 'type'), {flex: 1, minWidth: 80}),
-    );
+    this.applicationsAsContactTable = this.defineApplicationsAsContactTable();
   }
 
   override async preFetchData(): Promise<void> {
@@ -196,17 +182,6 @@ export class UserFormComponent extends BaseFormComponent<UserProjection> {
       ),
     });
 
-    if (this.isEdition()) {
-      firstValueFrom(this.applicationService.findByCreatorId(this.entityID))
-        .then(apps => {
-          this.applicationsAsContact = apps;
-          this.applicationsAsContactRefresh$.next(true);
-        })
-        .catch(() => {
-          this.applicationsAsContact = [];
-          this.applicationsAsContactRefresh$.next(true);
-        });
-    }
   }
 
   /**
@@ -450,6 +425,32 @@ export class UserFormComponent extends BaseFormComponent<UserProjection> {
           p.territoryName = t.name;
           return p;
         });
+      })
+      .build();
+  }
+
+  private defineApplicationsAsContactTable(): DataTableDefinition<Application, Application> {
+    return DataTableDefinition.builder<Application, Application>(this.dialog, this.errorHandler, this.loadingService)
+      .withRelationsColumns([
+        Object.assign(
+          this.utils.getRouterLinkColumnDef('common.form.name', 'name', '/application/:id/applicationForm', { id: 'id' }),
+          { flex: 3, minWidth: 160, tooltipField: 'name' }
+        ),
+        Object.assign(
+          this.utils.getNonEditableColumnDef('entity.application.type.generic.title', 'title'),
+          { flex: 3, minWidth: 160, tooltipField: 'title' }
+        ),
+        Object.assign(
+          this.utils.getNonEditableColumnDef('common.form.type', 'type'),
+          { flex: 1, minWidth: 80 }
+        ),
+      ])
+      .withRelationsOrder('name')
+      .withRelationsFetcher(() => {
+        if (!this.isEdition()) {
+          return of([]);
+        }
+        return this.applicationService.findByCreatorId(this.entityID);
       })
       .build();
   }

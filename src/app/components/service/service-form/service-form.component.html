@@ -177,26 +177,15 @@
     </mat-card>
     <mat-card appearance="outlined">
       <mat-card-content>
-        <app-data-grid [allNewElements]="isNewOrDuplicated()"
-                       [columnDefs]="layersTable.relationsColumnsDefs"
-                       [getAll]='layersTable.relationsFetchFn'
-                       [eventAddItemsSubscription]='layersTable.addCommandEvent$.asObservable()'
-                       [eventGetAllRowsSubscription]='layersTable.saveCommandEvent$.asObservable()'
-                       [eventRefreshSubscription]='layersTable.refreshCommandEvent$.asObservable()'
-                       [actionButton]=true
-                       [discardChangesButton]=true
-                       [redoButton]=true
-                       [undoButton]=true
-                       [deleteButton]=true
-                       [addButton]=false
-                       [hideDuplicateButton]=true
-                       [registerButton]=true
-                       [defaultColumnSorting]='layersTable.defaultRelationsSorting()'
-                       newStatusRegister="pendingRegistration"
-                       (getAllRows)="layersTable.handleSaveRelations($event)"
-                       (add)="layersTable.openDialog($event)"
-                       *ngIf="dataLoaded">
-        </app-data-grid>
+        <app-relation-grid
+          *ngIf="dataLoaded"
+          [table]="layersTable"
+          [allNewElements]="isNewOrDuplicated()"
+          [addButton]="false"
+          [duplicateButton]="false"
+          [registerButton]="true"
+          newStatusRegister="pendingRegistration"
+        ></app-relation-grid>
       </mat-card-content>
     </mat-card>
   </mat-tab>
@@ -216,25 +205,12 @@
           </app-card-lead>
         </mat-card-header>
         <mat-card-content>
-          <app-data-grid [changeHeightButton]="true"
-                         [allNewElements]="isNewOrDuplicated()"
-                         [columnDefs]="parametersTable.relationsColumnsDefs"
-                         [getAll]='parametersTable.relationsFetchFn'
-                         [eventAddItemsSubscription]='parametersTable.addCommandEvent$.asObservable()'
-                         [eventGetAllRowsSubscription]='parametersTable.saveCommandEvent$.asObservable()'
-                         [eventRefreshSubscription]='parametersTable.refreshCommandEvent$.asObservable()'
-                         [actionButton]=true
-                         [discardChangesButton]=true
-                         [redoButton]=true
-                         [undoButton]=true
-                         [deleteButton]=true
-                         [newButton]=true
-                         [defaultColumnSorting]='parametersTable.defaultRelationsSorting()'
-                         (getAllRows)="parametersTable.handleSaveRelations($event)"
-                         (new)="parametersTable.openTemplateDialog('newParameterDialog')"
-                         (duplicate)='duplicateParameters($event)'
-                         *ngIf="dataLoaded">
-          </app-data-grid>
+          <app-relation-grid
+            *ngIf="dataLoaded"
+            [table]="parametersTable"
+            [allNewElements]="isNewOrDuplicated()"
+            templateDialogName="newParameterDialog"
+          ></app-relation-grid>
         </mat-card-content>
       </mat-card>
     </mat-tab>

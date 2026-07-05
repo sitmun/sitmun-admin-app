@@ -130,7 +130,7 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
    * Sets up data tables, translations, and situation map list.
    */
   override async preFetchData() {
-    this.dataTables.register(this.treesNodesTable).register(this.cartographyPermissionsTable)
+    this.dataTables.register(this.cartographyPermissionsTable)
       .register(this.territoryAvailabilitiesTable).register(this.stylesTable)
       .register(this.territorialFiltersTable).register(this.parametersTable);
     this.initTranslations('Cartography', ['name', 'description'])

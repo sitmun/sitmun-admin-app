@@ -78,8 +78,6 @@ export class ConnectionFormComponent extends BaseFormComponent<Connection> {
   }
 
   override async preFetchData() {
-    this.dataTables.register(this.tasksTable);
-
     await this.initCodeLists(['databaseConnection.driver'])
   }
 

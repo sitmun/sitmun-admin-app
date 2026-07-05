@@ -4,7 +4,7 @@
           matTooltip="{{ 'common.button.cancel' | translate }}"
           mat-mini-fab class="add-half-gap"
           color="primary"
-          *ngIf="discardChangesButton && !isInfiniteMode"
+          *ngIf="showDiscardChangesButton"
           (click)="deleteChanges()"
           [disabled]="changeCounter <= 0 && !someStatusHasChanged && (!someStatusHasChangedToDelete || discardNonReverseStatus  )">
     <mat-icon fontSet="material-icons-round">close</mat-icon>
@@ -14,7 +14,7 @@
           matTooltip="{{ 'common.button.undo' | translate }}"
           mat-mini-fab class="add-half-gap"
           color="primary"
-          *ngIf="undoButton && someColumnIsEditable && !isInfiniteMode"
+          *ngIf="showUndoButton"
           (click)="undo()"
           [disabled]="changeCounter <= 0">
     <mat-icon fontSet="material-icons-round">undo</mat-icon>
@@ -24,7 +24,7 @@
           matTooltip="{{ 'common.button.redo' | translate }}"
           mat-mini-fab class="add-half-gap"
           color="primary"
-          *ngIf="redoButton && someColumnIsEditable && !isInfiniteMode"
+          *ngIf="showRedoButton"
           (click)="redo()"
           [disabled]="redoCounter <= 0">
     <mat-icon fontSet="material-icons-round">redo</mat-icon>
@@ -44,7 +44,7 @@
     <input matInput type="text" placeholder="" (keyup)="quickSearch($event)">
   </mat-form-field>
 
-  <ng-container *ngIf="!hideReplaceButton && !isInfiniteMode">
+  <ng-container *ngIf="showReplaceControls">
     <mat-form-field subscriptSizing="dynamic" class="spacer add-half-gap">
       <mat-label>{{ 'common.button.replace' | translate }}</mat-label>
       <input matInput type="text" placeholder="" [(ngModel)]="replaceValue">
@@ -73,7 +73,7 @@
           matTooltip="{{ 'common.button.remove' | translate }}"
           mat-mini-fab class="add-half-gap"
           color="primary"
-          *ngIf="deleteButton"
+          *ngIf="showDeleteButton"
           (click)="removeData()"
           [disabled]="!areRowsSelected()">
     <mat-icon fontSet="material-icons-round"> delete</mat-icon>
@@ -82,7 +82,7 @@
           color="primary"
           mat-mini-fab class="add-half-gap"
           matTooltip="{{ 'common.button.duplicate' | translate }}"
-          *ngIf="!hideDuplicateButton"
+          *ngIf="showDuplicateButton"
           [disabled]="!oneRowSelected()"
           (click)="onDuplicateButtonClicked()">
     <mat-icon fontSet="material-icons-round"> content_copy</mat-icon>
@@ -90,7 +90,7 @@
 
   <button type="button"
           color="primary"
-          *ngIf="newButton"
+          *ngIf="showNewButton"
           mat-mini-fab class="add-half-gap"
           matTooltip="{{ 'common.button.new' | translate }}"
           (click)="newData()">
@@ -98,7 +98,7 @@
   </button>
   <button type="button"
           color="primary"
-          *ngIf="addButton"
+          *ngIf="showAddButton"
           mat-mini-fab class="add-half-gap"
           matTooltip="{{ 'common.button.add' | translate }}"
           (click)="onAddButtonClicked()">
@@ -106,7 +106,7 @@
   </button>
   <button type="button"
           color="primary"
-          *ngIf="registerButton"
+          *ngIf="showRegisterButton"
           matTooltip="{{ 'common.button.register' | translate }}"
           mat-mini-fab class="add-half-gap"
           (click)="modifyStatusSelected()">

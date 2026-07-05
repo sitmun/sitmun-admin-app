@@ -72,6 +72,9 @@ ModuleRegistry.registerModules([
 
 export type DataGridRowModelMode = 'clientSide' | 'infinite';
 
+/** Whether discard/undo/redo are shown for grid-owned pending changes. */
+export type GridChangeTrackingMode = 'auto' | 'enabled' | 'disabled';
+
 export type GridEventType = "save"
 
 type StatusType =
@@ -406,8 +409,8 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
   /** Enables backend text search for infinite mode */
   @Input() backendSearch = false;
 
-  /** Flag to show/hide discard changes button */
-  @Input() discardChangesButton: boolean;
+  /** Flag to show/hide discard changes button (undefined = semantic default). */
+  @Input() discardChangesButton?: boolean;
 
   /** Flag to discard non-reverse status */
   @Input() discardNonReverseStatus: boolean;
@@ -415,14 +418,14 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
   /** Grid identifier */
   @Input() id: any;
 
-  /** Flag to show/hide undo button */
-  @Input() undoButton: boolean;
+  /** Flag to show/hide undo button (undefined = semantic default). */
+  @Input() undoButton?: boolean;
 
   /** Default column sorting configuration */
   @Input() defaultColumnSorting: string[];
 
-  /** Flag to show/hide redo button */
-  @Input() redoButton: boolean;
+  /** Flag to show/hide redo button (undefined = semantic default). */
+  @Input() redoButton?: boolean;
 
   /** Flag to show/hide apply changes button */
   @Input() applyChangesButton: boolean;
@@ -459,6 +462,12 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
 
   /** Flag for non-editable mode */
   @Input() nonEditable: boolean;
+
+  /** Disables grid-owned mutation controls and cell editing. */
+  @Input() readOnly = false;
+
+  /** Controls whether discard/undo/redo are shown for grid-owned pending changes. */
+  @Input() changeTracking: GridChangeTrackingMode = 'auto';
 
   /** Grid title */
   @Input() title: string;
@@ -564,7 +573,7 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
       defaultColDef: {
         filter: true,
         sortable: true,
-        editable: !this.nonEditable,
+        editable: !this.nonEditable && !this.readOnly,
         resizable: true,
         minWidth: 100,
         cellStyle: (params) => {
@@ -731,6 +740,62 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
 
   get isInfiniteMode(): boolean {
     return this.rowModelMode === 'infinite';
+  }
+
+  /** True when the grid owns pending create/modify/delete or cell-edit undo state. */
+  get gridOwnsPendingChanges(): boolean {
+    if (this.changeTracking === 'enabled') {
+      return !this.readOnly && !this.isInfiniteMode;
+    }
+    if (this.changeTracking === 'disabled' || this.readOnly || this.isInfiniteMode) {
+      return false;
+    }
+    return this.statusColumn || this.someColumnIsEditable;
+  }
+
+  get showDiscardChangesButton(): boolean {
+    if (this.discardChangesButton !== undefined) {
+      return this.discardChangesButton && !this.readOnly && !this.isInfiniteMode;
+    }
+    return this.gridOwnsPendingChanges;
+  }
+
+  get showUndoButton(): boolean {
+    if (this.undoButton !== undefined) {
+      return this.undoButton && !this.readOnly && !this.isInfiniteMode;
+    }
+    return this.gridOwnsPendingChanges;
+  }
+
+  get showRedoButton(): boolean {
+    if (this.redoButton !== undefined) {
+      return this.redoButton && !this.readOnly && !this.isInfiniteMode;
+    }
+    return this.gridOwnsPendingChanges;
+  }
+
+  get showDeleteButton(): boolean {
+    return this.deleteButton && !this.readOnly;
+  }
+
+  get showNewButton(): boolean {
+    return this.newButton && !this.readOnly;
+  }
+
+  get showAddButton(): boolean {
+    return this.addButton && !this.readOnly;
+  }
+
+  get showRegisterButton(): boolean {
+    return this.registerButton && !this.readOnly;
+  }
+
+  get showReplaceControls(): boolean {
+    return !this.hideReplaceButton && !this.readOnly && !this.isInfiniteMode;
+  }
+
+  get showDuplicateButton(): boolean {
+    return !this.hideDuplicateButton && !this.readOnly;
   }
 
   private expandTruncatedCellColumn(params): void {
@@ -1225,18 +1290,14 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
       this.gridOptions.rowSelection = 'single'
     }
 
-    this.columnDefs.forEach((col) => {
-      if (col.field === 'status') {
-        this.statusColumn = true;
-      }
-      if (col.editable) {
-        this.someColumnIsEditable = true;
-      }
-    });
+    this.statusColumn = false;
+    this.someColumnIsEditable = false;
 
     this.columnDefs = this.columnDefs.map((col) => this.withoutCellTooltips(col));
 
     this.columnDefs = this.prepareColumnDefsForRowModel(this.columnDefs);
+    this.columnDefs = this.applyReadOnlyToColumnDefs(this.columnDefs);
+    this.detectGridCapabilities(this.columnDefs);
 
     // Apply the updated column definitions
     this.gridApi.updateGridOptions({columnDefs: this.columnDefs});
@@ -1270,13 +1331,31 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
     if (this.rowModelMode === 'infinite') {
       return prepareInfiniteColumnDefs(columnDefs);
     }
-    const prepared = prepareClientSideColumnDefs(columnDefs);
-    prepared.forEach((col) => {
-      if (col.field === 'status') {
-        this.statusColumn = true;
+    return prepareClientSideColumnDefs(columnDefs);
+  }
+
+  private applyReadOnlyToColumnDefs(columnDefs: any[]): any[] {
+    if (!this.readOnly) {
+      return columnDefs;
+    }
+    return columnDefs.map((col) => ({...col, editable: false}));
+  }
+
+  private detectGridCapabilities(columnDefs: any[]): void {
+    this.statusColumn = columnDefs.some((col) => col.field === 'status');
+    const defaultColumnsAreEditable = !this.nonEditable && !this.readOnly;
+    this.someColumnIsEditable = columnDefs.some((col) => {
+      if (col.field === 'status' || col.checkboxSelection) {
+        return false;
       }
+      if (col.editable === true) {
+        return true;
+      }
+      if (col.editable === false) {
+        return false;
+      }
+      return defaultColumnsAreEditable;
     });
-    return prepared;
   }
 
   private applyDefaultColumnSorting(): void {
@@ -1481,9 +1560,8 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
   /**
    * Gets all current data from the grid
    * @returns Array of all current row data
-   * @private
    */
-  private getAllCurrentData(): any[] {
+  getAllCurrentData(): any[] {
     const rowData = [];
     this.gridApi.forEachNode(node => rowData.push(node.data));
     return rowData;

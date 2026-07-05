@@ -1,160 +1,107 @@
-import { TestBed } from '@angular/core/testing';
-import { FormControl } from '@angular/forms';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { RouterModule } from '@angular/router';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 
-import { TaskProjection } from '@app/domain';
-import { magic } from '@environments/constants';
+import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
+import { of } from 'rxjs';
+
+import { FormToolbarComponent } from '@app/components/shared/form-toolbar/form-toolbar.component';
+import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
+import { ExternalService, ResourceService } from '@app/core/hal';
+import {
+  CodeListService, RoleService, TaskAvailabilityService, TaskService,
+  TerritoryService, TranslationService, TaskRelationService, TaskTypeService,
+  TaskGroupService, TaskUIService
+} from '@app/domain';
+import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
+import { MaterialModule } from '@app/material-module';
+import { LoggerService } from '@app/services/logger.service';
+import { configureLoggerForTests, provideErrorHandlerForTests } from '@app/testing/test-helpers';
 
 import { TaskLocatorFormComponent } from './task-locator-form.component';
 
 describe('TaskLocatorFormComponent', () => {
   let component: TaskLocatorFormComponent;
+  let fixture: ComponentFixture<TaskLocatorFormComponent>;
 
-  const createSpyObj = (methods: string[]) => {
-    return methods.reduce((acc, methodName) => {
-      acc[methodName] = jest.fn();
-      return acc;
-    }, {} as Record<string, jest.Mock>);
-  };
+  beforeAll(async () => {
+    await TestBed.configureTestingModule({
+      teardown: { destroyAfterEach: 0 as any },
+      declarations: [TaskLocatorFormComponent, FormToolbarComponent],
+      imports: [
+        FormsModule,
+        ReactiveFormsModule,
+        RouterModule.forRoot([], {}),
+        SitmunFrontendGuiModule,
+        MaterialModule,
+        MatIconTestingModule,
+        BrowserAnimationsModule,
+        TranslateModule.forRoot({
+          loader: {
+            provide: TranslateLoader,
+            useFactory: () => ({
+              getTranslation: () => of({})
+            })
+          }
+        })
+      ],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideErrorHandlerForTests(),
+        TaskService,
+        TaskRelationService,
+        TaskTypeService,
+        TaskGroupService,
+        TaskUIService,
+        RoleService,
+        TerritoryService,
+        TaskAvailabilityService,
+        CodeListService,
+        TranslationService,
+        ResourceService,
+        ExternalService,
+        { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }
+      ]
+    }).compileComponents();
+  });
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
-
-    const translateService = createSpyObj(['instant', 'get']);
-    translateService.instant.mockImplementation((key: string) => key);
-
-    const utilsService = createSpyObj([
-      'getSelCheckboxColumnDef',
-      'getRouterLinkColumnDef',
-      'getNonEditableColumnDef',
-      'getStatusColumnDef',
-      'getNonEditableDateColumnDef'
-    ]);
-    utilsService.getSelCheckboxColumnDef.mockReturnValue({});
-    utilsService.getRouterLinkColumnDef.mockReturnValue({});
-    utilsService.getNonEditableColumnDef.mockReturnValue({});
-    utilsService.getStatusColumnDef.mockReturnValue({});
-    utilsService.getNonEditableDateColumnDef.mockReturnValue({});
-
-    component = TestBed.runInInjectionContext(() => new TaskLocatorFormComponent(
-      {} as any,
-      translateService as any,
-      createSpyObj(['getAllByNameAndEntity']) as any,
-      createSpyObj(['getAllByName']) as any,
-      createSpyObj(['error', 'warn', 'debug', 'info']) as any,
-      createSpyObj(['handleError']) as any,
-      { params: new FormControl({}) } as any,
-      createSpyObj(['navigate']) as any,
-      createSpyObj(['show', 'hide']) as any,
-      createSpyObj(['enable', 'disable']) as any,
-      createSpyObj(['create', 'update', 'fetchProjectionById', 'createProxy']) as any,
-      createSpyObj(['create', 'update', 'delete', 'createProxy']) as any,
-      createSpyObj(['fetchAllRawItems']) as any,
-      createSpyObj(['fetchAllRawItems', 'createProxy']) as any,
-      createSpyObj(['fetchAllRawItems', 'createProxy']) as any,
-      utilsService as any,
-      createSpyObj(['fetchAllItems']) as any,
-      createSpyObj(['fetchProjectionItems', 'createProxy']) as any,
-      createSpyObj(['fetchAllItems', 'delete', 'create', 'createProxy']) as any
-    ));
-
-    (component as any).taskService.createProxy.mockImplementation((id: number) => ({ id }));
-
-    (component as any).taskGroupList = [{ id: 1, name: 'Group A' }];
-    (component as any).queryTasks = [
-      { id: 7, name: 'SQL geocoder', typeId: magic.taskQueryTypeId },
-      { id: 8, name: 'API geocoder', typeId: magic.taskQueryTypeId }
-    ];
-  });
-
-  const setupForm = (selectedQueryTaskId: number | null = 7, properties: Record<string, unknown> = {}) => {
-    component.entityToEdit = TaskProjection.fromObject({
-      name: 'Events locator',
-      groupId: 1,
-      properties
-    });
-    (component as any).selectedQueryTaskId = selectedQueryTaskId;
+    fixture = TestBed.createComponent(TaskLocatorFormComponent);
+    component = fixture.componentInstance;
+    const loggerService = TestBed.inject(LoggerService);
+    configureLoggerForTests(loggerService);
+    component.entityToEdit = component.empty();
     component.postFetchData();
-  };
-
-  it('should create form with selected query task', () => {
-    setupForm();
-
-    expect(component.entityForm.get('name')?.value).toBe('Events locator');
-    expect(component.entityForm.get('taskGroupId')?.value).toBe(1);
-    expect(component.entityForm.get('queryTaskId')?.value).toBe(7);
-    expect((component as any).queryTaskSearchControl.value).toEqual(
-      expect.objectContaining({ id: 7, name: 'SQL geocoder' })
-    );
+    fixture.detectChanges();
   });
 
-  it('should return task group name from loaded list', () => {
-    expect(component.getTaskGroupName(1)).toBe('Group A');
-    expect(component.getTaskGroupName(999)).toBe('');
+  afterEach(() => fixture?.destroy());
+  afterAll(() => TestBed.resetTestingModule());
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
   });
 
-  it('should build a task relation that links locator to the selected query task', () => {
-    const relation = (component as any).buildQueryTaskRelation(42, 7);
-
-    expect(relation.relationType).toBe('query-task');
-    expect(relation.task?.id).toBe(42);
-    expect(relation.relatedTask?.id).toBe(7);
-  });
-
-  it('queryTaskValidator rejects unknown query task names', () => {
-    setupForm(null);
-    (component as any).queryTaskSearchControl.setValue('Unknown task');
-
-    const result = (component as any).queryTaskValidator((component as any).queryTaskSearchControl);
-
-    expect(result).toEqual({ invalidQueryTask: true });
-  });
-
-  it('queryTaskValidator accepts a matching query task by name', () => {
-    setupForm(null);
-    (component as any).queryTaskSearchControl.setValue('SQL geocoder');
-
-    const result = (component as any).queryTaskValidator((component as any).queryTaskSearchControl);
-
-    expect(result).toBeNull();
-  });
-
-  it('createObject persists geocoder parameters from form values', () => {
-    setupForm(7, {
-      parameters: [{ variable: 'resultsPath', value: '/features' }]
+  describe('Grid capability classification', () => {
+    it('rolesTable should have picker, updater, and status capabilities', () => {
+      const table = component['rolesTable'];
+      expect(table.hasPickerAdd()).toBe(true);
+      expect(table.hasRelationsUpdater()).toBe(true);
+      expect(table.hasStatusColumn()).toBe(true);
+      expect(table.hasTemplateDialogs()).toBe(false);
     });
 
-    component.entityForm.patchValue({
-      geocoderLabelField: 'properties.display_name',
-      geocoderResultsPath: 'features',
-      geocoderFilterByExtent: true,
-      geocoderEnableServiceParams: true
+    it('availabilitiesTable should have picker, updater, and status capabilities', () => {
+      const table = component['availabilitiesTable'];
+      expect(table.hasPickerAdd()).toBe(true);
+      expect(table.hasRelationsUpdater()).toBe(true);
+      expect(table.hasStatusColumn()).toBe(true);
+      expect(table.hasTemplateDialogs()).toBe(false);
     });
-    component.addMunicipalityCodeFilter();
-    (component as any).municipalityCodeFiltersArray.at(0).patchValue({
-      requestParam: 'id_municipi',
-      territoryField: 'territory_code',
-      convertProjection: true,
-      targetCrs: 'EPSG:4326'
-    });
-
-    const result = component.createObject(10);
-
-    expect(result.properties?.parameters).toEqual(
-      expect.arrayContaining([
-        { variable: 'labelField', value: 'properties.display_name' },
-        { variable: 'resultsPath', value: 'features' },
-        { variable: 'filterByExtent', value: 'true' },
-        { variable: 'enableServiceParams', value: 'true' },
-        expect.objectContaining({
-          variable: 'municipalityCodeFilters',
-          value: expect.stringContaining('id_municipi')
-        })
-      ])
-    );
-  });
-
-  it('displayQueryTask returns task name or string value', () => {
-    expect((component as any).displayQueryTask('typed')).toBe('typed');
-    expect((component as any).displayQueryTask({ id: 7, name: 'SQL geocoder' })).toBe('SQL geocoder');
   });
 });

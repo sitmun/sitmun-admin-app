@@ -318,6 +318,7 @@ export class BackgroundLayersFormComponent extends BaseFormComponent<BackgroundP
       .withTargetsOrder('name')
       .withTargetsFetcher(() => this.roleService.fetchAllItems())
       .withTargetsTitle('entity.permissionGroup.roles.title')
+      .withTargetToRelation((items) => items)
       .build();
   }
 
@@ -414,6 +415,7 @@ export class BackgroundLayersFormComponent extends BaseFormComponent<BackgroundP
         return !cartographies.some((cartography) => cartography.id === item.id);
       })
       .withTargetsTitle('entity.permissionGroup.layers.title')
+      .withTargetToRelation((items) => items)
       .build();
   }
 
