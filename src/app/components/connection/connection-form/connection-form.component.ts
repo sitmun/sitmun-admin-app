@@ -35,7 +35,7 @@ import {UtilsService} from '@app/services/utils.service';
 @Component({
     selector: 'app-connection-form',
     templateUrl: './connection-form.component.html',
-    styles: [],
+    styleUrls: ['./connection-form.component.scss'],
     standalone: false
 })
 export class ConnectionFormComponent extends BaseFormComponent<Connection> {

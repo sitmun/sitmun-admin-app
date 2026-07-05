@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Connections**: connection form adds field hints (name, driver, user, password, JDBC URL, validate) and a Tasks tab intro, aligned with service/layer form patterns.
+
 ## [1.2.7] - 2026-06-05
 
 ### Added
