@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - **Data grid**: relation-grid selection checkbox header/body alignment and flex column fill fixed (missing centered-header CSS; `autoSizeStrategy` now resolved after column prep).
+- **Data grid**: relation-grid status dots visible again (`.sitmun-status-dot` sizing); pending add/modify/delete hints show in the status column; unchanged rows leave the status cell empty.
 
 ## [1.2.7] - 2026-06-05
 
