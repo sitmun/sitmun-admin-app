@@ -1,7 +1,5 @@
 import {
-  clampFlexLayoutFixedColumnWidth,
-  FLEX_LAYOUT_FIXED_COLUMN_MAX_PX,
-  isFixedDisplayColumn,
+  applyDataBasedColumnWidths,
   prepareClientSideColumnDefs,
   resolveAutoSizeStrategy,
   usesContentBasedColumnSizing,
@@ -62,18 +60,49 @@ describe('data-grid-column-layout', () => {
     expect(resolveAutoSizeStrategy('infinite', prepared)).toBeUndefined();
   });
 
-  it('identifies fixed display columns for one-shot content sizing', () => {
-    const prepared = prepareClientSideColumnDefs(relationGridSourceDefs);
+  it('sets fixed relation column widths from row values before rendering', () => {
+    const prepared = prepareClientSideColumnDefs([
+      {headerName: '', checkboxSelection: true, headerCheckboxSelection: true},
+      {headerName: 'Title', field: 'name', minWidth: 150},
+      {headerName: 'Abstract', field: 'description', minWidth: 150},
+      {headerName: 'Status', field: 'status'},
+    ]);
 
-    expect(isFixedDisplayColumn(prepared[0])).toBe(false);
-    expect(isFixedDisplayColumn(prepared[1])).toBe(true);
-    expect(isFixedDisplayColumn(prepared[2])).toBe(false);
-    expect(isFixedDisplayColumn({field: 'status', flex: 0, minWidth: 160, maxWidth: 160})).toBe(false);
+    const sized = applyDataBasedColumnWidths(prepared, [
+      {name: 'Short', description: 'Description'},
+      {name: 'CAE1M (Guia de carrers) - Carrers (fons fosc)', description: 'Long abstract'},
+    ], 1000);
+
+    expect(sized[1]).toEqual(expect.objectContaining({field: 'name', flex: 0, width: 416}));
+    expect(sized[2]).toEqual(expect.objectContaining({field: 'description', flex: 1}));
+    expect(sized[3]).toEqual(expect.objectContaining({field: 'status', width: 160}));
   });
 
-  it('clamps fixed column width using minWidth and viewport cap', () => {
-    expect(clampFlexLayoutFixedColumnWidth(400, 116, 971)).toBe(FLEX_LAYOUT_FIXED_COLUMN_MAX_PX);
-    expect(clampFlexLayoutFixedColumnWidth(200, 116, 971)).toBe(200);
-    expect(clampFlexLayoutFixedColumnWidth(80, 116, 971)).toBe(116);
+  it('honors explicit maxWidth when estimating data-based widths', () => {
+    const prepared = prepareClientSideColumnDefs([
+      {headerName: '', checkboxSelection: true, headerCheckboxSelection: true},
+      {headerName: 'Title', field: 'name', minWidth: 150, maxWidth: 220},
+      {headerName: 'Abstract', field: 'description', minWidth: 150},
+    ]);
+
+    const sized = applyDataBasedColumnWidths(prepared, [
+      {name: 'This title is intentionally much longer than the column cap', description: 'Abstract'},
+    ], 1000);
+
+    expect(sized[1]).toEqual(expect.objectContaining({field: 'name', width: 220, maxWidth: 220}));
+  });
+
+  it('uses the default cap when hidden tab grids report no viewport width', () => {
+    const prepared = prepareClientSideColumnDefs([
+      {headerName: '', checkboxSelection: true, headerCheckboxSelection: true},
+      {headerName: 'Name', field: 'name', minWidth: 150},
+      {headerName: 'Task type', field: 'typeName', minWidth: 150},
+    ]);
+
+    const sized = applyDataBasedColumnWidths(prepared, [
+      {name: 'Very long task name that should not be clamped to the minimum width', typeName: 'Query'},
+    ], 0);
+
+    expect(sized[1]).toEqual(expect.objectContaining({field: 'name', width: 480}));
   });
 });

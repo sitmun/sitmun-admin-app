@@ -504,9 +504,9 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
     return DataTableDefinition.builder<CartographyProjection, CartographyProjection>(this.dialog, this.errorHandler, this.loadingService)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
-        this.utils.getEditableColumnDef('entity.service.layer.title', 'name', 150, 300),
-        this.utils.getNonEditableColumnDef('entity.service.layer.name', 'layers', 150, 300),
-        this.utils.getEditableColumnDef('entity.service.layer.abstract', 'description', 150, 450),
+        this.utils.getEditableColumnDef('entity.service.layer.title', 'name', 150),
+        this.utils.getNonEditableColumnDef('entity.service.layer.name', 'layers', 150),
+        this.utils.getEditableColumnDef('entity.service.layer.abstract', 'description', 150),
         this.utils.getStatusColumnDef()
       ])
       .withRelationsOrder('name')

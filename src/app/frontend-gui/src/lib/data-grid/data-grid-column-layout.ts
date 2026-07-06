@@ -6,6 +6,11 @@
  
 export type DataGridColumnDef = Record<string, any>;
 
+const TEXT_WIDTH_FACTOR_PX = 8;
+const CELL_CHROME_PX = 56;
+const DEFAULT_DATA_WIDTH_CAP_PX = 480;
+const DATA_WIDTH_VIEWPORT_FRACTION = 0.45;
+
 function narrowCheckboxColumn(col: DataGridColumnDef): DataGridColumnDef {
   return {
     ...col,
@@ -183,42 +188,76 @@ export function usesContentBasedColumnSizing(
   return !usesFlexColumnLayout(columnDefs);
 }
 
-/** Max width for a single fixed label column in flex-layout relation grids. */
-export const FLEX_LAYOUT_FIXED_COLUMN_MAX_PX = 320;
+/**
+ * Estimates fixed column widths from row values before AG Grid renders the rows.
+ * This avoids the visible post-render width change caused by DOM-based auto-sizing.
+ */
+export function applyDataBasedColumnWidths<T>(
+  columnDefs: DataGridColumnDef[],
+  rows: T[],
+  viewportWidth: number,
+  getValue: (row: T, colDef: DataGridColumnDef) => unknown = defaultColumnValue,
+): DataGridColumnDef[] {
+  if (!usesFlexColumnLayout(columnDefs) || rows.length === 0) {
+    return columnDefs;
+  }
 
-/** Max share of viewport width a single fixed label column may take. */
-export const FLEX_LAYOUT_FIXED_COLUMN_VIEWPORT_FRACTION = 0.4;
+  return columnDefs.map((colDef) => {
+    if (!isDataSizedFixedColumn(colDef)) {
+      return colDef;
+    }
 
-/** True for flex:0 data columns that should be auto-sized to content (not checkbox/status/icon-fixed). */
-export function isFixedDisplayColumn(colDef: DataGridColumnDef): boolean {
-  if (colDef.checkboxSelection) {
+    const minWidth = colDef.minWidth ?? colDef.width ?? 100;
+    const maxWidth = colDef.maxWidth ?? defaultDataWidthCap(minWidth, viewportWidth);
+    const headerWidth = estimateHeaderMinWidth(colDef.headerName ?? '');
+    const contentWidth = rows.reduce((maxWidthForRows, row) => {
+      const value = getValue(row, colDef);
+      const text = Array.isArray(value) ? value.join(',') : `${value ?? ''}`;
+      return Math.max(maxWidthForRows, estimateCellTextWidth(text));
+    }, headerWidth);
+    const width = Math.min(Math.max(contentWidth, minWidth), Math.max(minWidth, maxWidth));
+
+    return {
+      ...colDef,
+      width,
+    };
+  });
+}
+
+function isDataSizedFixedColumn(colDef: DataGridColumnDef): boolean {
+  if (colDef.checkboxSelection || colDef.field === 'status') {
     return false;
   }
   if (colDef.flex !== 0) {
     return false;
   }
-  if (!colDef.field && !colDef.colId) {
-    return false;
-  }
-  if (colDef.field === 'status') {
-    return false;
-  }
-  if (colDef.maxWidth !== undefined && colDef.maxWidth === colDef.minWidth) {
-    return false;
-  }
-  return true;
+  return !!(colDef.field || colDef.colId);
 }
 
-/** Clamp auto-sized fixed column width between minWidth and viewport-aware cap. */
-export function clampFlexLayoutFixedColumnWidth(
-  contentWidth: number,
-  minWidth: number,
-  viewportWidth: number,
-  maxPx: number = FLEX_LAYOUT_FIXED_COLUMN_MAX_PX,
-  viewportFraction: number = FLEX_LAYOUT_FIXED_COLUMN_VIEWPORT_FRACTION
-): number {
-  const cap = Math.min(maxPx, Math.floor(Math.max(minWidth, viewportWidth) * viewportFraction));
-  return Math.min(Math.max(contentWidth, minWidth), Math.max(minWidth, cap));
+function estimateCellTextWidth(text: string): number {
+  return Math.ceil(text.trim().length * TEXT_WIDTH_FACTOR_PX) + CELL_CHROME_PX;
+}
+
+function defaultDataWidthCap(minWidth: number, viewportWidth: number): number {
+  if (viewportWidth <= 0) {
+    return Math.max(minWidth, DEFAULT_DATA_WIDTH_CAP_PX);
+  }
+  const viewportCap = Math.floor(Math.max(minWidth, viewportWidth) * DATA_WIDTH_VIEWPORT_FRACTION);
+  return Math.max(minWidth, Math.min(DEFAULT_DATA_WIDTH_CAP_PX, viewportCap));
+}
+
+function defaultColumnValue<T>(row: T, colDef: DataGridColumnDef): unknown {
+  if (!colDef.field) {
+    return '';
+  }
+  return (colDef.field as string)
+    .split('.')
+    .reduce<unknown>((value, key) => {
+      if (value == null || typeof value !== 'object') {
+        return undefined;
+      }
+      return (value as Record<string, unknown>)[key];
+    }, row);
 }
 
 /** Auto-size strategy for prepared column defs; undefined when flex layout or infinite mode applies. */

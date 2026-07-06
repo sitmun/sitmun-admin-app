@@ -45,8 +45,7 @@ import {UtilsService} from '@app/services/utils.service';
 import {constants} from '@environments/constants';
 
 import {
-  clampFlexLayoutFixedColumnWidth,
-  isFixedDisplayColumn,
+  applyDataBasedColumnWidths,
   prepareClientSideColumnDefs,
   prepareInfiniteColumnDefs,
   resolveAutoSizeStrategy,
@@ -1117,9 +1116,12 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
           }
         });
 
-        this.rowData = this.currentData ? newItems : data;
+        const nextRowData = this.currentData ? newItems : data;
 
         if (this.gridApi && !this.gridApi.isDestroyed()) {
+          this.applyPreRenderColumnWidths(nextRowData);
+          this.rowData = nextRowData;
+
           // Set the data
           this.gridApi.setGridOption('rowData', this.rowData);
 
@@ -1129,6 +1131,8 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
               this.applyColumnSizing();
             }
           });
+        } else {
+          this.rowData = nextRowData;
         }
 
         this.isFirstLoad = false;
@@ -1218,8 +1222,6 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
       return;
     }
 
-    this.autoSizeFixedDisplayColumns();
-
     const displayedColumns = this.gridApi?.getAllDisplayedColumns?.() ?? [];
     const viewportWidth = this.getGridViewportWidth();
     const totalWidth = displayedColumns.reduce((total: number, column: any) => {
@@ -1230,47 +1232,42 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
     this.gridApi.setGridOption('alwaysShowHorizontalScroll', this.hasHiddenColumns);
   }
 
-  /** One-shot content sizing for flex:0 label columns; flex-grow columns keep filling the remainder. */
-  private autoSizeFixedDisplayColumns(): void {
-    if (!this.gridApi || this.gridApi.isDestroyed()) {
+  private applyPreRenderColumnWidths(rows: any[]): void {
+    if (!this.gridApi || this.gridApi.isDestroyed() || !usesFlexColumnLayout(this.columnDefs)) {
       return;
     }
 
-    const fixedColIds = this.columnDefs
-      .filter(isFixedDisplayColumn)
-      .map((col) => this.getColumnDefId(col))
-      .filter((colId): colId is string => !!colId);
+    const columnDefs = applyDataBasedColumnWidths(
+      this.columnDefs,
+      rows,
+      this.getGridViewportWidth(),
+      (row, colDef) => this.getColumnValueForWidth(row, colDef),
+    );
+    this.columnDefs = columnDefs;
+    this.gridApi.updateGridOptions({columnDefs});
+  }
 
-    if (fixedColIds.length === 0) {
-      return;
-    }
-
-    try {
-      this.gridApi.autoSizeColumns(fixedColIds);
-    } catch (error) {
-      this.loggerService.warn('AG Grid: Could not auto-size fixed display columns', error);
-      return;
-    }
-
-    const viewportWidth = this.getGridViewportWidth();
-    const state = fixedColIds.flatMap((colId) => {
-      const column = this.gridApi.getColumn?.(colId);
-      if (!column) {
-        return [];
+  private getColumnValueForWidth(row: any, colDef: any): unknown {
+    if (typeof colDef.valueGetter === 'function') {
+      try {
+        return colDef.valueGetter({data: row, colDef});
+      } catch {
+        return '';
       }
-      const colDef = column.getColDef?.() ?? {};
-      const minWidth = colDef.minWidth ?? colDef.width ?? 100;
-      const actualWidth = column.getActualWidth?.() ?? minWidth;
-      const width = clampFlexLayoutFixedColumnWidth(actualWidth, minWidth, viewportWidth);
-      if (width === actualWidth) {
-        return [];
-      }
-      return [{colId, flex: null, width}];
-    });
-
-    if (state.length > 0) {
-      this.gridApi.applyColumnState({state, applyOrder: false});
     }
+
+    if (!colDef.field) {
+      return '';
+    }
+
+    return (colDef.field as string)
+      .split('.')
+      .reduce<unknown>((value, key) => {
+        if (value == null || typeof value !== 'object') {
+          return undefined;
+        }
+        return (value as Record<string, unknown>)[key];
+      }, row);
   }
 
   /**
