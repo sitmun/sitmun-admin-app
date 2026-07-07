@@ -281,6 +281,39 @@ describe('ApplicationFormComponent', () => {
       expect(component['applicationBackgroundsTable'].hasTemplateDialogs()).toBe(false);
     });
 
+    it('applicationBackgroundsTable should sort relations by order', () => {
+      expect(component['applicationBackgroundsTable'].defaultRelationsSorting()).toEqual(['order']);
+    });
+
+    it('applicationBackgroundsTable updater should preserve HAL links when updating order', async () => {
+      const updateSpy = jest
+        .spyOn(applicationBackgroundService, 'update')
+        .mockReturnValue(of({} as any));
+      component.entityID = 99;
+      const row = {
+        id: 1,
+        backgroundId: 2,
+        order: 5,
+        status: 'pendingModify',
+        _links: { self: { href: '/api/application-backgrounds/1' } }
+      } as any;
+
+      await component['applicationBackgroundsTable']['relationsUpdateFn']([row]);
+
+      expect(updateSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: 1,
+          order: 5,
+          _links: {
+            self: { href: expect.stringContaining('/application-backgrounds/1') }
+          }
+        })
+      );
+      const updatedEntity = updateSpy.mock.calls[0][0];
+      expect(updatedEntity.application).toBeDefined();
+      expect(updatedEntity.background).toBeDefined();
+    });
+
     it('parametersTable should have template-dialog, updater, and status capabilities', () => {
       const table = component['parametersTable'];
       expect(table.hasTemplateDialogs()).toBe(true);

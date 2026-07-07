@@ -797,7 +797,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
         this.utils.getEditableColumnDef('common.form.order', 'order'),
         this.utils.getStatusColumnDef()
       ])
-      .withRelationsOrder('backgroundName')
+      .withRelationsOrder('order')
       .withRelationsFetcher(() => {
         if (this.isNew()) {
           return of([]);
@@ -813,12 +813,11 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
           return this.applicationBackgroundService.create(newItem)
         });
         await onUpdate(applicationBackgrounds).forEach(item => {
-          const newItem = ApplicationBackground.of(
-            this.applicationService.createProxy(this.entityID),
-            this.backgroundService.createProxy(item.backgroundId),
-            item.order);
-          newItem.id = item.id;
-          return this.applicationBackgroundService.update(newItem);
+          const entity = this.applicationBackgroundService.createProxy(item.id)!;
+          entity.application = this.applicationService.createProxy(this.entityID)!;
+          entity.background = this.backgroundService.createProxy(item.backgroundId)!;
+          entity.order = item.order;
+          return this.applicationBackgroundService.update(entity);
         });
         await onDelete(applicationBackgrounds).forEach(item => {
           const newItem = this.applicationBackgroundService.createProxy(item.id);

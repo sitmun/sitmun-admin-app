@@ -338,7 +338,7 @@ export class BackgroundLayersFormComponent extends BaseFormComponent<BackgroundP
         this.utils.getEditableColumnDef('common.form.order', 'order'),
         this.utils.getStatusColumnDef()
       ])
-      .withRelationsOrder('applicationName')
+      .withRelationsOrder('order')
       .withRelationsFetcher(() => {
         if (this.isNew()) {
           return of([]);
@@ -350,8 +350,13 @@ export class BackgroundLayersFormComponent extends BaseFormComponent<BackgroundP
           .map(item => ApplicationBackground.of(this.applicationService.createProxy(item.applicationId), this.backgroundService.createProxy(this.entityToEdit.id), item.order))
           .forEach(item => this.applicationBackgroundService.create(item));
         await onUpdate(applicationBackgrounds)
-          .map(item => ApplicationBackground.of(this.applicationService.createProxy(item.applicationId), this.backgroundService.createProxy(this.entityToEdit.id), item.order))
-          .forEach(item => this.applicationBackgroundService.update(item));
+          .forEach(item => {
+            const entity = this.applicationBackgroundService.createProxy(item.id)!;
+            entity.application = this.applicationService.createProxy(item.applicationId)!;
+            entity.background = this.backgroundService.createProxy(this.entityToEdit.id)!;
+            entity.order = item.order;
+            return this.applicationBackgroundService.update(entity);
+          });
         await onDelete(applicationBackgrounds)
           .map(item => this.applicationBackgroundService.createProxy(item.id))
           .forEach(item => this.applicationBackgroundService.delete(item));
