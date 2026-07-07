@@ -563,9 +563,6 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
         const translated = this.translate.instant(key);
         return translated !== key ? translated : params.defaultValue;
       },
-      autoSizeStrategy: {
-        type: 'fitCellContents'
-      },
       onCellMouseOver: (params) => this.markTruncatedCell(params),
       onCellMouseOut: (params) => this.unmarkTruncatedCell(params),
       onCellClicked: (params) => this.expandTruncatedCellColumn(params),
@@ -628,7 +625,7 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
    * Handles component initialization
    */
   ngOnInit(): void {
-    this.configureAutoSizeStrategy();
+    this.configureInitialAutoSizeStrategy();
 
     // Set up debounced search (300ms delay)
     this.searchSubject
@@ -1071,11 +1068,16 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
-  private syncAutoSizeStrategyToGrid(): void {
-    if (!this.gridApi || this.gridApi.isDestroyed()) {
-      return;
-    }
-    this.gridApi.setGridOption('autoSizeStrategy', this.gridOptions.autoSizeStrategy);
+  private configureInitialAutoSizeStrategy(): void {
+    const preparedColumnDefs = this.columnDefs?.length
+      ? this.applyReadOnlyToColumnDefs(
+          this.prepareColumnDefsForRowModel(
+            this.columnDefs.map((col) => this.withoutCellTooltips(col))
+          )
+        )
+      : [];
+
+    this.configureAutoSizeStrategy(preparedColumnDefs);
   }
 
   /**
@@ -1298,9 +1300,6 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
 
     // Apply the updated column definitions
     this.gridApi.updateGridOptions({columnDefs: this.columnDefs});
-
-    this.configureAutoSizeStrategy(this.columnDefs);
-    this.syncAutoSizeStrategyToGrid();
 
     this.applyDefaultColumnSorting();
 
@@ -2386,8 +2385,8 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
    * @param changes - SimpleChanges object containing changed properties
    */
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes.rowModelMode) {
-      this.configureAutoSizeStrategy();
+    if (changes.rowModelMode && !changes.rowModelMode.firstChange) {
+      this.configureInitialAutoSizeStrategy();
     }
     if (changes.rowData && !changes.rowData.firstChange) {
       this.updateGridData(changes.rowData.currentValue);
