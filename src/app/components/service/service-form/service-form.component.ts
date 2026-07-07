@@ -462,6 +462,8 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
                 description: capabilities.abstract?.substring(0, 4000),
                 supportedSRS: capabilities.supportedSRS
               });
+              this.applyCapabilitiesTranslations('name', capabilities.titleTranslations, 60);
+              this.applyCapabilitiesTranslations('description', capabilities.abstractTranslations, 4000);
               // patchValue does not mark the form dirty; save is gated on dirty in canSaveEntity.
               this.entityForm.markAsDirty();
             })
@@ -469,6 +471,37 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
         }
       }
     });
+  }
+
+  /**
+   * Prefills translation rows from WMS capabilities alternate-language texts.
+   *
+   * @param property - Translatable entity property (`name` or `description`)
+   * @param translations - Map of language shortname to capability text
+   * @param maxLength - Maximum allowed length for the target field
+   */
+  private applyCapabilitiesTranslations(
+    property: 'description' | 'name',
+    translations: Map<string, string>,
+    maxLength: number,
+  ): void {
+    const propertyTranslations = this.propertyTranslations.get(property);
+    if (!propertyTranslations || translations.size === 0) {
+      return;
+    }
+
+    let updated = false;
+    translations.forEach((text, lang) => {
+      const translationRow = propertyTranslations.map.get(lang);
+      if (translationRow) {
+        translationRow.translation = text.substring(0, maxLength);
+        updated = true;
+      }
+    });
+
+    if (updated) {
+      propertyTranslations.modified = true;
+    }
   }
 
   /**
