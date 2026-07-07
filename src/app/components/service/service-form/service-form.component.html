@@ -119,41 +119,45 @@
               <mat-hint align="end">{{ entityForm.get('supportedSRS') | characterCount:250 }}</mat-hint>
             </mat-form-field>
           </ng-container>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card
+        class="sitmun-mat-card-margin sitmun-service-form-proxy-auth-card"
+        appearance="outlined">
+        <mat-card-content class="sitmun-service-form-stack">
           <div class="sitmun-toggle-row">
             <mat-slide-toggle color="primary" formControlName="isProxied">
               {{ 'entity.service.proxied' | translate }}
             </mat-slide-toggle>
             <p class="sitmun-toggle-hint">{{ 'entity.service.hint.proxied' | translate }}</p>
           </div>
-        </mat-card-content>
-      </mat-card>
-
-      <mat-card class="sitmun-mat-card-margin" appearance="outlined">
-        <mat-card-content class="sitmun-service-form-stack">
-          <mat-form-field appearance="outline" class="quarter">
-            <mat-label>{{ 'entity.service.authenticationMode' | translate }}</mat-label>
-            <mat-select formControlName="authenticationMode" [placeholder]="'common.form.none' | translate">
-              <mat-option [value]="mode.value" *ngFor="let mode of serviceAuthenticationModes">
-                {{ mode.description }}
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
-          <div
-            class="sitmun-service-form-auth-credentials"
-            *ngIf="entityForm.get('authenticationMode').value !== 'None'"
-          >
-            <mat-form-field appearance="outline" class="half sitmun-cartography-rich-hint-field" subscriptSizing="dynamic">
-              <mat-label>{{ 'entity.service.user' | translate }}</mat-label>
-              <input matInput type="text" formControlName="user" [maxlength]="50">
-              <mat-hint align="start">{{ 'entity.service.hint.user' | translate }}</mat-hint>
-              <mat-hint align="end">{{ entityForm.get('user') | characterCount }}</mat-hint>
+          <div class="sitmun-service-form-auth-fields">
+            <mat-form-field appearance="outline" class="quarter">
+              <mat-label>{{ 'entity.service.authenticationMode' | translate }}</mat-label>
+              <mat-select formControlName="authenticationMode" [placeholder]="'common.form.none' | translate">
+                <mat-option [value]="mode.value" *ngFor="let mode of serviceAuthenticationModes">
+                  {{ mode.description }}
+                </mat-option>
+              </mat-select>
             </mat-form-field>
-            <mat-form-field appearance="outline" class="half sitmun-cartography-rich-hint-field" subscriptSizing="dynamic">
-              <mat-label>{{ 'entity.service.password' | translate }}</mat-label>
-              <input matInput type="password" formControlName="password" [maxlength]="50">
-              <mat-hint align="start">{{ 'entity.service.hint.password' | translate }}</mat-hint>
-              <mat-hint align="end">{{ entityForm.get('password') | characterCount }}</mat-hint>
-            </mat-form-field>
+            <div
+              class="sitmun-service-form-auth-credentials"
+              *ngIf="entityForm.get('authenticationMode').value !== 'None'"
+            >
+              <mat-form-field appearance="outline" class="half sitmun-cartography-rich-hint-field" subscriptSizing="dynamic">
+                <mat-label>{{ 'entity.service.user' | translate }}</mat-label>
+                <input matInput type="text" formControlName="user" [maxlength]="50">
+                <mat-hint align="start">{{ 'entity.service.hint.user' | translate }}</mat-hint>
+                <mat-hint align="end">{{ entityForm.get('user') | characterCount }}</mat-hint>
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="half sitmun-cartography-rich-hint-field" subscriptSizing="dynamic">
+                <mat-label>{{ 'entity.service.password' | translate }}</mat-label>
+                <input matInput type="password" formControlName="password" [maxlength]="50">
+                <mat-hint align="start">{{ 'entity.service.hint.password' | translate }}</mat-hint>
+                <mat-hint align="end">{{ entityForm.get('password') | characterCount }}</mat-hint>
+              </mat-form-field>
+            </div>
           </div>
         </mat-card-content>
       </mat-card>

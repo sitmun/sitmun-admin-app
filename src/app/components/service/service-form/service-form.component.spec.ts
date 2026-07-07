@@ -1645,5 +1645,86 @@ describe('ServiceFormComponent', () => {
       expect(component.propertyTranslations.get('description')?.modified).toBe(false);
     });
   });
+
+  describe('proxy authentication sync', () => {
+    beforeEach(() => {
+      component.dataLoaded = true;
+      component.entityForm.patchValue({
+        name: 'test',
+        type: 'WMS',
+        serviceURL: 'https://example.com/wms',
+      });
+      fixture.detectChanges();
+    });
+
+    it('always shows the proxy and authentication card', () => {
+      component.entityForm.patchValue({isProxied: false});
+      fixture.detectChanges();
+
+      expect(fixture.debugElement.query(By.css('.sitmun-service-form-proxy-auth-card'))).not.toBeNull();
+    });
+
+    it('always shows authentication fields', () => {
+      component.entityForm.patchValue({isProxied: false});
+      fixture.detectChanges();
+
+      expect(fixture.debugElement.query(By.css('.sitmun-service-form-auth-fields'))).not.toBeNull();
+    });
+
+    it('disables authentication fields when proxy is disabled', () => {
+      component.entityForm.patchValue({isProxied: false});
+      fixture.detectChanges();
+
+      expect(component.isProxyEnabled()).toBe(false);
+      expect(component.entityForm.get('authenticationMode')?.disabled).toBe(true);
+      expect(component.entityForm.get('user')?.disabled).toBe(true);
+      expect(component.entityForm.get('password')?.disabled).toBe(true);
+    });
+
+    it('enables authentication fields when proxy is enabled', () => {
+      component.entityForm.patchValue({isProxied: true, authenticationMode: 'HTTP Basic authentication'});
+      fixture.detectChanges();
+
+      expect(component.isProxyEnabled()).toBe(true);
+      expect(component.entityForm.get('authenticationMode')?.disabled).toBe(false);
+      expect(component.entityForm.get('user')?.disabled).toBe(false);
+      expect(component.entityForm.get('password')?.disabled).toBe(false);
+    });
+
+    it('clears authentication fields when proxy is disabled', () => {
+      component.entityForm.patchValue({
+        isProxied: true,
+        authenticationMode: 'HTTP Basic authentication',
+        user: 'proxy-user',
+        password: 'proxy-pass',
+      });
+
+      component.entityForm.patchValue({isProxied: false});
+      fixture.detectChanges();
+
+      expect(component.entityForm.get('authenticationMode')?.value).toBe('None');
+      expect(component.entityForm.get('user')?.value).toBeNull();
+      expect(component.entityForm.get('password')?.value).toBeNull();
+    });
+
+    it('preserves authentication fields for proxied services on load', () => {
+      component.entityToEdit = Object.assign(component.empty(), {
+        name: 'proxied-service',
+        type: 'WMS',
+        serviceURL: 'https://example.com/wms',
+        isProxied: true,
+        authenticationMode: 'HTTP Basic authentication',
+        user: 'stored-user',
+        password: 'stored-pass',
+      });
+      component.postFetchData();
+      fixture.detectChanges();
+
+      expect(component.isProxyEnabled()).toBe(true);
+      expect(component.entityForm.get('authenticationMode')?.value).toBe('HTTP Basic authentication');
+      expect(component.entityForm.get('user')?.value).toBe('stored-user');
+      expect(component.entityForm.get('password')?.value).toBe('stored-pass');
+    });
+  });
 });
 
