@@ -1,4 +1,7 @@
 
+import { readFileSync } from 'fs';
+import { join } from 'path';
+
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -42,6 +45,8 @@ import {configureLoggerForTests, provideErrorHandlerForTests} from '@app/testing
 import {constants} from '@environments/constants';
 
 import { LayersFormComponent } from './layers-form.component';
+
+const layersFormTemplate = readFileSync(join(__dirname, 'layers-form.component.html'), 'utf8');
 
 describe('LayersFormComponent', () => {
   let component: LayersFormComponent;
@@ -743,6 +748,43 @@ describe('LayersFormComponent', () => {
       expect(table.hasStatusColumn()).toBe(true);
       expect(table.supportsDuplicate()).toBe(false);
       expect(table.hasPickerAdd()).toBe(false);
+    });
+  });
+
+  describe('template markup', () => {
+    it('does not use the undefined and-gap utility class', () => {
+      expect(layersFormTemplate).not.toContain('and-gap');
+      expect(layersFormTemplate).toContain('add-gap');
+    });
+
+    it('uses primary slide toggles in modal dialogs instead of checkboxes', () => {
+      const styleDialog = layersFormTemplate.match(/#newStyleDialog[\s\S]*?<\/ng-template>/)?.[0] ?? '';
+      const filterDialog = layersFormTemplate.match(/#newTerritorialFilterDialog[\s\S]*?<\/ng-template>/)?.[0] ?? '';
+
+      expect(styleDialog).toContain('mat-slide-toggle color="primary" formControlName="defaultStyle"');
+      expect(styleDialog).not.toContain('mat-checkbox formControlName="defaultStyle"');
+      expect(filterDialog).toContain('mat-slide-toggle color="primary" formControlName="required"');
+      expect(filterDialog).not.toContain('mat-checkbox formControlName="required"');
+    });
+  });
+
+  describe('grid boolean column sizing', () => {
+    it('constrains the filters required column width', () => {
+      const requiredColumn = component['territorialFiltersTable'].relationsColumnsDefs
+        .find(col => col.field === 'required');
+
+      expect(requiredColumn.flex).toBe(0);
+      expect(requiredColumn.minWidth).toBe(100);
+      expect(requiredColumn.maxWidth).toBe(120);
+    });
+
+    it('constrains the styles defaultStyle column width', () => {
+      const defaultStyleColumn = component['stylesTable'].relationsColumnsDefs
+        .find(col => col.field === 'defaultStyle');
+
+      expect(defaultStyleColumn.flex).toBe(0);
+      expect(defaultStyleColumn.minWidth).toBe(100);
+      expect(defaultStyleColumn.maxWidth).toBe(120);
     });
   });
 

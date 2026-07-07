@@ -64,6 +64,7 @@ export function calculateDialogWidth(columnDefsTable: any[][]): number {
   const SCROLLBAR_WIDTH = 20;
   const MIN_WIDTH = 640;
   const MAX_WIDTH = Math.min(900, window.innerWidth * 0.9);
+  const FLEX_SHARE_RATIO = 0.45;
 
   let maxWidth = 0;
 
@@ -71,21 +72,29 @@ export function calculateDialogWidth(columnDefsTable: any[][]): number {
     return MIN_WIDTH;
   }
 
+  const availableForFlex = MAX_WIDTH - DIALOG_PADDING - SCROLLBAR_WIDTH;
+
   for (const columnDefs of columnDefsTable) {
-    let tableWidth = 0;
+    let fixedWidth = 0;
+    let flexMinWidth = 0;
+    let flexColumnCount = 0;
 
     for (const col of columnDefs || []) {
-      if (col.width) {
-        tableWidth += col.width;
-      } else if (col.maxWidth) {
-        tableWidth += col.maxWidth;
-      } else if (col.minWidth) {
-        tableWidth += col.minWidth;
-      } else if (col.field === 'actions' || col.field === 'action') {
-        tableWidth += ACTION_COLUMN_WIDTH;
+      const isFlex = (col.flex ?? 0) > 0;
+      const columnWidth = resolveColumnWidth(col, DEFAULT_COLUMN_WIDTH, ACTION_COLUMN_WIDTH);
+
+      if (isFlex) {
+        flexColumnCount++;
+        flexMinWidth += col.minWidth ?? DEFAULT_COLUMN_WIDTH;
       } else {
-        tableWidth += DEFAULT_COLUMN_WIDTH;
+        fixedWidth += columnWidth;
       }
+    }
+
+    let tableWidth = fixedWidth + flexMinWidth;
+    if (flexColumnCount > 0) {
+      const remaining = Math.max(0, availableForFlex - fixedWidth - flexMinWidth);
+      tableWidth += Math.floor(remaining * FLEX_SHARE_RATIO);
     }
 
     maxWidth = Math.max(maxWidth, tableWidth);
@@ -93,6 +102,22 @@ export function calculateDialogWidth(columnDefsTable: any[][]): number {
 
   const calculatedWidth = maxWidth + DIALOG_PADDING + SCROLLBAR_WIDTH;
   return Math.max(MIN_WIDTH, Math.min(calculatedWidth, MAX_WIDTH));
+}
+
+function resolveColumnWidth(col: any, defaultWidth: number, actionWidth: number): number {
+  if (col.width) {
+    return col.width;
+  }
+  if (col.maxWidth) {
+    return col.maxWidth;
+  }
+  if (col.minWidth) {
+    return col.minWidth;
+  }
+  if (col.field === 'actions' || col.field === 'action') {
+    return actionWidth;
+  }
+  return defaultWidth;
 }
 
 /**
@@ -185,7 +210,8 @@ export async function openDialogGridWithPreload(
       overflow: auto;
       display: flex;
       flex-direction: column;
-      min-height: 300px;
+      min-height: 0;
+      max-height: min(80vh, 720px);
     }
 
     .loading-container {
@@ -266,6 +292,8 @@ export class DialogGridComponent implements OnInit {
   }
 
   getAllSelectedRows() {
+    this.allRowsReceived = [];
+    this.tablesReceivedCounter = 0;
     this.getAllRows.next(true);
   }
 
@@ -287,22 +315,22 @@ export class DialogGridComponent implements OnInit {
   }
 
   getOrderTable(index: number): string | null {
-    return this.orderTable.length >= index ? 
+    return index >= 0 && index < this.orderTable.length ?
       this.orderTable[index] : null;
   }
 
   getAddFieldRestriction(index: number): any {
-    return this.addFieldRestriction.length >= index ? 
+    return index >= 0 && index < this.addFieldRestriction.length ?
       this.addFieldRestriction[index] : null;
   }
 
   getCurrentData(index: number): any {
-    return this.currentData.length >= index ? 
+    return index >= 0 && index < this.currentData.length ?
       this.currentData[index] : null;
   }
 
   getFieldRestrictionWithDifferentName(index: number): any {
-    return this.fieldRestrictionWithDifferentName.length >= index ? 
+    return index >= 0 && index < this.fieldRestrictionWithDifferentName.length ?
       this.fieldRestrictionWithDifferentName[index] : null;
   }
 

@@ -13,6 +13,11 @@ All notable changes to this project will be documented in this file. The format 
 - **Application backgrounds**: relation order updates now persist on save by updating existing HAL resources instead of rebuilding rows without `_links` ([#428](https://github.com/sitmun/sitmun-admin-app/issues/428)).
 - **Auth**: `Principal.identity()` treats `/api/account` 401 as anonymous instead of leaving a stale authenticated flag.
 - **Messages**: skip error toast handling for 401 responses so auth-expired flow owns session cleanup.
+- **Dialogs**: `dialog-form` and `dialog-grid` Add buttons no longer close before validation or row collection completes.
+- **Dialogs**: dual-tab pickers preserve inactive grid selections via `preserveContent` and reset collection state between Add attempts.
+- **Dialogs**: picker width heuristics account for flex columns; content area scrolls instead of reserving fixed empty height.
+- **Layers**: filter/style modal booleans use primary slide toggles; boolean grid columns use bounded width; fix `add-gap` typo on feature-information field.
+- **UX**: grid boolean checkboxes use primary accent; experimental tab icons are hidden from screen readers.
 
 ### Changed
 
@@ -29,3 +34,4 @@ All notable changes to this project will be documented in this file. The format 
 
 - **Tests**: Jest coverage for multilingual WMS metadata parsing (`WMSCapabilitiesService`) and service-form translation prefill on metadata fetch.
 - **Tests**: Jest coverage for `Principal`, `authGuard`, `AuthExpiredInterceptor`, and HAL `ResourceService` credential handling.
+- **Tests**: Jest coverage for dialog Add validation, grid selection batching, layers form template markup, and feature-flag icon a11y.

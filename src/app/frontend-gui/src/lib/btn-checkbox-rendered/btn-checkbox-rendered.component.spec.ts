@@ -53,4 +53,9 @@ describe('BtnCheckboxRenderedComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('renders the Material checkbox with primary color', () => {
+    const checkbox = fixture.nativeElement.querySelector('mat-checkbox');
+    expect(checkbox.getAttribute('ng-reflect-color')).toBe('primary');
+  });
 });

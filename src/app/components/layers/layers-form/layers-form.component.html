@@ -195,7 +195,7 @@
             <mat-slide-toggle color="primary" formControlName="queryableFeatureAvailable">
               {{ 'entity.cartography.featureInformation.layerAll' | translate }}
             </mat-slide-toggle>
-            <mat-form-field appearance="outline" class="half and-gap"
+            <mat-form-field appearance="outline" class="half add-gap"
                             *ngIf="entityForm.get('queryableFeatureAvailable').value !== true">
               <mat-label>{{ 'entity.cartography.featureInformation.layerFilter' | translate }}</mat-label>
               <input matInput type="text" formControlName="joinedQueryableLayers">
@@ -382,9 +382,9 @@
       <mat-label>{{ 'entity.cartography.styles.parameters.description' | translate }}</mat-label>
       <input matInput type="text" formControlName="description">
     </mat-form-field>
-    <mat-checkbox formControlName="defaultStyle">
+    <mat-slide-toggle color="primary" formControlName="defaultStyle">
       {{ 'entity.cartography.styles.parameters.defaultStyle' | translate }}
-    </mat-checkbox>
+    </mat-slide-toggle>
     <mat-form-field appearance="outline" class="full">
       <mat-label>{{ 'entity.cartography.styles.parameters.url' | translate }}</mat-label>
       <input appUrlInput matInput type="text" formControlName="url">
@@ -442,8 +442,8 @@
         </mat-option>
       </mat-select>
     </mat-form-field>
-    <mat-checkbox formControlName="required">
+    <mat-slide-toggle color="primary" formControlName="required">
       {{ 'entity.cartography.filters.parameters.required' | translate }}
-    </mat-checkbox>
+    </mat-slide-toggle>
   </form>
 </ng-template>

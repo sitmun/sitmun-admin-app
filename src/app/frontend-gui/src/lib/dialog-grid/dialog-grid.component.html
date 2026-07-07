@@ -30,7 +30,7 @@
       </mat-card-content>
     </div>
   </mat-card>
-  <mat-tab-group *ngIf="getAllsTable.length>1">
+  <mat-tab-group *ngIf="getAllsTable.length>1" preserveContent="true">
     <mat-tab
       *ngFor="let getAll of getAllsTable; let i = index"
       [label]="(titlesTable[i] | translate) || ''">
@@ -73,7 +73,6 @@
   </button>
   <button
     matTooltip="{{ 'common.button.add' | translate }}"
-    [mat-dialog-close]="true"
     mat-mini-fab class="add-half-gap"
     color="primary"
     (click)="getAllSelectedRows()">

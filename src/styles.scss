@@ -124,6 +124,15 @@ h2 {
 .ag-theme-material {
   --ag-odd-row-background-color: rgba(0, 0, 0, 0.02);
   --ag-row-hover-color: rgba(0, 0, 0, 0.06);
+
+  // The Material theme sizes the inline editor taller than the row
+  // (row-height + grid-size*3). With domLayout="autoHeight" rows are fixed
+  // height, so the editor overflows and overlaps the adjacent row. Constrain
+  // it to the row height so editing stays within its own row.
+  .ag-cell-inline-editing {
+    height: var(--ag-row-height);
+    padding: 0 var(--ag-grid-size);
+  }
 }
 
 // Apply gray background only to authenticated pages
@@ -155,6 +164,11 @@ app-login .mat-app-background {
 .formDialogs {
   min-width: min(640px, 90vw);
   max-width: min(800px, 90vw);
+}
+
+.formDialogs mat-dialog-content {
+  max-height: min(80vh, 720px);
+  overflow-y: auto;
 }
 
 

@@ -446,7 +446,8 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
           this.loggerService.debug('territorialLevelId', x);
           return this.territorialTypes.find(item => item.id === x)?.name ?? '';
         }), flex: 0, minWidth: 130},
-        this.utils.getBooleanColumnDef('entity.cartography.filters.parameters.required', 'required', true),
+        {...this.utils.getBooleanColumnDef('entity.cartography.filters.parameters.required', 'required', true),
+          flex: 0, minWidth: 100, maxWidth: 120},
         this.utils.getStatusColumnDef()
       ])
       .withRelationsFetcher(() => {
@@ -508,7 +509,8 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
         {...this.utils.getEditableColumnDef('entity.cartography.styles.parameters.name', 'name', 120), flex: 0},
-        this.utils.getBooleanColumnDef('entity.cartography.styles.parameters.defaultStyle', 'defaultStyle', true, null, null, true),
+        {...this.utils.getBooleanColumnDef('entity.cartography.styles.parameters.defaultStyle', 'defaultStyle', true, null, null, true),
+          flex: 0, minWidth: 100, maxWidth: 120},
         {...this.utils.getEditableColumnDef('entity.cartography.styles.parameters.title', 'title', 120), flex: 0},
         {...this.utils.getEditableColumnDef('entity.cartography.styles.parameters.description', 'description', 100, 180), flex: 0},
         {...this.utils.getEditableColumnWithLinkDef('entity.cartography.styles.parameters.url', 'legendURL.onlineResource', 200), flex: 1, minWidth: 200},
