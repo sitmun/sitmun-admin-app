@@ -66,7 +66,7 @@ export class ResourceArray<T extends Resource> implements ArrayInterface<T> {
     /** Load next page */
     next = (type: { new(): T }): Observable<ResourceArray<T>> => {
         if (this.next_uri) {
-            return ResourceHelper.getHttp().get(ResourceHelper.getProxy(this.next_uri), {headers: ResourceHelper.headers}).pipe(
+            return ResourceHelper.getHttp().get(ResourceHelper.getProxy(this.next_uri), ResourceHelper.authenticatedOptions({headers: ResourceHelper.headers})).pipe(
                 map(response => this.init(type, response, this.sortInfo)),
               catchError(error => throwError(() => error)),);
         }
@@ -76,7 +76,7 @@ export class ResourceArray<T extends Resource> implements ArrayInterface<T> {
     /** Load previous page */
     prev = (type: { new(): T }): Observable<ResourceArray<T>> => {
         if (this.prev_uri) {
-            return ResourceHelper.getHttp().get(ResourceHelper.getProxy(this.prev_uri), {headers: ResourceHelper.headers}).pipe(
+            return ResourceHelper.getHttp().get(ResourceHelper.getProxy(this.prev_uri), ResourceHelper.authenticatedOptions({headers: ResourceHelper.headers})).pipe(
                 map(response => this.init(type, response, this.sortInfo)),
               catchError(error => throwError(() => error)),);
         }
@@ -86,7 +86,7 @@ export class ResourceArray<T extends Resource> implements ArrayInterface<T> {
     /** Load first page */
     first = (type: { new(): T }): Observable<ResourceArray<T>> => {
         if (this.first_uri) {
-            return ResourceHelper.getHttp().get(ResourceHelper.getProxy(this.first_uri), {headers: ResourceHelper.headers}).pipe(
+            return ResourceHelper.getHttp().get(ResourceHelper.getProxy(this.first_uri), ResourceHelper.authenticatedOptions({headers: ResourceHelper.headers})).pipe(
                 map(response => this.init(type, response, this.sortInfo)),
               catchError(error => throwError(() => error)),);
         }
@@ -96,7 +96,7 @@ export class ResourceArray<T extends Resource> implements ArrayInterface<T> {
     /** Load last page */
     last = (type: { new(): T }): Observable<ResourceArray<T>> => {
         if (this.last_uri) {
-            return ResourceHelper.getHttp().get(ResourceHelper.getProxy(this.last_uri), {headers: ResourceHelper.headers}).pipe(
+            return ResourceHelper.getHttp().get(ResourceHelper.getProxy(this.last_uri), ResourceHelper.authenticatedOptions({headers: ResourceHelper.headers})).pipe(
                 map(response => this.init(type, response, this.sortInfo)),
               catchError(error => throwError(() => error)),);
         }
@@ -117,7 +117,7 @@ export class ResourceArray<T extends Resource> implements ArrayInterface<T> {
       urlObj.searchParams.set('page', String(pageNumber));
       let uri = urlObj.toString();
         uri = this.addSortInfo(uri);
-      return ResourceHelper.getHttp().get(uri, {headers: ResourceHelper.headers}).pipe(
+      return ResourceHelper.getHttp().get(uri, ResourceHelper.authenticatedOptions({headers: ResourceHelper.headers})).pipe(
         map(response => this.init(type, response, this.sortInfo)),
         catchError(error => throwError(() => error)),
       );
@@ -136,7 +136,7 @@ export class ResourceArray<T extends Resource> implements ArrayInterface<T> {
       urlObj.searchParams.set('page', String(this.pageNumber));
       let uri = urlObj.toString();
         uri = this.addSortInfo(uri);
-      return ResourceHelper.getHttp().get(uri, {headers: ResourceHelper.headers}).pipe(
+      return ResourceHelper.getHttp().get(uri, ResourceHelper.authenticatedOptions({headers: ResourceHelper.headers})).pipe(
         map(response => this.init(type, response, sort)),
         catchError(error => throwError(() => error)),
       );
@@ -152,7 +152,7 @@ export class ResourceArray<T extends Resource> implements ArrayInterface<T> {
       urlObj.searchParams.set('size', String(size));
       let uri = urlObj.toString();
         uri = this.addSortInfo(uri);
-      return ResourceHelper.getHttp().get(uri, {headers: ResourceHelper.headers}).pipe(
+      return ResourceHelper.getHttp().get(uri, ResourceHelper.authenticatedOptions({headers: ResourceHelper.headers})).pipe(
         map(response => this.init(type, response, this.sortInfo)),
         catchError(error => throwError(() => error)),
       );

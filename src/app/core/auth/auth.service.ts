@@ -1,6 +1,5 @@
-import {HttpClient} from '@angular/common/http';
+import {HttpClient, HttpResponse} from '@angular/common/http';
 import {Injectable} from '@angular/core';
-import {Router} from '@angular/router';
 
 import {Observable} from 'rxjs';
 import {map} from 'rxjs/operators';
@@ -24,7 +23,6 @@ export class AuthService {
   constructor(
     private readonly http: HttpClient,
     private readonly resourceService: ResourceService,
-    private readonly router: Router
   ) {
   }
 
@@ -44,22 +42,17 @@ export class AuthService {
     );
   }
 
-  /** logout operation */
-  logout(): Observable<any> {
-    this.http
-      .post<void>(this.resourceService.getResourceUrl(this.LOGOUT_API),
-        null,
-        {observe: 'response', withCredentials: true})
-      .subscribe(() => {
-        this.router.navigate(['login']);
-      });
-    return new Observable((observer) => {
-      observer.complete();
-    });
+  /** Clears the session cookie on the backend. */
+  logout(): Observable<HttpResponse<void>> {
+    return this.http.post<void>(
+      this.resourceService.getResourceUrl(this.LOGOUT_API),
+      null,
+      {observe: 'response', withCredentials: true}
+    );
   }
 
   getEnabledAuthMethods(): Observable<LoginMethod[]> {
-    return this.http.get<any>(this.resourceService.getResourceUrl(this.AUTH_METHODS_API));
+    return this.http.get<any>(this.resourceService.getResourceUrl(this.AUTH_METHODS_API), { withCredentials: true });
   }
 
 }

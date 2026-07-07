@@ -17,24 +17,31 @@ export class AuthExpiredInterceptor implements HttpInterceptor {
         private router: Router
     ) {}
 
-  private redirecting = false;
+  private handlingUnauthorized = false;
 
     /** request handler */
     intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
         return next.handle(request).pipe(
           catchError(
-                (err: any) => {
+                (err: unknown) => {
                     if (err instanceof HttpErrorResponse) {
                       const unauthorized = err.status === 401;
                       const isAuth = request.url.includes('authenticate');
                       const onLogin = this.router.url.startsWith('/login');
 
-                      if (unauthorized && !isAuth && !onLogin && !this.redirecting) {
-                        this.redirecting = true;
-                        this.loginService.logout();
+                      if (unauthorized && !isAuth && !onLogin && !this.handlingUnauthorized) {
+                        this.handlingUnauthorized = true;
+                        // Clear only local state; do NOT POST logout, which would
+                        // delete the shared access_token cookie and cascade the
+                        // logout to every other tab on the next request.
+                        this.loginService.clearSession();
                         void this.router.navigate(['/login']).finally(() => {
-                          this.redirecting = false;
+                          this.handlingUnauthorized = false;
                         });
+                        // Defensive reset if navigation never settles.
+                        setTimeout(() => {
+                          this.handlingUnauthorized = false;
+                        }, 3000);
                       }
                     }
                   return throwError(() => err)

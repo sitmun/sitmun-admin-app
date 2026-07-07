@@ -19,10 +19,6 @@ export * from './account/account.service';
 // Export config services
 export * from './config/external-configuration.service';
 
-// Export directives
-export * from './directives/has-any-authority.directive';
-export * from './directives/has-any-authority-on-territory.directive';
-
 // Export guards
 export * from './guards/can-deactivate-guard.service';
 

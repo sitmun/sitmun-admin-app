@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import {ModuleWithProviders, NgModule, Optional, SkipSelf} from '@angular/core';
 import {MatIconModule} from '@angular/material/icon';
 import {RouterModule} from '@angular/router';
@@ -10,8 +10,6 @@ import {LoginService} from './auth/login.service';
 import {Principal} from './auth/principal.service';
 import {ConfigModule} from './config/config.module';
 import {ConfigurationService} from './config/configuration.service';
-import {HasAnyAuthorityOnTerritoryDirective} from './directives/has-any-authority-on-territory.directive';
-import {HasAnyAuthorityDirective} from './directives/has-any-authority.directive';
 import {FeatureFlagComponent} from './features/feature-flag.component';
 import {FeatureFlagDirective} from './features/feature-flag.directive';
 import {FeatureFlagPipe} from './features/feature-flag.pipe';
@@ -24,22 +22,18 @@ import {MessagesInterceptor} from './interceptors/messages.interceptor';
 // SITMUN configuration services
 
 @NgModule({ declarations: [
-        HasAnyAuthorityDirective,
-        HasAnyAuthorityOnTerritoryDirective,
         FeatureFlagDirective,
         FeatureFlagPipe,
         FeatureFlagComponent
     ],
     exports: [
-        HasAnyAuthorityDirective,
-        HasAnyAuthorityOnTerritoryDirective,
         FeatureFlagDirective,
         FeatureFlagPipe,
         FeatureFlagComponent
     ], imports: [CommonModule,
         RouterModule,
         MatIconModule,
-        ConfigModule.forRoot()], providers: [provideHttpClient(withInterceptorsFromDi())] })
+        ConfigModule.forRoot()] })
 export class CoreModule {
   constructor(@Optional() @SkipSelf() parentModule?: CoreModule) {
     if (parentModule) {

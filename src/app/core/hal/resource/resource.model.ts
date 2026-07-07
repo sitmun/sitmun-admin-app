@@ -69,10 +69,10 @@ export abstract class Resource {
         return acc;
       }, {});
 
-      const observable = ResourceHelper.getHttp().get(ResourceHelper.getProxy(url), {
+      const observable = ResourceHelper.getHttp().get(ResourceHelper.getProxy(url), ResourceHelper.authenticatedOptions({
         headers: ResourceHelper.headers,
         params: remainingOptions
-      });
+      }));
       return observable.pipe(map(response => {
           const collection = ResourceHelper.instantiateResourceCollection<T>(type, response, result);
           return collection;
@@ -102,10 +102,10 @@ export abstract class Resource {
     const params = ResourceHelper.optionParams(new HttpParams(), options);
     const result: ResourceArray<T> = ResourceHelper.createEmptyResult<T>((_embedded === null || _embedded === undefined) ? "_embedded" : _embedded);
     if (!(this._links === null || this._links === undefined) && !(this._links[relation] === null || this._links[relation] === undefined)) {
-      const observable = ResourceHelper.getHttp().get(ResourceHelper.getProxy(this._links[relation].href), {
+      const observable = ResourceHelper.getHttp().get(ResourceHelper.getProxy(this._links[relation].href), ResourceHelper.authenticatedOptions({
         headers: ResourceHelper.headers,
         params: params
-      });
+      }));
       return observable.pipe(map(response => ResourceHelper.instantiateResourceCollection<T>(type, response, result, builder)),
         map((array: ResourceArray<T>) => array.result),);
     } else {
@@ -133,10 +133,10 @@ export abstract class Resource {
         return acc;
       }, {});
 
-      const observable = ResourceHelper.getHttp().get(ResourceHelper.getProxy(url), {
+      const observable = ResourceHelper.getHttp().get(ResourceHelper.getProxy(url), ResourceHelper.authenticatedOptions({
         headers: ResourceHelper.headers,
         params: remainingOptions
-      });
+      }));
       return observable.pipe(map(response => Object.assign(new type(), response)))
     } else {
       if (Resource.loggerService) {
@@ -159,7 +159,7 @@ export abstract class Resource {
   }, relation: string, builder?: SubTypeBuilder): Observable<T> {
     let result: T = new type();
     if (!(this._links === null || this._links === undefined) && !(this._links[relation] === null || this._links[relation] === undefined)) {
-      const observable = ResourceHelper.getHttp().get(ResourceHelper.getProxy(this._links[relation].href), {headers: ResourceHelper.headers});
+      const observable = ResourceHelper.getHttp().get(ResourceHelper.getProxy(this._links[relation].href), ResourceHelper.authenticatedOptions({headers: ResourceHelper.headers}));
       return observable.pipe(map((data: any) => {
         if (builder) {
           for (const embeddedClassName of Object.keys(data['_links'])) {
@@ -192,7 +192,7 @@ export abstract class Resource {
       return ResourceHelper.getHttp().post(
         ResourceHelper.getProxy(targetUrl),
         body,
-        {headers: header}
+        ResourceHelper.authenticatedOptions({headers: header})
       );
     } else {
       return throwError(() => new Error('no relation found'));
@@ -210,7 +210,7 @@ export abstract class Resource {
       return ResourceHelper.getHttp().post(
         ResourceHelper.getProxy(url),
         body,
-        {headers: header}
+        ResourceHelper.authenticatedOptions({headers: header})
       );
     } else {
       return throwError(() => new Error('no relation found'));
@@ -239,10 +239,10 @@ export abstract class Resource {
       }, {});
 
       if (resource == null) {
-        return ResourceHelper.getHttp().delete(ResourceHelper.getProxy(url), {
+        return ResourceHelper.getHttp().delete(ResourceHelper.getProxy(url), ResourceHelper.authenticatedOptions({
           headers: ResourceHelper.headers,
           params: remainingOptions
-        });
+        }));
       } else if (resource._links?.self?.href) {
         const body = ResourceHelper.normalizeTemplatedUrl(
           resource._links.self.href
@@ -250,10 +250,10 @@ export abstract class Resource {
         return ResourceHelper.getHttp().put(
           ResourceHelper.getProxy(url),
           body,
-          {
+          ResourceHelper.authenticatedOptions({
             headers: new HttpHeaders().set('Content-Type', 'text/uri-list'),
             params: remainingOptions
-          }
+          })
         );
       } else  {
         if (Resource.loggerService) {
@@ -297,7 +297,7 @@ export abstract class Resource {
       return ResourceHelper.getHttp().patch(
         ResourceHelper.getProxy(targetUrl),
         body,
-        {headers: header}
+        ResourceHelper.authenticatedOptions({headers: header})
       );
     } else {
       return throwError(() => new Error('no relation found'));
@@ -315,7 +315,7 @@ export abstract class Resource {
       const body = ResourceHelper.normalizeTemplatedUrl(
         resource._links.self.href
       );
-      return ResourceHelper.getHttp().put(url, body, {headers: header});
+      return ResourceHelper.getHttp().put(url, body, ResourceHelper.authenticatedOptions({headers: header}));
     } else {
       return throwError(() => new Error('no relation found'));
     }
@@ -332,7 +332,7 @@ export abstract class Resource {
       if (Resource.loggerService) {
         Resource.loggerService.debug("Substituting relation", {url: url, body: body});
       }
-      return ResourceHelper.getHttp().put(url, body, {headers: header});
+      return ResourceHelper.getHttp().put(url, body, ResourceHelper.authenticatedOptions({headers: header}));
     } else {
       return throwError(() => new Error('no relation found'));
     }
@@ -371,7 +371,7 @@ export abstract class Resource {
     return ResourceHelper.getHttp().put<void>(
       url,
       resourceUrls,
-      {headers}
+      ResourceHelper.authenticatedOptions({headers})
     ).pipe(
       catchError(error => {
         if (Resource.loggerService) {
@@ -386,7 +386,7 @@ export abstract class Resource {
     if (this._links?.[relation]?.href) {
       const header = ResourceHelper.headers.append('Content-Type', 'text/uri-list');
       const body = ids.join('\n');
-      return ResourceHelper.getHttp().put(ResourceHelper.getProxy(this._links[relation].href), body, {headers: header});
+      return ResourceHelper.getHttp().put(ResourceHelper.getProxy(this._links[relation].href), body, ResourceHelper.authenticatedOptions({headers: header}));
     } else {
       return throwError(() => new Error('no relation found'));
     }
@@ -407,7 +407,7 @@ export abstract class Resource {
 
       const template = utpl(this._links[relation].href);
       const url = template.fillFromObject({});
-      return ResourceHelper.getHttp().delete(ResourceHelper.getProxy(url + '/' + relationId), {headers: ResourceHelper.headers});
+      return ResourceHelper.getHttp().delete(ResourceHelper.getProxy(url + '/' + relationId), ResourceHelper.authenticatedOptions({headers: ResourceHelper.headers}));
     } else {
       return throwError(() => new Error('no relation found'));
     }
@@ -417,7 +417,7 @@ export abstract class Resource {
     if (this._links?.[relation]?.href) {
       const template = utpl(this._links[relation].href);
       const url = template.fillFromObject({});
-      return ResourceHelper.getHttp().delete(ResourceHelper.getProxy(url + '/' + id), {headers: ResourceHelper.headers});
+      return ResourceHelper.getHttp().delete(ResourceHelper.getProxy(url + '/' + id), ResourceHelper.authenticatedOptions({headers: ResourceHelper.headers}));
     } else {
       return throwError(() => new Error('no relation found'));
     }
@@ -428,7 +428,7 @@ export abstract class Resource {
   public deleteAllRelation(relation: string): Observable<any> {
     const template = utpl(this._links[relation].href);
     const url = template.fillFromObject({});
-    return ResourceHelper.getHttp().delete(ResourceHelper.getProxy(url), {headers: ResourceHelper.headers});
+    return ResourceHelper.getHttp().delete(ResourceHelper.getProxy(url), ResourceHelper.authenticatedOptions({headers: ResourceHelper.headers}));
 
   }
 

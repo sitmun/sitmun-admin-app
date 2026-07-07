@@ -1,5 +1,4 @@
 import {CommonModule,registerLocaleData} from '@angular/common';
-import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import localeCa from '@angular/common/locales/ca';
 import localeEs from '@angular/common/locales/es';
 import {
@@ -82,6 +81,6 @@ registerLocaleData(localeEs, 'es');
         })
         // NOTE: DataGridComponent and DialogGridComponent NOT imported here to avoid circular dependency
         // They're standalone and imported directly in AppModule and components that need them
-    ], providers: [provideHttpClient(withInterceptorsFromDi())] })
+    ] })
 export class SitmunFrontendGuiModule {
 }

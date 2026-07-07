@@ -6,7 +6,11 @@ import {MatTree} from '@angular/material/tree';
 import {TranslateService} from '@ngx-translate/core';
 import {BehaviorSubject, firstValueFrom, Observable, Subscription} from 'rxjs';
 
-import {TreeRulesService} from '@app/domain';
+// Import directly from the service file rather than the '@app/domain' barrel to
+// avoid a circular initialization: the barrel re-exports modules that transitively
+// load this component, so via the barrel TreeRulesService is still undefined when
+// the module-scope helper below runs.
+import {TreeRulesService} from '@app/domain/tree/services/tree-rules.service';
 import {config} from '@config';
 import {constants} from '@environments/constants';
 

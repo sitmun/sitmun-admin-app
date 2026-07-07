@@ -1,5 +1,5 @@
 import { provideHttpClient } from '@angular/common/http';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed, inject } from '@angular/core/testing';
 
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
@@ -43,4 +43,16 @@ describe('AccountService', () => {
   it('should be created', inject([AccountService], (service: AccountService) => {
     expect(service).toBeTruthy();
   }));
+
+  it('should request the account with credentials so the auth cookie is sent cross-origin', inject(
+    [AccountService, HttpTestingController],
+    (service: AccountService, httpMock: HttpTestingController) => {
+      service.get().subscribe();
+
+      const req = httpMock.expectOne((request) => request.url.endsWith('/account'));
+      expect(req.request.withCredentials).toBe(true);
+      req.flush({});
+      httpMock.verify();
+    }
+  ));
 });

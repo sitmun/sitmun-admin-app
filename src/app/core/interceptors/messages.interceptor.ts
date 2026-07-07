@@ -78,6 +78,9 @@ export class MessagesInterceptor implements HttpInterceptor {
                     this.utilsService.disableLoading();
                 }),
                 catchError((error) => {
+                    if (error.status === 401) {
+                      return throwError(() => error);
+                    }
                     if(error.status!=404){
                       let title: string;
                       let message: string;

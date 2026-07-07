@@ -351,7 +351,6 @@ function getDefaultLanguage(languages: any[], appConfigService?: AppConfigServic
         }),
         APP_ROUTING,
         BrowserAnimationsModule,
-        CoreModule,
         NgOptimizedImage,
         CardLeadComponent,
         EntityFormAlertsComponent,

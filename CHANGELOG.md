@@ -11,7 +11,21 @@ All notable changes to this project will be documented in this file. The format 
 - **Services**: obtaining service details prefills `Service.name` and `Service.description` translation rows from alternate `xml:lang` entries; when the DB default language is absent from capabilities, the first entry still populates the main field and its language translation row (e.g. `ca` + `es` with default `en`) ([#46](https://github.com/sitmun/sitmun-application-stack/issues/46)).
 - **Application parameters**: bind service update/delete in the parameters relation updater so saves no longer throw `TypeError`.
 - **Application backgrounds**: relation order updates now persist on save by updating existing HAL resources instead of rebuilding rows without `_links` ([#428](https://github.com/sitmun/sitmun-admin-app/issues/428)).
+- **Auth**: `Principal.identity()` treats `/api/account` 401 as anonymous instead of leaving a stale authenticated flag.
+- **Messages**: skip error toast handling for 401 responses so auth-expired flow owns session cleanup.
+
+### Changed
+
+- **Auth**: `authGuard` reloads account identity with credentials and allows transient fetch failures when local session state remains authenticated.
+- **Auth**: `AuthExpiredInterceptor` clears local session via `LoginService.clearSession()` without POSTing logout, avoiding cross-tab cookie deletion on stray 401 responses.
+- **Auth**: explicit logout routes through `LoginService.logout()` returning an `Observable` so callers wait for backend cookie removal before navigation.
+- **HAL**: HAL `Resource` and `AccountService` requests send `withCredentials: true` so session cookies reach the API.
+
+### Removed
+
+- **Auth**: remove `HasAnyAuthorityDirective`, `HasAnyAuthorityOnTerritoryDirective`, and unused `Principal` authority helpers from `@app/core`.
 
 ### Added
 
 - **Tests**: Jest coverage for multilingual WMS metadata parsing (`WMSCapabilitiesService`) and service-form translation prefill on metadata fetch.
+- **Tests**: Jest coverage for `Principal`, `authGuard`, `AuthExpiredInterceptor`, and HAL `ResourceService` credential handling.
