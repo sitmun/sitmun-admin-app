@@ -587,8 +587,8 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
           newItem.application = this.applicationService.createProxy(this.entityID);
           return this.applicationParameterService.create(newItem);
         })
-        await onUpdate(applicationParameters).forEach(this.applicationParameterService.update);
-        await onDelete(applicationParameters).forEach(this.applicationParameterService.delete);
+        await onUpdate(applicationParameters).forEach(item => this.applicationParameterService.update(item));
+        await onDelete(applicationParameters).forEach(item => this.applicationParameterService.delete(item));
       })
       .withTemplateDialog('newParameterDialog', () => TemplateDialog.builder()
         .withReference(this.newParameterDialog)
