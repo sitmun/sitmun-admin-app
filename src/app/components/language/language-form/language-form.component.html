@@ -8,12 +8,25 @@
   [dataLoaded]="dataLoaded"
   (save)="onSaveButtonClicked()"
   (back)="utils.navigateBack()">
+  <button
+    *ngIf="dataLoaded && !isNewOrDuplicated() && !isDefaultLanguage"
+    [matTooltip]="'entity.language.setAsDefault' | translate"
+    [disabled]="!canSetAsDefault"
+    mat-mini-fab
+    class="add-half-gap"
+    color="primary"
+    type="button"
+    (click)="setAsDefault($event)">
+    <mat-icon fontSet="material-icons-round">star</mat-icon>
+  </button>
 </app-form-toolbar>
 
 <app-entity-form-alerts
   *ngIf="dataLoaded"
   [form]="entityForm"
-  entityLabelPrefix="entity.language">
+  entityLabelPrefix="entity.language"
+  [customAlertMessage]="isDefaultLanguage ? ('entity.language.defaultLanguageInfo' | translate) : null"
+  [infoStyle]="isDefaultLanguage && entityForm?.valid">
 </app-entity-form-alerts>
 
 <mat-tab-group
@@ -30,6 +43,7 @@
             <mat-label>{{ 'entity.language.shortname' | translate }}</mat-label>
             <input matInput type="text" formControlName="shortname" [maxlength]="20" required>
             <mat-hint align="end">{{entityForm.get('shortname') | characterCount}}</mat-hint>
+            <mat-hint *ngIf="!isNewOrDuplicated()" align="start">{{ 'entity.language.shortnameImmutableHint' | translate }}</mat-hint>
             <mat-error *ngIf="entityForm.get('shortname')?.hasError('required') && entityForm.get('shortname')?.touched">
               {{ 'common.error.required' | translate }}
             </mat-error>

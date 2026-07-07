@@ -27,6 +27,7 @@ import {ConnectionComponent} from '@app/components/connection/connection.compone
 import {DashboardComponent} from '@app/components/dashboard/dashboard.component';
 import {DataTablesRegistry} from "@app/components/data-tables.util";
 import {ErrorPageComponent} from "@app/components/error-page/error-page.component";
+import {DefaultLanguageChangeDialogComponent} from '@app/components/language/default-language-change-dialog/default-language-change-dialog.component';
 import {LanguageFormComponent} from '@app/components/language/language-form/language-form.component';
 import {LanguageComponent} from '@app/components/language/language.component';
 import {LayersFormComponent} from '@app/components/layers/layers-form/layers-form.component';
@@ -321,6 +322,7 @@ function getDefaultLanguage(languages: any[], appConfigService?: AppConfigServic
         NotificationComponent,
         LanguageComponent,
         LanguageFormComponent,
+        DefaultLanguageChangeDialogComponent,
         TerritoryTypeComponent,
         TerritoryTypeFormComponent,
         TaskTypeComponent,

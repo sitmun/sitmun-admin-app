@@ -1,4 +1,4 @@
-import { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest, HttpResponse } from '@angular/common/http';
+import { HttpContextToken, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest, HttpResponse } from '@angular/common/http';
 import {Injectable, Injector, NgZone} from '@angular/core';
 
 import {TranslateService} from '@ngx-translate/core';
@@ -10,6 +10,8 @@ import {ErrorTrackingService} from '@app/services/error-tracking.service';
 import {NotificationService} from '@app/services/notification.service';
 import {UtilsService} from '@app/services/utils.service';
 import {getProblemTranslationKey, isProblemDetail, getErrorMessage, formatValidationErrors, getExtraValidationErrorCount} from '@app/utils/problem-detail.utils';
+
+export const SUPPRESS_HTTP_NOTIFICATION = new HttpContextToken<boolean>(() => false);
 
 @Injectable({
   providedIn: 'root'
@@ -180,7 +182,9 @@ export class MessagesInterceptor implements HttpInterceptor {
                         // This can happen during app initialization
                       }
                       
-                      this.notificationService.showError(title, message, true);
+                      if (!request.context.get(SUPPRESS_HTTP_NOTIFICATION)) {
+                        this.notificationService.showError(title, message, true);
+                      }
                       return throwError(() => error);
                     }
                   return EMPTY;
@@ -191,7 +195,8 @@ export class MessagesInterceptor implements HttpInterceptor {
                         // This allows suppressing notifications during batch operations
                         if (this.stateService.isEnabled()) {
                             // Show unified success message for all successful operations
-                            if (request.method === "POST" || request.method === "PUT" || request.method === "DELETE") {
+                            if ((request.method === "POST" || request.method === "PUT" || request.method === "DELETE")
+                              && !request.context.get(SUPPRESS_HTTP_NOTIFICATION)) {
                                 this.notificationService.showSuccess('backend.status.title', 'backend.operation.saved');
                             }
                         }

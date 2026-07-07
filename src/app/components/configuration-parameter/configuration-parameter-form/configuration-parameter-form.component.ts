@@ -24,6 +24,7 @@ import {UtilsService} from '@app/services/utils.service';
 })
 export class ConfigurationParameterFormComponent extends BaseFormComponent<ConfigurationParameter> {
   readonly config = Configuration.CONFIGURATION_PARAMETER;
+  isProtectedParameter = false;
 
   constructor(
     dialog: MatDialog,
@@ -65,10 +66,19 @@ export class ConfigurationParameterFormComponent extends BaseFormComponent<Confi
     if (!this.entityToEdit) {
       throw new Error('Cannot initialize form: entity is undefined');
     }
+
+    // Check if this is the protected language.default parameter
+    this.isProtectedParameter = this.entityToEdit.name === 'language.default';
+
     this.entityForm = new UntypedFormGroup({
       name: new UntypedFormControl(this.entityToEdit.name, [Validators.required]),
       value: new UntypedFormControl(this.entityToEdit.value, []),
     });
+
+    // Disable form fields for protected parameters
+    if (this.isProtectedParameter) {
+      this.entityForm.disable();
+    }
   }
 
   createObject(id: number = null): ConfigurationParameter {
@@ -83,13 +93,29 @@ export class ConfigurationParameterFormComponent extends BaseFormComponent<Confi
     return ConfigurationParameter.fromObject(safeToEdit);
   }
 
+  override get canSaveEntity(): boolean {
+    // Cannot save protected parameters
+    if (this.isProtectedParameter) {
+      return false;
+    }
+    return super.canSaveEntity;
+  }
+
   override async createEntity(): Promise<number> {
+    if (this.isProtectedParameter) {
+      const message = this.translateService.instant('entity.configurationParameter.languageDefaultProtection');
+      throw new Error(message);
+    }
     const entityToCreate = this.createObject();
     const response = await firstValueFrom(this.configurationParametersService.create(entityToCreate));
     return response.id;
   }
 
   override async updateEntity(): Promise<void> {
+    if (this.isProtectedParameter) {
+      const message = this.translateService.instant('entity.configurationParameter.languageDefaultProtection');
+      throw new Error(message);
+    }
     const entityToUpdate = this.createObject(this.entityID);
     await firstValueFrom(this.configurationParametersService.update(entityToUpdate));
   }

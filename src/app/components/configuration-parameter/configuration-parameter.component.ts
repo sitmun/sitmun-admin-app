@@ -75,11 +75,34 @@ export class ConfigurationParameterComponent extends BaseListComponent<Configura
   }
 
   override async postFetchData(): Promise<void> {
-    const nameCol: any = this.utils.getRouterLinkColumnDef('common.form.name', 'name', 'configurationParameter/:id/configurationParameterForm', {id: 'id'}, 200);
+    const isProtectedParam = (params: any) => params.data?.name === 'language.default';
+
+    // Checkbox column with protection
+    const checkboxCol: any = this.utils.getRowCheckboxColumnDef();
+    checkboxCol.checkboxSelection = (params: any) => !isProtectedParam(params);
+    checkboxCol.headerCheckboxSelection = true;
+
+    const nameCol: any = {
+      ...this.utils.getRouterLinkColumnDef('common.form.name', 'name', 'configurationParameter/:id/configurationParameterForm', {id: 'id'}, 200),
+      valueGetter: (params) => {
+        const name = params.data?.name || '';
+        const isProtected = isProtectedParam(params);
+        return isProtected ? `${name} 🔒` : name;
+      },
+      cellRendererParams: {
+        ...this.utils.getRouterLinkColumnDef('common.form.name', 'name', 'configurationParameter/:id/configurationParameterForm', {id: 'id'}, 200).cellRendererParams,
+        sortField: 'name',
+        disabled: isProtectedParam
+      }
+    };
     nameCol.sortable = true;
-    nameCol.cellRendererParams = {...nameCol.cellRendererParams, sortField: 'name'};
     nameCol.flex = 2;
-    nameCol.tooltipField = 'name';
+    nameCol.tooltipValueGetter = (params: any) => {
+      const isProtected = isProtectedParam(params);
+      return isProtected 
+        ? `${params.data?.name} - Protected: Use language default change API`
+        : params.data?.name;
+    };
 
     const valueCol: any = this.utils.getNonEditableColumnDef('common.form.value', 'value', 260);
     valueCol.sortable = true;
@@ -89,7 +112,7 @@ export class ConfigurationParameterComponent extends BaseListComponent<Configura
     valueCol.tooltipField = 'value';
 
     this.entityListConfig.columnDefs = [
-      this.utils.getRowCheckboxColumnDef(),
+      checkboxCol,
       nameCol,
       valueCol,
     ];
@@ -100,10 +123,21 @@ export class ConfigurationParameterComponent extends BaseListComponent<Configura
   }
 
   override async duplicateItem(id: number) {
+    // Note: The form itself will also prevent duplication of language.default
     await this.router.navigate(['configurationParameter', -1, 'configurationParameterForm', id]);
   }
 
-  override dataUpdateFn = (data: ConfigurationParameter) => firstValueFrom(this.configurationParametersService.update(data))
+  override dataUpdateFn = (data: ConfigurationParameter) => {
+    if (data.name === 'language.default') {
+      throw new Error('Cannot update language.default parameter. Use the language management screen to change the default language.');
+    }
+    return firstValueFrom(this.configurationParametersService.update(data));
+  }
 
-  override dataDeleteFn = (data: ConfigurationParameter) => firstValueFrom(this.configurationParametersService.delete(data))
+  override dataDeleteFn = (data: ConfigurationParameter) => {
+    if (data.name === 'language.default') {
+      throw new Error('Cannot delete language.default parameter.');
+    }
+    return firstValueFrom(this.configurationParametersService.delete(data));
+  }
 }
