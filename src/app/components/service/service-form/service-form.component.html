@@ -27,7 +27,7 @@
       <mat-card class="sitmun-mat-card-margin" appearance="outlined">
         <mat-card-content class="sitmun-service-form-stack">
           <mat-form-field appearance="outline" class="full sitmun-cartography-rich-hint-field" subscriptSizing="dynamic">
-            <mat-label>{{ 'common.form.name' | translate }} ({{ defaultLang }})</mat-label>
+            <mat-label>{{ 'entity.service.title' | translate }} ({{ defaultLang }})</mat-label>
             <input matInput type="text" formControlName="name" [maxlength]="60" required>
             <mat-hint align="start">{{ 'entity.service.hint.name' | translate }}</mat-hint>
             <mat-hint align="end" [class.text-warning]="entityForm.get('name')?.value?.length > 60">
@@ -40,7 +40,7 @@
                       onKeyDown="onTranslated('name')">translate</mat-icon>
           </mat-form-field>
           <mat-form-field appearance="outline" class="full sitmun-cartography-rich-hint-field" subscriptSizing="dynamic">
-            <mat-label>{{ 'common.form.description' | translate }} ({{ defaultLang }})</mat-label>
+            <mat-label>{{ 'entity.service.description' | translate }} ({{ defaultLang }})</mat-label>
             <textarea matInput type="text" formControlName="description" [maxlength]="4000"> </textarea>
             <mat-hint align="start">{{ 'entity.service.hint.description' | translate }}</mat-hint>
             <mat-hint align="end">{{ entityForm.get('description') | characterCount }}</mat-hint>
