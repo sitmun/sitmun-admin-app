@@ -373,7 +373,7 @@ describe('DataTable2DefinitionBuilder', () => {
           .withTargetsRightColumns([{ field: 'role' }])
           .withTargetsLeftFetcher(() => of([]))
           .withTargetsRightFetcher(() => of([]))
-          .withTargetToRelation((left, right) => [] as any)
+          .withTargetToRelation((_left, _right) => [] as any)
           .build();
         
         expect(definition.hasPickerAdd()).toBe(true);

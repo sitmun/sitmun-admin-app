@@ -18,8 +18,8 @@ import {LoggerService} from '@app/services/logger.service';
 import {UtilsService} from '@app/services/utils.service';
 import {config} from '@config';
 
-import {DefaultLanguageChangeDialogComponent} from '../default-language-change-dialog/default-language-change-dialog.component';
 import {LanguageFormComponent} from './language-form.component';
+import {DefaultLanguageChangeDialogComponent} from '../default-language-change-dialog/default-language-change-dialog.component';
 
 describe('LanguageFormComponent', () => {
   let component: LanguageFormComponent;

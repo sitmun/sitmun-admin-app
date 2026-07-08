@@ -5,9 +5,9 @@ import { TestBed } from '@angular/core/testing';
 import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
 import { LoggerService } from '@app/services/logger.service';
 
-import { ExternalService } from '../config/external.service';
 import { Resource } from './resource.model';
 import { ResourceService } from './resource.service';
+import { ExternalService } from '../config/external.service';
 
 class TestResource extends Resource {}
 

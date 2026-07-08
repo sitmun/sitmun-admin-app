@@ -8,12 +8,22 @@ import {ErrorHandlerService} from '@app/services/error-handler.service';
 import {LoadingOverlayService} from '@app/services/loading-overlay.service';
 import {LoggerService} from '@app/services/logger.service';
 import {UtilsService} from '@app/services/utils.service';
+import {suppressAgGridConsoleWarnings} from '@app/testing/test-helpers';
 
 import {DataGridComponent} from './data-grid.component';
 
 describe('DataGridComponent', () => {
   let component: DataGridComponent;
   let fixture: ComponentFixture<DataGridComponent>;
+  let restoreConsoleWarn: () => void;
+
+  beforeAll(() => {
+    restoreConsoleWarn = suppressAgGridConsoleWarnings();
+  });
+
+  afterAll(() => {
+    restoreConsoleWarn?.();
+  });
 
   beforeAll(async () => {
      

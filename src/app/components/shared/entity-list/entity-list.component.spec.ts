@@ -6,6 +6,7 @@ import { of , firstValueFrom, Observable, toArray } from 'rxjs';
 import { Resource } from '@app/core';
 import { DataGridComponent } from '@app/frontend-gui/src/lib/data-grid/data-grid.component';
 import { MaterialModule } from '@app/material-module';
+import { suppressAgGridConsoleWarnings } from '@app/testing/test-helpers';
 
 import { EntityListComponent, EntityListConfig } from './entity-list.component';
 
@@ -18,6 +19,15 @@ class TestResource extends Resource {
 describe('EntityListComponent', () => {
   let component: EntityListComponent<TestResource>;
   let fixture: ComponentFixture<EntityListComponent<TestResource>>;
+  let restoreConsoleWarn: () => void;
+
+  beforeAll(() => {
+    restoreConsoleWarn = suppressAgGridConsoleWarnings();
+  });
+
+  afterAll(() => {
+    restoreConsoleWarn?.();
+  });
 
   beforeAll(async () => {
      

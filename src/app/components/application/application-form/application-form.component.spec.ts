@@ -1,3 +1,5 @@
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import {NO_ERRORS_SCHEMA} from '@angular/core';
 import {ComponentFixture, TestBed} from '@angular/core/testing';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
@@ -76,7 +78,7 @@ describe('ApplicationFormComponent', () => {
           }
         })],
       schemas: [NO_ERRORS_SCHEMA],
-      providers: [provideErrorHandlerForTests(), ApplicationService, ApplicationBackgroundService, RoleService, ApplicationParameterService, TreeService,
+      providers: [provideHttpClient(), provideHttpClientTesting(), provideErrorHandlerForTests(), ApplicationService, ApplicationBackgroundService, RoleService, ApplicationParameterService, TreeService,
         BackgroundService, CodeListService, CartographyGroupService, TranslationService, ResourceService, ExternalService, UserService,
         {provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService},]
     })

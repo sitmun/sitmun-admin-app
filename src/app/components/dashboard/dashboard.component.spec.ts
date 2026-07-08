@@ -1,3 +1,5 @@
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
@@ -61,6 +63,8 @@ describe('DashboardComponent', () => {
           }
         })],
       providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
         provideRouter([]),DashboardService,TranslationService,CodeListService,ResourceService,ExternalService,UtilsService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }, ]
     })
