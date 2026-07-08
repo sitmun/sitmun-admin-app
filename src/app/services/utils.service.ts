@@ -1,5 +1,4 @@
 import {Location} from '@angular/common';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
 import {Component, Injectable, Injector, NgZone} from '@angular/core';
 import {MatDialog} from '@angular/material/dialog';
 
@@ -49,7 +48,6 @@ export class UtilsService {
   constructor(
     private readonly translate: TranslateService,
     public dialog: MatDialog,
-    private readonly http: HttpClient,
     private readonly location: Location,
     private readonly injector: Injector,
     private loggerService: LoggerService,
@@ -210,35 +208,6 @@ export class UtilsService {
       browserDatePicker: true,
       minValidYear: 2000,
     };
-  }
-
-  /**
-   * Updates a list of URIs on the server using a PUT request.
-   * @param requestURI - The endpoint URL where the URI list will be updated.
-   * @param data - Array of URI strings to be sent to the server.
-   * @param eventRefresh - Optional Subject to notify when the update is complete.
-   */
-  updateUriList(requestURI: string, data: string[], eventRefresh?: Subject<boolean>) {
-    const body = data.join('\n');
-
-    this.http
-      .put(requestURI, body, {
-        headers: new HttpHeaders({
-          'Content-Type': 'text/uri-list',
-          Charset: 'UTF-8',
-        }),
-      })
-      .subscribe({
-        next: () => {
-          if (eventRefresh) {
-            eventRefresh.next(true);
-          }
-        },
-        error: (error) => {
-          this.loggerService.error('Error updating URI list', error);
-          throw error;
-        },
-      });
   }
 
   /**
