@@ -32,6 +32,4 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Added
 
-- **Tests**: Jest coverage for multilingual WMS metadata parsing (`WMSCapabilitiesService`) and service-form translation prefill on metadata fetch.
-- **Tests**: Jest coverage for `Principal`, `authGuard`, `AuthExpiredInterceptor`, and HAL `ResourceService` credential handling.
-- **Tests**: Jest coverage for dialog Add validation, grid selection batching, layers form template markup, and feature-flag icon a11y.
+- **Tests**: Jest coverage for WMS metadata parsing, service-form translation prefill, auth/session/HAL credentials, dialog Add validation, grid selection batching, layers form markup, and feature-flag icon a11y.
