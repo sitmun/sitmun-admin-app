@@ -11,10 +11,12 @@ import {BaseFormComponent} from '@app/components/base-form.component';
 import {Configuration} from "@app/core/config/configuration";
 import {MessagesInterceptorStateService} from '@app/core/interceptors/messages.interceptor';
 import {CodeListService, Language, LanguageService, TranslationService} from '@app/domain';
+import {DialogMessageComponent} from '@app/frontend-gui/src/lib/public_api';
 import {ErrorHandlerService} from '@app/services/error-handler.service';
 import {LoadingOverlayService} from "@app/services/loading-overlay.service";
 import {LoggerService} from '@app/services/logger.service';
 import {UtilsService} from '@app/services/utils.service';
+import {config} from '@config';
 
 @Component({
     selector: 'app-language-form',
@@ -53,6 +55,8 @@ export class LanguageFormComponent extends BaseFormComponent<Language> {
   override fetchCopy(): Promise<Language> {
     return firstValueFrom(this.languageService.get(this.duplicateID).pipe(map((copy: Language) => {
       copy.shortname = this.translateService.instant("common.copyPrefix") + copy.shortname;
+      copy.defaultLanguage = false;
+      copy.order = null;
       return copy;
     })));
   }
@@ -68,6 +72,7 @@ export class LanguageFormComponent extends BaseFormComponent<Language> {
     this.entityForm = new UntypedFormGroup({
       shortname: new UntypedFormControl(this.entityToEdit.shortname, [Validators.required]),
       name: new UntypedFormControl(this.entityToEdit.name, [Validators.required]),
+      defaultLanguage: new UntypedFormControl(this.entityToEdit.defaultLanguage ?? false),
     });
   }
 
@@ -78,6 +83,8 @@ export class LanguageFormComponent extends BaseFormComponent<Language> {
       formValues,
       {
         id: id,
+        order: id == null ? (safeToEdit.order ?? config.languagesToUse?.length ?? 0) : safeToEdit.order,
+        defaultLanguage: id == null ? false : (this.entityToEdit?.defaultLanguage ?? false),
       }
     );
     return Language.fromObject(safeToEdit);
@@ -86,12 +93,36 @@ export class LanguageFormComponent extends BaseFormComponent<Language> {
   override async createEntity(): Promise<number> {
     const entityToCreate = this.createObject();
     const response = await firstValueFrom(this.languageService.create(entityToCreate));
+    if (this.shouldSetAsDefault()) {
+      await firstValueFrom(this.languageService.setDefault(response.id));
+      this.updateCachedDefaultLanguage(response.id);
+    }
     return response.id;
   }
 
   override async updateEntity(): Promise<void> {
     const entityToUpdate = this.createObject(this.entityID);
     await firstValueFrom(this.languageService.update(entityToUpdate));
+    if (this.shouldSetAsDefault()) {
+      await firstValueFrom(this.languageService.setDefault(this.entityID));
+      this.updateCachedDefaultLanguage(this.entityID);
+    }
+  }
+
+  override async onSaveButtonClicked(): Promise<boolean> {
+    if (this.isTryingToUnsetCurrentDefault()) {
+      const dialogRef = this.dialog.open(DialogMessageComponent, {
+        width: '420px',
+        data: {
+          title: 'common.atention',
+          message: 'entity.language.defaultUnsetWarning',
+          hideCancelButton: true,
+        },
+      });
+      dialogRef.afterClosed().subscribe();
+      return false;
+    }
+    return super.onSaveButtonClicked();
   }
 
   override itemName(_field: string): string {
@@ -101,5 +132,29 @@ export class LanguageFormComponent extends BaseFormComponent<Language> {
     const name = this.entityToEdit.name || '';
     const shortname = this.entityToEdit.shortname || '';
     return shortname ? `${name} (${shortname})` : name;
+  }
+
+  private shouldSetAsDefault(): boolean {
+    return this.entityForm?.get('defaultLanguage')?.value === true
+      && this.entityToEdit?.defaultLanguage !== true;
+  }
+
+  private isTryingToUnsetCurrentDefault(): boolean {
+    return this.entityToEdit?.defaultLanguage === true
+      && this.entityForm?.get('defaultLanguage')?.value !== true;
+  }
+
+  private updateCachedDefaultLanguage(languageId: number): void {
+    if (!Array.isArray(config.languagesToUse)) {
+      return;
+    }
+
+    config.languagesToUse = config.languagesToUse.map((language) => Language.fromObject({
+      ...language,
+      defaultLanguage: language.id === languageId,
+    }));
+    localStorage.setItem('languages', JSON.stringify(config.languagesToUse));
+    const selected = config.languagesToUse.find((language) => language.id === languageId);
+    config.defaultLang = selected?.shortname ?? this.entityForm?.get('shortname')?.value ?? config.defaultLang;
   }
 }

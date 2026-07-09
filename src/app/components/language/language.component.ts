@@ -3,18 +3,18 @@ import {MatDialog} from '@angular/material/dialog';
 import {ActivatedRoute, Router} from '@angular/router';
 
 import {TranslateService} from '@ngx-translate/core';
-import {firstValueFrom,of} from 'rxjs';
+import {firstValueFrom} from 'rxjs';
 
 import {BaseListComponent} from "@app/components/base-list.component";
 import {EntityListConfig} from "@app/components/shared/entity-list";
 import {Configuration} from '@app/core/config/configuration';
-import {createPagedInfiniteFetcher} from '@app/core/hal';
-import {INFINITE_PAGE_SIZE_DEFAULT} from '@app/core/hal/infinite-page-size';
 import {CodeListService, Language, LanguageService, TranslationService} from '@app/domain';
+import {DIALOG_EVENTS, DialogMessageComponent} from '@app/frontend-gui/src/lib/public_api';
 import {ErrorHandlerService} from '@app/services/error-handler.service';
 import {LoadingOverlayService} from '@app/services/loading-overlay.service';
 import {LoggerService} from '@app/services/logger.service';
 import {UtilsService} from '@app/services/utils.service';
+import {config} from '@config';
 
 @Component({
     selector: 'app-language',
@@ -23,23 +23,21 @@ import {UtilsService} from '@app/services/utils.service';
     standalone: false
 })
 export class LanguageComponent extends BaseListComponent<Language> {
+  private pendingOrderedLanguageIds: number[] = [];
+
   entityListConfig: EntityListConfig<Language> = {
     entityLabel: Configuration.LANGUAGE.labelPlural,
     iconName: Configuration.LANGUAGE.icon,
     font: Configuration.LANGUAGE.font,
     columnDefs: [],
-    dataFetchFn: () => of([]),
-    rowModelMode: 'infinite',
-    pageSize: INFINITE_PAGE_SIZE_DEFAULT,
-    infiniteBlockFetcher: createPagedInfiniteFetcher(this.languageService),
-    progressiveLocalFilter: false,
-    backendSearch: true,
-    defaultColumnSorting: ['shortname'],
+    dataFetchFn: () => this.languageService.fetchAllItems(),
+    rowModelMode: 'clientSide',
+    rowDragManaged: true,
     gridOptions: {
       discardChangesButton: false,
       redoButton: false,
       undoButton: false,
-      applyChangesButton: false,
+      applyChangesButton: true,
       deleteButton: true,
       newButton: true,
       actionButton: true,
@@ -75,6 +73,24 @@ export class LanguageComponent extends BaseListComponent<Language> {
   }
 
   override async postFetchData(): Promise<void> {
+    const dragCol: any = {
+      headerName: '',
+      field: 'order',
+      rowDrag: true,
+      sortable: false,
+      editable: false,
+      filter: false,
+      width: 70,
+      minWidth: 70,
+      maxWidth: 70,
+      suppressHeaderMenuButton: true,
+      suppressMenu: true,
+      cellClass: 'sitmun-centered-cell',
+      headerClass: 'sitmun-centered-header',
+      valueGetter: () => 'drag_indicator',
+      cellRenderer: () => '<span class="material-icons-round">drag_indicator</span>'
+    };
+
     const nameCol: any = {
       ...this.utils.getRouterLinkColumnDef('entity.language.name', 'name', 'language/:id/languageForm', {id: 'id'}, 220),
       valueGetter: (params) => {
@@ -83,15 +99,41 @@ export class LanguageComponent extends BaseListComponent<Language> {
         return shortname ? `${name} (${shortname})` : name;
       }
     };
-    nameCol.sortable = true;
-    nameCol.cellRendererParams = {...nameCol.cellRendererParams, sortField: 'name'};
+    nameCol.sortable = false;
     nameCol.flex = 1;
     nameCol.tooltipValueGetter = (params) => params.value;
 
+    const defaultCol: any = this.utils.getBooleanColumnDef('entity.language.default', 'defaultLanguage', false, 150, 170);
+    defaultCol.sortable = false;
+    defaultCol.filter = false;
+
     this.entityListConfig.columnDefs = [
       this.utils.getRowCheckboxColumnDef(),
+      dragCol,
       nameCol,
+      defaultCol,
     ];
+  }
+
+  onRowOrderChanged(rows: Language[]): void {
+    this.pendingOrderedLanguageIds = rows.map((row) => row.id);
+  }
+
+  override sendChanges(_data: Language[]) {
+    if (this.pendingOrderedLanguageIds.length === 0) {
+      return;
+    }
+
+    this.loadingOverlay.wrap(
+      async () => {
+        await firstValueFrom(this.languageService.reorder(this.pendingOrderedLanguageIds));
+        config.languagesToUse = await firstValueFrom(this.languageService.fetchAllItems());
+        localStorage.setItem('languages', JSON.stringify(config.languagesToUse));
+        this.pendingOrderedLanguageIds = [];
+        this.refreshCommandEvent$.next(true);
+      },
+      { message: this.translateService.instant('entity.language.reorderSaving') }
+    );
   }
 
   override async newData() {
@@ -100,6 +142,53 @@ export class LanguageComponent extends BaseListComponent<Language> {
 
   override async duplicateItem(id: number) {
     await this.router.navigate(['language', -1, 'languageForm', id]);
+  }
+
+  override removeData(data: Language[]) {
+    if (data.some((language) => language.defaultLanguage)) {
+      const dialogRef = this.dialog.open(DialogMessageComponent, {
+        width: '420px',
+        data: {
+          title: 'common.atention',
+          message: 'entity.language.defaultDeleteWarning',
+          hideCancelButton: true,
+        },
+      });
+      dialogRef.afterClosed().subscribe();
+      return;
+    }
+
+    const dialogRef = this.dialog.open(DialogMessageComponent, {
+      width: '460px',
+      data: {
+        title: 'common.delete.title',
+        message: 'entity.language.deleteWithLiteralTranslationsWarning',
+        destructive: true,
+      },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result?.event !== DIALOG_EVENTS.ACCEPT) {
+        return;
+      }
+
+      this.loadingOverlay.wrap(
+        async () => {
+          const results = await Promise.allSettled(
+            data.map((item) => this.dataDeleteFn(item))
+          );
+
+          results.forEach((deleteResult, index) => {
+            if (deleteResult.status === 'rejected') {
+              this.loggerService.error(`Failed to delete language ${data[index]?.id}:`, deleteResult.reason);
+            }
+          });
+
+          this.refreshCommandEvent$.next(true);
+        },
+        { message: this.translateService.instant('common.deleting') }
+      );
+    });
   }
 
   override dataUpdateFn = (data: Language) => firstValueFrom(this.languageService.update(data))

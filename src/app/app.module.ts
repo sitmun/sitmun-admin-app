@@ -29,7 +29,7 @@ import {DataTablesRegistry} from "@app/components/data-tables.util";
 import {ErrorPageComponent} from "@app/components/error-page/error-page.component";
 import {LanguageFormComponent} from '@app/components/language/language-form/language-form.component';
 import {LanguageComponent} from '@app/components/language/language.component';
-import {LiteralTranslationsComponent} from '@app/components/literal-translations/literal-translations.component';
+import {LiteralTranslationsComponent} from '@app/components/literal-translations/literal-translations/literal-translations.component';
 import {LayersFormComponent} from '@app/components/layers/layers-form/layers-form.component';
 import {LayersComponent} from '@app/components/layers/layers.component';
 import {
@@ -161,19 +161,16 @@ export function initializeLanguages(
 
     try {
       const languages = await firstValueFrom(languageService.fetchAllItems());
-      // Sort languages
-      languages.sort((a, b) => a.shortname.localeCompare(b.shortname));
 
       // Store in config
       config.languagesToUse = languages;
+      config.languagesObjects = {};
       languages.forEach(language => {
         config.languagesObjects[language.shortname] = language;
       });
 
-      // Store in localStorage if not exists
-      if (!localStorage.getItem('languages')) {
-        localStorage.setItem('languages', JSON.stringify(languages));
-      }
+      // Keep local cache aligned with backend-defined language order
+      localStorage.setItem('languages', JSON.stringify(languages));
 
       // Set the default language (with appConfigService for fallback)
       const defaultLang = getDefaultLanguage(languages, appConfigService);
@@ -209,17 +206,6 @@ export function initializeConfiguration(
     messagesInterceptorState.disable();
     try {
       const configParams = await firstValueFrom(configurationService.fetchAllItems());
-      const defaultLang = configParams.find(element => element.name === 'language.default');
-
-      if (defaultLang) {
-        config.defaultLang = defaultLang.value;
-
-        // Set language if it is not already set in localStorage
-        if (!localStorage.getItem('lang')) {
-          translateService.setDefaultLang(defaultLang.value);
-          translateService.use(defaultLang.value);
-        }
-      }
 
       loggerService.debug(`Configuration initialized: ${configParams.length} parameters loaded`);
       messagesInterceptorState.enable();
@@ -239,6 +225,11 @@ export function initializeConfiguration(
 
 // Helper function to get default language
 function getDefaultLanguage(languages: any[], appConfigService?: AppConfigService): string {
+  const configuredDefault = languages.find(lang => lang.defaultLanguage === true)?.shortname;
+  if (configuredDefault) {
+    config.defaultLang = configuredDefault;
+  }
+
   // Check localStorage first
   const storedLang = localStorage.getItem('lang');
   if (storedLang && languages.find(lang => lang.shortname === storedLang)) {
@@ -254,6 +245,10 @@ function getDefaultLanguage(languages: any[], appConfigService?: AppConfigServic
 
   if (browserLang) {
     return browserLang.shortname;
+  }
+
+  if (configuredDefault) {
+    return configuredDefault;
   }
 
   // Fallback to backend config default

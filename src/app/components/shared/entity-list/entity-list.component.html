@@ -29,10 +29,12 @@
       [newButton]="gridOptions.newButton"
       [actionButton]="gridOptions.actionButton"
       [hideReplaceButton]="gridOptions.hideReplaceButton"
+      [rowDragManaged]="rowDragManaged"
       (remove)="onRemove($event)"
       (new)='onNew($event)'
       [defaultColumnSorting]="defaultColumnSorting"
       (gridModified)='onGridModified($event)'
+      (rowOrderChanged)="onRowOrderChanged($event)"
       (sendChanges)='onSendChanges($event)'
       (duplicate)='onDuplicate($event)'
       *ngIf="dataLoaded">

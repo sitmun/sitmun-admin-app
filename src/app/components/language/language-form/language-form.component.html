@@ -45,6 +45,14 @@
               {{ 'common.error.required' | translate }}
             </mat-error>
           </mat-form-field>
+          <div class="half add-gap">
+            <mat-slide-toggle color="primary" formControlName="defaultLanguage">
+              {{ 'entity.language.default' | translate }}
+            </mat-slide-toggle>
+            <div>
+              <small>{{ 'entity.language.defaultHint' | translate }}</small>
+            </div>
+          </div>
         </mat-card-content>
       </mat-card>
     </form>

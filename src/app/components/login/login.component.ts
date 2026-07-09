@@ -83,10 +83,7 @@ export class LoginComponent implements OnInit, OnDestroy {
       password: ['', Validators.required],
       lang: [this.translateService.getDefaultLang(), Validators.required],
     });
-    // Sort languages alphabetically by name
-    this.languages = (config.languagesToUse || []).sort((a, b) =>
-      (a.name || '').localeCompare(b.name || '')
-    );
+    this.languages = [...(config.languagesToUse || [])];
     // Subscribe to language changes to update translations immediately
     this.form.get('lang')?.valueChanges
       .pipe(takeUntil(this.destroy$))

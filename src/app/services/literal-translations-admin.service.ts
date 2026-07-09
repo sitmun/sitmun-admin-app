@@ -1,4 +1,4 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -27,9 +27,38 @@ export interface LiteralTranslationUpsertPayload {
   translations?: Record<string, string>;
 }
 
+export interface LiteralTranslationCsvExportRequest {
+  targetLanguage: string;
+  literalIds?: number[];
+  fileName?: string;
+}
+
+export interface LiteralTranslationCsvImportResponse {
+  targetLanguage: string;
+  totalRows: number;
+  createdLiterals: number;
+  createdTranslations: number;
+  updatedTranslations: number;
+  emptiedTranslations: number;
+  unchangedRows: number;
+  existingKeysNotInCsv: number;
+  emptyValueRows: number;
+  failedRows: number;
+  sourceLanguages: string[];
+  errors: LiteralTranslationCsvImportError[];
+}
+
+export interface LiteralTranslationCsvImportError {
+  rowNumber: number;
+  sourceLanguage: string | null;
+  literal: string | null;
+  message: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class LiteralTranslationsAdminService {
   private readonly url = `${ResourceHelper.getURL()}literal-translations`;
+  private readonly csvUrl = `${this.url}/csv`;
 
   constructor(private readonly http: HttpClient) {}
 
@@ -43,6 +72,10 @@ export class LiteralTranslationsAdminService {
       .set('filter', JSON.stringify(request.filterModel))
       .set('page', String(request.page))
       .set('size', String(request.size));
+
+    if (request.searchText) {
+      params = params.set('searchText', request.searchText);
+    }
 
     for (const sort of request.sort ?? []) {
       params = params.append('sort', `${sort.path},${sort.order}`);
@@ -73,5 +106,21 @@ export class LiteralTranslationsAdminService {
 
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.url}/${id}`, { headers: ResourceHelper.headers });
+  }
+
+  exportCsv(request: LiteralTranslationCsvExportRequest): Observable<HttpResponse<Blob>> {
+    return this.http.post(`${this.csvUrl}/export`, request, {
+      headers: ResourceHelper.headers,
+      observe: 'response',
+      responseType: 'blob',
+    });
+  }
+
+  importCsv(targetLanguage: string, file: File): Observable<LiteralTranslationCsvImportResponse> {
+    const formData = new FormData();
+    formData.append('targetLanguage', targetLanguage);
+    formData.append('file', file, file.name);
+
+    return this.http.post<LiteralTranslationCsvImportResponse>(`${this.csvUrl}/import`, formData);
   }
 }

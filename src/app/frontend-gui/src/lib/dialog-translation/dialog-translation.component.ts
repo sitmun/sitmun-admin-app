@@ -2,7 +2,8 @@ import {Component, OnInit} from '@angular/core';
 import {AbstractControl, UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
 import {MatDialogRef} from '@angular/material/dialog';
 
-import {Translation} from '@app/domain';
+import {sortLanguagesByOrder} from '@app/domain/translation/models/language.model';
+import {Translation} from '@app/domain/translation/models/translation.model';
 import {AppConfigService} from '@app/services/app-config.service';
 
 @Component({
@@ -34,15 +35,13 @@ export class DialogTranslationComponent implements OnInit {
   }
 
   /**
-   * Get available languages (excluding the default language), sorted alphabetically by name
+   * Get available languages (excluding the default language), preserving administrator order
    */
   get availableLanguages(): any[] {
     if (!this.languagesAvailables) {
       return [];
     }
-    return this.languagesAvailables
-      .filter(lang => lang.shortname !== this.languageByDefault)
-      .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+    return sortLanguagesByOrder(this.languagesAvailables.filter(lang => lang.shortname !== this.languageByDefault));
   }
 
   /**
