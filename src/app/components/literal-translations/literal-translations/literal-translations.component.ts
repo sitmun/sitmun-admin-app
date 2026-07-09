@@ -9,21 +9,27 @@ import { AgGridModule } from '@ag-grid-community/angular';
 import { CellClickedEvent, ColDef, FilterChangedEvent, GridApi, GridReadyEvent, ModuleRegistry } from '@ag-grid-community/core';
 import { InfiniteRowModelModule } from '@ag-grid-community/infinite-row-model';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { debounceTime, forkJoin } from 'rxjs';
+import { debounceTime, forkJoin, tap } from 'rxjs';
 
 import {
   LiteralTranslationCreateDialogComponent,
   LiteralTranslationCreateDialogResult,
-} from '@app/components/literal-translations/literal-translation-create-dialog.component';
+} from '@app/components/literal-translations/literal-translation-create-dialog/literal-translation-create-dialog.component';
+import {
+  LiteralTranslationCsvDialogComponent,
+  LiteralTranslationCsvDialogResult,
+} from '@app/components/literal-translations/literal-translation-csv-dialog/literal-translation-csv-dialog.component';
 import { LiteralTranslationItem } from '@app/components/literal-translations/literal-translation.model';
 import { CanComponentDeactivate } from '@app/core/guards/can-deactivate-guard.service';
 import { createInfiniteDatasource } from '@app/core/hal/infinite-datasource';
 import { INFINITE_PAGE_SIZE_DEFAULT } from '@app/core/hal/infinite-page-size';
-import { Language, LanguageService } from '@app/domain';
+import { Language, sortLanguagesByOrder } from '@app/domain/translation/models/language.model';
+import { LanguageService } from '@app/domain/translation/services/language.service';
 import { DialogMessageComponent, DIALOG_EVENTS } from '@app/frontend-gui/src/lib/public_api';
 import { MaterialModule } from '@app/material-module';
 import {
   LiteralTranslationsAdminService,
+  LiteralTranslationCsvImportResponse,
   LiteralTranslationUpsertPayload,
 } from '@app/services/literal-translations-admin.service';
 import { config } from '@config';
@@ -105,8 +111,10 @@ export class LiteralTranslationsComponent implements CanComponentDeactivate, OnI
       headerName: '',
       width: 72,
       maxWidth: 72,
-      cellRenderer: (params: { data: LiteralTranslationItem }) =>
-        `<span class="complete-indicator complete-indicator-${params.data?.complete}" title="${params.data?.complete ? this.translateService.instant('entity.literalTranslation.completeTooltip') : this.translateService.instant('entity.literalTranslation.incompleteTooltip')}"></span>`,
+      cellRenderer: (params: { data: LiteralTranslationItem | undefined }) =>
+        params.data
+          ? `<span class="complete-indicator complete-indicator-${params.data.complete}" title="${this.getCompletionIndicatorTooltip(params.data)}"></span>`
+          : '',
       cellStyle: { display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' },
     },
     {
@@ -115,10 +123,22 @@ export class LiteralTranslationsComponent implements CanComponentDeactivate, OnI
       width: 72,
       maxWidth: 72,
       sortable: false,
-      cellRenderer: () => '<span style="padding-top: 66%;" class="material-icons-round sitmun-inline-edit-icon">edit</span>',
+      cellRenderer: (params: { data: LiteralTranslationItem | undefined }) =>
+        params.data ? '<span style="padding-top: 66%;" class="material-icons-round sitmun-inline-edit-icon">edit</span>' : '',
       cellStyle: { display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' },
     },
   ];
+  readonly loadingOverlayTemplate = `
+    <div class="literal-translations-grid-overlay" role="presentation">
+      <span class="literal-translations-grid-spinner" aria-hidden="true"></span>
+    </div>
+  `;
+
+  private getCompletionIndicatorTooltip(data: LiteralTranslationItem): string {
+    return data.complete
+      ? this.translateService.instant('entity.literalTranslation.completeTooltip')
+      : this.translateService.instant('entity.literalTranslation.incompleteTooltip');
+  }
 
   gridApi: GridApi<LiteralTranslationItem> | null = null;
   generation = 0;
@@ -126,6 +146,7 @@ export class LiteralTranslationsComponent implements CanComponentDeactivate, OnI
   editingItemId: number | null = null;
   saving = false;
   deleting = false;
+  csvBusy = false;
   hasActiveColumnFilters = false;
 
   constructor(
@@ -164,6 +185,14 @@ export class LiteralTranslationsComponent implements CanComponentDeactivate, OnI
     this.refreshGrid();
   }
 
+  get noRowsOverlayTemplate(): string {
+    return this.translateService.instant('common.form.noData');
+  }
+
+  get orderedLanguages(): Language[] {
+    return sortLanguagesByOrder(this.languages);
+  }
+
   onFilterChanged(event: FilterChangedEvent<LiteralTranslationItem>): void {
     this.hasActiveColumnFilters = event.api.isAnyFilterPresent();
   }
@@ -193,7 +222,7 @@ export class LiteralTranslationsComponent implements CanComponentDeactivate, OnI
       width: '1100px',
       maxWidth: '95vw',
       data: {
-        languages: this.languages,
+        languages: this.orderedLanguages,
         defaultLanguage: this.defaultLanguage,
       },
     });
@@ -302,9 +331,29 @@ export class LiteralTranslationsComponent implements CanComponentDeactivate, OnI
     this.selectedRows = [];
     this.gridApi.deselectAll();
     this.generation += 1;
+    const currentGeneration = this.generation;
+    this.showGridLoadingOverlay();
     this.gridApi.setDatasource(
       createInfiniteDatasource(
-        (request) => this.literalTranslationsService.fetchPage(request, this.languageControl.value),
+        (request) => this.literalTranslationsService.fetchPage(request, this.languageControl.value).pipe(
+          tap({
+            next: (page) => {
+              if (!this.gridApi || request.page !== 0 || currentGeneration !== this.generation) {
+                return;
+              }
+              if (page.totalElements === 0) {
+                this.gridApi.showNoRowsOverlay();
+                return;
+              }
+              this.gridApi.hideOverlay();
+            },
+            error: () => {
+              if (this.gridApi && request.page === 0 && currentGeneration === this.generation) {
+                this.gridApi.hideOverlay();
+              }
+            },
+          }),
+        ),
         {
           pageSize: this.pageSize,
           columnDefs: this.columnDefs.map((columnDef) => {
@@ -321,18 +370,17 @@ export class LiteralTranslationsComponent implements CanComponentDeactivate, OnI
           }),
           gridApi: this.gridApi,
           getGeneration: () => this.generation,
-          progressiveLocalFilter: {
+          backendSearch: {
             enabled: true,
             getSearchText: () => this.searchControl.value,
-            matches: (row: unknown, searchText: string) => {
-              const item = row as LiteralTranslationItem;
-              const haystack = `${item.literal ?? ''} ${item.translation ?? ''}`.toLocaleLowerCase();
-              return haystack.includes(searchText);
-            },
           },
         },
       ),
     );
+  }
+
+  private showGridLoadingOverlay(): void {
+    this.gridApi?.showLoadingOverlay();
   }
 
   private getCompletionPct() {
@@ -417,7 +465,7 @@ export class LiteralTranslationsComponent implements CanComponentDeactivate, OnI
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (languages) => {
-          this.languages = [...languages].sort((a, b) => a.shortname.localeCompare(b.shortname));
+          this.languages = [...languages];
           const current = this.languageControl.value;
           const nextLanguage = this.languages.some((language) => language.shortname === current)
             ? current
@@ -430,8 +478,147 @@ export class LiteralTranslationsComponent implements CanComponentDeactivate, OnI
       });
   }
 
+  importCsv(): void {
+    const dialogRef = this.dialog.open(LiteralTranslationCsvDialogComponent, {
+      width: '760px',
+      maxWidth: '95vw',
+      data: {
+        mode: 'import',
+        languages: this.languages,
+        language: this.languageControl.value,
+      },
+    });
+
+    dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result: LiteralTranslationCsvDialogResult | null) => {
+      if (!result?.file) {
+        return;
+      }
+      this.csvBusy = true;
+      this.literalTranslationsService.importCsv(result.language, result.file)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (response) => {
+            this.csvBusy = false;
+            this.refreshGrid();
+            this.getCompletionPct();
+            this.openImportSummary(response);
+          },
+          error: () => {
+            this.csvBusy = false;
+          },
+        });
+    });
+  }
+
+  exportCsv(): void {
+    const literalIds = this.selectedRows.length > 0 ? this.selectedRows.map((row) => row.id) : undefined;
+    const dialogRef = this.dialog.open(LiteralTranslationCsvDialogComponent, {
+      width: '760px',
+      maxWidth: '95vw',
+      data: {
+        mode: 'export',
+        languages: this.languages,
+        language: this.languageControl.value,
+        literalIds,
+        fileName: this.defaultCsvFileName(this.languageControl.value, literalIds),
+      },
+    });
+
+    dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result: LiteralTranslationCsvDialogResult | null) => {
+      if (!result) {
+        return;
+      }
+      this.csvBusy = true;
+      this.literalTranslationsService.exportCsv({
+        targetLanguage: result.language,
+        literalIds: result.literalIds,
+        fileName: result.fileName,
+      }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+        next: (response) => {
+          this.csvBusy = false;
+          const fileName = this.resolveExportFileName(response.headers.get('content-disposition'), result.fileName ?? this.defaultCsvFileName(result.language, result.literalIds));
+          this.downloadCsv(response.body ?? new Blob(), fileName);
+        },
+        error: () => {
+          this.csvBusy = false;
+        },
+      });
+    });
+  }
+
   private shouldAutoScrollToEditor(): boolean {
     return typeof window !== 'undefined' && window.matchMedia('(max-width: 1919px)').matches;
+  }
+
+  private defaultCsvFileName(targetLanguage: string, literalIds?: number[]): string {
+    return `literal-translations-${targetLanguage}${literalIds && literalIds.length > 0 ? '-partial' : ''}.csv`;
+  }
+
+  private resolveExportFileName(contentDisposition: string | null, fallback: string): string {
+    if (!contentDisposition) {
+      return fallback;
+    }
+
+    const filenameMatch = /filename\*=UTF-8''([^;]+)|filename\*?="?([^";]+)"?/i.exec(contentDisposition);
+    const candidate = filenameMatch?.[1] ?? filenameMatch?.[2];
+    try {
+      return candidate ? decodeURIComponent(candidate) : fallback;
+    } catch {
+      return fallback;
+    }
+  }
+
+  private downloadCsv(blob: Blob, fileName: string): void {
+    const url = window.URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = fileName;
+    anchor.click();
+    setTimeout(() => window.URL.revokeObjectURL(url), 0);
+  }
+
+  private openImportSummary(response: LiteralTranslationCsvImportResponse): void {
+    const sourceLanguages = response.sourceLanguages ?? [];
+    const errors = response.errors ?? [];
+    const lines = [
+      this.translateService.instant('entity.literalTranslation.csv.summary.targetLanguage', { lang: response.targetLanguage }),
+      this.translateService.instant('entity.literalTranslation.csv.summary.totalRows', { count: response.totalRows }),
+      this.translateService.instant('entity.literalTranslation.csv.summary.createdLiterals', { count: response.createdLiterals }),
+      this.translateService.instant('entity.literalTranslation.csv.summary.createdTranslations', { count: response.createdTranslations }),
+      this.translateService.instant('entity.literalTranslation.csv.summary.updatedTranslations', { count: response.updatedTranslations }),
+      this.translateService.instant('entity.literalTranslation.csv.summary.emptiedTranslations', { count: response.emptiedTranslations }),
+      this.translateService.instant('entity.literalTranslation.csv.summary.unchangedRows', { count: response.unchangedRows }),
+      this.translateService.instant('entity.literalTranslation.csv.summary.existingKeysNotInCsv', { count: response.existingKeysNotInCsv }),
+      this.translateService.instant('entity.literalTranslation.csv.summary.emptyValueRows', { count: response.emptyValueRows }),
+      this.translateService.instant('entity.literalTranslation.csv.summary.failedRows', { count: response.failedRows }),
+    ];
+
+    if (sourceLanguages.length > 0) {
+      lines.push(
+        this.translateService.instant('entity.literalTranslation.csv.summary.sourceLanguages', {
+          languages: sourceLanguages.join(', '),
+        }),
+      );
+    }
+
+    if (errors.length > 0) {
+      lines.push(this.translateService.instant('entity.literalTranslation.csv.summary.errors'));
+      for (const error of errors) {
+        lines.push(
+          `#${error.rowNumber}${error.sourceLanguage ? ` [${error.sourceLanguage}]` : ''}${error.literal ? ` ${error.literal}` : ''}: ${this.translateService.instant(error.message)}`,
+        );
+      }
+    }
+
+    this.dialog.open(DialogMessageComponent, {
+      width: '720px',
+      data: {
+        title: 'entity.literalTranslation.csv.summary.title',
+        message: lines.join('\n'),
+        hideCancelButton: true,
+        acceptLabel: 'common.button.close',
+      },
+    });
   }
 
   canDeactivate(): boolean {

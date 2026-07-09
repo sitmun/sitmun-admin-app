@@ -32,6 +32,8 @@ export interface EntityListConfig<T> {
   backendSearch?: boolean;
   /** Default column sorting */
   defaultColumnSorting?: string[];
+  /** Enables row drag ordering in client-side mode */
+  rowDragManaged?: boolean;
   /** Grid configuration options */
   gridOptions?: {
     globalSearch?: boolean;
@@ -64,6 +66,7 @@ export class EntityListComponent<T extends Resource> implements OnInit, OnChange
   @Output() duplicateData = new EventEmitter<T[]>();
   @Output() sendChangesEvent = new EventEmitter<T[]>();
   @Output() gridModifiedEvent = new EventEmitter<boolean>();
+  @Output() rowOrderChangedEvent = new EventEmitter<T[]>();
 
   private _refreshCommandEvent$: Subject<boolean> = new Subject<boolean>();
   private _saveAgGridStateEvent: Subject<boolean> = new Subject<boolean>();
@@ -129,6 +132,10 @@ export class EntityListComponent<T extends Resource> implements OnInit, OnChange
     return this.config?.defaultColumnSorting || [];
   }
 
+  get rowDragManaged(): boolean {
+    return this.config?.rowDragManaged ?? false;
+  }
+
   get gridOptions() {
     return {
       globalSearch: true,
@@ -163,5 +170,9 @@ export class EntityListComponent<T extends Resource> implements OnInit, OnChange
 
   onGridModified(value: boolean): void {
     this.gridModifiedEvent.emit(value);
+  }
+
+  onRowOrderChanged(data: T[]): void {
+    this.rowOrderChangedEvent.emit(data);
   }
 }

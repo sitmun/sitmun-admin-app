@@ -1,12 +1,13 @@
 <div class="literal-translations-page">
-  <mat-card appearance="outlined" class="header-card">
-    <mat-card-content class="header-card-content">
-      <div>
-        <h2>{{ 'entity.literalTranslation.plural' | translate }}</h2>
-        <p class="muted">{{ 'entity.literalTranslation.description' | translate }}</p>
-      </div>
-    </mat-card-content>
-  </mat-card>
+  <mat-toolbar>
+    <span class="spacer"></span>
+    <h4>
+      <span>
+        <mat-icon aria-hidden="true" fontSet="material-icons-round">translate</mat-icon>
+        {{ 'entity.literalTranslation.plural' | translate }}
+      </span>
+    </h4>
+  </mat-toolbar>
 
   <div class="workspace" [class.workspace-editing]="isEditing()">
     <mat-card appearance="outlined" class="grid-card">
@@ -20,7 +21,7 @@
         <mat-form-field subscriptSizing="dynamic" appearance="outline" class="toolbar-field language-field">
           <mat-label>{{ 'entity.literalTranslation.targetLanguage' | translate }}</mat-label>
           <mat-select [formControl]="languageControl">
-            <mat-option *ngFor="let language of languages" [value]="language.shortname">
+            <mat-option *ngFor="let language of orderedLanguages" [value]="language.shortname">
               {{ language.name }} ({{ language.shortname }})
             </mat-option>
           </mat-select>
@@ -59,9 +60,29 @@
           mat-mini-fab
           class="toolbar-button"
           matTooltip="{{ 'common.button.remove' | translate }}"
-          [disabled]="deleting || selectedRows.length === 0"
+          [disabled]="deleting || csvBusy || selectedRows.length === 0"
           (click)="deleteSelected()">
           <mat-icon fontSet="material-icons-round">delete</mat-icon>
+        </button>
+        <button
+          type="button"
+          color="primary"
+          mat-mini-fab
+          class="toolbar-button"
+          matTooltip="{{ 'entity.literalTranslation.csv.importButton' | translate }}"
+          [disabled]="csvBusy || languages.length === 0"
+          (click)="importCsv()">
+          <mat-icon fontSet="material-icons-round">file_upload</mat-icon>
+        </button>
+        <button
+          type="button"
+          color="primary"
+          mat-mini-fab
+          class="toolbar-button"
+          matTooltip="{{ 'entity.literalTranslation.csv.exportButton' | translate }}"
+          [disabled]="csvBusy || languages.length === 0"
+          (click)="exportCsv()">
+          <mat-icon fontSet="material-icons-round">file_download</mat-icon>
         </button>
       </mat-toolbar>
 
@@ -71,13 +92,15 @@
           [columnDefs]="columnDefs"
           [rowModelType]="'infinite'"
           [cacheBlockSize]="pageSize"
+          [infiniteInitialRowCount]="0"
           [pagination]="false"
           [rowSelection]="'multiple'"
           [suppressRowClickSelection]="true"
           [maxConcurrentDatasourceRequests]="1"
           [blockLoadDebounceMillis]="100"
-          [maxBlocksInCache]="5"
-          [overlayNoRowsTemplate]="'common.form.noData' | translate"
+          [maxBlocksInCache]="3"
+          [overlayLoadingTemplate]="loadingOverlayTemplate"
+          [overlayNoRowsTemplate]="noRowsOverlayTemplate"
           (gridReady)="onGridReady($event)"
           (cellClicked)="onCellClicked($event)"
           (filterChanged)="onFilterChanged($event)"

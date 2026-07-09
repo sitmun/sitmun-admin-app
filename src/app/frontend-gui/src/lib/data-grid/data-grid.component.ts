@@ -1450,6 +1450,7 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
    * Emits ordered rows after drag and drop operations
    */
   onRowDragEnd(): void {
+    this.changeCounter = Math.max(this.changeCounter, 1);
     this.rowOrderChanged.emit(this.getAllCurrentData());
     this.gridModified.emit(true);
   }

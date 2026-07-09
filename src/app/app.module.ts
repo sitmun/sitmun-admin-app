@@ -30,7 +30,7 @@ import {ErrorPageComponent} from "@app/components/error-page/error-page.componen
 import {DefaultLanguageChangeDialogComponent} from '@app/components/language/default-language-change-dialog/default-language-change-dialog.component';
 import {LanguageFormComponent} from '@app/components/language/language-form/language-form.component';
 import {LanguageComponent} from '@app/components/language/language.component';
-import {LiteralTranslationsComponent} from '@app/components/literal-translations/literal-translations.component';
+import {LiteralTranslationsComponent} from '@app/components/literal-translations/literal-translations/literal-translations.component';
 import {LayersFormComponent} from '@app/components/layers/layers-form/layers-form.component';
 import {LayersComponent} from '@app/components/layers/layers.component';
 import {
@@ -174,8 +174,17 @@ export function initializeLanguages(
           }
         } catch {
           // configuration may load in a parallel initializer; fall back below
-        }
-      }
+      const languages = await firstValueFrom(languageService.fetchAllItems());
+
+      // Store in config
+      config.languagesToUse = languages;
+      config.languagesObjects = {};
+      languages.forEach(language => {
+        config.languagesObjects[language.shortname] = language;
+      });
+
+      // Keep local cache aligned with backend-defined language order
+      localStorage.setItem('languages', JSON.stringify(languages));
 
       const languages = languageService.applyLanguagesToUse(
         await firstValueFrom(languageService.fetchAllItems())
@@ -241,6 +250,48 @@ export function initializeConfiguration(
       messagesInterceptorState.enable();
     }
   };
+}
+
+// Helper function to get default language
+function getDefaultLanguage(languages: any[], appConfigService?: AppConfigService): string {
+  const configuredDefault = languages.find(lang => lang.defaultLanguage === true)?.shortname;
+  if (configuredDefault) {
+    config.defaultLang = configuredDefault;
+  }
+
+  // Check localStorage first
+  const storedLang = localStorage.getItem('lang');
+  if (storedLang && languages.find(lang => lang.shortname === storedLang)) {
+    return storedLang;
+  }
+
+  // Check browser language
+  const navigatorLang = window.navigator.language.toLowerCase();
+  const baseLang = navigatorLang.replace(/-[A-Z]+$/, '');
+  const browserLang = languages.find(lang =>
+    lang.shortname.toLowerCase() === baseLang
+  );
+
+  if (browserLang) {
+    return browserLang.shortname;
+  }
+
+  if (configuredDefault) {
+    return configuredDefault;
+  }
+
+  // Fallback to backend config default
+  if (config.defaultLang) {
+    return config.defaultLang;
+  }
+
+  // Fallback to app-config.json default language (predictable fallback)
+  if (appConfigService) {
+    return appConfigService.getDefaultLanguageFallback();
+  }
+
+  // Final fallback: first language or 'en'
+  return languages.length > 0 ? languages[0].shortname : 'en';
 }
 
 @NgModule({ declarations: [

@@ -9,7 +9,7 @@
   <mat-form-field appearance="outline" class="full-width">
     <mat-label>{{ 'entity.literalTranslation.sourceLanguage' | translate }}</mat-label>
     <mat-select [formControl]="sourceLanguageControl">
-      <mat-option *ngFor="let language of data.languages" [value]="language.shortname">
+      <mat-option *ngFor="let language of orderedLanguages" [value]="language.shortname">
         {{ language.name }} ({{ language.shortname }})
       </mat-option>
     </mat-select>
@@ -17,7 +17,7 @@
 
   <div class="language-switcher" role="tablist">
     <button
-      *ngFor="let language of data.languages"
+      *ngFor="let language of orderedLanguages"
       mat-stroked-button
       type="button"
       class="language-switcher-item"

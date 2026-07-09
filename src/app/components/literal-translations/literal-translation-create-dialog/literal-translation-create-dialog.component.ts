@@ -5,7 +5,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
 import { TranslateModule } from '@ngx-translate/core';
 
-import { Language } from '@app/domain';
+import { Language, sortLanguagesByOrder } from '@app/domain/translation/models/language.model';
 import { MaterialModule } from '@app/material-module';
 
 export interface LiteralTranslationCreateDialogData {
@@ -68,7 +68,7 @@ export class LiteralTranslationCreateDialogComponent {
     }
 
     const translations: Record<string, string> = {};
-    for (const language of this.data.languages) {
+    for (const language of this.orderedLanguages) {
       const value = language.shortname === this.sourceLanguageControl.value
         ? this.literalControl.value
         : (this.translationControls.get(language.shortname)?.value ?? '').trim();
@@ -92,12 +92,16 @@ export class LiteralTranslationCreateDialogComponent {
     return language.shortname === this.sourceLanguageControl.value;
   }
 
+  get orderedLanguages(): Language[] {
+    return sortLanguagesByOrder(this.data.languages);
+  }
+
   setActiveLanguage(shortname: string): void {
     this.activeLanguage = shortname;
   }
 
   getActiveLanguage(): Language | undefined {
-    return this.data.languages.find(l => l.shortname === this.activeLanguage);
+    return this.orderedLanguages.find(l => l.shortname === this.activeLanguage);
   }
 
   isActiveLanguage(language: Language): boolean {
