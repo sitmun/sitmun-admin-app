@@ -151,4 +151,30 @@ describe('LayersPermitsFormComponent', () => {
     expect(component.entityForm.get('name')).toBeTruthy();
     expect(component.entityForm.get('type')).toBeTruthy();
   });
+
+  describe('Grid capability classification', () => {
+    it('membersTable should have picker, updater, and status capabilities', () => {
+      const table = component['membersTable'];
+      expect(table.hasPickerAdd()).toBe(true);
+      expect(table.hasRelationsUpdater()).toBe(true);
+      expect(table.hasStatusColumn()).toBe(true);
+      expect(table.hasTemplateDialogs()).toBe(false);
+    });
+
+    it('rolesTable should have picker, updater, and status capabilities', () => {
+      const table = component['rolesTable'];
+      expect(table.hasPickerAdd()).toBe(true);
+      expect(table.hasRelationsUpdater()).toBe(true);
+      expect(table.hasStatusColumn()).toBe(true);
+      expect(table.hasTemplateDialogs()).toBe(false);
+    });
+
+    it('no grids in this form should be read-only', () => {
+      const membersTable = component['membersTable'];
+      const rolesTable = component['rolesTable'];
+      
+      expect(membersTable.hasRelationsUpdater()).toBe(true);
+      expect(rolesTable.hasRelationsUpdater()).toBe(true);
+    });
+  });
 });

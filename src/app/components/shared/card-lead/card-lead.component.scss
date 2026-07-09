@@ -9,6 +9,7 @@
   gap: 0.25em;
   padding: 0.75rem 1rem 0.5rem;
   font-size: 0.875rem;
+  font-weight: 400;
   line-height: 1.5;
   color: var(--mat-sys-on-surface-variant, rgba(0, 0, 0, 0.6));
 }
@@ -36,12 +37,18 @@
 .sitmun-card-lead-body {
   flex: 1;
   min-width: 0;
+  font-weight: 400;
+}
+
+// Material subtitle defaults to medium (500), which reads as all-bold for prefix-less leads.
+:host ::ng-deep .mat-mdc-card-subtitle {
+  font-weight: 400;
 }
 
 // i18n body may contain <em> / <code> (service parameters, etc.).
 .sitmun-card-lead-body em {
   font-style: italic;
-  font-weight: 500;
+  font-weight: 400;
 }
 
 .sitmun-card-lead-body code {

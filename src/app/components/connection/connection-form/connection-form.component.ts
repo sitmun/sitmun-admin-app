@@ -4,7 +4,7 @@ import {MatDialog} from '@angular/material/dialog';
 import {ActivatedRoute, Router} from '@angular/router';
 
 import {TranslateService} from '@ngx-translate/core';
-import { firstValueFrom, of} from 'rxjs';
+import {firstValueFrom, of} from 'rxjs';
 import {map} from 'rxjs/operators';
 
 import {BaseFormComponent} from "@app/components/base-form.component";
@@ -12,7 +12,6 @@ import {DataTableDefinition} from '@app/components/data-tables.util';
 import {Configuration} from "@app/core/config/configuration";
 import {MessagesInterceptorStateService} from '@app/core/interceptors/messages.interceptor';
 import {
-  CartographyService,
   CodeListService,
   Connection,
   ConnectionService,
@@ -25,6 +24,7 @@ import {LoadingOverlayService} from "@app/services/loading-overlay.service";
 import {LoggerService} from '@app/services/logger.service';
 import {NotificationService} from '@app/services/notification.service';
 import {UtilsService} from '@app/services/utils.service';
+import {config} from '@config';
 
 
 /**
@@ -36,10 +36,12 @@ import {UtilsService} from '@app/services/utils.service';
 @Component({
     selector: 'app-connection-form',
     templateUrl: './connection-form.component.html',
-    styles: [],
+    styleUrls: ['./connection-form.component.scss'],
     standalone: false
 })
 export class ConnectionFormComponent extends BaseFormComponent<Connection> {
+
+  private static readonly PASSWORD_PLACEHOLDER = '••••••••';
 
   readonly config = Configuration.CONNECTION;
   readonly tasksTable: DataTableDefinition<TaskProjection, TaskProjection>
@@ -50,27 +52,12 @@ export class ConnectionFormComponent extends BaseFormComponent<Connection> {
   /** Flag indicating if the password is being edited */
   isPasswordBeingEdited = false;
 
-  /**
-   * Creates an instance of ConnectionFormComponent.
-   *
-   * @param dialog - Material dialog service for modal interactions
-   * @param translateService
-   * @param translationService
-   * @param codeListService
-   * @param errorHandler
-   * @param activatedRoute - Angular route service
-   * @param router - Angular router for navigation
-   * @param connectionService - Service for connection CRUD operations
-   * @param loadingService
-   * @param messagesInterceptorState
-   * @param loadingService
-   * @param messagesInterceptorState
-   * @param cartographyService - Service for cartography operations
-   * @param tasksService - Service for task operations
-   * @param utils - Utility service for common operations
-   * @param loggerService - Service for logging
-   * @param notificationService
-   */
+  /** True after the user changes the password field during the current focus session. */
+  private passwordDirtyInSession = false;
+
+  /** Whether the connection had a password when the current password focus session started. */
+  private hadPasswordBeforeFocusSession = false;
+
   constructor(
     dialog: MatDialog,
     translateService: TranslateService,
@@ -83,7 +70,6 @@ export class ConnectionFormComponent extends BaseFormComponent<Connection> {
     loadingService: LoadingOverlayService,
     messagesInterceptorState: MessagesInterceptorStateService,
     protected connectionService: ConnectionService,
-    protected cartographyService: CartographyService,
     protected tasksService: TaskService,
     protected utils: UtilsService,
     protected notificationService: NotificationService,
@@ -92,28 +78,14 @@ export class ConnectionFormComponent extends BaseFormComponent<Connection> {
     this.tasksTable = this.defineTaskType();
   }
 
-  /**
-   * Initializes component data before fetching.
-   * Sets up data tables, translations, and situation map list.
-   */
   override async preFetchData() {
-    this.dataTables.register(this.tasksTable);
-
     await this.initCodeLists(['databaseConnection.driver'])
   }
 
-  /**
-   * Fetches the original entity by ID.
-   * @returns Promise of Connection entity with projection
-   */
   override fetchOriginal(): Promise<Connection> {
     return firstValueFrom(this.connectionService.get(this.entityID));
   }
 
-  /**
-   * Creates a copy of an existing entity for duplication.
-   * @returns Promise of duplicated Connection entity
-   */
   override fetchCopy(): Promise<Connection> {
     return firstValueFrom(this.connectionService.get(this.duplicateID).pipe(map((copy: Connection) => {
       copy.name = this.translateService.instant("common.copyPrefix") + copy.name;
@@ -121,10 +93,6 @@ export class ConnectionFormComponent extends BaseFormComponent<Connection> {
     })));
   }
 
-  /**
-   * Creates an empty entity with default values.
-   * @returns New Connection instance
-   */
   override empty(): Connection {
     const defaultDriver = this.defaultValueOrNull('databaseConnection.driver');
     return Object.assign(new Connection(), {
@@ -132,39 +100,34 @@ export class ConnectionFormComponent extends BaseFormComponent<Connection> {
     })
   }
 
-
-  /**
-   * Initializes form data after an entity is fetched.
-   * Sets up reactive form with entity values and validation rules.
-   * @throws Error if entity is undefined
-   */
   override postFetchData() {
     if (!this.entityToEdit) {
       throw new Error('Cannot initialize form: entity is undefined');
     }
-    if (this.isDuplicated()) {
-      this.passwordSet = false;
-    } else {
-      this.passwordSet = this.entityToEdit.passwordSet ?? false;
-    }
-    this.isPasswordBeingEdited = false;
-
+    this.resetPasswordFieldState();
     this.entityForm = new UntypedFormGroup({
       name: new UntypedFormControl(this.entityToEdit.name, [Validators.required]),
       driver: new UntypedFormControl(this.entityToEdit.driver, [Validators.required]),
       user: new UntypedFormControl(this.entityToEdit.user),
-      newPassword: new UntypedFormControl(this.passwordSet ? '••••••••' : ''),
+      newPassword: new UntypedFormControl(
+        this.passwordSet ? ConnectionFormComponent.PASSWORD_PLACEHOLDER : '',
+        []
+      ),
       url: new UntypedFormControl(this.entityToEdit.url, [Validators.required]),
     });
   }
 
-  /**
-   * Creates a Connection object from the current form values.
-   * Handles the password field specially based on passwordSet flag.
-   *
-   * @param id - Optional ID for the new object, used when updating
-   * @returns New Connection instance populated with form values
-   */
+  override afterSave(): void {
+    super.afterSave();
+    this.resetPasswordFieldState();
+    const control = this.entityForm?.get('newPassword');
+    if (control) {
+      control.setValue(this.passwordSet ? ConnectionFormComponent.PASSWORD_PLACEHOLDER : '');
+      control.markAsPristine();
+      control.markAsUntouched();
+    }
+  }
+
   createObject(id: number = null): Connection {
     let safeToEdit = Connection.fromObject(this.entityToEdit);
     const formValues = this.entityForm.getRawValue();
@@ -180,105 +143,70 @@ export class ConnectionFormComponent extends BaseFormComponent<Connection> {
     return Connection.fromObject(safeToEdit);
   }
 
-  /**
-   * Handles password input changes.
-   * Updates passwordSet flag and manages placeholder behavior.
-   */
-  onPasswordChange() {
-    const password = this.entityForm.get('newPassword').value;
+  onPasswordFocus(): void {
+    this.passwordDirtyInSession = false;
+    this.hadPasswordBeforeFocusSession = this.passwordSet;
+    this.clearPasswordPlaceholder();
+  }
 
-    // If this is the first change
-    if (!this.isPasswordBeingEdited && password !== '') {
+  onPasswordBlur(): void {
+    if (this.shouldRestorePasswordPlaceholder()) {
+      this.restorePasswordPlaceholder();
+    }
+  }
+
+  onPasswordChange(): void {
+    this.clearPasswordPlaceholder();
+    const passwordValue = this.entityForm.get('newPassword')?.value ?? '';
+
+    if (passwordValue !== '') {
+      this.passwordDirtyInSession = true;
+      this.isPasswordBeingEdited = true;
+      this.passwordSet = true;
+    } else if (this.hadPasswordBeforeFocusSession) {
+      this.revertPasswordEditSession();
+    } else {
+      this.passwordDirtyInSession = true;
+      this.passwordSet = false;
       this.isPasswordBeingEdited = true;
     }
   }
 
-  passwordChanged(event: Event) {
-    if (event instanceof InputEvent) {
-      this.entityForm.get('newPassword').setValue(event.data);
-      this.isPasswordBeingEdited = true;
-    }
-  }
-
-  /**
-   * Creates a new entity or duplicates an existing one.
-   * @returns Promise of created entity ID
-   */
   override async createEntity(): Promise<number> {
     const entityToCreate = this.createObject();
     const response = await firstValueFrom(this.connectionService.create(entityToCreate));
     return response.id;
   }
 
-  /**
-   * Updates an existing entity with form values.
-   */
   override async updateEntity() {
     const entityToUpdate = this.createObject(this.entityID);
     await firstValueFrom(this.connectionService.update(entityToUpdate));
   }
 
-  /**
-   * Checks form validity and application-specific rules.
-   * @returns boolean indicating if save is allowed
-   */
   override canSave(): boolean {
-    return true;
+    return this.entityForm?.valid ?? false;
   }
 
-  /**
-   * Defines the data table configuration for managing task members.
-   * Sets up columns, data fetching, updating logic, and target selection.
-   *
-   * @returns Configured data table definition for task members
-   */
-  private defineTaskType(): DataTableDefinition<TaskProjection, TaskProjection> {
-    return DataTableDefinition.builder<TaskProjection, TaskProjection>(this.dialog, this.errorHandler, this.loadingService)
-      .withRelationsColumns([
-        this.utils.getSelCheckboxColumnDef(),
-        this.utils.getRouterLinkColumnDef('common.form.name', 'name', '/taskQuery/:id/:typeId', {
-          id: 'id',
-          typeId: 'typeId'
-        }),
-        this.utils.getNonEditableColumnDef('entity.taskType.label', 'typeName'),
-      ])
-      .withRelationsOrder('name')
-      .withRelationsFetcher(() => {
-        if (this.isNew()) {
-          return of([]);
-        }
-        return this.entityToEdit.getRelationArrayEx(TaskProjection, 'tasks', {projection: 'view'})
-      })
-      .build();
-  }
-
-  /**
-   * Checks if the connection can be validated based on required fields.
-   * @returns boolean indicating if validation is possible
-   */
   canValidateConnection(): boolean {
-    if (!this.entityForm) {
+    if (!this.entityForm || !this.hasRequiredConnectionFields()) {
       return false;
     }
-
-    const driver = this.entityForm.get('driver')?.value;
-    const url = this.entityForm.get('url')?.value;
-
-    return driver && url && driver.trim() !== '' && url.trim() !== '';
+    if (this.canTestStoredConnection()) {
+      return true;
+    }
+    return this.canTestWithFormCredentials();
   }
 
-  /**
-   * Tests the database connection with current form values.
-   */
-  validateConnection() {
-    const formValues = this.entityForm.getRawValue();
-    const connection = {
-      driver: formValues.driver,
-      url: formValues.url,
-      user: formValues.user,
-      password: formValues.newPassword
-    };
-    this.connectionService.testConnection(connection).subscribe({
+  validateConnection(): void {
+    if (!this.canValidateConnection()) {
+      return;
+    }
+
+    const request$ = this.canTestStoredConnection()
+      ? this.connectionService.testStoredConnection(this.entityID)
+      : this.connectionService.testConnection(this.buildTestPayloadFromForm());
+
+    request$.subscribe({
       next: () => this.notificationService.showSuccess("entity.connection.test.title", "entity.connection.test.success"),
       error: err => {
         const errorMessage = err.error?.message;
@@ -287,6 +215,132 @@ export class ConnectionFormComponent extends BaseFormComponent<Connection> {
         this.notificationService.showError("entity.connection.test.title", message, shouldTranslate);
       }
     });
+  }
+
+  private defineTaskType(): DataTableDefinition<TaskProjection, TaskProjection> {
+    return DataTableDefinition.builder<TaskProjection, TaskProjection>(this.dialog, this.errorHandler, this.loadingService)
+      .withRelationsColumns([
+        this.utils.getSelCheckboxColumnDef(),
+        this.utils.getRouterLinkColumnDef('common.form.name', 'name', '/tasks/:id/:typeId', {
+          id: 'id',
+          typeId: 'typeId'
+        }),
+        this.utils.getNonEditableColumnDef('entity.taskType.label', 'typeTitle'),
+      ])
+      .withRelationsOrder('name')
+      .withRelationsFetcher(() => {
+        if (this.isNew()) {
+          return of([]);
+        }
+        return this.entityToEdit.getRelationArrayEx(TaskProjection, 'tasks', {
+          projection: 'view',
+          lang: this.currentUiLanguage()
+        })
+      })
+      .build();
+  }
+
+  private currentUiLanguage(): string {
+    return localStorage.getItem('lang') || config.defaultLang;
+  }
+
+  private hasRequiredConnectionFields(): boolean {
+    const driver = this.entityForm.get('driver')?.value;
+    const url = this.entityForm.get('url')?.value;
+    return this.isNonEmptyField(driver) && this.isNonEmptyField(url);
+  }
+
+  private canTestStoredConnection(): boolean {
+    return this.isEdition()
+      && !this.isPasswordBeingEdited
+      && !this.connectionFieldsDifferFromEntity();
+  }
+
+  private canTestWithFormCredentials(): boolean {
+    const passwordValue = this.entityForm.get('newPassword')?.value ?? '';
+    if (this.isPlaceholderPasswordValue(passwordValue)) {
+      return false;
+    }
+    return this.isPasswordBeingEdited || !this.passwordSet || this.isNewOrDuplicated();
+  }
+
+  private connectionFieldsDifferFromEntity(): boolean {
+    if (!this.entityToEdit) {
+      return false;
+    }
+    const formValues = this.entityForm.getRawValue();
+    return formValues.driver !== this.entityToEdit.driver
+      || formValues.url !== this.entityToEdit.url
+      || (formValues.user ?? '') !== (this.entityToEdit.user ?? '');
+  }
+
+  private buildTestPayloadFromForm() {
+    const formValues = this.entityForm.getRawValue();
+    const payload: { driver: string; url: string; user?: string; password?: string } = {
+      driver: formValues.driver,
+      url: formValues.url,
+      user: formValues.user,
+    };
+    if (this.isPasswordBeingEdited) {
+      payload.password = formValues.newPassword;
+    }
+    return payload;
+  }
+
+  private isNonEmptyField(value: unknown): boolean {
+    if (value == null) {
+      return false;
+    }
+    return String(value).trim() !== '';
+  }
+
+  private isPlaceholderPasswordValue(value: unknown): boolean {
+    return value === ConnectionFormComponent.PASSWORD_PLACEHOLDER;
+  }
+
+  private resetPasswordFieldState(): void {
+    if (this.isNew() || this.isDuplicated()) {
+      this.passwordSet = false;
+    } else {
+      this.passwordSet = this.entityToEdit?.passwordSet ?? false;
+    }
+    this.isPasswordBeingEdited = false;
+    this.passwordDirtyInSession = false;
+    this.hadPasswordBeforeFocusSession = false;
+  }
+
+  private shouldRestorePasswordPlaceholder(): boolean {
+    if (!this.hadPasswordBeforeFocusSession) {
+      return false;
+    }
+    const value = this.entityForm?.get('newPassword')?.value ?? '';
+    const isEmpty = value === '' || value === ConnectionFormComponent.PASSWORD_PLACEHOLDER;
+    return isEmpty || !this.passwordDirtyInSession;
+  }
+
+  private revertPasswordEditSession(): void {
+    this.passwordDirtyInSession = false;
+    this.isPasswordBeingEdited = false;
+    this.passwordSet = true;
+  }
+
+  private restorePasswordPlaceholder(): void {
+    const control = this.entityForm?.get('newPassword');
+    control?.setValue(ConnectionFormComponent.PASSWORD_PLACEHOLDER);
+    control?.markAsPristine();
+    control?.markAsUntouched();
+    this.isPasswordBeingEdited = false;
+    this.passwordSet = true;
+  }
+
+  private clearPasswordPlaceholder(): void {
+    const control = this.entityForm?.get('newPassword');
+    const value = control?.value ?? '';
+    if (value === ConnectionFormComponent.PASSWORD_PLACEHOLDER) {
+      control.setValue('');
+    } else if (value.includes(ConnectionFormComponent.PASSWORD_PLACEHOLDER)) {
+      control.setValue(value.replaceAll(ConnectionFormComponent.PASSWORD_PLACEHOLDER, ''));
+    }
   }
 
 }

@@ -3,6 +3,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { By } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
@@ -26,8 +27,9 @@ import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
 import { MaterialModule } from '@app/material-module';
 import { LoggerService } from '@app/services/logger.service';
 import { UtilsService } from '@app/services/utils.service';
-import { WMSCapabilitiesService } from '@app/services/wms-capabilities.service';
+import { WMSCapabilitiesService, WMSServiceCapabilities } from '@app/services/wms-capabilities.service';
 import {configureLoggerForTests, provideErrorHandlerForTests} from '@app/testing/test-helpers';
+import { config } from '@config';
 
 import { ServiceFormComponent } from './service-form.component';
 
@@ -1523,6 +1525,125 @@ describe('ServiceFormComponent', () => {
     fixture.detectChanges();
 
     expect(component.isWMS()).toBeFalsy();
+  });
+
+  describe('Grid capability classification', () => {
+    it('parametersTable should have template-dialog, updater, and status capabilities', () => {
+      const table = component['parametersTable'];
+      expect(table.hasTemplateDialogs()).toBe(true);
+      expect(table.hasRelationsUpdater()).toBe(true);
+      expect(table.hasStatusColumn()).toBe(true);
+      expect(table.supportsDuplicate()).toBe(false);
+      expect(table.hasPickerAdd()).toBe(false);
+    });
+
+    it('layersTable should have updater and status, no picker/template/duplicate', () => {
+      const table = component['layersTable'];
+      expect(table.hasRelationsUpdater()).toBe(true);
+      expect(table.hasStatusColumn()).toBe(true);
+      expect(table.hasPickerAdd()).toBe(false);
+      expect(table.hasTemplateDialogs()).toBe(false);
+      expect(table.supportsDuplicate()).toBe(false);
+    });
+  });
+
+  describe('onUpdateServiceMetadata multilingual translations', () => {
+    let dialog: MatDialog;
+    let wmsCapabilitiesService: WMSCapabilitiesService;
+    const originalLanguagesToUse = config.languagesToUse;
+
+    beforeEach(() => {
+      config.languagesToUse = [
+        { shortname: 'ca', name: 'Catala' } as never,
+        { shortname: 'es', name: 'Castellano' } as never,
+        { shortname: 'en', name: 'English' } as never,
+      ];
+      component.initTranslations('Service', ['description', 'name']);
+
+      dialog = TestBed.inject(MatDialog);
+      wmsCapabilitiesService = TestBed.inject(WMSCapabilitiesService);
+
+      jest.spyOn(dialog, 'open').mockReturnValue({
+        componentInstance: {},
+        afterClosed: () => of({ event: 'Accept' }),
+      } as never);
+
+      component.entityForm.patchValue({
+        name: 'old name',
+        description: 'old description',
+        type: 'WMS',
+        serviceURL: 'https://example.org/wms',
+        authenticationMode: 1,
+      });
+    });
+
+    afterEach(() => {
+      config.languagesToUse = originalLanguagesToUse;
+    });
+
+    it('applies main values and translation rows from capabilities metadata', async () => {
+      jest.spyOn(wmsCapabilitiesService, 'processWMSServiceMetadata').mockResolvedValue(
+        new WMSServiceCapabilities(
+          {},
+          'Nom catala',
+          new Map([['es', 'Nombre castellano']]),
+          'Descripcio catalana',
+          new Map([['es', 'Descripcion castellana']]),
+          ['EPSG:25831'],
+        )
+      );
+
+      component.onUpdateServiceMetadata();
+      await fixture.whenStable();
+      await Promise.resolve();
+
+      expect(component.entityForm.value.name).toBe('Nom catala');
+      expect(component.entityForm.value.description).toBe('Descripcio catalana');
+      expect(component.propertyTranslations.get('name')?.map.get('es')?.translation).toBe('Nombre castellano');
+      expect(component.propertyTranslations.get('description')?.map.get('es')?.translation).toBe('Descripcion castellana');
+      expect(component.propertyTranslations.get('name')?.modified).toBe(true);
+      expect(component.propertyTranslations.get('description')?.modified).toBe(true);
+    });
+
+    it('applies case B main-language translation row when default lang is absent from capabilities', async () => {
+      jest.spyOn(wmsCapabilitiesService, 'processWMSServiceMetadata').mockResolvedValue(
+        new WMSServiceCapabilities(
+          {},
+          'Nom catala',
+          new Map([['ca', 'Nom catala'], ['es', 'Nombre castellano']]),
+          'Descripcio catalana',
+          new Map([['ca', 'Descripcio catalana'], ['es', 'Descripcion castellana']]),
+          ['EPSG:25831'],
+        )
+      );
+
+      component.onUpdateServiceMetadata();
+      await fixture.whenStable();
+      await Promise.resolve();
+
+      expect(component.propertyTranslations.get('description')?.map.get('ca')?.translation).toBe('Descripcio catalana');
+      expect(component.propertyTranslations.get('description')?.map.get('es')?.translation).toBe('Descripcion castellana');
+    });
+
+    it('ignores unsupported capability languages and does not mark property modified', async () => {
+      jest.spyOn(wmsCapabilitiesService, 'processWMSServiceMetadata').mockResolvedValue(
+        new WMSServiceCapabilities(
+          {},
+          'Nom catala',
+          new Map([['fr', 'Nom francais']]),
+          'Descripcio catalana',
+          new Map([['fr', 'Description francaise']]),
+          ['EPSG:25831'],
+        )
+      );
+
+      component.onUpdateServiceMetadata();
+      await fixture.whenStable();
+      await Promise.resolve();
+
+      expect(component.propertyTranslations.get('name')?.modified).toBe(false);
+      expect(component.propertyTranslations.get('description')?.modified).toBe(false);
+    });
   });
 });
 

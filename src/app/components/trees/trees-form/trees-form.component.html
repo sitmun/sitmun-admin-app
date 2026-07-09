@@ -114,53 +114,23 @@
   <mat-tab label="{{ 'entity.permissionGroup.applications.header' | translate }}">
     <mat-card class="sitmun-mat-card-margin" appearance="outlined">
       <mat-card-content>
-        <app-data-grid
+        <app-relation-grid
           #applicationsGrid
-          [changeHeightButton]="true"
+          *ngIf="dataLoaded"
+          [table]="applicationsTable"
           [allNewElements]="isNewOrDuplicated()"
-          [columnDefs]="applicationsTable.relationsColumnsDefs"
-          [getAll]="applicationsTable.relationsFetchFn"
-          [eventAddItemsSubscription]="applicationsTable.addCommandEvent$.asObservable()"
-          [eventGetAllRowsSubscription]="applicationsTable.saveCommandEvent$.asObservable()"
-          [eventRefreshSubscription]="applicationsTable.refreshCommandEvent$.asObservable()"
-          [actionButton]="true"
-          [discardChangesButton]="true"
-          [redoButton]="true"
-          [undoButton]="true"
-          [deleteButton]="true"
-          [addButton]="true"
-          [hideDuplicateButton]="true"
-          [defaultColumnSorting]="applicationsTable.defaultRelationsSorting()"
-          (getAllRows)="applicationsTable.handleSaveRelations($event)"
-          (add)="applicationsTable.openDialog($event)"
-          *ngIf="dataLoaded">
-        </app-data-grid>
+        ></app-relation-grid>
       </mat-card-content>
     </mat-card>
   </mat-tab>
   <mat-tab label="{{ 'entity.tree.roles' | translate }}">
     <mat-card class="sitmun-mat-card-margin" appearance="outlined">
       <mat-card-content>
-        <app-data-grid
-          [changeHeightButton]="true"
+        <app-relation-grid
+          *ngIf="dataLoaded"
+          [table]="rolesTable"
           [allNewElements]="isNewOrDuplicated()"
-          [columnDefs]="rolesTable.relationsColumnsDefs"
-          [getAll]="rolesTable.relationsFetchFn"
-          [eventAddItemsSubscription]="rolesTable.addCommandEvent$.asObservable()"
-          [eventGetAllRowsSubscription]="rolesTable.saveCommandEvent$.asObservable()"
-          [eventRefreshSubscription]="rolesTable.refreshCommandEvent$.asObservable()"
-          [actionButton]="true"
-          [discardChangesButton]="true"
-          [redoButton]="true"
-          [undoButton]="true"
-          [deleteButton]="true"
-          [addButton]="true"
-          [hideDuplicateButton]="true"
-          [defaultColumnSorting]="rolesTable.defaultRelationsSorting()"
-          (getAllRows)="rolesTable.handleSaveRelations($event)"
-          (add)="rolesTable.openDialog($event)"
-          *ngIf="dataLoaded">
-        </app-data-grid>
+        ></app-relation-grid>
       </mat-card-content>
     </mat-card>
   </mat-tab>

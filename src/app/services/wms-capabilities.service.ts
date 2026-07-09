@@ -6,25 +6,33 @@ import { CapabilitiesService, Cartography, CartographyStyle } from "@app/domain"
 import {LoggerService} from '@app/services/logger.service';
 import { config } from "@config";
 
+/** Parsed WMS field with main text and per-language translations. */
+export interface WMSMultilingualField {
+  main: string;
+  translations: Map<string, string>;
+}
+
 /**
  * Class representing WMS service capabilities metadata.
  * Contains service information retrieved from WMS GetCapabilities request.
  */
-class WMSServiceCapabilities {
+export class WMSServiceCapabilities {
   /**
    * Creates a new WMS service capabilities object.
    *
    * @param capabilities - Raw capabilities data from the WMS response
-   * @param title - Service title
-   * @param abstract - Service description/abstract in the default language
+   * @param title - Service title in the selected main language
+   * @param titleTranslations - Map of language codes to translated titles
+   * @param abstract - Service description/abstract in the selected main language
    * @param abstractTranslations - Map of language codes to translated abstracts
    * @param supportedSRS - Array of supported spatial reference systems (projections)
    */
   constructor(
-    public capabilities: any,
+    public capabilities: unknown,
     public title: string,
+    public titleTranslations: Map<string, string>,
     public abstract: string,
-    public abstractTranslations: Map<string,string>,
+    public abstractTranslations: Map<string, string>,
     public supportedSRS: string[]
   ) {}
 }
@@ -86,12 +94,15 @@ export class WMSCapabilitiesService {
       }
       const service = wms_1_1_1?.Service || wms_1_3_0?.Service;
       const capability = wms_1_1_1?.Capability || wms_1_3_0?.Capability;
+      const title = this.parseMultilingualField(service?.Title);
+      const abstract = this.parseMultilingualField(service?.Abstract);
       return Promise.resolve(
         new WMSServiceCapabilities(
           result.asJson,
-          service?.Title,
-          this.extractServiceAbstract(service?.Abstract),
-          this.extractServiceAbstractTranslations(service?.Abstract),
+          title.main,
+          title.translations,
+          abstract.main,
+          abstract.translations,
           this.extractProjections(capability)
         )
       );
@@ -147,47 +158,165 @@ export class WMSCapabilitiesService {
   }
 
   /**
-   * Extracts the service abstract in the default language.
-   * Handles both single abstract and multilingual abstract arrays.
+   * Parses a WMS metadata field that may be a plain string or a multilingual array.
    *
-   * @param abstract - Abstract content from the capabilities response
-   * @returns Service abstract string in the default language
+   * @param value - Title or Abstract from the capabilities response
+   * @returns Main text and translations keyed by normalized language shortname
    */
-  private extractServiceAbstract(abstract: any): string {
-    if (Array.isArray(abstract)) {
-      const text = abstract.find(element => element['xml:lang'].includes(config.defaultLang));
-      if (!text) {
-        return abstract[0].content;
-      } else {
-        return text;
-      }
-    } else {
-      return abstract;
+  private parseMultilingualField(value: unknown): WMSMultilingualField {
+    const empty: WMSMultilingualField = { main: '', translations: new Map() };
+
+    if (value == null) {
+      return empty;
     }
+
+    if (typeof value === 'string' || typeof value === 'number') {
+      return { main: String(value), translations: new Map() };
+    }
+
+    if (!Array.isArray(value)) {
+      const text = this.extractTextContent(value);
+      return text ? { main: text, translations: new Map() } : empty;
+    }
+
+    const entries = value
+      .map(item => ({
+        lang: this.extractRawLang(item),
+        text: this.extractTextContent(item),
+      }))
+      .filter(entry => entry.text.length > 0);
+
+    if (entries.length === 0) {
+      return empty;
+    }
+
+    const defaultLang = this.normalizeLanguage(config.defaultLang);
+    const mainIndex = entries.findIndex(
+      entry => entry.lang != null && this.normalizeLanguage(entry.lang) === defaultLang
+    );
+    const selectedIndex = mainIndex >= 0 ? mainIndex : 0;
+    const mainEntry = entries[selectedIndex];
+
+    const caseB = mainIndex < 0;
+    const translations = new Map<string, string>();
+    entries.forEach((entry, index) => {
+      if (index === selectedIndex || entry.lang == null) {
+        return;
+      }
+      const lang = this.normalizeLanguage(entry.lang);
+      if (!translations.has(lang)) {
+        translations.set(lang, entry.text);
+      }
+    });
+
+    // Case B: default language absent — main uses first entry, but its language row
+    // must still be filled (e.g. default en, first ca-ES → ca translation + main field).
+    if (caseB && mainEntry.lang != null) {
+      const mainLang = this.normalizeLanguage(mainEntry.lang);
+      if (!translations.has(mainLang)) {
+        translations.set(mainLang, mainEntry.text);
+      }
+    }
+
+    return { main: mainEntry.text, translations };
   }
 
   /**
-   * Extracts abstract translations from a multilingual abstract.
-   * Creates a map of language codes to translated content.
-   *
-   * @param abstract - Abstract content from the capabilities response
-   * @returns Map of language codes to translated abstract strings
+   * Normalizes an xml:lang value to a configured language shortname when possible.
    */
-  private extractServiceAbstractTranslations(abstract: any): Map<string, string> {
-    const result = new Map<string, string>();
-    if (Array.isArray(abstract)) {
-      abstract.forEach((translation: { [x: string]: string; content: string; }) => {
-        let languageShortname = translation['xml:lang'];
-        const index = languageShortname.indexOf("-");
-        if (index != -1) {
-          languageShortname = languageShortname.substring(0, index);
-        }
-        if (languageShortname != config.defaultLang) {
-          result.set(languageShortname, translation.content);
-        }
-      });
+  private normalizeLanguage(rawLang: string): string {
+    const raw = rawLang.trim().toLowerCase();
+    const knownShortnames = this.getKnownLanguageShortnames();
+
+    for (const shortname of knownShortnames) {
+      const normalizedShortname = shortname.toLowerCase();
+      if (raw === normalizedShortname || raw.startsWith(`${normalizedShortname}-`)) {
+        return shortname;
+      }
     }
-    return result;
+
+    const primarySubtag = this.primaryLanguageSubtag(raw);
+    const aliasedShortname = this.resolveLanguageAlias(primarySubtag, knownShortnames);
+    if (aliasedShortname) {
+      return aliasedShortname;
+    }
+
+    return primarySubtag;
+  }
+
+  /** Primary language subtag before the first hyphen. */
+  private primaryLanguageSubtag(rawLang: string): string {
+    const dashIndex = rawLang.indexOf('-');
+    return dashIndex === -1 ? rawLang : rawLang.substring(0, dashIndex);
+  }
+
+  /**
+   * Maps ISO 639-2 bibliographic codes to configured ISO 639-1 shortnames.
+   * Some WMS services use `cat-ES` instead of `ca-ES` for Catalan.
+   */
+  private resolveLanguageAlias(
+    primarySubtag: string,
+    knownShortnames: string[],
+  ): string | undefined {
+    const aliases: Record<string, string> = {
+      cat: 'ca',
+      spa: 'es',
+      eng: 'en',
+      fre: 'fr',
+      fra: 'fr',
+      ger: 'de',
+      deu: 'de',
+    };
+    const target = aliases[primarySubtag];
+    if (!target) {
+      return undefined;
+    }
+    return knownShortnames.find(shortname => shortname.toLowerCase() === target);
+  }
+
+  /** Returns configured language shortnames, longest first for prefix matching. */
+  private getKnownLanguageShortnames(): string[] {
+    const shortnames = new Set<string>();
+    if (config.defaultLang) {
+      shortnames.add(config.defaultLang);
+    }
+    config.languagesToUse?.forEach(language => {
+      if (language.shortname) {
+        shortnames.add(language.shortname);
+      }
+    });
+    return Array.from(shortnames).sort((a, b) => b.length - a.length);
+  }
+
+  /** Reads xml:lang from a parsed capabilities item. */
+  private extractRawLang(item: unknown): string | undefined {
+    if (item == null || typeof item !== 'object') {
+      return undefined;
+    }
+    const record = item as Record<string, unknown>;
+    const lang = record['xml:lang'] ?? record['@xml:lang'];
+    return typeof lang === 'string' && lang.length > 0 ? lang : undefined;
+  }
+
+  /** Extracts text from plain values or org.json/xml-to-json object shapes. */
+  private extractTextContent(value: unknown): string {
+    if (value == null) {
+      return '';
+    }
+    if (typeof value === 'string' || typeof value === 'number') {
+      return String(value);
+    }
+    if (typeof value !== 'object') {
+      return '';
+    }
+    const record = value as Record<string, unknown>;
+    for (const key of ['content', '_', '#text'] as const) {
+      const candidate = record[key];
+      if (typeof candidate === 'string' || typeof candidate === 'number') {
+        return String(candidate);
+      }
+    }
+    return '';
   }
 
   /**

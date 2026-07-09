@@ -266,4 +266,45 @@ describe('ApplicationFormComponent', () => {
     });
   });
 
+  describe('Grid capability classification', () => {
+    it('rolesTable should have picker-add, updater, status column, no template dialogs', () => {
+      expect(component['rolesTable'].hasPickerAdd()).toBe(true);
+      expect(component['rolesTable'].hasRelationsUpdater()).toBe(true);
+      expect(component['rolesTable'].hasStatusColumn()).toBe(true);
+      expect(component['rolesTable'].hasTemplateDialogs()).toBe(false);
+    });
+
+    it('applicationBackgroundsTable should have picker-add, updater, status column, no template dialogs', () => {
+      expect(component['applicationBackgroundsTable'].hasPickerAdd()).toBe(true);
+      expect(component['applicationBackgroundsTable'].hasRelationsUpdater()).toBe(true);
+      expect(component['applicationBackgroundsTable'].hasStatusColumn()).toBe(true);
+      expect(component['applicationBackgroundsTable'].hasTemplateDialogs()).toBe(false);
+    });
+
+    it('parametersTable should have template-dialog, updater, and status capabilities', () => {
+      const table = component['parametersTable'];
+      expect(table.hasTemplateDialogs()).toBe(true);
+      expect(table.hasRelationsUpdater()).toBe(true);
+      expect(table.hasStatusColumn()).toBe(true);
+      expect(table.supportsDuplicate()).toBe(false);
+      expect(table.hasPickerAdd()).toBe(false);
+    });
+
+    it('headerParamsTable should have template-dialog, updater, and status capabilities', () => {
+      const table = component['headerParamsTable'];
+      expect(table.hasTemplateDialogs()).toBe(true);
+      expect(table.hasRelationsUpdater()).toBe(true);
+      expect(table.hasStatusColumn()).toBe(true);
+      expect(table.supportsDuplicate()).toBe(false);
+      expect(table.hasPickerAdd()).toBe(false);
+    });
+
+    it('treesTable should have picker-add, updater, status column, no template dialogs', () => {
+      expect(component['treesTable'].hasPickerAdd()).toBe(true);
+      expect(component['treesTable'].hasRelationsUpdater()).toBe(true);
+      expect(component['treesTable'].hasStatusColumn()).toBe(true);
+      expect(component['treesTable'].hasTemplateDialogs()).toBe(false);
+    });
+  });
+
 });

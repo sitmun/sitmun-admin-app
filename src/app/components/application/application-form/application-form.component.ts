@@ -9,6 +9,7 @@ import {map} from 'rxjs/operators';
 
 import {BaseFormComponent} from "@app/components/base-form.component";
 import {DataTableDefinition, TemplateDialog} from '@app/components/data-tables.util';
+import {RelationGridComponent} from '@app/components/shared/relation-grid/relation-grid.component';
 import {Configuration} from "@app/core/config/configuration";
 import {HalOptions} from '@app/core/hal/rest/rest.service';
 import {MessagesInterceptorStateService} from '@app/core/interceptors/messages.interceptor';
@@ -35,7 +36,6 @@ import {
   UserService
 } from '@app/domain';
 import {ApplicationHeaderParameter} from '@app/domain/application/models/application-header-parameter.model';
-import {DataGridComponent} from '@app/frontend-gui/src/lib/data-grid/data-grid.component';
 import {
   isActive,
   onCreate,
@@ -176,7 +176,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
    * Used to access grid data for tree-specific validation rules.
    */
   @ViewChild('treesDataGrid')
-  private readonly treesDataGrid: DataGridComponent;
+  private readonly treesDataGrid: RelationGridComponent;
 
   /**
    * Creates an instance of ApplicationFormComponent.
@@ -741,6 +741,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
       ])
       .withTargetsOrder('name')
       .withTargetsFetcher(() => this.treeService.fetchAllItems())
+      .withTargetToRelation((items) => items)
       .withTargetsTitle('entity.application.trees.title')
       .build();
   }
@@ -776,6 +777,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
       ])
       .withTargetsOrder('name')
       .withTargetsFetcher(() => this.roleService.fetchAllItems())
+      .withTargetToRelation((items) => items)
       .withTargetsTitle('entity.application.roles.title')
       .build();
   }

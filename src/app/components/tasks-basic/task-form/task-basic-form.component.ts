@@ -405,6 +405,7 @@ export class TaskBasicFormComponent extends BaseFormComponent<TaskProjection> {
       ])
       .withTargetsOrder('name')
       .withTargetsFetcher(() => this.roleService.fetchAllItems())
+      .withTargetToRelation((items) => items)
       .withTargetsTitle('entity.task.roles.title')
       .build();
   }

@@ -344,7 +344,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
       this.utils.getIdColumnDef(),
       this.utils.getNonEditableColumnDef('entity.tree.name', 'name'),
       this.utils.getNonEditableColumnDef('entity.tree.groupTask', 'groupName'),
-      this.utils.getNonEditableColumnDef('entity.tree.typeName', 'typeName'),
+      this.utils.getNonEditableColumnDef('entity.tree.typeName', 'typeTitle'),
       this.utils.getStatusColumnDef()
     ];
 
@@ -1641,7 +1641,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
       const sc = this.translateEditScopeCode(scope);
       return sc ? `${base} (${sc})` : base;
     }
-    return typeof task.typeName === 'string' ? task.typeName : '';
+    return typeof task.typeTitle === 'string' ? task.typeTitle : '';
   }
 
   /** Kind + scope line for the currently selected task (below the task field). */
@@ -3349,7 +3349,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
       const name = (task.name || '').toLowerCase();
       if (name.includes(term)) return true;
 
-      if (task.typeName && task.typeName.toLowerCase().includes(term)) {
+      if (task.typeTitle && task.typeTitle.toLowerCase().includes(term)) {
         return true;
       }
 

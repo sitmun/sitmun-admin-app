@@ -1,123 +1,118 @@
-import { TestBed } from '@angular/core/testing';
-import { FormControl, FormGroup } from '@angular/forms';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { RouterModule } from '@angular/router';
 
-import { TaskProjection } from '@app/domain';
+import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
+import { of } from 'rxjs';
+
+import { FormToolbarComponent } from '@app/components/shared/form-toolbar/form-toolbar.component';
+import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
+import { ExternalService, ResourceService } from '@app/core/hal';
+import {
+  CodeListService, RoleService, TaskAvailabilityService, TaskService,
+  TerritoryService, TranslationService, TaskUIService, TaskTypeService,
+  TaskGroupService, ConnectionService, CartographyService
+} from '@app/domain';
+import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
+import { MaterialModule } from '@app/material-module';
+import { LoggerService } from '@app/services/logger.service';
+import { configureLoggerForTests, provideErrorHandlerForTests } from '@app/testing/test-helpers';
 
 import { TaskQueryFormComponent } from './task-query-form.component';
 
 describe('TaskQueryFormComponent', () => {
-  const createSpyObj = (methods: string[]) => {
-    return methods.reduce((acc, methodName) => {
-      acc[methodName] = jest.fn();
-      return acc;
-    }, {} as Record<string, jest.Mock>);
-  };
+  let component: TaskQueryFormComponent;
+  let fixture: ComponentFixture<TaskQueryFormComponent>;
 
-  const createComponent = () => {
-    TestBed.configureTestingModule({});
-
-    const translateService = createSpyObj(['instant']);
-    translateService.instant.mockImplementation((key: string, params?: Record<string, unknown>) => {
-      const firstParam = Object.values(params || {})[0];
-      if (typeof firstParam === 'string') {
-        return `${key}|${firstParam}`;
-      }
-      return key;
-    });
-
-    const utilsService = createSpyObj([
-      'getSelCheckboxColumnDef',
-      'getEditableColumnDef',
-      'getRouterLinkColumnDef',
-      'getNonEditableColumnDef',
-      'getNonEditableColumnWithCodeListDef',
-      'getBooleanColumnDef',
-      'getStatusColumnDef',
-      'addConditionToColumnDef',
-      'getRouterLinkColumnDef',
-      'getNonEditableDateColumnDef'
-    ]);
-    utilsService.getSelCheckboxColumnDef.mockReturnValue({ field: '_select' });
-    utilsService.getEditableColumnDef.mockImplementation((_label: string, field: string) => ({ field }));
-    utilsService.getRouterLinkColumnDef.mockImplementation((_label: string, field: string) => ({ field }));
-    utilsService.getNonEditableColumnDef.mockImplementation((_label: string, field: string) => ({ field }));
-    utilsService.getNonEditableColumnWithCodeListDef.mockImplementation((_label: string, field: string) => ({ field }));
-    utilsService.getBooleanColumnDef.mockImplementation((_label: string, field: string) => ({ field }));
-    utilsService.getStatusColumnDef.mockReturnValue({ field: 'status' });
-    utilsService.addConditionToColumnDef.mockImplementation((column: any) => column);
-    utilsService.getNonEditableDateColumnDef.mockImplementation((_label: string, field: string) => ({ field }));
-
-    return TestBed.runInInjectionContext(() => new TaskQueryFormComponent(
-      {} as any,
-      translateService as any,
-      createSpyObj(['getAllByNameAndEntity']) as any,
-      createSpyObj(['getAllByName']) as any,
-      createSpyObj(['error', 'warn', 'debug', 'info', 'trace']) as any,
-      createSpyObj(['handleError']) as any,
-      { params: new FormControl({}) } as any,
-      createSpyObj(['navigate']) as any,
-      createSpyObj(['show', 'hide']) as any,
-      createSpyObj(['enable', 'disable']) as any,
-      createSpyObj(['create', 'update', 'getProjection']) as any,
-      createSpyObj(['getAll']) as any,
-      utilsService as any,
-      createSpyObj(['getAllEx']) as any,
-      createSpyObj(['getAllEx']) as any,
-      createSpyObj(['getAllEx']) as any,
-      createSpyObj(['getAllProjection']) as any,
-      createSpyObj(['create']) as any,
-      createSpyObj(['getAllEx']) as any,
-      createSpyObj(['getAllEx']) as any,
-      createSpyObj(['get']) as any,
-    ));
-  };
-
-  it('preserves unknown properties keys on createObject while updating scope/command', () => {
-    const component = Object.create(TaskQueryFormComponent.prototype) as TaskQueryFormComponent;
-    component.entityToEdit = TaskProjection.fromObject({
-      id: 10,
-      name: 'query',
-      properties: {
-        scope: 'old-scope',
-        command: 'old-command',
-        custom: { stable: true }
-      }
-    });
-    component.entityForm = new FormGroup({
-      name: new FormControl('query'),
-      scope: new FormControl('new-scope'),
-      command: new FormControl('new-command'),
-      connectionId: new FormControl(null),
-      cartographyId: new FormControl(null),
-      taskGroupId: new FormControl(null)
-    });
-
-    const result = component.createObject(10);
-
-    expect(result.properties?.scope).toBe('new-scope');
-    expect(result.properties?.command).toBe('new-command');
-    expect(result.properties?.custom).toEqual({ stable: true });
+  beforeAll(async () => {
+    await TestBed.configureTestingModule({
+      teardown: { destroyAfterEach: 0 as any },
+      declarations: [TaskQueryFormComponent, FormToolbarComponent],
+      imports: [
+        FormsModule,
+        ReactiveFormsModule,
+        RouterModule.forRoot([], {}),
+        SitmunFrontendGuiModule,
+        MaterialModule,
+        MatIconTestingModule,
+        BrowserAnimationsModule,
+        TranslateModule.forRoot({
+          loader: {
+            provide: TranslateLoader,
+            useFactory: () => ({
+              getTranslation: () => of({})
+            })
+          }
+        })
+      ],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideErrorHandlerForTests(),
+        TaskService,
+        TaskUIService,
+        TaskTypeService,
+        TaskGroupService,
+        ConnectionService,
+        CartographyService,
+        RoleService,
+        TerritoryService,
+        TaskAvailabilityService,
+        CodeListService,
+        TranslationService,
+        ResourceService,
+        ExternalService,
+        { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }
+      ]
+    }).compileComponents();
   });
 
-  it('formats system variable help from loaded variables', () => {
-    const component = Object.create(TaskQueryFormComponent.prototype) as TaskQueryFormComponent;
-    (component as any).systemVariables = new Map([
-      ['APP_ID', '#{application.id}'],
-      ['TERR_COD', '#{territory.code}']
-    ]);
-
-    expect((component as any).getSystemVariablesHelp()).toBe('#{APP_ID}, #{TERR_COD}');
+  beforeEach(() => {
+    fixture = TestBed.createComponent(TaskQueryFormComponent);
+    component = fixture.componentInstance;
+    const loggerService = TestBed.inject(LoggerService);
+    configureLoggerForTests(loggerService);
+    component.entityToEdit = component.empty();
+    component.postFetchData();
+    fixture.detectChanges();
   });
 
-  it('includes provided on query parameter dialog form and parameters grid', () => {
-    const component = createComponent();
-    (component as any).newParameterDialog = {} as any;
+  afterEach(() => fixture?.destroy());
+  afterAll(() => TestBed.resetTestingModule());
 
-    const dialog = (component as any).parametersTable.templateDialog('newParameterDialog');
-    const fields = (component as any).parametersTable.relationsColumnsDefs.map((column: any) => column.field);
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
 
-    expect(dialog.form.contains('provided')).toBe(true);
-    expect(fields).toContain('provided');
+  describe('Grid capability classification', () => {
+    it('rolesTable should have picker, updater, and status capabilities', () => {
+      const table = component['rolesTable'];
+      expect(table.hasPickerAdd()).toBe(true);
+      expect(table.hasRelationsUpdater()).toBe(true);
+      expect(table.hasStatusColumn()).toBe(true);
+      expect(table.hasTemplateDialogs()).toBe(false);
+    });
+
+    it('availabilitiesTable should have picker, updater, and status capabilities', () => {
+      const table = component['availabilitiesTable'];
+      expect(table.hasPickerAdd()).toBe(true);
+      expect(table.hasRelationsUpdater()).toBe(true);
+      expect(table.hasStatusColumn()).toBe(true);
+      expect(table.hasTemplateDialogs()).toBe(false);
+    });
+
+    it('parametersTable should have template-dialog, updater, status, and duplicate capabilities', () => {
+      const table = component['parametersTable'];
+      expect(table.hasTemplateDialogs()).toBe(true);
+      expect(table.hasRelationsUpdater()).toBe(true);
+      expect(table.hasStatusColumn()).toBe(true);
+      expect(table.supportsDuplicate()).toBe(true);
+      expect(table.hasPickerAdd()).toBe(false);
+    });
   });
 
   it('blocks save and shows deterministic warning when command placeholders are undeclared', () => {

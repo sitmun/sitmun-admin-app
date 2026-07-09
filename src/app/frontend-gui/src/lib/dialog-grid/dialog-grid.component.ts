@@ -57,38 +57,40 @@ export function isDialogGridAddEvent(result: DialogGridResult | null | undefined
 /**
  * Calculates optimal dialog width from column definitions
  */
-function calculateDialogWidth(columnDefsTable: any[][]): number {
+export function calculateDialogWidth(columnDefsTable: any[][]): number {
   const DEFAULT_COLUMN_WIDTH = 150;
   const ACTION_COLUMN_WIDTH = 120;
   const DIALOG_PADDING = 48;
   const SCROLLBAR_WIDTH = 20;
-  const MIN_WIDTH = 500;
+  const MIN_WIDTH = 640;
   const MAX_WIDTH = Math.min(900, window.innerWidth * 0.9);
-  
+
   let maxWidth = 0;
-  
+
   if (!columnDefsTable || columnDefsTable.length === 0) {
     return MIN_WIDTH;
   }
-  
+
   for (const columnDefs of columnDefsTable) {
     let tableWidth = 0;
-    
+
     for (const col of columnDefs || []) {
       if (col.width) {
         tableWidth += col.width;
       } else if (col.maxWidth) {
         tableWidth += col.maxWidth;
+      } else if (col.minWidth) {
+        tableWidth += col.minWidth;
       } else if (col.field === 'actions' || col.field === 'action') {
         tableWidth += ACTION_COLUMN_WIDTH;
       } else {
         tableWidth += DEFAULT_COLUMN_WIDTH;
       }
     }
-    
+
     maxWidth = Math.max(maxWidth, tableWidth);
   }
-  
+
   const calculatedWidth = maxWidth + DIALOG_PADDING + SCROLLBAR_WIDTH;
   return Math.max(MIN_WIDTH, Math.min(calculatedWidth, MAX_WIDTH));
 }

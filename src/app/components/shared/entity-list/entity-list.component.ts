@@ -45,6 +45,7 @@ export interface EntityListConfig<T> {
     newButton?: boolean;
     actionButton?: boolean;
     hideReplaceButton?: boolean;
+    hideDuplicateButton?: boolean;
   };
 }
 
@@ -146,6 +147,7 @@ export class EntityListComponent<T extends Resource> implements OnInit, OnChange
       newButton: true,
       actionButton: true,
       hideReplaceButton: true,
+      hideDuplicateButton: false,
       ...this.config?.gridOptions
     };
   }

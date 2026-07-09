@@ -438,7 +438,6 @@ export class UtilsService {
       unregisteredLayer: '#ffe100',
       pendingDelete: '#bf0000',
       notAvailable: '#bf0000',
-      statusOK: '#68A225',
     };
     return {
       maxWidth: 60,
@@ -451,11 +450,14 @@ export class UtilsService {
       cellStyle: {display: 'flex', alignItems: 'center', justifyContent: 'center'},
       cellRenderer: (params) => {
         const key = params.value ?? 'statusOK';
+        if (key === 'statusOK') {
+          return '';
+        }
         const span = document.createElement('span');
         span.className = 'sitmun-status-dot';
         span.title = this.getTranslate('common.status.' + key);
         span.setAttribute('aria-label', span.title);
-        span.style.backgroundColor = statusColors[key] ?? statusColors.statusOK;
+        span.style.backgroundColor = statusColors[key] ?? statusColors.pendingModify;
         return span;
       },
     };

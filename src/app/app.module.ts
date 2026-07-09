@@ -27,6 +27,7 @@ import {ConnectionComponent} from '@app/components/connection/connection.compone
 import {DashboardComponent} from '@app/components/dashboard/dashboard.component';
 import {DataTablesRegistry} from "@app/components/data-tables.util";
 import {ErrorPageComponent} from "@app/components/error-page/error-page.component";
+import {DefaultLanguageChangeDialogComponent} from '@app/components/language/default-language-change-dialog/default-language-change-dialog.component';
 import {LanguageFormComponent} from '@app/components/language/language-form/language-form.component';
 import {LanguageComponent} from '@app/components/language/language.component';
 import {LiteralTranslationsComponent} from '@app/components/literal-translations/literal-translations/literal-translations.component';
@@ -48,11 +49,14 @@ import {EntityFormAlertsComponent} from '@app/components/shared/entity-form-aler
 import {EntityListComponent} from '@app/components/shared/entity-list';
 import {FormToolbarComponent} from '@app/components/shared/form-toolbar/form-toolbar.component';
 import {NotificationComponent} from '@app/components/shared/notification/notification.component';
+import {RelationGridComponent} from '@app/components/shared/relation-grid/relation-grid.component';
 import {SideMenuComponent} from '@app/components/shared/side-menu/side-menu.component';
 import {ToolbarComponent} from '@app/components/shared/toolbar/toolbar.component';
 import {WarningsPanelComponent} from '@app/components/shared/warnings-panel/warnings-panel.component';
 import {TaskGroupFormComponent} from '@app/components/task-group/task-group-form/task-group-form.component';
 import {TaskGroupComponent} from '@app/components/task-group/task-group.component';
+import {TaskTypeFormComponent} from '@app/components/task-type/task-type-form/task-type-form.component';
+import {TaskTypeComponent} from '@app/components/task-type/task-type.component';
 import {TaskUIFormComponent} from '@app/components/task-ui/task-ui-form/task-ui-form.component';
 import {TaskUIComponent} from '@app/components/task-ui/task-ui.component';
 import {TaskBasicFormComponent} from '@app/components/tasks-basic/task-form/task-basic-form.component';
@@ -326,8 +330,11 @@ function getDefaultLanguage(languages: any[], appConfigService?: AppConfigServic
         NotificationComponent,
         LanguageComponent,
         LanguageFormComponent,
+        DefaultLanguageChangeDialogComponent,
         TerritoryTypeComponent,
         TerritoryTypeFormComponent,
+        TaskTypeComponent,
+        TaskTypeFormComponent,
         CodelistValueComponent,
         CodelistValueFormComponent,
         ConfigurationParameterComponent,
@@ -341,6 +348,7 @@ function getDefaultLanguage(languages: any[], appConfigService?: AppConfigServic
         ServicesModule,
         SitmunFrontendGuiModule,
         DataGridComponent,
+        RelationGridComponent,
         DialogGridComponent,
         MaterialModule,
         RouterModule,

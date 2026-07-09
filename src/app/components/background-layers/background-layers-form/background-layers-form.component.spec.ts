@@ -1,3 +1,5 @@
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
@@ -54,8 +56,22 @@ describe('BackgroundLayersFormComponent', () => {
           })
         }
       }), BrowserAnimationsModule],
-      providers: [provideErrorHandlerForTests(), BackgroundService, RoleService, ApplicationBackgroundService, ApplicationService, CartographyService, CodeListService,CartographyGroupService,TranslationService,ResourceService,ExternalService,
-        { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }]
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideErrorHandlerForTests(),
+        BackgroundService,
+        RoleService,
+        ApplicationBackgroundService,
+        ApplicationService,
+        CartographyService,
+        CodeListService,
+        CartographyGroupService,
+        TranslationService,
+        ResourceService,
+        ExternalService,
+        { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }
+      ]
     })
     .compileComponents();
   });
@@ -159,6 +175,42 @@ describe('BackgroundLayersFormComponent', () => {
     expect(component.entityForm.get('description')).toBeTruthy();
     expect(component.entityForm.get('image')).toBeTruthy();
     expect(component.entityForm.get('active')).toBeTruthy();
+  });
+
+  describe('Grid capability classification', () => {
+    it('membersTable should have picker, updater, and status capabilities', () => {
+      const table = component['membersTable'];
+      expect(table.hasPickerAdd()).toBe(true);
+      expect(table.hasRelationsUpdater()).toBe(true);
+      expect(table.hasStatusColumn()).toBe(true);
+      expect(table.hasTemplateDialogs()).toBe(false);
+    });
+
+    it('rolesTable should have picker, updater, and status capabilities', () => {
+      const table = component['rolesTable'];
+      expect(table.hasPickerAdd()).toBe(true);
+      expect(table.hasRelationsUpdater()).toBe(true);
+      expect(table.hasStatusColumn()).toBe(true);
+      expect(table.hasTemplateDialogs()).toBe(false);
+    });
+
+    it('applicationBackgroundsTable should have picker, updater, and status capabilities with custom mapper', () => {
+      const table = component['applicationBackgroundsTable'];
+      expect(table.hasPickerAdd()).toBe(true);
+      expect(table.hasRelationsUpdater()).toBe(true);
+      expect(table.hasStatusColumn()).toBe(true);
+      expect(table.hasTemplateDialogs()).toBe(false);
+    });
+
+    it('no grids in this form should be read-only', () => {
+      const membersTable = component['membersTable'];
+      const rolesTable = component['rolesTable'];
+      const applicationBackgroundsTable = component['applicationBackgroundsTable'];
+      
+      expect(membersTable.hasRelationsUpdater()).toBe(true);
+      expect(rolesTable.hasRelationsUpdater()).toBe(true);
+      expect(applicationBackgroundsTable.hasRelationsUpdater()).toBe(true);
+    });
   });
 
 });

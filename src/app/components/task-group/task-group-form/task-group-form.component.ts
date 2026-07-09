@@ -4,7 +4,8 @@ import {MatDialog} from '@angular/material/dialog';
 import {ActivatedRoute, Router} from '@angular/router';
 
 import {TranslateService} from '@ngx-translate/core';
-import {firstValueFrom, map} from 'rxjs';
+import {firstValueFrom, map, of} from 'rxjs';
+import {switchMap} from 'rxjs/operators';
 
 import {BaseFormComponent} from '@app/components/base-form.component';
 import {DataTableDefinition} from "@app/components/data-tables.util";
@@ -18,6 +19,7 @@ import {
   TaskService,
   TranslationService
 } from '@app/domain';
+import {onCreate, onDelete, Status} from '@app/frontend-gui/src/lib/data-grid/data-grid.component';
 import {ErrorHandlerService} from '@app/services/error-handler.service';
 import {LoadingOverlayService} from "@app/services/loading-overlay.service";
 import {LoggerService} from '@app/services/logger.service';
@@ -188,12 +190,42 @@ export class TaskGroupFormComponent extends BaseFormComponent<TaskGroup> {
             typeId: 'typeId',
             id: 'id',
           }),
-        this.utils.getEditableColumnDef('common.form.type', 'typeName'),
+        this.utils.getNonEditableColumnDef('common.form.type', 'typeTitle'),
         this.utils.getStatusColumnDef()])
       .withRelationsOrder('name')
       .withRelationsFetcher(() => {
-        return this.taskService.fetchProjectionItemsByQueryString(TaskProjection, "group.id=" + this.entityID)
+        if (this.isNewOrDuplicated()) {
+          return of([]);
+        }
+        return this.taskService.fetchProjectionItemsByQueryString(TaskProjection, `group.id=${this.entityID}`);
       })
+      .withRelationsUpdater(async (tasks: (TaskProjection & Status)[]) => {
+        const groupProxy = this.taskGroupService.createProxy(this.entityID);
+
+        await onCreate(tasks).forEach(task =>
+          this.taskService.get(task.id).pipe(
+            switchMap(entity => entity.updateRelationEx('group', groupProxy))
+          )
+        );
+
+        await onDelete(tasks).forEach(task =>
+          this.taskService.get(task.id).pipe(
+            switchMap(entity => entity.updateRelationEx('group', null))
+          )
+        );
+      })
+      .withTargetsTitle('entity.role.tasks.title')
+      .withTargetsColumns([
+        this.utils.getSelCheckboxColumnDef(),
+        this.utils.getNonEditableColumnDef('common.form.name', 'name'),
+        this.utils.getNonEditableColumnDef('common.form.type', 'typeTitle', 300),
+      ])
+      .withTargetsOrder('name')
+      .withTargetsFetcher(() => this.taskService.fetchProjectionItems(TaskProjection))
+      .withTargetInclude((tasks: TaskProjection[]) => (item: TaskProjection) =>
+        !tasks.some(t => t.id === item.id))
+      .withFieldRestriction('id')
+      .withTargetToRelation((items) => items)
        .build()
   }
 }

@@ -270,6 +270,7 @@ export class LayersPermitsFormComponent extends BaseFormComponent<CartographyGro
       .withTargetsOrder('name')
       .withTargetsFetcher(() => this.roleService.fetchAllItems())
       .withTargetsTitle('entity.permissionGroup.roles.title')
+      .withTargetToRelation((items) => items)
       .build();
   }
 
@@ -371,6 +372,7 @@ export class LayersPermitsFormComponent extends BaseFormComponent<CartographyGro
           }
       )
       .withTargetsTitle('entity.permissionGroup.layers.title')
+      .withTargetToRelation((items) => items)
       .build();
   }
 

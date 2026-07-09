@@ -1,0 +1,131 @@
+<h2 mat-dialog-title>{{ 'entity.language.changeDefault.title' | translate }}</h2>
+
+<mat-dialog-content>
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>{{ 'entity.language.changeDefault.loadingPreview' | translate }}</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="error-container">
+    <mat-icon color="warn">error</mat-icon>
+    <p>{{ error }}</p>
+  </div>
+
+  <!-- Preview State -->
+  <div *ngIf="preview && !result && !loading" class="preview-container">
+    <p>
+      {{ 'entity.language.changeDefault.changeFrom' | translate }}
+      <strong>{{ fromLabel }}</strong>
+      {{ 'entity.language.changeDefault.changeTo' | translate }}
+      <strong>{{ toLabel }}</strong>
+    </p>
+
+    <mat-card class="preview-stats">
+      <mat-card-content>
+        <div class="stat-row">
+          <span>{{ 'entity.language.changeDefault.affectedValues' | translate }}:</span>
+          <strong>{{ preview.affectedValues }}</strong>
+        </div>
+        <div class="stat-row">
+          <span>{{ 'entity.language.changeDefault.backupUpserts' | translate }}:</span>
+          <strong>{{ preview.backupUpserts }}</strong>
+        </div>
+        <div class="stat-row">
+          <span>{{ 'entity.language.changeDefault.restoredValues' | translate }}:</span>
+          <strong>{{ preview.restoredValues }}</strong>
+        </div>
+        <div class="stat-row" *ngIf="hasMissingTranslations">
+          <span>{{ 'entity.language.changeDefault.missingTranslations' | translate }}:</span>
+          <strong class="warning">{{ preview.missingTranslations }}</strong>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-expansion-panel *ngIf="hasMissingTranslations && preview.missing.length > 0">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          {{ 'entity.language.changeDefault.viewMissing' | translate }}
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+      <table class="missing-table">
+        <thead>
+          <tr>
+            <th>{{ 'entity.language.changeDefault.entity' | translate }}</th>
+            <th>{{ 'entity.language.changeDefault.field' | translate }}</th>
+            <th>{{ 'entity.language.changeDefault.currentValue' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of preview.missing.slice(0, 10)">
+            <td>{{ item.entity }}</td>
+            <td>{{ item.column }}</td>
+            <td>{{ item.currentValue }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <p *ngIf="preview.missing.length > 10" class="more-items">
+        {{ 'entity.language.changeDefault.andMore' | translate: {count: preview.missing.length - 10} }}
+      </p>
+    </mat-expansion-panel>
+
+    <mat-card *ngIf="hasMissingTranslations" class="warning-card">
+      <mat-card-content>
+        <mat-icon class="warning-icon" fontSet="material-icons-round">warning</mat-icon>
+        <p>{{ 'entity.language.changeDefault.missingWarning' | translate }}</p>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Processing State -->
+  <div *ngIf="processing && !result" class="processing-container">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>{{ 'entity.language.changeDefault.applying' | translate }}</p>
+  </div>
+
+  <!-- Result State -->
+  <div *ngIf="result" class="result-container">
+    <mat-icon color="primary" class="success-icon">check_circle</mat-icon>
+    <h3>{{ 'entity.language.changeDefault.success' | translate }}</h3>
+    <p>
+      {{ 'entity.language.changeDefault.successMessage' | translate: {lang: toLabel} }}
+    </p>
+    <div class="result-stats">
+      <p>{{ 'entity.language.changeDefault.backupUpserts' | translate }}: {{ result.backupUpserts }}</p>
+      <p>{{ 'entity.language.changeDefault.restoredValues' | translate }}: {{ result.restoredValues }}</p>
+      <p *ngIf="result.preservedValues > 0">
+        {{ 'entity.language.changeDefault.preservedValues' | translate }}: {{ result.preservedValues }}
+      </p>
+    </div>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()" [disabled]="processing" *ngIf="!result">
+    {{ 'common.button.cancel' | translate }}
+  </button>
+  <button
+    mat-raised-button
+    color="primary"
+    (click)="onConfirm(false)"
+    [disabled]="!canProceed || hasMissingTranslations"
+    *ngIf="!result && !hasMissingTranslations">
+    {{ 'entity.language.changeDefault.apply' | translate }}
+  </button>
+  <button
+    mat-raised-button
+    color="warn"
+    (click)="onConfirm(true)"
+    [disabled]="!canProceed"
+    *ngIf="!result && hasMissingTranslations">
+    {{ 'entity.language.changeDefault.applyWithMissing' | translate }}
+  </button>
+  <button
+    mat-raised-button
+    color="primary"
+    (click)="dialogRef.close({ success: true, newDefault: result?.currentDefault })"
+    *ngIf="result">
+    {{ 'common.button.close' | translate }}
+  </button>
+</mat-dialog-actions>

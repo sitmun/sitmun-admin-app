@@ -49,81 +49,33 @@
   <mat-tab label="{{ 'entity.role.users.header' | translate }}">
     <mat-card class="sitmun-mat-card-margin" appearance="outlined">
       <mat-card-content>
-        <app-data-grid #userConfigurationsDataGrid
-                      [changeHeightButton]="true"
-                      [allNewElements]="isNewOrDuplicated()"
-                      [columnDefs]="userConfigurationsTable.relationsColumnsDefs"
-                      [getAll]='userConfigurationsTable.relationsFetchFn'
-                      [eventAddItemsSubscription]='userConfigurationsTable.addCommandEvent$.asObservable()'
-                      [eventGetAllRowsSubscription]='userConfigurationsTable.saveCommandEvent$.asObservable()'
-                      [eventRefreshSubscription]='userConfigurationsTable.refreshCommandEvent$.asObservable()'
-                      [actionButton]=true
-                      [discardChangesButton]=true
-                      [redoButton]=true
-                      [undoButton]=true
-                      [deleteButton]=true
-                      [addButton]=true
-                      [defaultColumnSorting]='userConfigurationsTable.defaultRelationsSorting()'
-                      [hideDuplicateButton]=true
-                      [hideReplaceButton]=true
-                      (getAllRows)="userConfigurationsTable.handleSaveRelations($event)"
-                      (add)="userConfigurationsTable.openDialog($event)"
-                      *ngIf="dataLoaded"
-        ></app-data-grid>
+        <app-relation-grid
+          *ngIf="dataLoaded"
+          [table]="userConfigurationsTable"
+          [allNewElements]="isNewOrDuplicated()">
+        </app-relation-grid>
       </mat-card-content>
     </mat-card>
   </mat-tab>
   <mat-tab label="{{ 'entity.role.tasks.header' | translate }}">
     <mat-card class="sitmun-mat-card-margin" appearance="outlined">
       <mat-card-content>
-        <app-data-grid #tasksDataGrid
-                      [changeHeightButton]="true"
-                      [allNewElements]="isNewOrDuplicated()"
-                      [columnDefs]="tasksTable.relationsColumnsDefs"
-                      [getAll]='tasksTable.relationsFetchFn'
-                      [eventAddItemsSubscription]='tasksTable.addCommandEvent$.asObservable()'
-                      [eventGetAllRowsSubscription]='tasksTable.saveCommandEvent$.asObservable()'
-                      [eventRefreshSubscription]='tasksTable.refreshCommandEvent$.asObservable()'
-                      [actionButton]=true
-                      [discardChangesButton]=true
-                      [redoButton]=true
-                      [undoButton]=true
-                      [deleteButton]=true
-                      [addButton]=true
-                      [defaultColumnSorting]='tasksTable.defaultRelationsSorting()'
-                      [hideDuplicateButton]=true
-                      [hideReplaceButton]=true
-                      (getAllRows)="tasksTable.handleSaveRelations($event)"
-                      (add)="tasksTable.openDialog($event)"
-                      *ngIf="dataLoaded"
-        ></app-data-grid>
+        <app-relation-grid
+          *ngIf="dataLoaded"
+          [table]="tasksTable"
+          [allNewElements]="isNewOrDuplicated()">
+        </app-relation-grid>
       </mat-card-content>
     </mat-card>
   </mat-tab>
   <mat-tab label="{{ 'entity.role.applications.header' | translate }}">
     <mat-card class="sitmun-mat-card-margin" appearance="outlined">
       <mat-card-content>
-        <app-data-grid #applicationsDataGrid
-                      [changeHeightButton]="true"
-                      [allNewElements]="isNewOrDuplicated()"
-                      [columnDefs]="applicationsTable.relationsColumnsDefs"
-                      [getAll]='applicationsTable.relationsFetchFn'
-                      [eventAddItemsSubscription]='applicationsTable.addCommandEvent$.asObservable()'
-                      [eventGetAllRowsSubscription]='applicationsTable.saveCommandEvent$.asObservable()'
-                      [eventRefreshSubscription]='applicationsTable.refreshCommandEvent$.asObservable()'
-                      [actionButton]=true
-                      [discardChangesButton]=true
-                      [redoButton]=true
-                      [undoButton]=true
-                      [deleteButton]=true
-                      [addButton]=true
-                      [defaultColumnSorting]='applicationsTable.defaultRelationsSorting()'
-                      [hideDuplicateButton]=true
-                      [hideReplaceButton]=true
-                      (getAllRows)="applicationsTable.handleSaveRelations($event)"
-                      (add)="applicationsTable.openDialog($event)"
-                      *ngIf="dataLoaded"
-        ></app-data-grid>
+        <app-relation-grid
+          *ngIf="dataLoaded"
+          [table]="applicationsTable"
+          [allNewElements]="isNewOrDuplicated()">
+        </app-relation-grid>
       </mat-card-content>
     </mat-card>
   </mat-tab>

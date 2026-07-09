@@ -257,11 +257,11 @@ export class RoleFormComponent extends BaseFormComponent<Role> {
     return DataTableDefinition.builder<TaskProjection, TaskProjection>(this.dialog, this.errorHandler, this.loadingService)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
-        this.utils.getRouterLinkColumnDef('common.form.name', 'name', '/taskQuery/:id/:typeId', {
+        this.utils.getRouterLinkColumnDef('common.form.name', 'name', '/tasks/:id/:typeId', {
           id: 'id',
           typeId: 'typeId'
         }),
-        this.utils.getNonEditableColumnDef('entity.taskType.label', 'typeName'),
+        this.utils.getNonEditableColumnDef('entity.taskType.label', 'typeTitle'),
         this.utils.getStatusColumnDef()
       ])
       .withRelationsOrder('name')
@@ -279,13 +279,14 @@ export class RoleFormComponent extends BaseFormComponent<Role> {
       .withTargetsColumns([
         this.utils.getSelCheckboxColumnDef(),
         this.utils.getNonEditableColumnDef('common.form.name', 'name'),
-        this.utils.getNonEditableColumnDef('entity.taskType.label', 'typeName', 100, 500),
+        this.utils.getNonEditableColumnDef('entity.taskType.label', 'typeTitle', 100, 500),
       ])
       .withTargetsOrder('name')
       .withTargetsFetcher(() => this.tasksService.fetchProjectionItems(TaskProjection))
       .withTargetInclude((tasks: (TaskProjection)[]) => (item: TaskProjection) => {
         return !tasks.some((task) => task.id === item.id);
       })
+      .withTargetToRelation((items) => items)
       .withTargetsTitle('entity.role.tasks.title')
       .withTargetsOrder('name')
       .build();
@@ -322,6 +323,7 @@ export class RoleFormComponent extends BaseFormComponent<Role> {
       .withTargetInclude((applications: (Application)[]) => (item: Application) => {
         return !applications.some((application) => application.id === item.id);
       })
+      .withTargetToRelation((items) => items)
       .withTargetsTitle('entity.role.applications.title')
       .withTargetsOrder('name')
       .build();

@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {MatDialog} from '@angular/material/dialog';
 import {ActivatedRoute, Router} from '@angular/router';
 
@@ -8,7 +8,10 @@ import {firstValueFrom} from 'rxjs';
 import {BaseListComponent} from "@app/components/base-list.component";
 import {EntityListConfig} from "@app/components/shared/entity-list";
 import {Configuration} from '@app/core/config/configuration';
-import {CodeListService, Language, LanguageService, TranslationService} from '@app/domain';
+import {CodeListService} from '@app/domain/codelist/services/codelist.service';
+import {Language} from '@app/domain/translation/models/language.model';
+import {LanguageService} from '@app/domain/translation/services/language.service';
+import {TranslationService} from '@app/domain/translation/services/translation.service';
 import {DIALOG_EVENTS, DialogMessageComponent} from '@app/frontend-gui/src/lib/public_api';
 import {ErrorHandlerService} from '@app/services/error-handler.service';
 import {LoadingOverlayService} from '@app/services/loading-overlay.service';
@@ -22,8 +25,9 @@ import {config} from '@config';
     styles: [],
     standalone: false
 })
-export class LanguageComponent extends BaseListComponent<Language> {
+export class LanguageComponent extends BaseListComponent<Language> implements OnInit {
   private pendingOrderedLanguageIds: number[] = [];
+  currentDefaultLanguage: string | null = null;
 
   entityListConfig: EntityListConfig<Language> = {
     entityLabel: Configuration.LANGUAGE.labelPlural,
@@ -40,7 +44,6 @@ export class LanguageComponent extends BaseListComponent<Language> {
       applyChangesButton: true,
       deleteButton: true,
       newButton: true,
-      actionButton: true,
       hideReplaceButton: true
     }
   };
@@ -72,6 +75,18 @@ export class LanguageComponent extends BaseListComponent<Language> {
     );
   }
 
+  override ngOnInit(): void {
+    super.ngOnInit();
+  }
+
+  override async preFetchData(): Promise<void> {
+    try {
+      this.currentDefaultLanguage = await firstValueFrom(this.languageService.getCurrentDefaultLanguage());
+    } catch (err) {
+      this.errorHandler.handleError(err);
+    }
+  }
+
   override async postFetchData(): Promise<void> {
     const dragCol: any = {
       headerName: '',
@@ -96,12 +111,17 @@ export class LanguageComponent extends BaseListComponent<Language> {
       valueGetter: (params) => {
         const name = params.data?.name || '';
         const shortname = params.data?.shortname || '';
-        return shortname ? `${name} (${shortname})` : name;
+        const isDefault = params.data?.shortname === this.currentDefaultLanguage;
+        const defaultMarker = isDefault ? ' ★' : '';
+        return shortname ? `${name} (${shortname})${defaultMarker}` : name;
       }
     };
     nameCol.sortable = false;
     nameCol.flex = 1;
-    nameCol.tooltipValueGetter = (params) => params.value;
+    nameCol.tooltipValueGetter = (params) => {
+      const isDefault = params.data?.shortname === this.currentDefaultLanguage;
+      return isDefault ? `${params.value} - Default database language` : params.value;
+    };
 
     const defaultCol: any = this.utils.getBooleanColumnDef('entity.language.default', 'defaultLanguage', false, 150, 170);
     defaultCol.sortable = false;
@@ -111,7 +131,7 @@ export class LanguageComponent extends BaseListComponent<Language> {
       this.utils.getRowCheckboxColumnDef(),
       dragCol,
       nameCol,
-      defaultCol,
+      defaultCol
     ];
   }
 

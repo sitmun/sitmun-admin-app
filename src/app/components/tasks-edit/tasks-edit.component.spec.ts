@@ -66,6 +66,9 @@ describe('TasksEditComponent', () => {
     httpMock.match((req) => req.url.includes('tasks')).forEach((req) =>
       req.flush({ _embedded: { tasks: [] } })
     );
+    httpMock.match((req) => req.url.includes('codelist-values')).forEach((req) =>
+      req.flush({ _embedded: { 'codelist-values': [] } })
+    );
     await fixture.whenStable();
   });
 

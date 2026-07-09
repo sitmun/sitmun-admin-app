@@ -1,0 +1,135 @@
+.loading-container,
+.processing-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem;
+  text-align: center;
+}
+
+.processing-container {
+  min-height: 96px;
+  padding: 1.5rem 2rem 2.5rem;
+
+  mat-spinner {
+    flex: 0 0 auto;
+  }
+}
+
+.error-container {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  color: var(--warn-color, #f44336);
+  
+  mat-icon {
+    font-size: 2rem;
+    width: 2rem;
+    height: 2rem;
+  }
+}
+
+.preview-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.preview-stats {
+  margin-top: 1rem;
+  
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+    
+    &:last-child {
+      border-bottom: none;
+    }
+    
+    .warning {
+      color: var(--warn-color, #ff9800);
+    }
+  }
+}
+
+.missing-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  
+  th, td {
+    text-align: left;
+    padding: 0.5rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+  }
+  
+  th {
+    font-weight: 600;
+    background-color: rgba(0, 0, 0, 0.04);
+  }
+}
+
+.more-items {
+  margin-top: 0.5rem;
+  font-style: italic;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.warning-card {
+  background-color: #fff3e0;
+  margin-top: 1rem;
+  
+  mat-card-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    
+    .warning-icon {
+      color: #f57c00;
+      flex: 0 0 24px;
+      font-size: 24px;
+      height: 24px;
+      line-height: 24px;
+      width: 24px;
+    }
+
+    p {
+      margin: 0;
+    }
+  }
+}
+
+.result-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem;
+  text-align: center;
+  
+  .success-icon {
+    font-size: 4rem;
+    width: 4rem;
+    height: 4rem;
+    margin-bottom: 1rem;
+  }
+  
+  h3 {
+    margin: 0.5rem 0;
+  }
+  
+  .result-stats {
+    margin-top: 1rem;
+    text-align: left;
+    
+    p {
+      margin: 0.25rem 0;
+    }
+  }
+}
+
+mat-dialog-actions {
+  padding: 1rem;
+}

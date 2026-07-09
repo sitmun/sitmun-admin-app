@@ -1066,5 +1066,37 @@ describe('TreesFormComponent', () => {
     });
   });
 
+  describe('Grid capability classification', () => {
+    it('rolesTable should have picker-add, updater, status column, no template dialogs', () => {
+      expect(component['rolesTable'].hasPickerAdd()).toBe(true);
+      expect(component['rolesTable'].hasRelationsUpdater()).toBe(true);
+      expect(component['rolesTable'].hasStatusColumn()).toBe(true);
+      expect(component['rolesTable'].hasTemplateDialogs()).toBe(false);
+    });
+
+    it('applicationsTable should have picker-add, updater, status column, no template dialogs', () => {
+      expect(component['applicationsTable'].hasPickerAdd()).toBe(true);
+      expect(component['applicationsTable'].hasRelationsUpdater()).toBe(true);
+      expect(component['applicationsTable'].hasStatusColumn()).toBe(true);
+      expect(component['applicationsTable'].hasTemplateDialogs()).toBe(false);
+    });
+
+    it('validateTreeTypeChange reads current application rows from applicationsGrid', async () => {
+      component.entityToEdit = Object.assign(component.empty(), { id: 10, type: 'cartography' });
+      component.entityID = 10;
+      component.entityForm.patchValue({ type: 'touristic' });
+      (component as any).applicationsGrid = {
+        getAllCurrentData: () => [
+          { id: 1, status: 'statusOK' },
+          { id: 2, status: 'pendingDelete' },
+        ],
+      };
+      const validateSpy = jest.spyOn(TestBed.inject(TreeService), 'validateTypeChange').mockReturnValue(of(undefined));
+
+      await expect((component as any).validateTreeTypeChange()).resolves.toBe(true);
+      expect(validateSpy).toHaveBeenCalledWith(10, 'touristic', [1]);
+    });
+  });
+
 });
 
