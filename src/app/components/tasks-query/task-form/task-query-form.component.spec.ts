@@ -1,7 +1,7 @@
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
@@ -15,7 +15,7 @@ import { ExternalService, ResourceService } from '@app/core/hal';
 import {
   CodeListService, RoleService, TaskAvailabilityService, TaskService,
   TerritoryService, TranslationService, TaskUIService, TaskTypeService,
-  TaskGroupService, ConnectionService, CartographyService
+  TaskGroupService, ConnectionService, CartographyService, TaskProjection
 } from '@app/domain';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
 import { MaterialModule } from '@app/material-module';
@@ -80,6 +80,15 @@ describe('TaskQueryFormComponent', () => {
     component.postFetchData();
     fixture.detectChanges();
   });
+
+  const createComponent = () => {
+    const translateService = (component as any).translateService;
+    jest.spyOn(translateService, 'instant').mockImplementation((key: string, params?: Record<string, unknown>) => {
+      const firstParam = Object.values(params || {})[0];
+      return typeof firstParam === 'string' ? `${key}|${firstParam}` : key;
+    });
+    return component;
+  };
 
   afterEach(() => fixture?.destroy());
   afterAll(() => TestBed.resetTestingModule());

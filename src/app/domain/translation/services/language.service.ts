@@ -71,7 +71,6 @@ export class LanguageService extends RestService<Language> {
 
   setDefault(languageId: number): Observable<void> {
     return this.http.post<void>(`${this.url}/${languageId}/default`, {}, { headers: ResourceHelper.headers });
-    this.http = injector.get(HttpClient);
   }
 
   /**

@@ -265,27 +265,8 @@
     </form>
   </mat-tab>
   <mat-tab label="{{ 'entity.task.parameters.header' | translate }}">
-    <app-data-grid [changeHeightButton]="true"
-                   #parametersGrid
-                   [allNewElements]="isNewOrDuplicated()"
-                   [columnDefs]='parametersTable.relationsColumnsDefs'
-                   [getAll]='parametersTable.relationsFetchFn'
-                   [eventAddItemsSubscription]='parametersTable.addCommandEvent$.asObservable()'
-                   [eventGetAllRowsSubscription]='parametersTable.saveCommandEvent$.asObservable()'
-                   [eventRefreshSubscription]='parametersTable.refreshCommandEvent$.asObservable()'
-                   [discardChangesButton]=true
-                   [actionButton]=true
-                   [redoButton]=true
-                   [undoButton]=true
-                   [deleteButton]=true
-                   [newButton]=true
-                   [defaultColumnSorting]="parametersTable.defaultRelationsSorting()"
-                   (new)="parametersTable.openTemplateDialog('newParameterDialog')"
-                   (getAllRows)="parametersTable.handleSaveRelations($event)"
-                   (duplicate)='parametersTable.duplicateRelations($event)'
-                   *ngIf="dataLoaded"
-    ></app-data-grid>
     <app-relation-grid
+      #parametersGrid
       *ngIf="dataLoaded"
       [table]="parametersTable"
       [allNewElements]="isNewOrDuplicated()"
