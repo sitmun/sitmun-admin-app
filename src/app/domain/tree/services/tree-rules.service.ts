@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 
-import { CodeList } from '@app/domain';
+import type { CodeList } from '../../codelist/models/codelist.model';
 import { config } from '@config';
 
 interface TreeTypeNodeConfig {
