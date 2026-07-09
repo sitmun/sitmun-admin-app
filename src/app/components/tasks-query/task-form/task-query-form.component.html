@@ -277,6 +277,7 @@
   </mat-tab>
   <mat-tab label="{{ 'entity.task.parameters.header' | translate }}">
     <app-relation-grid
+      #parametersGrid
       *ngIf="dataLoaded"
       [table]="parametersTable"
       [allNewElements]="isNewOrDuplicated()"

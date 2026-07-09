@@ -12,6 +12,7 @@ import {BaseFormComponent} from "@app/components/base-form.component";
 import {DataTableDefinition, TemplateDialog} from "@app/components/data-tables.util";
 import {defineTaskRolesTable} from "@app/components/task-roles-table.util";
 import {DataGridComponent} from "@app/frontend-gui/src/lib/data-grid/data-grid.component";
+import {RelationGridComponent} from "@app/components/shared/relation-grid/relation-grid.component";
 import {Configuration} from "@app/core/config/configuration";
 import {MessagesInterceptorStateService} from "@app/core/interceptors/messages.interceptor";
 import {
@@ -126,7 +127,7 @@ export class TaskQueryFormComponent extends BaseFormComponent<TaskProjection> {
   private readonly newParameterDialog: TemplateRef<any>;
 
   @ViewChild('parametersGrid')
-  private readonly parametersGrid?: DataGridComponent;
+  private readonly parametersGrid?: RelationGridComponent;
 
   /**
    * The TaskParameterType enum exposed to the template
@@ -535,19 +536,7 @@ export class TaskQueryFormComponent extends BaseFormComponent<TaskProjection> {
     // Sweep and reset provided flags when changing to non-proxied scopes
     const isDirectScope = value === scope?.webApiQueryNoProxy || value === scope?.urlQuery;
     if (isDirectScope) {
-      const parameters = this.entityForm.get('properties')?.get('parameters')?.value;
-      if (parameters && Array.isArray(parameters)) {
-        let hadProvidedParams = false;
-        parameters.forEach((param: any) => {
-          if (param.provided === true) {
-            param.provided = false;
-            hadProvidedParams = true;
-          }
-        });
-        if (hadProvidedParams) {
-          console.warn(`Scope changed to ${value}. All provided parameters have been reset to false (direct-execution scopes do not support backend variables).`);
-        }
-      }
+      this.clearProvidedParametersForDirectScope(value);
     }
     if (value === scope?.sqlQuery) {
       this.entityForm.get('command').enable({ emitEvent: false });
@@ -939,12 +928,29 @@ export class TaskQueryFormComponent extends BaseFormComponent<TaskProjection> {
   }
 
   private getCurrentParameters(): Record<string, unknown>[] {
-    const gridRows = this.parametersGrid?.rowData;
+    const gridRows = this.parametersGrid?.getAllCurrentData?.() ?? this.parametersGrid?.rowData;
     if (Array.isArray(gridRows)) {
       return gridRows.filter((parameter) => parameter?.status !== 'pendingDelete');
     }
 
     return TaskPropertiesContract.getParameters(this.entityToEdit?.properties);
+  }
+
+  private clearProvidedParametersForDirectScope(scope: string): void {
+    const parameters = this.getCurrentParameters();
+    let hadProvidedParams = false;
+
+    parameters.forEach((parameter) => {
+      if (parameter['provided'] === true) {
+        parameter['provided'] = false;
+        hadProvidedParams = true;
+      }
+    });
+
+    if (hadProvidedParams) {
+      this.entityToEdit.properties = TaskPropertiesContract.withParameters(this.entityToEdit.properties, parameters);
+      console.warn(`Scope changed to ${scope}. All provided parameters have been reset to false (direct-execution scopes do not support backend variables).`);
+    }
   }
 
   private parameterName(parameter: Record<string, unknown>): string {
