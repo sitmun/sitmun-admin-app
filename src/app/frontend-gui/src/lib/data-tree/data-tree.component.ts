@@ -6,7 +6,7 @@ import {MatTree} from '@angular/material/tree';
 import {TranslateService} from '@ngx-translate/core';
 import {BehaviorSubject, firstValueFrom, Observable, Subscription} from 'rxjs';
 
-import {TreeRulesService} from '@app/domain';
+import {TreeRulesService} from '@app/domain/tree/services/tree-rules.service';
 import {config} from '@config';
 import {constants} from '@environments/constants';
 

@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 
-import { CodeList } from '@app/domain';
+import { CodeList } from '../../codelist/models/codelist.model';
 
 import { TreeRulesService } from './tree-rules.service';
 
