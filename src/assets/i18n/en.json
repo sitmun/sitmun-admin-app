@@ -1,4 +1,8 @@
 {
+  "auth.accessDenied.adminRequired": "Your account does not have administrator rights.",
+  "auth.accessDenied.title": "Access denied",
+  "auth.sessionValidation.title": "Session check unavailable",
+  "auth.sessionValidation.unavailable": "Your session could not be verified. Please try again.",
   "agGrid.andCondition": "AND",
   "agGrid.applyFilter": "Apply",
   "agGrid.ariaMenuColumn": "Column menu",

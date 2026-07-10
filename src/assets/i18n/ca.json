@@ -1,4 +1,8 @@
 {
+  "auth.accessDenied.adminRequired": "El vostre compte no té permisos d'administració.",
+  "auth.accessDenied.title": "Accés denegat",
+  "auth.sessionValidation.title": "Comprovació de sessió no disponible",
+  "auth.sessionValidation.unavailable": "No s'ha pogut verificar la vostra sessió. Torneu-ho a provar.",
   "agGrid.andCondition": "I",
   "agGrid.applyFilter": "Aplicar",
   "agGrid.ariaMenuColumn": "Menú de columna",

@@ -40,7 +40,7 @@ This frontend integrates seamlessly with the [SITMUN Backend Core](https://githu
 
 ### Core Administrative Features
 
-- 🔐 **Secure Authentication**: JWT-based authentication with role-based access control
+- 🔐 **Secure Authentication**: Cookie-based authentication with role-based access control
 - 👥 **User Management**: Complete user lifecycle, roles, and permissions
 - 🗺️ **Application Management**: Geospatial application configuration and deployment
 - 🌍 **Territory Administration**: Territorial boundaries and geographic area management
@@ -389,10 +389,9 @@ POST /api/authenticate
 
 # Get current user account
 GET /api/account
-Authorization: Bearer <jwt-token>
 
 # Logout
-POST /api/logout
+POST /api/authenticate/logout
 ```
 
 #### Core API Endpoints
@@ -423,46 +422,22 @@ GET /api/dashboard/health
 
 #### API Client Configuration
 
-```typescript
-// HTTP Interceptor for authentication
-@Injectable()
-export class AuthInterceptor implements HttpInterceptor {
-  intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    const token = this.authService.getToken();
-    if (token) {
-      req = req.clone({
-        setHeaders: {
-          Authorization: `Bearer ${token}`
-        }
-      });
-    }
-    return next.handle(req);
-  }
-}
-```
+The admin uses the backend authentication cookie. `AuthInterceptor` sets
+`withCredentials: true`; it does not store or attach a bearer token.
 
 ### Error Handling
 
-```typescript
-// Global error handling
-@Injectable()
-export class ErrorHandlerService {
-  handleError(error: HttpErrorResponse): void {
-    if (error.status === 401) {
-      this.authService.logout();
-      this.router.navigate(['/login']);
-    } else if (error.status >= 500) {
-      this.notificationService.showError('Server error occurred');
-    }
-  }
-}
-```
+- A protected backend `401` starts one coalesced account probe.
+- Probe `200` preserves the session. Probe `401` clears only local principal state and redirects to login without posting logout.
+- Probe `403`, network, and `5xx` responses preserve the session and show one warning until a successful probe resets it.
+- Resource `403` responses never clear authentication.
+- Explicit `LoginService.logout()` is the only client flow that posts `/api/authenticate/logout`.
 
 ## Security
 
 ### Authentication and Authorization
 
-- **JWT Tokens**: Secure token-based authentication
+- **Authentication Cookie**: Credentialed backend requests without browser token storage
 - **Role-Based Access Control**: Fine-grained permissions
 - **Route Guards**: Protected routes based on user roles
 - **HTTP Interceptors**: Automatic token handling

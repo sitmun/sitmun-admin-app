@@ -1,48 +1,42 @@
-import { HttpErrorResponse } from '@angular/common/http';
-import { TestBed } from '@angular/core/testing';
+import {HttpErrorResponse} from '@angular/common/http';
 
-import { throwError } from 'rxjs';
+import {of, throwError} from 'rxjs';
 
-import { AccountService } from '@app/core/account/account.service';
+import {AccountService} from '@app/core/account/account.service';
 
-import { Principal } from './principal.service';
+import {Principal} from './principal.service';
 
 describe('Principal', () => {
+  let account: {get: jest.Mock};
   let principal: Principal;
-  let accountService: jest.Mocked<Pick<AccountService, 'get'>>;
 
   beforeEach(() => {
-    accountService = {
-      get: jest.fn(),
-    };
-
-    TestBed.configureTestingModule({
-      providers: [
-        Principal,
-        { provide: AccountService, useValue: accountService },
-      ],
-    });
-
-    principal = TestBed.inject(Principal);
+    account = {get: jest.fn()};
+    principal = new Principal(account as unknown as AccountService);
   });
 
-  it('should clear authentication state only on 401 identity failures', async () => {
-    principal.authenticate({ username: 'admin', administrator: true });
-    accountService.get.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 401 })));
+  it('replaces the cached identity after a successful forced validation', async () => {
+    principal.authenticate({username: 'old', administrator: true});
+    account.get.mockReturnValue(of({username: 'admin', administrator: true}));
 
-    const identity = await principal.identity(true);
+    await expect(principal.identity(true)).resolves.toEqual({username: 'admin', administrator: true});
+    expect(principal.isAuthenticated()).toBe(true);
+  });
 
-    expect(identity).toBeNull();
+  it('clears the cached identity only when forced validation returns 401', async () => {
+    principal.authenticate({username: 'admin', administrator: true});
+    account.get.mockReturnValue(throwError(() => new HttpErrorResponse({status: 401})));
+
+    await expect(principal.identity(true)).resolves.toBeNull();
     expect(principal.isAuthenticated()).toBe(false);
   });
 
-  it('should keep authentication state on non-401 identity failures', async () => {
-    principal.authenticate({ username: 'admin', administrator: true });
-    accountService.get.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 500 })));
+  it.each([0, 403, 500])('preserves the cached identity when forced validation returns %s', async (status) => {
+    const identity = {username: 'admin', administrator: true};
+    principal.authenticate(identity);
+    account.get.mockReturnValue(throwError(() => new HttpErrorResponse({status})));
 
-    const identity = await principal.identity(true);
-
-    expect(identity).toBeNull();
+    await expect(principal.identity(true)).resolves.toBe(identity);
     expect(principal.isAuthenticated()).toBe(true);
   });
 });

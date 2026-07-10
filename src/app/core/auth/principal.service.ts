@@ -26,6 +26,7 @@ export class Principal {
 
   /** check user identity*/
   identity(force?: boolean): Promise<any> {
+    const cachedIdentity = this.userIdentity;
     if (force === true) {
       this.userIdentity = undefined;
     }
@@ -54,8 +55,10 @@ export class Principal {
         this.userIdentity = null;
         this.authenticated = false;
         this.authenticationState.next(this.userIdentity);
+        return null;
       }
-      return null;
+      this.userIdentity = cachedIdentity;
+      return cachedIdentity ?? null;
     });
   }
 

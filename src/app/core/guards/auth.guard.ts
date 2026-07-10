@@ -2,6 +2,7 @@ import {inject} from '@angular/core';
 import {CanActivateFn, Router} from '@angular/router';
 
 import {Principal} from '@app/core/auth/principal.service';
+import {NotificationService} from '@app/services/notification.service';
 
 /** Whether the resolved account may access the admin shell. */
 export function isAdminAccount(identity: { administrator?: boolean } | null | undefined): boolean {
@@ -11,6 +12,7 @@ export function isAdminAccount(identity: { administrator?: boolean } | null | un
 /** Functional guard to protect authenticated admin routes */
 export const authGuard: CanActivateFn = async () => {
   const principal = inject(Principal);
+  const notificationService = inject(NotificationService);
   const router = inject(Router);
 
   const identity = await principal.identity(true);
@@ -19,6 +21,7 @@ export const authGuard: CanActivateFn = async () => {
     if (isAdminAccount(identity)) {
       return true;
     }
+    notificationService.showWarning('auth.accessDenied.title', 'auth.accessDenied.adminRequired');
     return router.createUrlTree(['/login']);
   }
 

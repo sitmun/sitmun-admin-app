@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpContext } from '@angular/common/http';
 import { Injectable, Injector } from '@angular/core';
 
 import { Observable } from 'rxjs';
@@ -25,8 +25,11 @@ export class AccountService extends RestService<User> {
   }
 
   /** get logged in user account*/
-  override get(): Observable<User> {
-    return this.http.get<User>(this.resourceService.getResourceUrl(this.ACCOUNT_API), { withCredentials: true });
+  override get(context = new HttpContext()): Observable<User> {
+    return this.http.get<User>(
+      this.resourceService.getResourceUrl(this.ACCOUNT_API),
+      {context, withCredentials: true}
+    );
   }
 
   /** save account*/

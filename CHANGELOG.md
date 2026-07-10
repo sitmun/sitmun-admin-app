@@ -13,6 +13,7 @@ All notable changes to this project will be documented in this file. The format 
 - **Application backgrounds**: relation order updates now persist on save by updating existing HAL resources instead of rebuilding rows without `_links` ([#428](https://github.com/sitmun/sitmun-admin-app/issues/428)).
 - **Auth**: `Principal.identity()` treats `/api/account` 401 as anonymous instead of leaving a stale authenticated flag.
 - **Messages**: skip error toast handling for 401 responses so auth-expired flow owns session cleanup.
+- **Messages**: forbidden API responses preserve authentication state and produce one error notification.
 - **Dialogs**: `dialog-form` and `dialog-grid` Add buttons no longer close before validation or row collection completes.
 - **Dialogs**: dual-tab pickers preserve inactive grid selections via `preserveContent` and reset collection state between Add attempts.
 - **Dialogs**: picker width heuristics account for flex columns; content area scrolls instead of reserving fixed empty height.
@@ -21,8 +22,8 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Changed
 
-- **Auth**: `authGuard` reloads account identity with credentials and allows transient fetch failures when local session state remains authenticated.
-- **Auth**: `AuthExpiredInterceptor` clears local session via `LoginService.clearSession()` without POSTing logout, avoiding cross-tab cookie deletion on stray 401 responses.
+- **Auth**: `authGuard` reloads account identity with credentials, preserves cached identity on transient failures, and warns valid non-admin users that administrator rights are required.
+- **Auth**: `AuthExpiredInterceptor` validates the session through `/api/account` after protected API 401 responses; concurrent failures share one probe, sequential transient failures show one warning until validation succeeds, and only a probe 401 clears local state and redirects to login without POSTing logout.
 - **Auth**: explicit logout routes through `LoginService.logout()` returning an `Observable` so callers wait for backend cookie removal before navigation.
 - **HAL**: HAL `Resource` and `AccountService` requests send `withCredentials: true` so session cookies reach the API.
 
@@ -32,4 +33,4 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Added
 
-- **Tests**: Jest coverage for WMS metadata parsing, service-form translation prefill, auth/session/HAL credentials, dialog Add validation, grid selection batching, layers form markup, and feature-flag icon a11y.
+- **Tests**: Jest coverage for WMS metadata parsing, service-form translation prefill, coalesced auth/session validation, admin guard rights feedback, HAL credentials, dialog Add validation, grid selection batching, layers form markup, and feature-flag icon a11y.

@@ -1,4 +1,8 @@
 {
+  "auth.accessDenied.adminRequired": "Eth vòste compde non a drets d'administracion.",
+  "auth.accessDenied.title": "Accès denegat",
+  "auth.sessionValidation.title": "Comprobacion de session non disponibla",
+  "auth.sessionValidation.unavailable": "Non s'a podut verificar era vòsta session. Tornatz-ac a provar.",
   "agGrid.andCondition": "E",
   "agGrid.applyFilter": "Aplicar",
   "agGrid.ariaMenuColumn": "Menú de columna",
