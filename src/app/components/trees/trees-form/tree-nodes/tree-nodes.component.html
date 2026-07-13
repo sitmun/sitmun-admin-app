@@ -49,9 +49,9 @@
                 <mat-accordion multi="true">
                   <!-- Basic Information Panel -->
                   <mat-expansion-panel
-                    [expanded]="isPanelExpanded('basic-info', currentNodeId)"
-                    (opened)="onPanelStateChange('basic-info', currentNodeId, true)"
-                    (closed)="onPanelStateChange('basic-info', currentNodeId, false)">
+                    [expanded]="isPanelExpanded('basic-info')"
+                    (opened)="onPanelStateChange('basic-info', true)"
+                    (closed)="onPanelStateChange('basic-info', false)">
                     <mat-expansion-panel-header>
                       <mat-panel-title>
                         <mat-icon class="panel-icon">info</mat-icon>
@@ -81,9 +81,9 @@
                   <!-- Cartography Configuration Panel -->
                   <mat-expansion-panel
                     *ngIf="showCartographyConfigurationPanel"
-                    [expanded]="isPanelExpanded('cartography-config', currentNodeId)"
-                    (opened)="onPanelStateChange('cartography-config', currentNodeId, true)"
-                    (closed)="onPanelStateChange('cartography-config', currentNodeId, false)">
+                    [expanded]="isPanelExpanded('cartography-config')"
+                    (opened)="onPanelStateChange('cartography-config', true)"
+                    (closed)="onPanelStateChange('cartography-config', false)">
                     <mat-expansion-panel-header>
                       <mat-panel-title>
                         <mat-icon class="panel-icon">map</mat-icon>
@@ -167,9 +167,9 @@
                   <!-- Description & Metadata Panel (shared by folders and leaves) -->
                   <mat-expansion-panel
                     *ngIf="showDescriptionMetadataPanel"
-                    [expanded]="isPanelExpanded('description-metadata', currentNodeId)"
-                    (opened)="onPanelStateChange('description-metadata', currentNodeId, true)"
-                    (closed)="onPanelStateChange('description-metadata', currentNodeId, false)">
+                    [expanded]="isPanelExpanded('description-metadata')"
+                    (opened)="onPanelStateChange('description-metadata', true)"
+                    (closed)="onPanelStateChange('description-metadata', false)">
                     <mat-expansion-panel-header>
                       <mat-panel-title>
                         <mat-icon class="panel-icon">description</mat-icon>
@@ -209,9 +209,9 @@
                   <!-- Filters Panel -->
                   <mat-expansion-panel
                     *ngIf="showFiltersPanel"
-                    [expanded]="isPanelExpanded('filters', currentNodeId)"
-                    (opened)="onPanelStateChange('filters', currentNodeId, true)"
-                    (closed)="onPanelStateChange('filters', currentNodeId, false)">
+                    [expanded]="isPanelExpanded('filters')"
+                    (opened)="onPanelStateChange('filters', true)"
+                    (closed)="onPanelStateChange('filters', false)">
                     <mat-expansion-panel-header>
                       <mat-panel-title>
                         <mat-icon class="panel-icon">filter_list</mat-icon>
@@ -252,9 +252,9 @@
                   <!-- Appearance Panel -->
                   <mat-expansion-panel
                     *ngIf="showAppearancePanel"
-                    [expanded]="isPanelExpanded('appearance', currentNodeId)"
-                    (opened)="onPanelStateChange('appearance', currentNodeId, true)"
-                    (closed)="onPanelStateChange('appearance', currentNodeId, false)">
+                    [expanded]="isPanelExpanded('appearance')"
+                    (opened)="onPanelStateChange('appearance', true)"
+                    (closed)="onPanelStateChange('appearance', false)">
                     <mat-expansion-panel-header>
                       <mat-panel-title>
                         <mat-icon class="panel-icon">image</mat-icon>
@@ -302,9 +302,9 @@
                   <!-- Task Configuration Panel -->
                   <mat-expansion-panel
                     *ngIf="showTaskConfigurationPanel"
-                    [expanded]="isPanelExpanded('task-config', currentNodeId)"
-                    (opened)="onPanelStateChange('task-config', currentNodeId, true)"
-                    (closed)="onPanelStateChange('task-config', currentNodeId, false)">
+                    [expanded]="isPanelExpanded('task-config')"
+                    (opened)="onPanelStateChange('task-config', true)"
+                    (closed)="onPanelStateChange('task-config', false)">
                     <mat-expansion-panel-header>
                       <mat-panel-title>
                         <mat-icon class="panel-icon" [fontSet]="taskPanelIconFont || 'material-icons-round'">{{ taskPanelIcon }}</mat-icon>
@@ -419,26 +419,41 @@
                   <!-- Display Options Panel -->
                   <mat-expansion-panel
                     *ngIf="showDisplayOptionsPanel"
-                    [expanded]="isPanelExpanded('display-options', currentNodeId)"
-                    (opened)="onPanelStateChange('display-options', currentNodeId, true)"
-                    (closed)="onPanelStateChange('display-options', currentNodeId, false)">
+                    [expanded]="isPanelExpanded('display-options')"
+                    (opened)="onPanelStateChange('display-options', true)"
+                    (closed)="onPanelStateChange('display-options', false)">
                     <mat-expansion-panel-header>
                       <mat-panel-title>
                         <mat-icon class="panel-icon">visibility</mat-icon>
                         {{ 'entity.tree.displayOptions' | translate }}
                       </mat-panel-title>
                     </mat-expansion-panel-header>
-                    <div class="flex-row-gap-16">
-                      <mat-slide-toggle color="primary" formControlName="active">
-                        {{ 'entity.tree.visible' | translate }}
-                      </mat-slide-toggle>
-                      <mat-slide-toggle color="primary" formControlName="radio" *ngIf="currentNodeIsFolder">
-                        {{ 'entity.tree.radio' | translate }}
-                      </mat-slide-toggle>
-                    </div>
-                    <div class="visible-hints">
-                      <span class="mat-hint">{{ 'entity.tree.hint.visible' | translate }}</span>
-                      <span class="mat-hint">{{ 'entity.tree.hint.visible.permissions' | translate }}</span>
+                    <div class="display-options-stack">
+                      <div class="display-option-group">
+                        <mat-slide-toggle color="primary" formControlName="visible">
+                          {{ 'entity.tree.visible' | translate }}
+                        </mat-slide-toggle>
+                        <div class="display-option-hints">
+                          <span class="mat-hint">{{ 'entity.tree.hint.visible' | translate }}</span>
+                          <span class="mat-hint">{{ 'entity.tree.hint.visible.permissions' | translate }}</span>
+                        </div>
+                      </div>
+                      <div class="display-option-group" *ngIf="showLoadByDefaultToggle">
+                        <mat-slide-toggle color="primary" formControlName="active">
+                          {{ 'entity.tree.loadByDefault' | translate }}
+                        </mat-slide-toggle>
+                        <div class="display-option-hints">
+                          <span class="mat-hint">{{ 'entity.tree.hint.loadByDefault' | translate }}</span>
+                        </div>
+                      </div>
+                      <div class="display-option-group" *ngIf="showRadioToggle">
+                        <mat-slide-toggle color="primary" formControlName="radio">
+                          {{ 'entity.tree.radio' | translate }}
+                        </mat-slide-toggle>
+                        <div class="display-option-hints">
+                          <span class="mat-hint">{{ 'entity.tree.hint.radio' | translate }}</span>
+                        </div>
+                      </div>
                     </div>
                   </mat-expansion-panel>
                 </mat-accordion>

@@ -337,6 +337,9 @@ export const config = {
       nodeTypes: {
         folder: {
           allowedChildren: ['cartography', 'folder'],
+          capabilities: {
+            radio: true
+          },
           icon: 'folder',
           showDescriptionPanel: true,
           showMetadataFieldsInDescriptionPanel: true,

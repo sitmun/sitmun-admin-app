@@ -134,7 +134,9 @@
     color: #FF9300;
   }
 
-  .type-icon {
+  .type-icon,
+  .radio-folder-indicator-icon,
+  .load-by-default-indicator-icon {
     color: #FF9300;
   }
 }
@@ -145,7 +147,9 @@
     color: #FF9300;
   }
 
-  .type-icon {
+  .type-icon,
+  .radio-folder-indicator-icon,
+  .load-by-default-indicator-icon {
     color: #FF9300;
   }
 }
@@ -153,7 +157,9 @@
 // Hidden in viewer profile (TNO_ACTIVE / admin Visible)
 .hidden-in-viewer-node {
   .node-name,
-  .type-icon {
+  .type-icon,
+  .radio-folder-indicator-icon,
+  .load-by-default-indicator-icon {
     opacity: 0.55;
     color: rgba(0, 0, 0, 0.45);
   }
@@ -198,6 +204,26 @@
   height: 18px;
   line-height: 18px;
   color: rgba(0, 0, 0, 0.54);
+  vertical-align: middle;
+}
+
+.radio-folder-indicator-icon {
+  margin-right: 4px;
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  line-height: 18px;
+  color: rgba(0, 0, 0, 0.87);
+  vertical-align: middle;
+}
+
+.load-by-default-indicator-icon {
+  margin-right: 4px;
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  line-height: 18px;
+  color: rgba(0, 0, 0, 0.87);
   vertical-align: middle;
 }
 

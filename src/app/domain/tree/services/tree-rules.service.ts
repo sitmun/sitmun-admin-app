@@ -9,11 +9,13 @@ interface TreeTypeNodeConfig {
   iconFont?: string;
   appearanceLabelKey?: string;
   showAppearancePanelWhenParentIs?: string[];
+  capabilities?: Record<string, boolean>;
   [key: string]: unknown;
 }
 
 interface TreeTypeConfig {
   allowedRootTypes?: string[];
+  capabilities?: Record<string, boolean>;
   nodeTypes?: Record<string, TreeTypeNodeConfig>;
 }
 
@@ -24,6 +26,18 @@ interface TreeTypeConfig {
   providedIn: 'root',
 })
 export class TreeRulesService {
+
+  /** Whether a tree type exposes an optional capability (e.g. radioFolders on cartography trees). */
+  supportsTreeCapability(treeType: string, capability: string): boolean {
+    const capabilities = this.getTreeTypeConfig(treeType)?.capabilities;
+    return capabilities?.[capability] === true;
+  }
+
+  /** Whether a node type within a tree type exposes an optional capability (e.g. radio on folder nodes). */
+  supportsNodeCapability(treeType: string, nodeType: string, capability: string): boolean {
+    const caps = this.getNodeTypesConfig(treeType)?.[nodeType]?.capabilities;
+    return caps?.[capability] === true;
+  }
 
   /** Allowed node types for root level of a tree type. */
   getAllowedRootTypes(treeType: string): string[] {

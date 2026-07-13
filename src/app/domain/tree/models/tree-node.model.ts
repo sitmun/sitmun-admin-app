@@ -24,8 +24,10 @@ export class TreeNode extends Resource {
   public metadataURL: string;
   /** order*/
   public order : number;
-  /** whether tree node is active*/
+  /** load-by-default in layer catalog (cartography leaf; requires visible) */
   public active: boolean;
+  /** catalog visibility in the viewer */
+  public visible: boolean;
   /** parent tree node */
   public radio: boolean;
   /** parent tree node */
@@ -65,7 +67,7 @@ export class TreeNode extends Resource {
       'proxyUrl', 'rootUrl', '_links', '_subtypes',
       // TreeNode properties
       'id', 'name', 'type', 'tooltip', 'description', 'datasetURL', 'metadataURL',
-      'order', 'active', 'radio', 'parent', 'cartography', 'tree', 'filterGetFeatureInfo',
+      'order', 'active', 'visible', 'radio', 'parent', 'cartography', 'tree', 'filterGetFeatureInfo',
       'filterGetMap', 'filterSelectable', 'style', 'loadData', 'queryableActive',
       'image', 'imageName', 'task', 'viewMode', 'filterable', 'mapping'
     ];
@@ -86,7 +88,10 @@ export class TreeNodeProjection extends Resource {
   description: string;
   nodeType: string;
   tooltip: string;
+  /** load-by-default in layer catalog (cartography leaf; requires visible) */
   active: boolean;
+  /** catalog visibility in the viewer */
+  visible: boolean;
   radio: boolean;
   order: number;
   metadataURL: string;
@@ -122,7 +127,7 @@ export class TreeNodeProjection extends Resource {
       // Resource properties
       'proxyUrl', 'rootUrl', '_links', '_subtypes',
       // TreeNodeProjection properties
-      'parent', 'id', 'name', 'description', 'nodeType', 'tooltip', 'active',
+      'parent', 'id', 'name', 'description', 'nodeType', 'tooltip', 'active', 'visible',
       'radio', 'order', 'metadataURL', 'datasetURL', 'filterGetMap',
       'filterGetFeatureInfo', 'queryableActive', 'filterSelectable', 'isFolder',
       'cartographyName', 'cartographyId', 'taskName', 'taskId', 'treeId',

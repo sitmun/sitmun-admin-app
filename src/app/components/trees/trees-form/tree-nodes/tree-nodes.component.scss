@@ -11,11 +11,23 @@
   flex-wrap: wrap;
 }
 
-.visible-hints {
+.display-options-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.display-option-group {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  margin-top: 8px;
+}
+
+.display-option-hints {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-inline-start: 8px;
 }
 
 .flex-column-gap-16 {

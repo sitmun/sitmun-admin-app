@@ -89,6 +89,17 @@
                   [matTooltip]="hiddenInViewerTooltip(node)">
           visibility_off
         </mat-icon>
+        <mat-icon *ngIf="showRadioFolderIndicator(node)"
+                  class="radio-folder-indicator-icon"
+                  [matTooltip]="radioFolderIndicatorTooltip()">
+          radio_button_checked
+        </mat-icon>
+        <mat-icon *ngIf="showLoadByDefaultIndicator(node)"
+                  class="load-by-default-indicator-icon"
+                  fontSet="material-icons-round"
+                  [matTooltip]="loadByDefaultIndicatorTooltip()">
+          push_pin
+        </mat-icon>
         <span class="node-name" (click)="onButtonClicked(node.id, 'edit')" (keyup.enter)="onButtonClicked(node.id, 'edit')" tabindex="0" role="button" [attr.aria-label]="('common.edit' | translate) + ': ' + node.name" *ngIf="node.id !== undefined && node.status!=='pendingDelete'">{{node.name}}</span>
         <span class="node-name" *ngIf="node.id === undefined || node.status==='pendingDelete'">{{node.name}}</span>
 
@@ -180,6 +191,17 @@
                   class="hidden-in-viewer-icon"
                   [matTooltip]="hiddenInViewerTooltip(node)">
           visibility_off
+        </mat-icon>
+        <mat-icon *ngIf="showRadioFolderIndicator(node)"
+                  class="radio-folder-indicator-icon"
+                  [matTooltip]="radioFolderIndicatorTooltip()">
+          radio_button_checked
+        </mat-icon>
+        <mat-icon *ngIf="showLoadByDefaultIndicator(node)"
+                  class="load-by-default-indicator-icon"
+                  fontSet="material-icons-round"
+                  [matTooltip]="loadByDefaultIndicatorTooltip()">
+          push_pin
         </mat-icon>
         <span class="node-name" (click)="onButtonClicked(node.id, 'edit')" (keyup.enter)="onButtonClicked(node.id, 'edit')" tabindex="0" role="button" [attr.aria-label]="('common.edit' | translate) + ': ' + node.name" *ngIf="node.id !== undefined && node.id !== null && node.status!=='pendingDelete'">{{node.name}}</span>
         <span class="node-name" *ngIf="node.id === undefined || node.id === null || node.status==='pendingDelete'">{{node.name}}</span>

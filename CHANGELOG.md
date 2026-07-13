@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Fixed
 
+- **Trees**: radio folder persistence normalizes via `resolvePersistedRadio`; sibling load-by-default saves deactivate before activate to avoid backend radio conflicts; invalid direct children block radio enable and folder placement under radio parents.
 - **Data grid**: resolves AG Grid `autoSizeStrategy` before grid initialization and no longer updates the Initial-only option after `onGridReady`, removing the console warning.
 - **Services**: proxy and authentication are grouped in one card; authentication fields stay visible but are disabled until **Use SITMUN proxy** is enabled, and disabling proxy clears stored credentials in the form to match runtime behavior.
 - **Services**: obtaining service details prefills `Service.name` and `Service.description` translation rows from alternate `xml:lang` entries; when the DB default language is absent from capabilities, the first entry still populates the main field and its language translation row (e.g. `ca` + `es` with default `en`) ([#46](https://github.com/sitmun/sitmun-application-stack/issues/46)).
@@ -20,8 +21,14 @@ All notable changes to this project will be documented in this file. The format 
 - **Layers**: filter/style modal booleans use primary slide toggles; boolean grid columns use bounded width; fix `add-gap` typo on feature-information field.
 - **UX**: grid boolean checkboxes use primary accent; experimental tab icons are hidden from screen readers.
 
+### Security
+
+- **Auth**: login now calls `POST /api/authenticate/admin` to receive a scoped `admin_access_token` cookie; the previous shared `access_token` endpoint is no longer used.
+- **Auth**: `AuthInterceptor` adds `X-SITMUN-Client: admin` to every backend request so the server targets the correct admin cookie for authentication and logout.
+
 ### Changed
 
+- **Trees**: align tree node display options with backend semantics — `visible` controls catalog visibility, `active` controls load-by-default on cartography leaves; radio folder toggle is limited to cartography trees via config capability.
 - **Auth**: `authGuard` reloads account identity with credentials, preserves cached identity on transient failures, and warns valid non-admin users that administrator rights are required.
 - **Auth**: `AuthExpiredInterceptor` validates the session through `/api/account` after protected API 401 responses; concurrent failures share one probe, sequential transient failures show one warning until validation succeeds, and only a probe 401 clears local state and redirects to login without POSTing logout.
 - **Auth**: explicit logout routes through `LoginService.logout()` returning an `Observable` so callers wait for backend cookie removal before navigation.

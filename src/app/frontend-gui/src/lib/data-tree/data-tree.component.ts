@@ -108,6 +108,7 @@ export class FileNode {
   nodeType: string;
   type: any;
   active: any;
+  visible: any;
   cartography: any;
   cartographyId: any;
   cartographyName: any;
@@ -125,6 +126,7 @@ export class FileNode {
   tooltip: any;
   image: any;
   taskName: any;
+  taskId: any;
   viewMode: any;
   filterable: any;
   _links: any;
@@ -232,6 +234,7 @@ export class FileDatabase {
       type: node.type,
       id: node.id,
       active: node.active,
+      visible: node.visible,
       cartography: node.cartography,
       cartographyId: node.cartographyId,
       cartographyName: node.cartographyName,
@@ -775,8 +778,52 @@ export class DataTreeComponent implements OnInit {
     if (!this.isDragging) return false;
     if (this.dragNodeStatus === constants.entityStatus.pendingDelete) return false;
     if (this.isSameId(this.dragNodeId, targetNodeId)) return false;
+    const sourceNode = this.dragNodeId != null ? this.findNodeById(this.dragNodeId) : null;
+    if (sourceNode) {
+      const dropParent = this.resolveDropParentNode(targetSnapshotNode);
+      if (!this.canAcceptChildUnderParent(dropParent, sourceNode)) {
+        return false;
+      }
+    }
     if (!this.isCenterDropArea()) return true;
     return this.treeRulesService.canNodeTypeHaveChildren(this.currentTreeType, targetSnapshotNode.nodeType);
+  }
+
+  private isCartographyLeafNode(node: FileNode | null | undefined): boolean {
+    return !!node
+      && node.nodeType === constants.treeDomainKey.cartography
+      && !!node.cartographyId
+      && !node.taskId;
+  }
+
+  private isRadioFolder(node: FileNode | null | undefined): boolean {
+    return !!node
+      && node.radio === true
+      && this.treeRulesService.canNodeTypeHaveChildren(this.currentTreeType, node.nodeType);
+  }
+
+  private canAcceptChildUnderParent(parent: FileNode | null | undefined, child: FileNode | null | undefined): boolean {
+    if (!this.isRadioFolder(parent) || !child) {
+      return true;
+    }
+    return this.isCartographyLeafNode(child);
+  }
+
+  private canAcceptChildTypeUnderParent(parent: FileNode | null | undefined, nodeType: string): boolean {
+    if (!this.isRadioFolder(parent)) {
+      return true;
+    }
+    return nodeType === constants.treeDomainKey.cartography;
+  }
+
+  private resolveDropParentNode(targetNode: FileNode): FileNode | null {
+    if (this.isCenterDropArea()) {
+      return targetNode;
+    }
+    if (targetNode.parent === null || targetNode.parent === undefined) {
+      return this.getSnapshotRoot(this.getTreeData()) ?? null;
+    }
+    return this.findNodeById(targetNode.parent);
   }
 
   private isCenterDropArea(): boolean {
@@ -1635,6 +1682,9 @@ export class DataTreeComponent implements OnInit {
 
   onAddChildNode(parentNode: FileNode | undefined, nodeType: string): void {
     if (!parentNode) return;
+    if (!this.canAcceptChildTypeUnderParent(parentNode, nodeType)) {
+      return;
+    }
     this.addNode.emit({ parent: parentNode, nodeType });
   }
 
@@ -1664,54 +1714,86 @@ export class DataTreeComponent implements OnInit {
   }
 
   /** Admin default: null/undefined => visible (matches tree-nodes form). */
-  isNodeActive(node: FileFlatNode | FileNode | undefined): boolean {
+  isNodeVisible(node: FileFlatNode | FileNode | undefined): boolean {
     const nested = this.resolveNode(node);
     if (!nested) {
       return true;
     }
-    return nested.active !== false;
+    return nested.visible !== false;
   }
 
-  /** First inactive ancestor (including self), or null when visible in viewer profile. */
-  findInactiveAncestor(node: FileFlatNode | FileNode | undefined): FileNode | null {
+  /** First invisible ancestor (including self), or null when visible in viewer profile. */
+  findInvisibleAncestor(node: FileFlatNode | FileNode | undefined): FileNode | null {
     const nested = this.resolveNode(node);
     if (!nested) {
       return null;
     }
-    return this.findInactiveAncestorNested(nested);
+    return this.findInvisibleAncestorNested(nested);
   }
 
-  private findInactiveAncestorNested(node: FileNode): FileNode | null {
-    if (node.active === false) {
+  private findInvisibleAncestorNested(node: FileNode): FileNode | null {
+    if (node.visible === false) {
       return node;
     }
     if (node.parent === null || node.parent === undefined) {
       return null;
     }
     const parentNode = this.findNodeById(node.parent);
-    return parentNode ? this.findInactiveAncestorNested(parentNode) : null;
+    return parentNode ? this.findInvisibleAncestorNested(parentNode) : null;
   }
 
   isHiddenInViewerProfile(node: FileFlatNode | FileNode | undefined): boolean {
-    return this.findInactiveAncestor(node) !== null;
+    return this.findInvisibleAncestor(node) !== null;
   }
 
   hiddenInViewerTooltip(node: FileFlatNode | FileNode | undefined): string {
-    const inactive = this.findInactiveAncestor(node);
-    if (!inactive) {
+    const invisible = this.findInvisibleAncestor(node);
+    if (!invisible) {
       return '';
     }
     const nested = this.resolveNode(node);
-    if (nested && nested.active === false) {
+    if (nested && nested.visible === false) {
       return this.translate.instant('entity.tree.hiddenInViewer.self');
     }
     return this.translate.instant('entity.tree.hiddenInViewer.ancestor', {
-      name: inactive.name || ''
+      name: invisible.name || ''
     });
   }
 
-  isNodeOrAncestorInactive(node: FileFlatNode | FileNode | undefined): boolean {
+  isNodeOrAncestorHidden(node: FileFlatNode | FileNode | undefined): boolean {
     return this.isHiddenInViewerProfile(node);
+  }
+
+  showRadioFolderIndicator(node: FileFlatNode | FileNode | undefined): boolean {
+    return this.isRadioFolder(this.resolveNode(node));
+  }
+
+  showLoadByDefaultIndicator(node: FileFlatNode | FileNode | undefined): boolean {
+    const nested = this.resolveNode(node);
+    return this.isCartographyLeafNode(nested) && nested.visible !== false && nested.active === true;
+  }
+
+  radioFolderIndicatorTooltip(): string {
+    return this.translate.instant('entity.tree.treeIndicator.radioFolder');
+  }
+
+  loadByDefaultIndicatorTooltip(): string {
+    return this.translate.instant('entity.tree.treeIndicator.loadByDefault');
+  }
+
+  /** @deprecated Use isNodeVisible */
+  isNodeActive(node: FileFlatNode | FileNode | undefined): boolean {
+    return this.isNodeVisible(node);
+  }
+
+  /** @deprecated Use findInvisibleAncestor */
+  findInactiveAncestor(node: FileFlatNode | FileNode | undefined): FileNode | null {
+    return this.findInvisibleAncestor(node);
+  }
+
+  /** @deprecated Use isNodeOrAncestorHidden */
+  isNodeOrAncestorInactive(node: FileFlatNode | FileNode | undefined): boolean {
+    return this.isNodeOrAncestorHidden(node);
   }
 
   /**

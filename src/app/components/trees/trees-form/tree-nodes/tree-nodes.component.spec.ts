@@ -56,7 +56,10 @@ jest.mock('@config', () => {
             showCartographyPanel: false,
             showAppearancePanel: false,
             showTaskPanel: false,
-            showDisplayOptionsPanel: true
+            showDisplayOptionsPanel: true,
+            capabilities: {
+              radio: true,
+            },
           },
           task: {
             allowedChildren: [],
@@ -105,6 +108,9 @@ function flushTreeNodesHttpMocks(httpMock: HttpTestingController): void {
   );
   httpMock.match((req) => req.url.includes('tasks')).forEach((req) =>
     req.flush({ _embedded: { tasks: [] } })
+  );
+  httpMock.match((req) => req.url.includes('translations')).forEach((req) =>
+    req.flush({ _embedded: { translations: [] } })
   );
 }
 
@@ -361,6 +367,7 @@ describe('TreeNodesComponent', () => {
       expect(component.treeNodeForm.get('datasetURL')).toBeTruthy();
       expect(component.treeNodeForm.get('metadataURL')).toBeTruthy();
       expect(component.treeNodeForm.get('description')).toBeTruthy();
+      expect(component.treeNodeForm.get('visible')).toBeTruthy();
       expect(component.treeNodeForm.get('active')).toBeTruthy();
       expect(component.treeNodeForm.get('order')).toBeTruthy();
       expect(component.treeNodeForm.get('filterGetFeatureInfo')).toBeTruthy();
@@ -1301,6 +1308,846 @@ describe('TreeNodesComponent', () => {
   describe('nodeImageAccept$', () => {
     it('derives file picker accepted extensions from backend-supported formats', async () => {
       await expect(firstValueFrom(component.nodeImageAccept$)).resolves.toBe('.png,.jpg,.jpeg');
+    });
+  });
+
+  describe('visible and load-by-default toggles', () => {
+    beforeEach(() => {
+      component.currentTreeType = 'testTree';
+      component.treeNodeForm.patchValue({
+        nodeType: constants.treeDomainKey.cartography,
+        cartographyId: 42,
+        visible: true,
+        active: false,
+      });
+      component['currentNodeType'] = constants.treeDomainKey.cartography;
+      fixture.detectChanges();
+    });
+
+    it('shows load-by-default toggle only for cartography leaves', () => {
+      expect(component.showLoadByDefaultToggle).toBe(true);
+      component.treeNodeForm.patchValue({ nodeType: constants.treeDomainKey.task });
+      component['currentNodeType'] = constants.treeDomainKey.task;
+      expect(component.showLoadByDefaultToggle).toBe(false);
+    });
+
+    it('clears active when visible becomes false', () => {
+      component.treeNodeForm.patchValue({ active: true });
+      component.treeNodeForm.get('visible')?.setValue(false);
+      expect(component.treeNodeForm.getRawValue().active).toBe(false);
+    });
+  });
+
+  describe('radio toggle', () => {
+    it('shows radio toggle only for folders on cartography trees', () => {
+      component.currentTreeType = 'cartography';
+      component['currentNodeType'] = constants.treeRenderType.folder;
+      component.treeNodeForm.patchValue({ nodeType: constants.treeRenderType.folder });
+      expect(component.showRadioToggle).toBe(true);
+
+      component.currentTreeType = 'touristic';
+      expect(component.showRadioToggle).toBe(false);
+    });
+  });
+
+  describe('TNO radio and active remediation', () => {
+    function mockCartographyTree(children: any[] = []): void {
+      component.currentTreeType = constants.codeValue.treeType.cartography;
+      component.dataTree = {
+        clearSelection: jest.fn(),
+        setSelectionHighlight: jest.fn(),
+        originalNodeStates: new Map<string | number, any>(),
+        dataSource: {
+          data: [{
+            children,
+          }],
+        },
+      } as any;
+    }
+
+    function cartographyLeaf(id: number, parent: number, active = false): any {
+      return {
+        id,
+        parent,
+        name: `Layer ${id}`,
+        nodeType: constants.treeDomainKey.cartography,
+        cartographyId: id * 10,
+        children: [],
+        visible: true,
+        active,
+      };
+    }
+
+    function radioFolder(id: number, children: any[] = []): any {
+      return {
+        id,
+        parent: null,
+        name: `Radio ${id}`,
+        nodeType: constants.treeRenderType.folder,
+        radio: true,
+        children,
+        visible: true,
+        active: false,
+      };
+    }
+
+    describe('resolvePersistedActive', () => {
+      it('returns true only for visible cartography leaves with active true', () => {
+        const resolve = (component as any).resolvePersistedActive.bind(component);
+        expect(resolve({
+          visible: true,
+          active: true,
+          nodeType: constants.treeDomainKey.cartography,
+          cartographyId: 1,
+        })).toBe(true);
+        expect(resolve({
+          visible: false,
+          active: true,
+          nodeType: constants.treeDomainKey.cartography,
+          cartographyId: 1,
+        })).toBe(false);
+        expect(resolve({
+          visible: true,
+          active: true,
+          nodeType: constants.treeDomainKey.cartography,
+          cartographyId: null,
+        })).toBe(false);
+        expect(resolve({
+          visible: true,
+          active: false,
+          nodeType: constants.treeDomainKey.cartography,
+          cartographyId: 1,
+        })).toBe(false);
+      });
+
+      it('returns false when cartography leaf also has a task relation', () => {
+        const resolve = (component as any).resolvePersistedActive.bind(component);
+        expect(resolve({
+          visible: true,
+          active: true,
+          nodeType: constants.treeDomainKey.cartography,
+          cartographyId: 1,
+          taskId: 99,
+        })).toBe(false);
+      });
+    });
+
+    describe('addNodeWithType control sync', () => {
+      it('disables active for non-cartography leaf types immediately after opening the form', async () => {
+        mockCartographyTree([]);
+        await component.addNodeWithType({ id: 1, name: 'Parent', children: [] } as any, 'folder');
+        expect(component.treeNodeForm.get('active')?.disabled).toBe(true);
+        expect(component.treeNodeForm.getRawValue().active).toBe(false);
+      });
+    });
+
+    describe('nodeReceived projection patch', () => {
+      it('patches visible and active independently from projection values', async () => {
+        mockCartographyTree([
+          cartographyLeaf(4, null, false),
+        ]);
+        await component.nodeReceived({
+          nodeClicked: {
+            id: 4,
+            name: 'Layer',
+            nodeType: constants.treeDomainKey.cartography,
+            cartographyId: 40,
+            visible: true,
+            active: false,
+            parent: null,
+            children: [],
+          },
+          nodeParent: null,
+        });
+        flushTreeNodesHttpMocks(TestBed.inject(HttpTestingController));
+        expect(component.treeNodeForm.getRawValue().visible).toBe(true);
+        expect(component.treeNodeForm.getRawValue().active).toBe(false);
+      });
+    });
+
+    describe('capability-positive synthetic tree radio', () => {
+      it('exposes radio toggle for folder nodes when tree capability is enabled', () => {
+        component.currentTreeType = 'testTree';
+        component['currentNodeType'] = constants.treeRenderType.folder;
+        component.treeNodeForm.patchValue({ nodeType: constants.treeRenderType.folder });
+        expect(component.showRadioToggle).toBe(true);
+      });
+    });
+
+    describe('resolvePersistedRadio', () => {
+      it('returns true only for radio-capable folders whose direct children are cartography leaves', () => {
+        component.currentTreeType = constants.codeValue.treeType.cartography;
+        const resolve = (component as any).resolvePersistedRadio.bind(component);
+        expect(resolve({
+          nodeType: constants.treeRenderType.folder,
+          radio: true,
+          children: [cartographyLeaf(2, 1)],
+        })).toBe(true);
+        expect(resolve({
+          nodeType: constants.treeRenderType.folder,
+          radio: true,
+          children: [{ id: 3, nodeType: constants.treeRenderType.folder, children: [] }],
+        })).toBe(false);
+        expect(resolve({
+          nodeType: constants.treeDomainKey.cartography,
+          radio: true,
+          cartographyId: 1,
+          children: [],
+        })).toBe(false);
+        component.currentTreeType = 'touristic';
+        expect(resolve({
+          nodeType: constants.treeRenderType.folder,
+          radio: true,
+          children: [],
+        })).toBe(false);
+      });
+    });
+
+    describe('updateNode normalization', () => {
+      beforeEach(() => {
+        setCodeList('treenode.node.type', [
+          { value: 'folder', description: 'Folder' },
+          { value: 'cartography', description: 'Cartography' },
+        ] as any);
+      });
+
+      it('normalizes active and radio before emitting tree update', () => {
+        mockCartographyTree([
+          radioFolder(1, [cartographyLeaf(2, 1, true)]),
+        ]);
+        component['currentNodeId'] = 1;
+        component['newElement'] = false;
+        component['currentNodeType'] = constants.treeRenderType.folder;
+        component.treeNodeForm.patchValue({
+          id: 1,
+          name: 'Radio folder',
+          nodeType: constants.treeRenderType.folder,
+          visible: true,
+          active: true,
+          radio: true,
+        });
+        component.treeNodeForm.markAsDirty();
+
+        const updates: any[] = [];
+        component.sendNodeUpdated.subscribe((node) => updates.push(node));
+        component.updateNode();
+
+        expect(updates).toHaveLength(1);
+        expect(updates[0].active).toBe(false);
+        expect(updates[0].radio).toBe(true);
+      });
+
+      it('clears stale radio when node type changes to leaf', () => {
+        component.currentTreeType = constants.codeValue.treeType.cartography;
+        component['currentNodeId'] = 8;
+        component['newElement'] = false;
+        component['currentNodeType'] = constants.treeDomainKey.cartography;
+        component.treeNodeForm.patchValue({
+          id: 8,
+          name: 'Leaf',
+          nodeType: constants.treeDomainKey.cartography,
+          cartographyId: 5,
+          visible: true,
+          active: true,
+          radio: true,
+        });
+        component.treeNodeForm.markAsDirty();
+        const updates: any[] = [];
+        component.sendNodeUpdated.subscribe((node) => updates.push(node));
+
+        component.onTreeNodeTypeChange(constants.treeDomainKey.cartography);
+
+        expect(component.treeNodeForm.get('radio')?.disabled).toBe(true);
+        expect(component.treeNodeForm.getRawValue().radio).toBe(false);
+        expect(updates.at(-1)?.radio).toBe(false);
+        expect(updates.at(-1)?.active).toBe(true);
+      });
+    });
+
+    describe('radio control guards', () => {
+      it('disables radio when a direct child is not a cartography leaf', () => {
+        mockCartographyTree([
+          {
+            id: 1,
+            nodeType: constants.treeRenderType.folder,
+            radio: false,
+            children: [{ id: 2, nodeType: constants.treeRenderType.folder, children: [] }],
+          },
+        ]);
+        component['currentNodeId'] = 1;
+        component['currentNodeType'] = constants.treeRenderType.folder;
+        component.treeNodeForm.patchValue({
+          id: 1,
+          nodeType: constants.treeRenderType.folder,
+          radio: true,
+        });
+
+        (component as any).syncFormControlsDisabledState();
+
+        expect(component.treeNodeForm.get('radio')?.disabled).toBe(true);
+        expect(component.treeNodeForm.getRawValue().radio).toBe(false);
+      });
+
+      it('clears active when cartography relation is missing', () => {
+        setCartographyLeafNode({ cartographyId: null, active: true, visible: true });
+        (component as any).syncFormControlsDisabledState();
+        expect(component.treeNodeForm.getRawValue().active).toBe(false);
+        expect(component.treeNodeForm.get('active')?.disabled).toBe(true);
+      });
+    });
+
+    describe('radio sibling exclusivity', () => {
+      it('deactivates direct sibling and marks it Modified without touching nested descendants', () => {
+        const nested = cartographyLeaf(99, 2, true);
+        const childA = { ...cartographyLeaf(2, 1, true), children: [nested] };
+        const childB = cartographyLeaf(3, 1, false);
+        mockCartographyTree([radioFolder(1, [childA, childB])]);
+
+        component['currentNodeId'] = 3;
+        component['currentNodeType'] = constants.treeDomainKey.cartography;
+        component.treeNodeForm.patchValue({
+          id: 3,
+          parent: 1,
+          nodeType: constants.treeDomainKey.cartography,
+          cartographyId: 30,
+          active: true,
+        });
+        component.treeNodeForm.markAsDirty();
+
+        const updates: any[] = [];
+        component.sendNodeUpdated.subscribe((node) => updates.push(node));
+        component.treeNodeForm.get('active')?.setValue(true);
+
+        const siblingUpdate = updates.find((node) => node.id === 2);
+        expect(siblingUpdate?.active).toBe(false);
+        expect(siblingUpdate?.status).toBe(constants.entityStatus.modified);
+        expect(nested.active).toBe(true);
+      });
+    });
+
+    describe('clearExcessRadioDefaultsOnEnable', () => {
+      it('clears all defaults when radio enabled with two active children', () => {
+        const childA = cartographyLeaf(2, 1, true);
+        const childB = cartographyLeaf(3, 1, true);
+        mockCartographyTree([radioFolder(1, [childA, childB])]);
+
+        component['currentNodeId'] = 1;
+        component['currentNodeType'] = constants.treeRenderType.folder;
+        component.treeNodeForm.patchValue({
+          id: 1,
+          parent: null,
+          nodeType: constants.treeRenderType.folder,
+          radio: false,
+        });
+
+        const updates: any[] = [];
+        component.sendNodeUpdated.subscribe((node) => updates.push(node));
+
+        component.treeNodeForm.get('radio')?.setValue(true);
+
+        const cleared = updates.filter((node) => node.active === false && (node.id === 2 || node.id === 3));
+        expect(cleared).toHaveLength(2);
+        expect(cleared.map((node) => node.id)).toEqual(expect.arrayContaining([2, 3]));
+      });
+
+      it('keeps single default when radio enabled with one active child', () => {
+        const childA = cartographyLeaf(2, 1, true);
+        const childB = cartographyLeaf(3, 1, false);
+        mockCartographyTree([radioFolder(1, [childA, childB])]);
+
+        component['currentNodeId'] = 1;
+        component['currentNodeType'] = constants.treeRenderType.folder;
+        component.treeNodeForm.patchValue({
+          id: 1,
+          parent: null,
+          nodeType: constants.treeRenderType.folder,
+          radio: false,
+        });
+
+        const updates: any[] = [];
+        component.sendNodeUpdated.subscribe((node) => updates.push(node));
+
+        component.treeNodeForm.get('radio')?.setValue(true);
+
+        const cleared = updates.filter((node) => node.active === false && (node.id === 2 || node.id === 3));
+        expect(cleared).toHaveLength(0);
+      });
+
+      it('no-op when radio enabled with no active children', () => {
+        const childA = cartographyLeaf(2, 1, false);
+        const childB = cartographyLeaf(3, 1, false);
+        mockCartographyTree([radioFolder(1, [childA, childB])]);
+
+        component['currentNodeId'] = 1;
+        component['currentNodeType'] = constants.treeRenderType.folder;
+        component.treeNodeForm.patchValue({
+          id: 1,
+          parent: null,
+          nodeType: constants.treeRenderType.folder,
+          radio: false,
+        });
+
+        const updates: any[] = [];
+        component.sendNodeUpdated.subscribe((node) => updates.push(node));
+
+        component.treeNodeForm.get('radio')?.setValue(true);
+
+        const cleared = updates.filter((node) => node.active === false && (node.id === 2 || node.id === 3));
+        expect(cleared).toHaveLength(0);
+      });
+    });
+
+    describe('updateAllTreeNodes save ordering', () => {
+      function mockDeferredSave(treeNodeService: TreeNodeService): {
+        release: (id: number) => void;
+        saveStarted: number[];
+      } {
+        const pending = new Map<number, () => void>();
+        const saveStarted: number[] = [];
+        jest.spyOn(treeNodeService, 'save').mockImplementation((node: any) => {
+          saveStarted.push(node.id);
+          if (node.id === 2) {
+            return new Observable((subscriber) => {
+              pending.set(2, () => {
+                subscriber.next({ ...node, id: node.id } as any);
+                subscriber.complete();
+              });
+            });
+          }
+          return of({ ...node, id: node.id } as any);
+        });
+        return {
+          release: (id: number) => pending.get(id)?.(),
+          saveStarted,
+        };
+      }
+
+      it('awaits sibling deactivations before activations under a radio parent', async () => {
+        component.currentTreeType = constants.codeValue.treeType.cartography;
+        const treeNodeService = TestBed.inject(TreeNodeService);
+        const saveOrder: number[] = [];
+        jest.spyOn(treeNodeService, 'save').mockImplementation((node: any) => {
+          saveOrder.push(node.id);
+          return of({ ...node, id: node.id } as any);
+        });
+
+        const siblingA = {
+          id: 2,
+          parent: 1,
+          name: 'A',
+          nodeType: constants.treeDomainKey.cartography,
+          cartographyId: 20,
+          status: constants.entityStatus.modified,
+          visible: true,
+          active: false,
+          order: 0,
+        };
+        const siblingB = {
+          id: 3,
+          parent: 1,
+          name: 'B',
+          nodeType: constants.treeDomainKey.cartography,
+          cartographyId: 30,
+          status: constants.entityStatus.modified,
+          visible: true,
+          active: true,
+          order: 1,
+        };
+        const parentFolder = {
+          id: 1,
+          parent: null,
+          name: 'Radio',
+          nodeType: constants.treeRenderType.folder,
+          radio: true,
+          status: constants.entityStatus.modified,
+          visible: true,
+          active: false,
+          order: 0,
+          children: [siblingA, siblingB],
+        };
+        const unrelated = {
+          id: 10,
+          parent: null,
+          name: 'Other',
+          nodeType: constants.treeRenderType.folder,
+          radio: false,
+          status: constants.entityStatus.modified,
+          visible: true,
+          active: false,
+          order: 1,
+        };
+
+        mockCartographyTree([radioFolder(1, [cartographyLeaf(2, 1), cartographyLeaf(3, 1, true)])]);
+        component.dataTree.originalNodeStates = new Map([
+          [2, { id: 2, active: true, visible: true }],
+          [3, { id: 3, active: false, visible: true }],
+        ]);
+
+        await (component as any).updateAllTreeNodes(
+          [parentFolder, siblingA, siblingB, unrelated],
+          0,
+          new Map(),
+          [],
+          null,
+          null,
+          { id: 1 } as any,
+          1
+        );
+
+        const deactivateIndex = saveOrder.indexOf(2);
+        const activateIndex = saveOrder.indexOf(3);
+        expect(deactivateIndex).toBeGreaterThanOrEqual(0);
+        expect(activateIndex).toBeGreaterThan(deactivateIndex);
+      });
+
+      it('does not start activation save until deactivation save completes', async () => {
+        component.currentTreeType = constants.codeValue.treeType.cartography;
+        const treeNodeService = TestBed.inject(TreeNodeService);
+        const { release, saveStarted } = mockDeferredSave(treeNodeService);
+
+        const siblingA = {
+          id: 2,
+          parent: 1,
+          name: 'A',
+          nodeType: constants.treeDomainKey.cartography,
+          cartographyId: 20,
+          status: constants.entityStatus.modified,
+          visible: true,
+          active: false,
+          order: 0,
+        };
+        const siblingB = {
+          id: 3,
+          parent: 1,
+          name: 'B',
+          nodeType: constants.treeDomainKey.cartography,
+          cartographyId: 30,
+          status: constants.entityStatus.modified,
+          visible: true,
+          active: true,
+          order: 1,
+        };
+
+        mockCartographyTree([radioFolder(1, [cartographyLeaf(2, 1, true), cartographyLeaf(3, 1)])]);
+        component.dataTree.originalNodeStates = new Map([
+          [2, { id: 2, active: true, visible: true }],
+          [3, { id: 3, active: false, visible: true }],
+        ]);
+
+        const savePromise = (component as any).updateAllTreeNodes(
+          [siblingA, siblingB],
+          0,
+          new Map(),
+          [],
+          null,
+          null,
+          { id: 1 } as any,
+          1
+        );
+
+        await Promise.resolve();
+        expect(saveStarted).toEqual([2]);
+        expect(saveStarted).not.toContain(3);
+
+        release(2);
+        await savePromise;
+        expect(saveStarted).toEqual([2, 3]);
+      });
+
+      it('serializes dual-active malformed sibling saves under one radio parent', async () => {
+        component.currentTreeType = constants.codeValue.treeType.cartography;
+        const treeNodeService = TestBed.inject(TreeNodeService);
+        let concurrent = 0;
+        let maxConcurrent = 0;
+        jest.spyOn(treeNodeService, 'save').mockImplementation((node: any) => {
+          concurrent += 1;
+          maxConcurrent = Math.max(maxConcurrent, concurrent);
+          return new Observable((subscriber) => {
+            setTimeout(() => {
+              concurrent -= 1;
+              subscriber.next({ ...node, id: node.id } as any);
+              subscriber.complete();
+            }, 0);
+          });
+        });
+
+        const siblingA = {
+          id: 2,
+          parent: 1,
+          name: 'A',
+          nodeType: constants.treeDomainKey.cartography,
+          cartographyId: 20,
+          status: constants.entityStatus.modified,
+          visible: true,
+          active: true,
+          order: 0,
+        };
+        const siblingB = {
+          id: 3,
+          parent: 1,
+          name: 'B',
+          nodeType: constants.treeDomainKey.cartography,
+          cartographyId: 30,
+          status: constants.entityStatus.modified,
+          visible: true,
+          active: true,
+          order: 1,
+        };
+        const parentFolder = {
+          id: 1,
+          parent: null,
+          name: 'Radio',
+          nodeType: constants.treeRenderType.folder,
+          radio: true,
+          status: constants.entityStatus.modified,
+          visible: true,
+          active: false,
+          order: 0,
+          children: [siblingA, siblingB],
+        };
+
+        mockCartographyTree([radioFolder(1, [cartographyLeaf(2, 1, true), cartographyLeaf(3, 1, true)])]);
+        component.dataTree.originalNodeStates = new Map([
+          [2, { id: 2, active: true, visible: true }],
+          [3, { id: 3, active: true, visible: true }],
+        ]);
+
+        await (component as any).updateAllTreeNodes(
+          [parentFolder, siblingA, siblingB],
+          0,
+          new Map(),
+          [],
+          null,
+          null,
+          { id: 1 } as any,
+          1
+        );
+
+        expect(maxConcurrent).toBe(1);
+      });
+
+      it('skips radio phasing when parent radio flag is stale and structure is invalid', async () => {
+        component.currentTreeType = constants.codeValue.treeType.cartography;
+        const treeNodeService = TestBed.inject(TreeNodeService);
+        const saveOrder: number[] = [];
+        jest.spyOn(treeNodeService, 'save').mockImplementation((node: any) => {
+          saveOrder.push(node.id);
+          return of({ ...node, id: node.id } as any);
+        });
+
+        const invalidRadioParent = {
+          id: 1,
+          parent: null,
+          name: 'Invalid radio',
+          nodeType: constants.treeRenderType.folder,
+          radio: true,
+          status: constants.entityStatus.modified,
+          visible: true,
+          active: false,
+          order: 0,
+          children: [{ id: 9, nodeType: constants.treeRenderType.folder, children: [] }],
+        };
+        const leaf = {
+          id: 9,
+          parent: 1,
+          name: 'Folder child',
+          nodeType: constants.treeRenderType.folder,
+          status: constants.entityStatus.modified,
+          visible: true,
+          active: false,
+          order: 0,
+        };
+
+        mockCartographyTree([invalidRadioParent]);
+
+        await (component as any).updateAllTreeNodes(
+          [invalidRadioParent, leaf],
+          0,
+          new Map(),
+          [],
+          null,
+          null,
+          { id: 1 } as any,
+          1
+        );
+
+        expect(saveOrder.sort()).toEqual([1, 9]);
+      });
+
+      it('reconciles out-of-order save results by node id', async () => {
+        component.currentTreeType = constants.codeValue.treeType.cartography;
+        const treeNodeService = TestBed.inject(TreeNodeService);
+        jest.spyOn(treeNodeService, 'save').mockImplementation((node: any) => {
+          const delay = node.id === 11 ? 20 : 0;
+          return new Observable((subscriber) => {
+            setTimeout(() => {
+              subscriber.next({ ...node, id: node.id, name: `saved-${node.id}` } as any);
+              subscriber.complete();
+            }, delay);
+          });
+        });
+
+        const nodes = [
+          {
+            id: 10,
+            parent: null,
+            name: 'Fast',
+            nodeType: constants.treeRenderType.folder,
+            radio: false,
+            status: constants.entityStatus.modified,
+            visible: true,
+            active: false,
+            order: 0,
+          },
+          {
+            id: 11,
+            parent: null,
+            name: 'Slow',
+            nodeType: constants.treeRenderType.folder,
+            radio: false,
+            status: constants.entityStatus.modified,
+            visible: true,
+            active: false,
+            order: 1,
+          },
+        ];
+
+        mockCartographyTree([]);
+
+        await (component as any).updateAllTreeNodes(
+          nodes,
+          0,
+          new Map(),
+          [],
+          null,
+          null,
+          { id: 1 } as any,
+          1
+        );
+
+        expect(nodes.find((node) => node.id === 10)?.name).toBe('saved-10');
+        expect(nodes.find((node) => node.id === 11)?.name).toBe('saved-11');
+      });
+
+      it('persists radio via resolvePersistedRadio not raw treeNode.radio', async () => {
+        component.currentTreeType = constants.codeValue.treeType.cartography;
+        const treeNodeService = TestBed.inject(TreeNodeService);
+        const saved: any[] = [];
+        jest.spyOn(treeNodeService, 'save').mockImplementation((node: any) => {
+          saved.push(node);
+          return of({ ...node } as any);
+        });
+
+        const staleRadioFolder = {
+          id: 5,
+          parent: null,
+          name: 'Stale radio',
+          nodeType: constants.treeDomainKey.task,
+          radio: true,
+          status: constants.entityStatus.modified,
+          visible: true,
+          active: false,
+          order: 0,
+        };
+
+        await (component as any).updateAllTreeNodes(
+          [staleRadioFolder],
+          0,
+          new Map(),
+          [],
+          null,
+          null,
+          { id: 1 } as any,
+          1
+        );
+
+        expect(saved[0].radio).toBe(false);
+      });
+    });
+
+    describe('panel expansion state', () => {
+      it('defaults to basic-info only on first node selection', () => {
+        expect(component.isPanelExpanded('basic-info')).toBe(true);
+        expect(component.isPanelExpanded('display-options')).toBe(false);
+        expect(component.isPanelExpanded('description-metadata')).toBe(false);
+        expect(component.isPanelExpanded('cartography-config')).toBe(false);
+      });
+
+      it('keeps expanded panels across node switch', () => {
+        component['currentNodeId'] = 1;
+        component.onPanelStateChange('display-options', true);
+        expect(component.isPanelExpanded('display-options')).toBe(true);
+
+        // Simulate switching to node 2 (spurious closed event fires with old panel state)
+        component['currentNodeId'] = 2;
+
+        expect(component.isPanelExpanded('display-options')).toBe(true);
+      });
+
+      it('does not clear expansion when switching nodes without user closing', () => {
+        component['currentNodeId'] = 1;
+        component.onPanelStateChange('description-metadata', true);
+
+        // Node switch without user explicitly closing the panel
+        component['currentNodeId'] = 2;
+
+        expect(component.isPanelExpanded('description-metadata')).toBe(true);
+      });
+
+      it('newly visible panel starts collapsed when user has not expanded it', () => {
+        // cartography-config panel has never been expanded
+        expect(component.isPanelExpanded('cartography-config')).toBe(false);
+      });
+
+      it('collapses panel globally after user closes it', () => {
+        component.onPanelStateChange('display-options', true);
+        expect(component.isPanelExpanded('display-options')).toBe(true);
+
+        component.onPanelStateChange('display-options', false);
+        expect(component.isPanelExpanded('display-options')).toBe(false);
+
+        component['currentNodeId'] = 99;
+        expect(component.isPanelExpanded('display-options')).toBe(false);
+      });
+    });
+
+    describe('save payload fields', () => {
+      it('builds visible and active on TreeNode without loadByDefault', async () => {
+        component.currentTreeType = constants.codeValue.treeType.cartography;
+        const treeNodeService = TestBed.inject(TreeNodeService);
+        let captured: any;
+        jest.spyOn(treeNodeService, 'save').mockImplementation((node: any) => {
+          captured = node;
+          return of({ ...node } as any);
+        });
+
+        const leaf = {
+          id: 7,
+          parent: null,
+          name: 'Leaf',
+          nodeType: constants.treeDomainKey.cartography,
+          cartographyId: 70,
+          status: constants.entityStatus.modified,
+          visible: false,
+          active: true,
+          order: 0,
+        };
+
+        await (component as any).updateAllTreeNodes(
+          [leaf],
+          0,
+          new Map(),
+          [],
+          null,
+          null,
+          { id: 1 } as any,
+          1
+        );
+
+        expect(captured.visible).toBe(false);
+        expect(captured.active).toBe(false);
+        expect(captured).not.toHaveProperty('loadByDefault');
+      });
     });
   });
 
