@@ -2,18 +2,17 @@ import { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/c
 
 import { Observable } from 'rxjs';
 
-/** Interceptor for authentication cookie in API requests */
+import { environment } from '@environments/environment';
+
+/** Adds credentials and the admin client-selector header to backend requests. */
 export class AuthInterceptor implements HttpInterceptor {
 
-    /** constructor*/
-    // Empty constructor - no dependencies needed
-
-    /** request handler */
     intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+        const isBackend = request.url.startsWith(environment.apiBaseURL);
         request = request.clone({
-            withCredentials: true
+            withCredentials: true,
+            ...(isBackend ? { setHeaders: { 'X-SITMUN-Client': 'admin' } } : {})
         });
-
         return next.handle(request);
     }
 

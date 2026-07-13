@@ -12,10 +12,10 @@ import {ResourceService} from '../hal';
 @Injectable()
 export class AuthService {
 
-  /** API resource path */
-  public AUTH_API = 'authenticate';
+  /** API resource path for admin login (issues admin_access_token). */
+  public AUTH_API = 'authenticate/admin';
 
-  public LOGOUT_API = `${this.AUTH_API}/logout`;
+  public LOGOUT_API = 'authenticate/logout';
 
   public AUTH_METHODS_API = 'auth/enabled-methods';
 

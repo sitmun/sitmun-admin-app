@@ -50,6 +50,7 @@ describe('AuthExpiredInterceptor', () => {
     for (const url of [
       'https://admin.example.test/backend/api/account',
       'https://admin.example.test/backend/api/authenticate',
+      'https://admin.example.test/backend/api/authenticate/admin',
       'https://admin.example.test/backend/api/authenticate/logout',
       'https://admin.example.test/backend/api/auth/enabled-methods',
       'https://admin.example.test/backend/api/login',

@@ -39,7 +39,25 @@ describe('AuthService', () => {
     expect(service).toBeTruthy();
   }));
 
-  it('should POST logout with credentials and return the HTTP response', inject([AuthService], (service: AuthService) => {
+  it('should POST to authenticate/admin on login', inject([AuthService], (service: AuthService) => {
+    let completed = false;
+
+    service.login({ username: 'admin', password: 'admin' }).subscribe({
+      next: (ok) => {
+        expect(ok).toBe(true);
+        completed = true;
+      },
+    });
+
+    const req = httpMock.expectOne((request) => request.url.endsWith('/authenticate/admin'));
+    expect(req.request.method).toBe('POST');
+    expect(req.request.withCredentials).toBe(true);
+    req.flush(null, { status: 200, statusText: 'OK' });
+
+    expect(completed).toBe(true);
+  }));
+
+  it('should POST logout to authenticate/logout with credentials', inject([AuthService], (service: AuthService) => {
     let completed = false;
 
     service.logout().subscribe({
