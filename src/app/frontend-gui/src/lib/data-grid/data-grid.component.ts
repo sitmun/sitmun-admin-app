@@ -59,6 +59,7 @@ import {
 import {BtnEditRenderedComponent} from '../btn-edit-rendered/btn-edit-rendered.component';
 import {DialogMessageComponent} from '../dialog-message/dialog-message.component';
 import {EditableLinkRendererComponent} from '../editable-link-renderer/editable-link-renderer.component';
+import {ExternalUrlRendererComponent} from '../external-url-renderer/external-url-renderer.component';
 import {RouterLinkRendererComponent} from '../router-link-renderer/router-link-renderer.component';
 
 // Removed jQuery dependency
@@ -525,6 +526,9 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
   /** Event emitter for visibility state */
   @Output() visible = new EventEmitter<HTMLElement>();
 
+  /** Emits true/false whenever the selection state changes */
+  @Output() selectionChanged = new EventEmitter<boolean>();
+
   /** Reference to the data grid element */
   @ViewChild('dataGrid', {static: true}) dataGrid: ElementRef;
 
@@ -566,6 +570,7 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
       onCellMouseOver: (params) => this.markTruncatedCell(params),
       onCellMouseOut: (params) => this.unmarkTruncatedCell(params),
       onCellClicked: (params) => this.expandTruncatedCellColumn(params),
+      onSelectionChanged: () => this.selectionChanged.emit(this.areRowsSelected()),
       defaultColDef: {
         filter: true,
         sortable: true,
@@ -617,7 +622,8 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
       btnCheckboxRendererComponent: BtnCheckboxRenderedComponent,
       btnCheckboxFilterComponent: BtnCheckboxFilterComponent,
       routerLinkRenderer: RouterLinkRendererComponent,
-      editableLinkRenderer: EditableLinkRendererComponent
+      editableLinkRenderer: EditableLinkRendererComponent,
+      externalUrlRenderer: ExternalUrlRendererComponent
     };
   }
 

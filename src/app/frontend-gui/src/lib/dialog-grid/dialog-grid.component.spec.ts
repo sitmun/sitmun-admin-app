@@ -169,6 +169,32 @@ describe('DialogGridComponent', () => {
     });
   });
 
+  describe('doAdd empty-selection guard', () => {
+    it('does not close when all selections are empty', () => {
+      component.getAllsTable = [() => of([]), () => of([])];
+      component.doAdd([[], []]);
+      expect(dialogRefClose).not.toHaveBeenCalled();
+    });
+
+    it('does not close when first selection is empty', () => {
+      component.getAllsTable = [() => of([]), () => of([])];
+      component.doAdd([[], [{ id: 1 }]]);
+      expect(dialogRefClose).not.toHaveBeenCalled();
+    });
+
+    it('closes when all selections have at least one item', () => {
+      component.getAllsTable = [() => of([]), () => of([])];
+      component.doAdd([[{ id: 1 }], [{ id: 2 }]]);
+      expect(dialogRefClose).toHaveBeenCalledWith(DIALOG_GRID_EVENTS.ADD([[{ id: 1 }], [{ id: 2 }]]));
+    });
+
+    it('closes for single-grid when selection has items', () => {
+      component.getAllsTable = [() => of([])];
+      component.doAdd([[{ id: 1 }]]);
+      expect(dialogRefClose).toHaveBeenCalled();
+    });
+  });
+
   describe('template', () => {
     it('preserves inactive tab content when multiple grids are shown', () => {
       expect(dialogGridTemplate).toContain('preserveContent="true"');

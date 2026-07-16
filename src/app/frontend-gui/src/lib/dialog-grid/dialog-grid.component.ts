@@ -266,7 +266,6 @@ export class DialogGridComponent implements OnInit {
   singleSelectionTable: boolean[];
   titlesTable: string[];
   orderTable: string[] = [];
-  addButtonClickedSubscription: Observable<boolean> ;
   nonEditable: boolean;
   addFieldRestriction: any[] = [];
   fieldRestrictionWithDifferentName: any[] = [];
@@ -276,16 +275,21 @@ export class DialogGridComponent implements OnInit {
     this.tablesReceivedCounter = 0;
   }
 
+  hasSelection: boolean[] = [];
+
+  get canAdd(): boolean {
+    return this.hasSelection.length > 0 && this.hasSelection.every(Boolean);
+  }
+
+  onSelectionChanged(index: number, has: boolean) {
+    this.hasSelection[index] = has;
+  }
+
   ngOnInit() {
     if (this.data) {
       Object.assign(this, { ...this.data});
     }
-    if (this.addButtonClickedSubscription) {
-      this.addButtonClickedSubscription.subscribe(() => {
-        this.getAllSelectedRows();
-      });
-    }
-    
+    this.hasSelection = new Array(this.getAllsTable?.length ?? 0).fill(false);
     // Data is already preloaded and width is set via openDialogGridWithPreload
     // Show content immediately
     this.contentVisible = true;
