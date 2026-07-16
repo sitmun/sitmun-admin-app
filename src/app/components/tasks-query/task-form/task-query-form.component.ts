@@ -10,6 +10,7 @@ import { firstValueFrom, map, of} from "rxjs";
 
 import {BaseFormComponent} from "@app/components/base-form.component";
 import {DataTableDefinition, TemplateDialog} from "@app/components/data-tables.util";
+import {defineTaskRolesTable} from "@app/components/task-roles-table.util";
 import {Configuration} from "@app/core/config/configuration";
 import {MessagesInterceptorStateService} from "@app/core/interceptors/messages.interceptor";
 import {
@@ -43,7 +44,6 @@ import {
   canKeepOrUpdate,
   onCreate,
   onDelete,
-  onUpdatedRelation,
   Status
 } from "@app/frontend-gui/src/lib/data-grid/data-grid.component";
 import {ErrorHandlerService} from "@app/services/error-handler.service";
@@ -726,40 +726,15 @@ export class TaskQueryFormComponent extends BaseFormComponent<TaskProjection> {
    * @returns Configured data table definition for roles
    */
   private defineRolesTable(): DataTableDefinition<Role, Role> {
-    return DataTableDefinition.builder<Role, Role>(this.dialog, this.errorHandler, this.loadingService)
-      .withRelationsColumns([
-        this.utils.getSelCheckboxColumnDef(),
-        this.utils.getRouterLinkColumnDef(
-          'common.form.name',
-          'name',
-          '/role/:id/roleForm',
-          {
-            id: 'id',
-          }
-        ),
-        this.utils.getNonEditableColumnDef('common.form.description', 'description'),
-        this.utils.getStatusColumnDef()
-      ])
-      .withRelationsOrder('name')
-      .withRelationsFetcher(() => {
-        if (this.isNew()) {
-          return of([]);
-        }
-        return this.entityToEdit.getRelationArrayEx(Role, 'roles', {projection: 'view'})
-      })
-      .withRelationsUpdater(async (roles: (Role & Status)[]) => {
-        await onUpdatedRelation(roles).forAll(item => this.entityToEdit.substituteAllRelation('roles', item));
-      })
-      .withTargetsColumns([
-        this.utils.getSelCheckboxColumnDef(),
-        this.utils.getNonEditableColumnDef('common.form.name', 'name'),
-        this.utils.getNonEditableColumnDef('common.form.description', 'description'),
-      ])
-      .withTargetsOrder('name')
-      .withTargetsFetcher(() => this.roleService.fetchAllItems())
-      .withTargetToRelation((items) => items)
-      .withTargetsTitle('entity.task.roles.title')
-      .build();
+    return defineTaskRolesTable({
+      dialog: this.dialog,
+      errorHandler: this.errorHandler,
+      loadingService: this.loadingService,
+      utils: this.utils,
+      roleService: this.roleService,
+      getEntityToEdit: () => this.entityToEdit,
+      isNew: () => this.isNew(),
+    });
   }
 
   /**

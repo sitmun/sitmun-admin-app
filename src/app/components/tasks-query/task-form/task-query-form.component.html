@@ -57,19 +57,24 @@
             <mat-select formControlName="taskGroupId" class="form-control">
               <mat-select-trigger>
                 <ng-container *ngIf="entityForm.get('taskGroupId')?.value as taskGroupId">
-                  <a [routerLink]="['/taskGroup', taskGroupId, 'taskGroupForm']"
-                     class="router-link">
-                    {{ getTaskGroupName(taskGroupId) }}
-                  </a>
+                  {{ getTaskGroupName(taskGroupId) }}
                 </ng-container>
               </mat-select-trigger>
               <mat-option [value]="taskGroup.id" *ngFor="let taskGroup of taskGroupList">
-                <a [routerLink]="['/taskGroup', taskGroup.id, 'taskGroupForm']"
-                   class="router-link">
-                  {{ taskGroup.name }}
-                </a>
-             </mat-option>
+                {{ taskGroup.name }}
+              </mat-option>
             </mat-select>
+            <a *ngIf="entityForm.get('taskGroupId')?.value as taskGroupId"
+               mat-icon-button
+               matSuffix
+               class="related-entity-open-link"
+               [routerLink]="['/taskGroup', taskGroupId, 'taskGroupForm']"
+               target="_blank"
+               rel="noopener"
+               [matTooltip]="'common.relation.openNewTab' | translate"
+               [attr.aria-label]="'common.relation.openNewTab' | translate">
+              <mat-icon class="related-entity-link-icon">open_in_new</mat-icon>
+            </a>
           </mat-form-field>
         </mat-card-content>
       </mat-card>
@@ -81,10 +86,7 @@
             <mat-select formControlName="connectionId" class="form-control">
               <mat-select-trigger>
                 <ng-container *ngIf="entityForm?.get('connectionId')?.value as connectionId">
-                  <a [routerLink]="['/connection', connectionId, 'connectionForm']"
-                     class="router-link">
-                    {{ getConnectionName(connectionId) }}
-                  </a>
+                  {{ getConnectionName(connectionId) }}
                 </ng-container>
                 <span *ngIf="!entityForm?.get('connectionId')?.value">
                   {{ 'common.form.none' | translate }}
@@ -92,14 +94,20 @@
               </mat-select-trigger>
               <mat-option [value]="null">{{ 'common.form.none' | translate }}</mat-option>
               <mat-option [value]="connection.id" *ngFor="let connection of connections">
-                <div>
-                  <a [routerLink]="['/connection', connection.id, 'connectionForm']"
-                     (click)="$event.stopPropagation()" class="router-link">
-                    <span>{{ connection.name }}</span>
-                  </a>
-                </div>
+                {{ connection.name }}
               </mat-option>
             </mat-select>
+            <a *ngIf="entityForm?.get('connectionId')?.value as connectionId"
+               mat-icon-button
+               matSuffix
+               class="related-entity-open-link"
+               [routerLink]="['/connection', connectionId, 'connectionForm']"
+               target="_blank"
+               rel="noopener"
+               [matTooltip]="'common.relation.openNewTab' | translate"
+               [attr.aria-label]="'common.relation.openNewTab' | translate">
+              <mat-icon class="related-entity-link-icon">open_in_new</mat-icon>
+            </a>
           </mat-form-field>
           <mat-form-field appearance="outline" class="full">
             <mat-label>{{ 'entity.task.query.sql' | translate }}</mat-label>
@@ -239,10 +247,7 @@
             <mat-select formControlName="cartographyId" class="form-control">
               <mat-select-trigger>
                 <ng-container *ngIf="entityForm?.get('cartographyId')?.value as cartographyId">
-                  <a [routerLink]="['/layers', cartographyId, 'layerForm']"
-                     class="router-link">
-                    {{ getCartographyName(cartographyId) }}
-                  </a>
+                  {{ getCartographyName(cartographyId) }}
                 </ng-container>
                 <span *ngIf="!entityForm?.get('cartographyId')?.value">
                   {{ 'common.form.none' | translate }}
@@ -250,14 +255,20 @@
               </mat-select-trigger>
               <mat-option [value]="null">{{ 'common.form.none' | translate }}</mat-option>
               <mat-option [value]="layer.id" *ngFor="let layer of cartographies">
-                <div>
-                  <a [routerLink]="['/layers', layer.id, 'layersForm']"
-                     (click)="$event.stopPropagation()" class="router-link">
-                    <span>{{ layer.name }}</span>
-                  </a>
-                </div>
+                {{ layer.name }}
               </mat-option>
             </mat-select>
+            <a *ngIf="entityForm?.get('cartographyId')?.value as cartographyId"
+               mat-icon-button
+               matSuffix
+               class="related-entity-open-link"
+               [routerLink]="['/layers', cartographyId, 'layersForm']"
+               target="_blank"
+               rel="noopener"
+               [matTooltip]="'common.relation.openNewTab' | translate"
+               [attr.aria-label]="'common.relation.openNewTab' | translate">
+              <mat-icon class="related-entity-link-icon">open_in_new</mat-icon>
+            </a>
           </mat-form-field>
         </mat-card-content>
       </mat-card>
