@@ -197,7 +197,11 @@ export class TaskGroupFormComponent extends BaseFormComponent<TaskGroup> {
         if (this.isNewOrDuplicated()) {
           return of([]);
         }
-        return this.taskService.fetchProjectionItemsByQueryString(TaskProjection, `group.id=${this.entityID}`);
+        return this.taskService.fetchProjectionItemsByQueryString(
+          TaskProjection,
+          `group.id=${this.entityID}`,
+          {params: [{key: 'lang', value: this.requestLang()}]},
+        );
       })
       .withRelationsUpdater(async (tasks: (TaskProjection & Status)[]) => {
         const groupProxy = this.taskGroupService.createProxy(this.entityID);
@@ -221,7 +225,9 @@ export class TaskGroupFormComponent extends BaseFormComponent<TaskGroup> {
         this.utils.getNonEditableColumnDef('common.form.type', 'typeTitle', 300),
       ])
       .withTargetsOrder('name')
-      .withTargetsFetcher(() => this.taskService.fetchProjectionItems(TaskProjection))
+      .withTargetsFetcher(() => this.taskService.fetchProjectionItems(TaskProjection, {
+        params: [{key: 'lang', value: this.requestLang()}],
+      }))
       .withTargetInclude((tasks: TaskProjection[]) => (item: TaskProjection) =>
         !tasks.some(t => t.id === item.id))
       .withFieldRestriction('id')

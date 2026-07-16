@@ -511,9 +511,9 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
         {...this.utils.getEditableColumnDef('entity.cartography.styles.parameters.name', 'name', 120), flex: 0},
         {...this.utils.getBooleanColumnDef('entity.cartography.styles.parameters.defaultStyle', 'defaultStyle', true, null, null, true),
           flex: 0, minWidth: 100, maxWidth: 120},
-        {...this.utils.getEditableColumnDef('entity.cartography.styles.parameters.title', 'title', 120), flex: 0},
-        {...this.utils.getEditableColumnDef('entity.cartography.styles.parameters.description', 'description', 100, 180), flex: 0},
-        {...this.utils.getEditableColumnWithLinkDef('entity.cartography.styles.parameters.url', 'legendURL.onlineResource', 200), flex: 1, minWidth: 200},
+        {...this.utils.getEditableColumnDef('entity.cartography.styles.parameters.title', 'title', 120), flex: 1, minWidth: 120},
+        {...this.utils.getEditableColumnDef('entity.cartography.styles.parameters.description', 'description', 140), flex: 2, minWidth: 140},
+        {...this.utils.getEditableColumnWithLinkDef('entity.cartography.styles.parameters.url', 'legendURL.onlineResource', 200), flex: 2, minWidth: 200},
         {...this.utils.getEditableColumnDef('entity.cartography.styles.parameters.format', 'legendURL.format', 100), flex: 0},
         {...this.utils.getEditableColumnDef('entity.cartography.styles.parameters.width', 'legendURL.width', 70), flex: 0},
         {...this.utils.getEditableColumnDef('entity.cartography.styles.parameters.height', 'legendURL.height', 70), flex: 0},
@@ -674,6 +674,7 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
   private defineTreesNodesTable(): DataTableDefinition<TreeNodeProjection, TreeNodeProjection> {
     return DataTableDefinition.builder<TreeNodeProjection, TreeNodeProjection>(this.dialog, this.errorHandler, this.loadingService)
       .withRelationsColumns([
+        this.utils.getSelCheckboxColumnDef(),
         {...this.utils.getRouterLinkColumnDef('entity.cartography.trees.name', 'treeName', '/trees/:id/treesForm', {id: 'treeId'}), flex: 0, minWidth: 150},
         {...this.utils.getNonEditableColumnDef('entity.cartography.trees.node', 'name', 120), flex: 1, minWidth: 120}
       ])

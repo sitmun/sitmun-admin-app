@@ -880,7 +880,7 @@ describe('TreeNodesComponent', () => {
   describe('Tree node task type filtering (query + edit)', () => {
     it('getAllTasks merges query and edit lists from two fetchAllItems calls and dedupes by id', async () => {
       const taskService: TaskService = TestBed.inject(TaskService);
-      jest.spyOn(taskService, 'fetchAllItems').mockImplementation((opts: { params?: { key: string; value: number }[] }) => {
+      jest.spyOn(taskService, 'fetchAllItems').mockImplementation((opts: { params?: { key: string; value: number | string }[] }) => {
         const typeId = opts?.params?.find((p) => p.key === 'type.id')?.value;
         if (typeId === config.tasksTypes.query) {
           return of([{ id: 1, name: 'Query task', typeId: config.tasksTypes.query }]);
@@ -898,6 +898,15 @@ describe('TreeNodesComponent', () => {
 
       expect(taskService.fetchAllItems).toHaveBeenCalledTimes(2);
       expect(merged.map((t: { id: number }) => t.id)).toEqual([1, 2]);
+      expect(taskService.fetchAllItems).toHaveBeenCalledWith(
+        expect.objectContaining({
+          params: expect.arrayContaining([
+            expect.objectContaining({key: 'lang', value: expect.any(String)}),
+          ]),
+        }),
+        undefined,
+        'tasks'
+      );
     });
 
     it('isAllowedTreeNodeTaskType allows query, edit, listed allTasks ids, and nested type.id', () => {
@@ -1116,6 +1125,38 @@ describe('TreeNodesComponent', () => {
       expect(component.getTaskFormLinkForTask({ id: 3, typeId: config.tasksTypes.query }))
         .toEqual(['/taskQuery', 3, config.tasksTypes.query]);
       expect(component.getTaskFormLinkForTask({ id: 4, typeId: config.tasksTypes.basic })).toBeNull();
+    });
+  });
+
+  describe('selected relation field actions', () => {
+    beforeEach(() => {
+      component.dataTree = { clearSelection: jest.fn(), setSelectionHighlight: jest.fn() } as any;
+    });
+
+    it('clearCartographySelection clears the selection and focuses the field', async () => {
+      setNodeContext('testTree', 'cartography', {
+        formPatch: {
+          cartographyId: 42,
+          cartography: { id: 42, name: 'Layer A' },
+          cartographyName: 'Layer A',
+        },
+      });
+      component.cartographyInputRef = {
+        nativeElement: { focus: jest.fn() },
+      } as any;
+      component.cartographyAutocompleteTrigger = {
+        openPanel: jest.fn(),
+      } as any;
+      jest.spyOn(component, 'updateNode').mockImplementation(() => undefined);
+      jest.spyOn(component as any, 'updateAvailableStyles').mockResolvedValue(undefined);
+
+      component.clearCartographySelection(new MouseEvent('mousedown'));
+      await new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
+
+      expect(component.treeNodeForm.get('cartographyId')?.value).toBeNull();
+      expect(component.treeNodeForm.get('cartography')?.value).toBe('');
+      expect(component.cartographyInputRef.nativeElement.focus).toHaveBeenCalled();
+      expect(component.cartographyAutocompleteTrigger.openPanel).toHaveBeenCalled();
     });
   });
 

@@ -276,6 +276,14 @@ describe('ApplicationFormComponent', () => {
       expect(component['rolesTable'].hasTemplateDialogs()).toBe(false);
     });
 
+    it('rolesTable name column uses the registered role form route', () => {
+      const nameColumn = component['rolesTable'].relationsColumnsDefs
+        .find(col => col.field === 'name');
+
+      expect(nameColumn?.cellRendererParams?.route).toBe('/role/:id/roleForm');
+      expect(nameColumn?.cellRendererParams?.route).not.toBe('/roles/:id/rolesForm');
+    });
+
     it('applicationBackgroundsTable should have picker-add, updater, status column, no template dialogs', () => {
       expect(component['applicationBackgroundsTable'].hasPickerAdd()).toBe(true);
       expect(component['applicationBackgroundsTable'].hasRelationsUpdater()).toBe(true);
@@ -339,6 +347,93 @@ describe('ApplicationFormComponent', () => {
       expect(component['treesTable'].hasRelationsUpdater()).toBe(true);
       expect(component['treesTable'].hasStatusColumn()).toBe(true);
       expect(component['treesTable'].hasTemplateDialogs()).toBe(false);
+    });
+  });
+
+  describe('headerParamsTable updater', () => {
+    it('calls applicationService.update exactly once after creating a new header param', async () => {
+      const updateSpy = jest.spyOn(applicationService, 'update').mockReturnValue(of({} as any));
+      component.entityToEdit = Object.assign(component.empty(), {
+        id: 5,
+        headerParams: { headerLeftSection: {}, headerRightSection: {} }
+      });
+      (component as any).entityID = 5;
+
+      const newRow = {
+        name: 'myParam',
+        url: 'http://example.com',
+        visible: true,
+        section: 'headerLeftSection',
+        status: 'pendingCreation',
+        newItem: true,
+      } as any;
+
+      await component['headerParamsTable']['relationsUpdateFn']([newRow]);
+
+      expect(updateSpy).toHaveBeenCalledTimes(1);
+      expect(component.entityToEdit.headerParams.headerLeftSection['myParam']).toEqual({
+        url: 'http://example.com',
+        visible: true,
+      });
+    });
+
+    it('calls applicationService.update exactly once when deleting a header param', async () => {
+      const updateSpy = jest.spyOn(applicationService, 'update').mockReturnValue(of({} as any));
+      component.entityToEdit = Object.assign(component.empty(), {
+        id: 5,
+        headerParams: {
+          headerLeftSection: { myParam: { url: 'http://old.com', visible: false } },
+          headerRightSection: {}
+        }
+      });
+
+      const deletedRow = {
+        name: 'myParam',
+        section: 'headerLeftSection',
+        status: 'pendingDelete',
+      } as any;
+
+      await component['headerParamsTable']['relationsUpdateFn']([deletedRow]);
+
+      expect(updateSpy).toHaveBeenCalledTimes(1);
+      expect(component.entityToEdit.headerParams.headerLeftSection['myParam']).toBeUndefined();
+    });
+
+    it('getAllHeaderParams uses stable section keys', () => {
+      component.entityToEdit = Object.assign(component.empty(), {
+        id: 5,
+        headerParams: {
+          headerLeftSection: { customLeft: { url: 'http://left.com', visible: true } },
+          headerRightSection: { customRight: { url: 'http://right.com', visible: false } },
+        }
+      });
+      (component as any).headerParams = component.entityToEdit.headerParams;
+      (component as any).headerBaseLeft = Object.keys((component as any).headerParams.headerLeftSection).filter(() => false);
+      (component as any).headerBaseRight = Object.keys((component as any).headerParams.headerRightSection).filter(() => false);
+
+      const result: any[] = [];
+      (component as any).getAllHeaderParams().subscribe((params: any[]) => result.push(...params));
+
+      const leftParam = result.find(p => p.name === 'customLeft');
+      const rightParam = result.find(p => p.name === 'customRight');
+      expect(leftParam?.section).toBe('headerLeftSection');
+      expect(rightParam?.section).toBe('headerRightSection');
+    });
+  });
+
+  describe('Picker deduplication', () => {
+    it('treesTable excludes already-added trees from the picker', () => {
+      const relations = [{ id: 1 }, { id: 2 }] as any;
+      const predicate = (component['treesTable'] as any).targetIncludeFn(relations);
+      expect(predicate({ id: 1 })).toBe(false);
+      expect(predicate({ id: 3 })).toBe(true);
+    });
+
+    it('rolesTable excludes already-added roles from the picker', () => {
+      const relations = [{ id: 10 }, { id: 20 }] as any;
+      const predicate = (component['rolesTable'] as any).targetIncludeFn(relations);
+      expect(predicate({ id: 10 })).toBe(false);
+      expect(predicate({ id: 30 })).toBe(true);
     });
   });
 

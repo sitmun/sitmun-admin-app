@@ -33,7 +33,9 @@ export class TaskTypeComponent extends BaseListComponent<TaskType> {
     dataFetchFn: () => of([]),
     rowModelMode: 'infinite',
     pageSize: INFINITE_PAGE_SIZE_DEFAULT,
-    infiniteBlockFetcher: createPagedInfiniteFetcher(this.taskTypeService),
+    infiniteBlockFetcher: createPagedInfiniteFetcher(this.taskTypeService, {
+      params: () => [{key: 'lang', value: this.requestLang()}],
+    }),
     progressiveLocalFilter: false,
     backendSearch: true,
     defaultColumnSorting: ['order'],

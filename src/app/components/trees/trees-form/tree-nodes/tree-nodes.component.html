@@ -92,26 +92,25 @@
                     </mat-expansion-panel-header>
                     <div class="flex-column-gap-16">
                       <div class="flex-row-gap-16">
-                        <mat-form-field appearance="outline" class="full entity-autocomplete-field"
-                          [class.entity-field-link-mode]="showCartographyAsLink"
-                          (click)="onCartographyFieldContainerClick($event)">
+                        <mat-form-field appearance="outline" class="full entity-autocomplete-field">
                           <mat-label>{{ 'entity.tree.cartography' | translate }}</mat-label>
                           <input #cartographyInput
                             matInput
                             type="text"
                             formControlName="cartography"
                             [matAutocomplete]="cartographyAutocomplete"
-                            [readonly]="showCartographyAsLink"
-                            placeholder="{{ 'entity.tree.cartography.select' | translate }}"
-                            (mousedown)="onCartographyFieldInputPointerDown($event)"
-                            (blur)="onCartographyFieldBlur($event)">
-                          <span *ngIf="showCartographyAsLink" class="entity-field-link-overlay">
-                            <a [routerLink]="getCartographyFormLink()!"
-                              class="router-link"
-                              (click)="$event.stopPropagation()">
-                              {{ displayCartography(treeNodeForm.get('cartography')?.value) }}
-                            </a>
-                          </span>
+                            placeholder="{{ 'entity.tree.cartography.select' | translate }}">
+                          <a *ngIf="getCartographyFormLink() as cartographyLink"
+                             mat-icon-button
+                             matSuffix
+                             class="related-entity-open-link"
+                             [routerLink]="cartographyLink"
+                             target="_blank"
+                             rel="noopener"
+                             [matTooltip]="'entity.tree.openCartography' | translate"
+                             [attr.aria-label]="'entity.tree.openCartography' | translate">
+                            <mat-icon class="related-entity-link-icon">open_in_new</mat-icon>
+                          </a>
                           <button mat-icon-button matSuffix type="button"
                             class="entity-field-clear-button"
                             *ngIf="hasCartographySelected && !cartographiesLoading"
@@ -126,14 +125,7 @@
                             <mat-option *ngFor="let cartography of filteredCartographies" [value]="cartography">
                               <div class="cartography-option">
                                 <div class="cartography-name-row">
-                                  <a *ngIf="getCartographyFormLinkForId(cartography.id) as link"
-                                    [routerLink]="link"
-                                    (click)="$event.stopPropagation()"
-                                    class="router-link cartography-name">
-                                    {{ cartography.name }}
-                                  </a>
-                                  <strong *ngIf="!getCartographyFormLinkForId(cartography.id)"
-                                    class="cartography-name">{{ cartography.name }}</strong>
+                                  <strong class="cartography-name">{{ cartography.name }}</strong>
                                   <span *ngIf="cartography.serviceName" class="cartography-detail">
                                     - {{ cartography.serviceName }}
                                   </span>
@@ -195,11 +187,19 @@
                         <mat-form-field appearance="outline" class="full">
                           <mat-label>{{ 'entity.tree.metadataURL' | translate }}</mat-label>
                           <input matInput type="text" formControlName="metadataURL">
+                          <app-external-url-link
+                            matSuffix
+                            [url]="treeNodeForm.get('metadataURL')?.value">
+                          </app-external-url-link>
                           <mat-hint align="start">{{ 'entity.tree.hint.metadataURL' | translate }}</mat-hint>
                         </mat-form-field>
                         <mat-form-field appearance="outline" class="full">
                           <mat-label>{{ 'entity.tree.datasetURL' | translate }}</mat-label>
                           <input matInput type="text" formControlName="datasetURL">
+                          <app-external-url-link
+                            matSuffix
+                            [url]="treeNodeForm.get('datasetURL')?.value">
+                          </app-external-url-link>
                           <mat-hint align="start">{{ 'entity.tree.hint.datasetURL' | translate }}</mat-hint>
                         </mat-form-field>
                       </div>
@@ -313,26 +313,25 @@
                     </mat-expansion-panel-header>
                     <div class="task-config-content">
                       <div class="task-config-row">
-                        <mat-form-field appearance="outline" class="task-config-task-field entity-autocomplete-field"
-                          [class.entity-field-link-mode]="showTaskAsLink"
-                          (click)="onTaskFieldContainerClick($event)">
+                        <mat-form-field appearance="outline" class="task-config-task-field entity-autocomplete-field">
                           <mat-label>{{ 'entity.task.label' | translate }}</mat-label>
                           <input #taskInput
                             matInput
                             type="text"
                             formControlName="task"
                             [matAutocomplete]="taskAutocomplete"
-                            [readonly]="showTaskAsLink"
-                            placeholder="{{ 'entity.tree.task.select' | translate }}"
-                            (mousedown)="onTaskFieldInputPointerDown($event)"
-                            (blur)="onTaskFieldBlur($event)">
-                          <span *ngIf="showTaskAsLink" class="entity-field-link-overlay">
-                            <a [routerLink]="getTaskFormLink()!"
-                              class="router-link"
-                              (click)="$event.stopPropagation()">
-                              {{ displayTask(treeNodeForm.get('task')?.value) }}
-                            </a>
-                          </span>
+                            placeholder="{{ 'entity.tree.task.select' | translate }}">
+                          <a *ngIf="getTaskFormLink() as taskLink"
+                             mat-icon-button
+                             matSuffix
+                             class="related-entity-open-link"
+                             [routerLink]="taskLink"
+                             target="_blank"
+                             rel="noopener"
+                             [matTooltip]="'entity.tree.openTask' | translate"
+                             [attr.aria-label]="'entity.tree.openTask' | translate">
+                            <mat-icon class="related-entity-link-icon">open_in_new</mat-icon>
+                          </a>
                           <button mat-icon-button matSuffix type="button"
                             class="entity-field-clear-button"
                             *ngIf="hasTaskSelected && !tasksLoading"
@@ -346,14 +345,7 @@
                             <mat-option *ngFor="let task of filteredTasks; trackBy: trackTaskOptionById" [value]="task">
                               <div class="task-option">
                                 <div class="task-name-row">
-                                  <a *ngIf="getTaskFormLinkForTask(task) as link"
-                                    [routerLink]="link"
-                                    (click)="$event.stopPropagation()"
-                                    class="router-link task-name">
-                                    {{ task.name }}
-                                  </a>
-                                  <strong *ngIf="!getTaskFormLinkForTask(task)"
-                                    class="task-name">{{ task.name }}</strong>
+                                  <strong class="task-name">{{ task.name }}</strong>
                                   <ng-container *ngIf="getTaskKindDisplayForListItem(task) as kindLabel">
                                     <span class="task-detail"> - {{ kindLabel }}</span>
                                   </ng-container>

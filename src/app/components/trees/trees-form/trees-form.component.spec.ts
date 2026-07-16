@@ -1076,11 +1076,51 @@ describe('TreesFormComponent', () => {
       expect(component['rolesTable'].hasTemplateDialogs()).toBe(false);
     });
 
+    it('rolesTable name links to the role form and omits the id column', () => {
+      const columns = component['rolesTable'].relationsColumnsDefs;
+      const nameColumn = columns.find((column: { field?: string }) => column.field === 'name');
+
+      expect(columns.some((column: { field?: string }) => column.field === 'id')).toBe(false);
+      expect(nameColumn?.cellRenderer).toBe('routerLinkRenderer');
+      expect(nameColumn?.cellRendererParams).toEqual({
+        route: '/role/:id/roleForm',
+        paramFields: { id: 'id' },
+      });
+    });
+
     it('applicationsTable should have picker-add, updater, status column, no template dialogs', () => {
       expect(component['applicationsTable'].hasPickerAdd()).toBe(true);
       expect(component['applicationsTable'].hasRelationsUpdater()).toBe(true);
       expect(component['applicationsTable'].hasStatusColumn()).toBe(true);
       expect(component['applicationsTable'].hasTemplateDialogs()).toBe(false);
+    });
+
+    it('applicationsTable name links to the application form and omits the id column', () => {
+      const columns = component['applicationsTable'].relationsColumnsDefs;
+      const nameColumn = columns.find((column: { field?: string }) => column.field === 'name');
+
+      expect(columns.some((column: { field?: string }) => column.field === 'id')).toBe(false);
+      expect(nameColumn?.cellRenderer).toBe('routerLinkRenderer');
+      expect(nameColumn?.cellRendererParams).toEqual({
+        route: '/application/:id/applicationForm',
+        paramFields: { id: 'id' },
+      });
+    });
+
+    describe('Picker deduplication', () => {
+      it('rolesTable excludes already-added roles from the picker', () => {
+        const relations = [{ id: 10 }, { id: 20 }] as any;
+        const predicate = (component['rolesTable'] as any).targetIncludeFn(relations);
+        expect(predicate({ id: 10 })).toBe(false);
+        expect(predicate({ id: 30 })).toBe(true);
+      });
+
+      it('applicationsTable excludes already-added applications by id from the picker', () => {
+        const relations = [{ id: 1 }, { id: 2 }] as any;
+        const predicate = (component['applicationsTable'] as any).targetIncludeFn(relations);
+        expect(predicate({ id: 1 })).toBe(false);
+        expect(predicate({ id: 3 })).toBe(true);
+      });
     });
 
     it('validateTreeTypeChange reads current application rows from applicationsGrid', async () => {

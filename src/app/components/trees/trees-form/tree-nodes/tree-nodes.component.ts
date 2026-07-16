@@ -145,16 +145,12 @@ export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
   allCartographies: any[] = [];
   cartographiesLoaded = false;
   cartographiesLoading = false;
-  cartographyFieldEditing = false;
-  private cartographyFieldBlurTimeout: ReturnType<typeof setTimeout> | null = null;
 
   // Task autocomplete properties
   filteredTasks: any[] = [];
   allTasks: any[] = [];
   tasksLoaded = false;
   tasksLoading = false;
-  taskFieldEditing = false;
-  private taskFieldBlurTimeout: ReturnType<typeof setTimeout> | null = null;
 
   @ViewChild('cartographyInput') cartographyInputRef?: ElementRef<HTMLInputElement>;
   @ViewChild('cartographyInput', { read: MatAutocompleteTrigger })
@@ -1194,8 +1190,6 @@ export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
     const nodeParent = emitedObj.nodeParent;
     this.suppressPanelStateUpdates = true;
     this.newElement = false;
-    this.cartographyFieldEditing = false;
-    this.taskFieldEditing = false;
     this.treeNodeForm.reset({ emitEvent: false });
 
     const nodeType = (node.nodeType && (typeof node.nodeType !== 'string' || node.nodeType.trim() !== ''))
@@ -1644,11 +1638,12 @@ export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
   };
 
   getAllTasks = (): Observable<any> => {
+    const lang: HalParam = {key: 'lang', value: this.requestLang()};
     const queryOpts: HalOptions = {
-      params: [{ key: 'type.id', value: config.tasksTypes.query } as HalParam]
+      params: [{key: 'type.id', value: config.tasksTypes.query} as HalParam, lang]
     };
     const editOpts: HalOptions = {
-      params: [{ key: 'type.id', value: config.tasksTypes.edit } as HalParam]
+      params: [{key: 'type.id', value: config.tasksTypes.edit} as HalParam, lang]
     };
     return forkJoin({
       queryTasks: this.taskService.fetchAllItems(queryOpts, undefined, 'tasks'),
@@ -1659,6 +1654,14 @@ export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
       )
     );
   };
+
+  /** UI language for HAL requests that need backend `@I18n` resolution (`lang` query param). */
+  private requestLang(): string {
+    if (localStorage.lang) {
+      return localStorage.lang;
+    }
+    return this.translateService.currentLang || config.defaultLang;
+  }
 
   /**
    * Merges query- and edit-type task lists from two API calls (single type.id filter per request).
@@ -2090,7 +2093,11 @@ export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
       .map(c => c.key)[0] ?? null;
     this.fieldsConfigForm.patchValue({ selectedMappingTarget: firstNonLabelKey });
 
-    const dialogRef = this.dialog.open(DialogFormComponent);
+    const dialogRef = this.dialog.open(DialogFormComponent, {
+      panelClass: 'formDialogs',
+      width: '640px',
+      maxWidth: '90vw',
+    });
     dialogRef.componentInstance.HTMLReceived = this.fieldsConfigDialog;
     dialogRef.componentInstance.title = this.utils.getTranslate('entity.tree.fieldsConfig');
     dialogRef.componentInstance.form = this.fieldsConfigForm;
@@ -3723,78 +3730,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
         }
       }
     }
-    this.cartographyFieldEditing = false;
     this.cdr.markForCheck();
-  }
-
-  /** Selected cartography shown as an in-field link (mat-select-trigger style). */
-  get showCartographyAsLink(): boolean {
-    return !this.cartographyFieldEditing && this.getCartographyFormLink() != null;
-  }
-
-  /** Selected task shown as an in-field link (mat-select-trigger style). */
-  get showTaskAsLink(): boolean {
-    return !this.taskFieldEditing && this.getTaskFormLink() != null;
-  }
-
-  startCartographyEdit(): void {
-    this.cancelCartographyFieldBlur();
-    this.cartographyFieldEditing = true;
-    this.cdr.markForCheck();
-    setTimeout(() => this.cartographyInputRef?.nativeElement?.focus());
-  }
-
-  startTaskEdit(): void {
-    this.cancelTaskFieldBlur();
-    this.taskFieldEditing = true;
-    this.cdr.markForCheck();
-    setTimeout(() => this.taskInputRef?.nativeElement?.focus());
-  }
-
-  private cancelCartographyFieldBlur(): void {
-    if (this.cartographyFieldBlurTimeout != null) {
-      clearTimeout(this.cartographyFieldBlurTimeout);
-      this.cartographyFieldBlurTimeout = null;
-    }
-  }
-
-  private cancelTaskFieldBlur(): void {
-    if (this.taskFieldBlurTimeout != null) {
-      clearTimeout(this.taskFieldBlurTimeout);
-      this.taskFieldBlurTimeout = null;
-    }
-  }
-
-  onCartographyFieldBlur(event: FocusEvent): void {
-    const related = event.relatedTarget as HTMLElement | null;
-    if (related?.closest('.entity-field-clear-button')) {
-      return;
-    }
-    this.cancelCartographyFieldBlur();
-    this.cartographyFieldBlurTimeout = setTimeout(() => {
-      this.cartographyFieldBlurTimeout = null;
-      this.cartographyFieldEditing = false;
-      this.cdr.markForCheck();
-    }, 150);
-  }
-
-  onCartographyFieldContainerClick(event: MouseEvent): void {
-    if (!this.showCartographyAsLink) {
-      return;
-    }
-    const target = event.target as HTMLElement;
-    if (target.closest('.entity-field-link-overlay a.router-link')) {
-      return;
-    }
-    this.startCartographyEdit();
-  }
-
-  onCartographyFieldInputPointerDown(event: MouseEvent): void {
-    if (!this.showCartographyAsLink) {
-      return;
-    }
-    event.preventDefault();
-    this.startCartographyEdit();
   }
 
   /**
@@ -3803,7 +3739,6 @@ export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
   clearCartographySelection(event?: MouseEvent): void {
     event?.preventDefault();
     event?.stopPropagation();
-    this.cancelCartographyFieldBlur();
 
     this.treeNodeForm.patchValue({
       cartography: '',
@@ -3812,7 +3747,6 @@ export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
     });
     this.filteredCartographies = [...this.allCartographies];
     this.currentNodeCartography = null;
-    this.cartographyFieldEditing = true;
     void this.updateAvailableStyles(null);
     if (!this.newElement && this.treeNodeForm.get('id')?.value >= 0) {
       this.treeNodeForm.patchValue({ status: 'Modified' });
@@ -3827,52 +3761,18 @@ export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
     });
   }
 
-  onTaskFieldBlur(event: FocusEvent): void {
-    const related = event.relatedTarget as HTMLElement | null;
-    if (related?.closest('.entity-field-clear-button')) {
-      return;
-    }
-    this.cancelTaskFieldBlur();
-    this.taskFieldBlurTimeout = setTimeout(() => {
-      this.taskFieldBlurTimeout = null;
-      this.taskFieldEditing = false;
-      this.cdr.markForCheck();
-    }, 150);
-  }
-
-  onTaskFieldContainerClick(event: MouseEvent): void {
-    if (!this.showTaskAsLink) {
-      return;
-    }
-    const target = event.target as HTMLElement;
-    if (target.closest('.entity-field-link-overlay a.router-link')) {
-      return;
-    }
-    this.startTaskEdit();
-  }
-
-  onTaskFieldInputPointerDown(event: MouseEvent): void {
-    if (!this.showTaskAsLink) {
-      return;
-    }
-    event.preventDefault();
-    this.startTaskEdit();
-  }
-
   /**
    * Clears the selected task (user-initiated unset).
    */
   clearTaskSelection(event?: MouseEvent): void {
     event?.preventDefault();
     event?.stopPropagation();
-    this.cancelTaskFieldBlur();
     this.treeNodeForm.patchValue({
       task: null,
       taskName: null,
       taskId: null
     });
     this.currentNodeTask = null;
-    this.taskFieldEditing = false;
     if (!this.newElement && this.treeNodeForm.get('id')?.value >= 0) {
       this.treeNodeForm.patchValue({ status: 'Modified' });
     }
@@ -3909,7 +3809,6 @@ export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
     if (task?.id) {
       this.loadFullTaskForParameterGuidance(task.id);
     }
-    this.taskFieldEditing = false;
     this.cdr.markForCheck();
   }
 

@@ -1545,6 +1545,21 @@ describe('ServiceFormComponent', () => {
       expect(table.hasTemplateDialogs()).toBe(false);
       expect(table.supportsDuplicate()).toBe(false);
     });
+
+    it('layersTable title links existing layers to the layer form and keeps unregistered rows editable', () => {
+      const table = component['layersTable'];
+      const titleColumn = table.relationsColumnsDefs.find((column: { field?: string }) => column.field === 'name');
+
+      expect(titleColumn).toBeTruthy();
+      expect(titleColumn.cellRenderer).toBe('routerLinkRenderer');
+      expect(titleColumn.cellRendererParams).toEqual({
+        route: '/layers/:id/layersForm',
+        paramFields: { id: 'id' },
+      });
+      expect(typeof titleColumn.editable).toBe('function');
+      expect(titleColumn.editable({ data: { id: 42 } })).toBe(false);
+      expect(titleColumn.editable({ data: { status: 'unregisteredLayer' } })).toBe(true);
+    });
   });
 
   describe('onUpdateServiceMetadata multilingual translations', () => {

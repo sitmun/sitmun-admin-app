@@ -796,8 +796,7 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
     return DataTableDefinition.builder<Application, Application>(this.dialog, this.errorHandler, this.loadingService)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
-        this.utils.getIdColumnDef(),
-        this.utils.getEditableColumnDef('entity.tree.name', 'name'),
+        this.utils.getRouterLinkColumnDef('common.form.name', 'name', '/application/:id/applicationForm', {id: 'id'}),
         this.utils.getStatusColumnDef()
       ])
       .withRelationsOrder('name')
@@ -816,16 +815,13 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
       })
       .withTargetsColumns([
         this.utils.getSelCheckboxColumnDef(),
-        this.utils.getIdColumnDef(),
-        this.utils.getNonEditableColumnDef('entity.permissionGroup.name', 'name'),
+        this.utils.getNonEditableColumnDef('common.form.name', 'name'),
       ])
       .withTargetsOrder('name')
       .withTargetsFetcher(() => this.applicationService.fetchAllItems())
-      .withTargetInclude((applications: Application[]) => (target: Application) => {
-        // Prevent duplicates: filter out applications where target's name matches any existing relation's name
-        // This preserves the original fieldRestrictionWithDifferentName behavior
-        return !applications.some(app => app.name === target.name);
-      })
+      .withTargetInclude((relations) => (target) =>
+        !relations.some((relation) => relation.id === target.id)
+      )
       .withTargetToRelation((items) => items)
       .withTargetsTitle('entity.permissionGroup.applications.header')
       .build();
@@ -841,8 +837,7 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
     return DataTableDefinition.builder<Role, Role>(this.dialog, this.errorHandler, this.loadingService)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
-        this.utils.getIdColumnDef(),
-        this.utils.getEditableColumnDef('entity.role.name', 'name'),
+        this.utils.getRouterLinkColumnDef('common.form.name', 'name', '/role/:id/roleForm', {id: 'id'}),
         this.utils.getStatusColumnDef()
       ])
       .withRelationsOrder('name')
@@ -861,11 +856,13 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
       })
       .withTargetsColumns([
         this.utils.getSelCheckboxColumnDef(),
-        this.utils.getIdColumnDef(),
-        this.utils.getNonEditableColumnDef('entity.role.name', 'name'),
+        this.utils.getNonEditableColumnDef('common.form.name', 'name'),
       ])
       .withTargetsOrder('name')
       .withTargetsFetcher(() => this.roleService.fetchAllItems())
+      .withTargetInclude((relations) => (target) =>
+        !relations.some((relation) => relation.id === target.id)
+      )
       .withTargetToRelation((items) => items)
       .withTargetsTitle('entity.tree.roles')
       .build();

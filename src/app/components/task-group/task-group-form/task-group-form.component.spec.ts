@@ -78,6 +78,39 @@ describe('TaskGroupFormComponent', () => {
     expect(component).toBeTruthy();
   });
 
+  it('tasksTable relations request typeTitle with UI lang so backend @I18n applies', () => {
+    component.entityID = 5;
+    jest.spyOn(component, 'isNewOrDuplicated').mockReturnValue(false);
+    const spy = jest.spyOn(taskService, 'fetchProjectionItemsByQueryString').mockReturnValue(of([]));
+
+    component['tasksTable'].relationsFetchFn();
+
+    expect(spy).toHaveBeenCalledWith(
+      TaskProjection,
+      'group.id=5',
+      expect.objectContaining({
+        params: expect.arrayContaining([
+          expect.objectContaining({key: 'lang', value: expect.any(String)}),
+        ]),
+      })
+    );
+  });
+
+  it('tasksTable targets request typeTitle with UI lang so backend @I18n applies', () => {
+    const spy = jest.spyOn(taskService, 'fetchProjectionItems').mockReturnValue(of([]));
+
+    (component['tasksTable'] as unknown as {targetsFetchFn: () => unknown}).targetsFetchFn();
+
+    expect(spy).toHaveBeenCalledWith(
+      TaskProjection,
+      expect.objectContaining({
+        params: expect.arrayContaining([
+          expect.objectContaining({key: 'lang', value: expect.any(String)}),
+        ]),
+      })
+    );
+  });
+
   it('should instantiate taskGroupService', () => {
     expect(taskGroupService).toBeTruthy();
   });

@@ -6,6 +6,19 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Fixed
 
+- **Task types**: list, task-group Tasks grids, and tree-node task pickers request `lang` so backend `@I18n` resolves `title` / `typeTitle`.
+- **Territory/Tasks**: task type titles request `lang` so backend `@I18n` resolves `taskTypeTitle` for the UI language.
+- **Grids**: boolean column headers are left-aligned and stay visible; selection checkboxes keep a separate header class; territory Permissions fills remaining width via flex on user/role while “applies to children” stays bounded.
+- **Territory**: Cartography tab columns are name, layers, service (service navigable); Tasks Type shows the localized `taskTypeTitle` instead of the internal type name.
+- **Territory**: Permissions, Cartography, and Tasks relation grids link user/role, layer/service, and task names with dual navigation.
+- **Layers permits**: Type select keeps the current value visible when it is outside the create-time filter (e.g. background map groups opened by direct URL).
+- **Background layers**: Image is treated as an optional http(s) URL with a new-tab open action, matching backend `@Http` semantics.
+- **Trees**: Applications and Roles relation grids drop the id column and link names to the application/role forms, matching other relation grids.
+- **Forms/URLs**: editable URL fields no longer navigate when their text is clicked; a Material-aligned suffix action opens valid URLs in a new tab, and grid external links use the same icon and accessibility contract.
+- **Layers**: Service selection text is plain so the selector opens normally, with a new-tab icon retained; editable style legend URL cells keep plain text and isolate navigation to a separate icon ([#376](https://github.com/sitmun/sitmun-admin-app/issues/376)).
+- **Layers**: Trees tab keeps a selection checkbox column so read-only rows can still be selected for download.
+- **Services**: existing layers in the service form Layers grid link to the layer form; unregistered capability rows stay plain text and remain editable.
+- **Forms**: relation selects and tree relation autocompletes keep plain selected text so controls open and edit normally; only the adjacent `open_in_new` icon navigates in a new tab. Entity lists and relation grids retain dual navigation ([#376](https://github.com/sitmun/sitmun-admin-app/issues/376)).
 - **Trees**: radio folder persistence normalizes via `resolvePersistedRadio`; sibling load-by-default saves deactivate before activate to avoid backend radio conflicts; invalid direct children block radio enable and folder placement under radio parents.
 - **Data grid**: resolves AG Grid `autoSizeStrategy` before grid initialization and no longer updates the Initial-only option after `onGridReady`, removing the console warning.
 - **Services**: proxy and authentication are grouped in one card; authentication fields stay visible but are disabled until **Use SITMUN proxy** is enabled, and disabling proxy clears stored credentials in the form to match runtime behavior.
@@ -40,4 +53,4 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Added
 
-- **Tests**: Jest coverage for WMS metadata parsing, service-form translation prefill, coalesced auth/session validation, admin guard rights feedback, HAL credentials, dialog Add validation, grid selection batching, layers form markup, and feature-flag icon a11y.
+- **Tests**: Jest coverage for WMS metadata parsing, service-form translation prefill, coalesced auth/session validation, admin guard rights feedback, HAL credentials, dialog Add validation, grid selection batching, layers form markup, feature-flag icon a11y, dual internal-navigation markup, external URL suffix/grid renderers, and relation-selector/autocomplete overlay regression coverage.

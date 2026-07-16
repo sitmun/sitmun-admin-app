@@ -83,10 +83,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
    */
   readonly parametersTable: DataTableDefinition<ApplicationParameter, ApplicationParameter>
 
-  headerParamsSection: Array<any> = [
-    this.utils.getTranslate('entity.application.header.headerLeftSection'),
-    this.utils.getTranslate('entity.application.header.headerRightSection')
-  ];
+  headerParamsSection: string[] = ['headerLeftSection', 'headerRightSection'];
 
   /**
    * Data table configuration for managing application roles.
@@ -565,9 +562,9 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
     return DataTableDefinition.builder<ApplicationParameter, ApplicationParameter>(this.dialog, this.errorHandler, this.loadingService)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
-        this.utils.getEditableColumnDef('common.form.name', 'name'),
-        this.utils.getEditableColumnDef('common.form.value', 'value'),
-        this.utils.getNonEditableColumnDef('common.form.type', 'typeDescription'),
+        Object.assign(this.utils.getEditableColumnDef('common.form.name', 'name'), {flex: 1, minWidth: 140}),
+        Object.assign(this.utils.getEditableColumnDef('common.form.value', 'value'), {flex: 2, minWidth: 160}),
+        Object.assign(this.utils.getNonEditableColumnDef('common.form.type', 'typeDescription'), {flex: 0, minWidth: 120}),
         this.utils.getStatusColumnDef()
       ])
       .withRelationsOrder('name')
@@ -618,10 +615,10 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
     return DataTableDefinition.builder<ApplicationHeaderParameter, ApplicationHeaderParameter>(this.dialog, this.errorHandler, this.loadingService)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
-        this.utils.getNonEditableColumnDef('entity.application.header.name', 'name'),
-        this.utils.getEditableColumnDef('entity.application.header.url', 'url'),
-        this.utils.getBooleanColumnDef('entity.application.header.visible', 'visible', true),
-        this.utils.getSelectColumnDef('entity.application.header.section', 'section', true, () => this.headerParamsSection),
+        Object.assign(this.utils.getNonEditableColumnDef('entity.application.header.name', 'name'), {flex: 1, minWidth: 140}),
+        Object.assign(this.utils.getEditableColumnDef('entity.application.header.url', 'url'), {flex: 2, minWidth: 200}),
+        Object.assign(this.utils.getBooleanColumnDef('entity.application.header.visible', 'visible', true), {flex: 0, minWidth: 80, maxWidth: 80}),
+        Object.assign(this.utils.getSelectColumnDef('entity.application.header.section', 'section', true, () => this.headerParamsSection), {flex: 0, minWidth: 160}),
         this.utils.getStatusColumnDef()])
       .withRelationsOrder('name')
       .withRelationsFetcher(() => {
@@ -633,49 +630,36 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
       .withRelationsUpdater(async (applicationParameters: (ApplicationHeaderParameter & Status)[]) => {
         this.entityToEdit.headerParams = this.entityToEdit.headerParams ?? this.headerParams;
 
-        const handleCreate = new Promise(() => {
-          onCreate(applicationParameters).forEach(item => {
-            const object = {
-              url: item.url,
-              visible: item.visible
-            }
-            if (item.section == this.utils.getTranslate('entity.application.header.headerLeftSection'))
-              this.entityToEdit.headerParams.headerLeftSection[item.name] = object;
-            else if (item.section == this.utils.getTranslate('entity.application.header.headerRightSection'))
-              this.entityToEdit.headerParams.headerRightSection[item.name] = object;
-            const newItem = Application.fromObject(this.entityToEdit);
-            return this.applicationService.update(newItem)
-          });
+        await onCreate(applicationParameters).forEach(item => {
+          const object = { url: item.url, visible: item.visible };
+          if (item.section === 'headerLeftSection') {
+            this.entityToEdit.headerParams.headerLeftSection[item.name] = object;
+          } else if (item.section === 'headerRightSection') {
+            this.entityToEdit.headerParams.headerRightSection[item.name] = object;
+          }
+          return of(null);
         });
 
-        const handleUpdate = new Promise(() => {
-          onUpdate(applicationParameters).forEach(item => {
-            const object = {
-              url: item.url,
-              visible: item.visible
-            }
-            if (item.section == this.utils.getTranslate('entity.application.header.headerLeftSection')) {
-              this.entityToEdit.headerParams.headerLeftSection[item.name] = object;
-              delete this.entityToEdit.headerParams.headerRightSection[item.name];
-            } else if (item.section == this.utils.getTranslate('entity.application.header.headerRightSection')) {
-              this.entityToEdit.headerParams.headerRightSection[item.name] = object;
-              delete this.entityToEdit.headerParams.headerLeftSection[item.name];
-            }
-            const newItem = Application.fromObject(this.entityToEdit);
-            return this.applicationService.update(newItem)
-          });
-        });
-
-        const handleDelete = new Promise(() => {
-          onDelete(applicationParameters).forEach(item => {
-            delete this.entityToEdit.headerParams.headerLeftSection[item.name];
+        await onUpdate(applicationParameters).forEach(item => {
+          const object = { url: item.url, visible: item.visible };
+          if (item.section === 'headerLeftSection') {
+            this.entityToEdit.headerParams.headerLeftSection[item.name] = object;
             delete this.entityToEdit.headerParams.headerRightSection[item.name];
-            const newItem = Application.fromObject(this.entityToEdit);
-            return this.applicationService.update(newItem)
-          });
+          } else if (item.section === 'headerRightSection') {
+            this.entityToEdit.headerParams.headerRightSection[item.name] = object;
+            delete this.entityToEdit.headerParams.headerLeftSection[item.name];
+          }
+          return of(null);
         });
 
-        void Promise.allSettled([handleCreate, handleUpdate, handleDelete]);
+        await onDelete(applicationParameters).forEach(item => {
+          delete this.entityToEdit.headerParams.headerLeftSection[item.name];
+          delete this.entityToEdit.headerParams.headerRightSection[item.name];
+          return of(null);
+        });
+
+        const newItem = Application.fromObject(this.entityToEdit);
+        await firstValueFrom(this.applicationService.update(newItem));
         this.headerParams = this.entityToEdit.headerParams;
       })
       .withTemplateDialog('newHeaderParamDialog', () => {
@@ -702,7 +686,8 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
                 nonNullable: true
               })
             })
-          ).build();
+          ).withPreOpenFunction((form) => form.reset({ name: '', url: '', visible: false, section: '' }))
+          .build();
       })
       .withTargetsTitle('entity.application.header.title')
       .withTargetsOrder('name')
@@ -741,6 +726,9 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
       ])
       .withTargetsOrder('name')
       .withTargetsFetcher(() => this.treeService.fetchAllItems())
+      .withTargetInclude((relations) => (target) =>
+        !relations.some((relation) => relation.id === target.id)
+      )
       .withTargetToRelation((items) => items)
       .withTargetsTitle('entity.application.trees.title')
       .build();
@@ -756,7 +744,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
     return DataTableDefinition.builder<Role, Role>(this.dialog, this.errorHandler, this.loadingService)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
-        this.utils.getRouterLinkColumnDef('common.form.name', 'name', '/roles/:id/rolesForm', {id: 'id'}),
+        this.utils.getRouterLinkColumnDef('common.form.name', 'name', '/role/:id/roleForm', {id: 'id'}),
         this.utils.getNonEditableColumnDef('common.form.description', 'description'),
         this.utils.getStatusColumnDef()
       ])
@@ -777,6 +765,9 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
       ])
       .withTargetsOrder('name')
       .withTargetsFetcher(() => this.roleService.fetchAllItems())
+      .withTargetInclude((relations) => (target) =>
+        !relations.some((relation) => relation.id === target.id)
+      )
       .withTargetToRelation((items) => items)
       .withTargetsTitle('entity.application.roles.title')
       .build();
@@ -792,9 +783,9 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
     return DataTableDefinition.builder<ApplicationBackgroundProjection, BackgroundProjection>(this.dialog, this.errorHandler, this.loadingService)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
-        this.utils.getRouterLinkColumnDef('common.form.name', 'backgroundName', '/backgroundLayers/:id/backgroundLayersForm', {id: 'backgroundId'}),
-        this.utils.getNonEditableColumnDef('common.form.description', 'backgroundDescription'),
-        this.utils.getEditableColumnDef('common.form.order', 'order'),
+        Object.assign(this.utils.getRouterLinkColumnDef('common.form.name', 'backgroundName', '/backgroundLayers/:id/backgroundLayersForm', {id: 'backgroundId'}), {flex: 1, minWidth: 140}),
+        Object.assign(this.utils.getNonEditableColumnDef('common.form.description', 'backgroundDescription'), {flex: 2, minWidth: 160}),
+        Object.assign(this.utils.getEditableColumnDef('common.form.order', 'order'), {flex: 0, minWidth: 80, maxWidth: 100}),
         this.utils.getStatusColumnDef()
       ])
       .withRelationsOrder('order')
@@ -917,7 +908,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
       object.url = value.url;
       object.name = key;
       object.visible = value.visible;
-      object.section = this.utils.getTranslate('entity.application.header.headerLeftSection');
+      object.section = 'headerLeftSection';
       result.push(object);
     });
 
@@ -926,7 +917,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
       object.url = value.url;
       object.name = key;
       object.visible = value.visible;
-      object.section = this.utils.getTranslate('entity.application.header.headerRightSection');
+      object.section = 'headerRightSection';
       result.push(object);
     });
 

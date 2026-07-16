@@ -34,6 +34,7 @@ import {ErrorHandlerService} from "@app/services/error-handler.service";
 import {LoadingOverlayService} from "@app/services/loading-overlay.service";
 import {LoggerService} from "@app/services/logger.service";
 import {UtilsService} from '@app/services/utils.service';
+import {optionalHttpOrHttpsUrlValidator} from '@app/validators/optional-http-url.validator';
 import {constants} from "@environments/constants";
 
 /**
@@ -235,7 +236,10 @@ export class BackgroundLayersFormComponent extends BaseFormComponent<BackgroundP
     this.entityForm = new UntypedFormGroup({
       name: new UntypedFormControl(this.entityToEdit.name, [Validators.required]),
       description: new UntypedFormControl(this.entityToEdit.description),
-      image: new UntypedFormControl(this.entityToEdit.image),
+      image: new UntypedFormControl(this.entityToEdit.image, [
+        Validators.maxLength(4000),
+        optionalHttpOrHttpsUrlValidator,
+      ]),
       active: new UntypedFormControl(this.entityToEdit.active),
     });
   }
@@ -317,6 +321,9 @@ export class BackgroundLayersFormComponent extends BaseFormComponent<BackgroundP
       ])
       .withTargetsOrder('name')
       .withTargetsFetcher(() => this.roleService.fetchAllItems())
+      .withTargetInclude((relations) => (target) =>
+        !relations.some((relation) => relation.id === target.id)
+      )
       .withTargetsTitle('entity.permissionGroup.roles.title')
       .withTargetToRelation((items) => items)
       .build();

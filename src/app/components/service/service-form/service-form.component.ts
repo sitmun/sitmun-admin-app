@@ -580,9 +580,20 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
     return DataTableDefinition.builder<CartographyProjection, CartographyProjection>(this.dialog, this.errorHandler, this.loadingService)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
-        this.utils.getEditableColumnDef('entity.service.layer.title', 'name', 150),
-        this.utils.getNonEditableColumnDef('entity.service.layer.name', 'layers', 150),
-        this.utils.getEditableColumnDef('entity.service.layer.abstract', 'description', 150),
+        {
+          ...this.utils.getRouterLinkColumnDef(
+            'entity.service.layer.title',
+            'name',
+            '/layers/:id/layersForm',
+            { id: 'id' },
+            150
+          ),
+          flex: 2,
+          minWidth: 150,
+          editable: (params) => !params.data?.id,
+        },
+        Object.assign(this.utils.getNonEditableColumnDef('entity.service.layer.name', 'layers', 150), {flex: 3, minWidth: 180}),
+        Object.assign(this.utils.getEditableColumnDef('entity.service.layer.abstract', 'description', 150), {flex: 2, minWidth: 150}),
         this.utils.getStatusColumnDef()
       ])
       .withRelationsOrder('name')
@@ -736,9 +747,9 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
     return DataTableDefinition.builder<ServiceParameter, ServiceParameter>(this.dialog, this.errorHandler, this.loadingService)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
-        this.utils.getEditableColumnDef('common.form.name', 'name', 150, 300),
-        this.utils.getEditableColumnDef('common.form.value', 'value', 150, 300),
-        this.utils.getNonEditableColumnDef('common.form.type', 'typeDescription', 150, 300),
+        Object.assign(this.utils.getEditableColumnDef('common.form.name', 'name', 150), {flex: 1, minWidth: 140}),
+        Object.assign(this.utils.getEditableColumnDef('common.form.value', 'value', 150), {flex: 2, minWidth: 160}),
+        Object.assign(this.utils.getNonEditableColumnDef('common.form.type', 'typeDescription', 150), {flex: 0, minWidth: 120}),
         this.utils.getStatusColumnDef()
       ])
       .withRelationsOrder('name')

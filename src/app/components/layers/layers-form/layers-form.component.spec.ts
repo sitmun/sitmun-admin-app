@@ -721,6 +721,8 @@ describe('LayersFormComponent', () => {
       expect(table.hasStatusColumn()).toBe(false);
       expect(table.hasTemplateDialogs()).toBe(false);
       expect(table.supportsDuplicate()).toBe(false);
+      expect(table.relationsColumnsDefs.some((col: { checkboxSelection?: boolean }) => col.checkboxSelection))
+        .toBe(true);
     });
 
     it('parametersTable should have template-dialog, updater, and status capabilities', () => {
@@ -785,6 +787,15 @@ describe('LayersFormComponent', () => {
       expect(defaultStyleColumn.flex).toBe(0);
       expect(defaultStyleColumn.minWidth).toBe(100);
       expect(defaultStyleColumn.maxWidth).toBe(120);
+    });
+
+    it('keeps style legend URL editable with the editable external URL renderer mode', () => {
+      const urlColumn = component['stylesTable'].relationsColumnsDefs
+        .find(col => col.field === 'legendURL.onlineResource');
+
+      expect(urlColumn.editable).toBe(true);
+      expect(urlColumn.cellRenderer).toBe('externalUrlRenderer');
+      expect(urlColumn.cellRendererParams).toEqual({ editable: true });
     });
   });
 

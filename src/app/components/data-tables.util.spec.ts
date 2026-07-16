@@ -303,6 +303,27 @@ describe('DataTableDefinitionBuilder', () => {
       });
     });
   });
+
+  describe('withFieldRestriction', () => {
+    it('exposes a single scalar restriction as a string', () => {
+      const definition = builder.withFieldRestriction('name').build();
+      expect((definition as any).addFieldRestriction).toBe('name');
+    });
+  });
+
+  describe('withFieldRestrictions', () => {
+    it('exposes composite restrictions as a string array', () => {
+      const definition = builder
+        .withFieldRestrictions(['userId', 'territoryId', 'appliesToChildrenTerritories'])
+        .build();
+      expect((definition as any).addFieldRestriction).toEqual(['userId', 'territoryId', 'appliesToChildrenTerritories']);
+    });
+
+    it('returns undefined when no restrictions are configured', () => {
+      const definition = builder.build();
+      expect((definition as any).addFieldRestriction).toBeUndefined();
+    });
+  });
 });
 
 describe('DataTable2DefinitionBuilder', () => {
@@ -442,6 +463,27 @@ describe('DataTable2DefinitionBuilder', () => {
         
         expect(definition.hasStatusColumn()).toBe(false);
       });
+    });
+  });
+
+  describe('withFieldRestriction', () => {
+    it('exposes a single scalar restriction as a string', () => {
+      const definition = builder.withFieldRestriction('name').build();
+      expect((definition as any).addFieldRestriction).toBe('name');
+    });
+  });
+
+  describe('withFieldRestrictions', () => {
+    it('exposes composite restrictions as a string array', () => {
+      const definition = builder
+        .withFieldRestrictions(['userId', 'territoryId', 'appliesToChildrenTerritories'])
+        .build();
+      expect((definition as any).addFieldRestriction).toEqual(['userId', 'territoryId', 'appliesToChildrenTerritories']);
+    });
+
+    it('returns undefined when no restrictions are configured', () => {
+      const definition = builder.build();
+      expect((definition as any).addFieldRestriction).toBeUndefined();
     });
   });
 });

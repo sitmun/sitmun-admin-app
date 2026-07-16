@@ -126,6 +126,12 @@ export class DataTableDefinition<RELATION, TARGET> implements RelationGridTable<
     return new DataTableDefinitionBuilder<RELATION, TARGET>(dialog, errorHandler, loadingService);
   }
 
+  get addFieldRestriction(): string | string[] | undefined {
+    if (!this.fieldRestriction || this.fieldRestriction.length === 0) return undefined;
+    if (this.fieldRestriction.length === 1) return this.fieldRestriction[0];
+    return this.fieldRestriction;
+  }
+
   /**
    * Gets the default sorting configuration for the relations' grid.
    *
@@ -443,7 +449,8 @@ export class DataTable2Definition<RELATION, TARGET_LEFT, TARGET_RIGHT> implement
     private readonly targetToRelationFn: (left: TARGET_LEFT[], right: TARGET_RIGHT[]) => RELATION[],
     private readonly errorHandler: ErrorHandlerService,
     private readonly loadingService: LoadingOverlayService,
-    private readonly capabilities: RelationGridCapabilities
+    private readonly capabilities: RelationGridCapabilities,
+    private readonly fieldRestriction: string[] = []
   ) {
 
   }
@@ -466,6 +473,12 @@ export class DataTable2Definition<RELATION, TARGET_LEFT, TARGET_RIGHT> implement
     loadingService: LoadingOverlayService
   ): DataTable2DefinitionBuilder<RELATION, TARGET_LEFT, TARGET_RIGHT> {
     return new DataTable2DefinitionBuilder<RELATION, TARGET_LEFT, TARGET_RIGHT>(dialog, errorHandler, loadingService);
+  }
+
+  get addFieldRestriction(): string | string[] | undefined {
+    if (!this.fieldRestriction || this.fieldRestriction.length === 0) return undefined;
+    if (this.fieldRestriction.length === 1) return this.fieldRestriction[0];
+    return this.fieldRestriction;
   }
 
   /**
@@ -690,6 +703,7 @@ export interface RelationGridTable<RELATION = unknown> extends DataTableSpec {
   readonly addCommandEvent$: Subject<RELATION[]>;
   readonly saveCommandEvent$: Subject<GridEventType>;
   readonly refreshCommandEvent$: ReplaySubject<boolean>;
+  readonly addFieldRestriction?: string | string[] | undefined;
 
   defaultRelationsSorting(): string[];
   openDialog(relations: RELATION[]): void;
@@ -1400,7 +1414,8 @@ class DataTable2DefinitionBuilder<RELATION, TARGET_LEFT, TARGET_RIGHT> {
       this.targetToRelationFn,
       this.errorHandler,
       this.loadingService,
-      capabilities
+      capabilities,
+      this.fieldRestriction
     );
   }
   /**

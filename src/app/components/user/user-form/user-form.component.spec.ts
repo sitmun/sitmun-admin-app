@@ -119,6 +119,15 @@ describe('UserFormComponent', () => {
     });
   });
 
+  describe('userPositionsTable column types', () => {
+    it('territoryName links to territory form via territoryId', () => {
+      const columns = component['userPositionsTable'].relationsColumnsDefs;
+      const col = columns.find((c: any) => c.field === 'territoryName');
+      expect(col?.cellRenderer).toBe('routerLinkRenderer');
+      expect(col?.cellRendererParams?.paramFields).toEqual({ id: 'territoryId' });
+    });
+  });
+
   describe('applicationsAsContactTable fetcher', () => {
     it('returns empty when not in edition mode', async () => {
       jest.spyOn(component, 'isEdition').mockReturnValue(false);

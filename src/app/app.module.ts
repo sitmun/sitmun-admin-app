@@ -40,12 +40,12 @@ import {LoginComponent} from '@app/components/login/login.component';
 import {RoleFormComponent} from '@app/components/role/role-form/role-form.component';
 import {RoleComponent} from '@app/components/role/role.component';
 import {ServiceFormComponent} from '@app/components/service/service-form/service-form.component';
-import {UrlInputDirective} from '@app/components/service/service-form/url-input.directive';
 import {ServiceComponent} from '@app/components/service/service.component';
 import {AuthenticatedLayoutComponent} from '@app/components/shared/authenticated-layout/authenticated-layout.component';
 import {CardLeadComponent} from '@app/components/shared/card-lead/card-lead.component';
 import {EntityFormAlertsComponent} from '@app/components/shared/entity-form-alerts/entity-form-alerts.component';
 import {EntityListComponent} from '@app/components/shared/entity-list';
+import {ExternalUrlLinkComponent} from '@app/components/shared/external-url-link/external-url-link.component';
 import {FormToolbarComponent} from '@app/components/shared/form-toolbar/form-toolbar.component';
 import {NotificationComponent} from '@app/components/shared/notification/notification.component';
 import {RelationGridComponent} from '@app/components/shared/relation-grid/relation-grid.component';
@@ -311,12 +311,12 @@ function getDefaultLanguage(languages: any[], appConfigService?: AppConfigServic
         LoginComponent,
         DashboardComponent,
         FormToolbarComponent,
+        ExternalUrlLinkComponent,
         SystemInfoMenuComponent,
         ErrorDetailsSidebarComponent,
         MissingTranslationsSidebarComponent,
         AboutDialogComponent,
         ConfigurationParametersDialogComponent,
-        UrlInputDirective,
         TaskEditFormComponent,
         TasksEditComponent,
         NotificationComponent,

@@ -7,8 +7,8 @@ import type {Resource} from './resource/resource.model';
 import type {HalOptions, HalParam,RestService} from './rest/rest.service';
 
 export interface InfiniteBlockFetcherOptions<T> {
-  /** Static params to merge with every request (e.g., type.id filter) */
-  params?: HalParam[];
+  /** Static params, or a factory resolved per request (e.g. UI `lang` for `@I18n`) */
+  params?: HalParam[] | (() => HalParam[] | undefined);
   /** Optional row mapper (e.g., CartographyProjection.fromObject) */
   mapRow?: (row: any) => T;
 }
@@ -26,11 +26,12 @@ export function createPagedInfiniteFetcher<T extends Resource>(
   options?: InfiniteBlockFetcherOptions<T>,
 ): (request: InfiniteBlockRequest) => Observable<HalPage<T>> {
   return (request: InfiniteBlockRequest) => {
+    const params = typeof options?.params === 'function' ? options.params() : options?.params;
     const halOptions: HalOptions = {
       page: request.page,
       size: request.size,
       sort: request.sort,
-      params: options?.params,
+      params,
     };
 
     const page$ = request.searchText

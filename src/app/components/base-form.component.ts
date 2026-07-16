@@ -135,6 +135,16 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
   /** Default language code for i18n fields (from config) */
   defaultLang = config.defaultLang;
 
+  /**
+   * UI language for HAL requests that need backend `@I18n` resolution (`lang` query param).
+   */
+  protected requestLang(): string {
+    if (localStorage.lang) {
+      return localStorage.lang;
+    }
+    return this.translateService.currentLang || config.defaultLang;
+  }
+
   protected destroyRef = inject(DestroyRef);
 
   private readonly changeDetectorRef = inject(ChangeDetectorRef);

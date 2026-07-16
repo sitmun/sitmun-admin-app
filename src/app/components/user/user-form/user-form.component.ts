@@ -304,7 +304,7 @@ export class UserFormComponent extends BaseFormComponent<UserProjection> {
         }
         return this.entityToEdit.getRelationArrayEx(UserConfigurationProjection, 'permissions', {projection: 'view'})
       })
-      .withFieldRestrictions(['roleId', 'territoryId'])
+      .withFieldRestrictions(['roleId', 'territoryId', 'appliesToChildrenTerritories'])
       .withRelationsUpdater(async (userConfigurations: (UserConfigurationProjection & Status)[]) => {
         await onCreate(userConfigurations).forEach(item => {
           const newItem = UserConfiguration.fromObject(item);
@@ -365,7 +365,7 @@ export class UserFormComponent extends BaseFormComponent<UserProjection> {
     return DataTableDefinition.builder<UserPositionProjection, TerritoryProjection>(this.dialog, this.errorHandler, this.loadingService)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
-        Object.assign(this.utils.getNonEditableColumnDef('entity.territory.label', 'territoryName'), {flex: 2, minWidth: 140, tooltipField: 'territoryName'}),
+        Object.assign(this.utils.getRouterLinkColumnDef('entity.territory.label', 'territoryName', '/territory/:id/territoryForm', {id: 'territoryId'}), {flex: 2, minWidth: 140, tooltipField: 'territoryName'}),
         Object.assign(this.utils.getEditableColumnDef('entity.user.position.name', 'name'), {flex: 2, minWidth: 120, tooltipField: 'name'}),
         Object.assign(this.utils.getEditableColumnDef('entity.user.position.organization', 'organization'), {flex: 2, minWidth: 120, tooltipField: 'organization'}),
         Object.assign(this.utils.getEditableColumnDef('common.form.email', 'email'), {flex: 2, minWidth: 160, tooltipField: 'email'}),

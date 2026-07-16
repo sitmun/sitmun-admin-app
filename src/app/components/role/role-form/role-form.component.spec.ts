@@ -181,5 +181,20 @@ describe('RoleFormComponent', () => {
     });
   });
 
+  describe('userConfigurationsTable field restrictions', () => {
+    it('exposes composite restrictions including appliesToChildrenTerritories', () => {
+      const table = component['userConfigurationsTable'];
+      expect(table.addFieldRestriction).toEqual(['userId', 'territoryId', 'appliesToChildrenTerritories']);
+    });
+  });
+
+  describe('userConfigurationsTable column types', () => {
+    it('appliesToChildrenTerritories uses editable boolean renderer', () => {
+      const columns = component['userConfigurationsTable'].relationsColumnsDefs;
+      const col = columns.find((c: any) => c.field === 'appliesToChildrenTerritories');
+      expect(col?.cellRenderer).toBe('btnCheckboxRendererComponent');
+    });
+  });
+
 });
 

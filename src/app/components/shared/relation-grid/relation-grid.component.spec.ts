@@ -394,4 +394,20 @@ describe('RelationGridComponent', () => {
       expect(dataGridComponent.changeHeightButton).toBe(false);
     });
   });
+
+  describe('field restriction binding', () => {
+    it('should pass addFieldRestriction from table to inner DataGridComponent', () => {
+      (mockTable as any).addFieldRestriction = 'name';
+      fixture.detectChanges();
+      const dataGrid = fixture.debugElement.query(By.directive(DataGridComponent)).componentInstance as DataGridComponent;
+      expect(dataGrid.addFieldRestriction).toBe('name');
+    });
+
+    it('should not set addFieldRestriction when table has none', () => {
+      (mockTable as any).addFieldRestriction = undefined;
+      fixture.detectChanges();
+      const dataGrid = fixture.debugElement.query(By.directive(DataGridComponent)).componentInstance as DataGridComponent;
+      expect(dataGrid.addFieldRestriction).toBeUndefined();
+    });
+  });
 });

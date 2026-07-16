@@ -153,7 +153,7 @@ describe('BackgroundLayersFormComponent', () => {
   it('form invalid when mid-empty', () => {
     component.entityForm.patchValue({
       description: 'desc',
-      image: 'image',
+      image: 'https://example.com/bg.png',
       active: true
     })
     //Miss name
@@ -164,10 +164,22 @@ describe('BackgroundLayersFormComponent', () => {
     component.entityForm.patchValue({
       name: 'name',
       description: 'desc',
-      image: 'image',
+      image: 'https://example.com/bg.png',
       active: true
     })
     expect(component.entityForm.valid).toBeTruthy();
+  });
+
+  it('image rejects non-http values and accepts blank or http(s) URLs', () => {
+    const image = component.entityForm.get('image');
+    image?.setValue('image');
+    expect(image?.hasError('optionalHttpUrl')).toBe(true);
+
+    image?.setValue('');
+    expect(image?.valid).toBe(true);
+
+    image?.setValue('https://example.com/bg.png');
+    expect(image?.valid).toBe(true);
   });
 
   it('Background layers form fields', () => {
@@ -210,6 +222,15 @@ describe('BackgroundLayersFormComponent', () => {
       expect(membersTable.hasRelationsUpdater()).toBe(true);
       expect(rolesTable.hasRelationsUpdater()).toBe(true);
       expect(applicationBackgroundsTable.hasRelationsUpdater()).toBe(true);
+    });
+  });
+
+  describe('Picker deduplication', () => {
+    it('rolesTable excludes already-added roles from the picker', () => {
+      const relations = [{ id: 10 }, { id: 20 }] as any;
+      const predicate = (component['rolesTable'] as any).targetIncludeFn(relations);
+      expect(predicate({ id: 10 })).toBe(false);
+      expect(predicate({ id: 30 })).toBe(true);
     });
   });
 

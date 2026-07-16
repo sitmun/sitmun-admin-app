@@ -70,15 +70,13 @@
               </mat-select>
               <mat-hint align="start">{{ 'entity.application.hint.type' | translate }}</mat-hint>
             </mat-form-field>
-            <mat-form-field appearance="outline" class="half" subscriptSizing="dynamic">
+            <mat-form-field appearance="outline" class="half"
+                            subscriptSizing="dynamic">
               <mat-label>{{ 'entity.application.creator' | translate }}</mat-label>
               <mat-select formControlName="creatorId" class="form-control">
                 <mat-select-trigger>
                   <ng-container *ngIf="entityForm.get('creatorId')?.value as creatorId">
-                    <a [routerLink]="['/user', creatorId, 'userForm']"
-                       class="router-link">
-                      {{ getUsername(creatorId) }}
-                    </a>
+                    {{ getUsername(creatorId) }}
                   </ng-container>
                   <span *ngIf="!entityForm.get('creatorId')?.value">
                     {{ 'common.form.none' | translate }}
@@ -86,20 +84,30 @@
                 </mat-select-trigger>
                 <mat-option [value]="null">{{ 'common.form.none' | translate }}</mat-option>
                 <mat-option [value]="user.id" *ngFor="let user of usersList">
-                  <div>
-                    <a [routerLink]="['/user', user.id, 'userForm']"
-                       (click)="$event.stopPropagation()" class="router-link">
-                      <span>{{ user.username }}</span>
-                    </a>
-                  </div>
+                  {{ user.username }}
                 </mat-option>
               </mat-select>
+              <a *ngIf="entityForm.get('creatorId')?.value as creatorId"
+                 mat-icon-button
+                 matSuffix
+                 class="related-entity-open-link"
+                 [routerLink]="['/user', creatorId, 'userForm']"
+                 target="_blank"
+                 rel="noopener"
+                 [matTooltip]="'common.relation.openNewTab' | translate"
+                 [attr.aria-label]="'common.relation.openNewTab' | translate">
+                <mat-icon class="related-entity-link-icon">open_in_new</mat-icon>
+              </a>
               <mat-hint align="start">{{ 'entity.application.hint.creatorId' | translate }}</mat-hint>
             </mat-form-field>
           </div>
           <mat-form-field appearance="outline" class="full sitmun-cartography-rich-hint-field" subscriptSizing="dynamic">
             <mat-label>{{ 'entity.application.logo' | translate }}</mat-label>
             <input matInput type="text" formControlName="logo" [maxlength]="4000">
+            <app-external-url-link
+              matSuffix
+              [url]="entityForm.get('logo')?.value">
+            </app-external-url-link>
             <mat-hint align="start">{{ 'entity.application.hint.logo' | translate }}</mat-hint>
             <mat-hint align="end">{{entityForm.get('logo') | characterCount}}</mat-hint>
             <mat-error *ngIf="entityForm.get('logo')?.hasError('optionalHttpUrl')">
@@ -135,6 +143,10 @@
           <mat-form-field appearance="outline" class="full sitmun-cartography-rich-hint-field" subscriptSizing="dynamic">
             <mat-label>{{ 'entity.application.type.external.url' | translate }}</mat-label>
             <input matInput type="text" formControlName="jspTemplate" [maxlength]="250">
+            <app-external-url-link
+              matSuffix
+              [url]="entityForm.get('jspTemplate')?.value">
+            </app-external-url-link>
             <mat-hint align="start">{{ 'entity.application.hint.jspTemplate' | translate }}</mat-hint>
             <mat-hint align="end">{{entityForm.get('jspTemplate') | characterCount}}</mat-hint>
             <mat-error *ngIf="entityForm.get('jspTemplate')?.hasError('required')">
@@ -171,14 +183,13 @@
               <mat-hint align="start">{{ 'entity.application.hint.srs' | translate }}</mat-hint>
               <mat-hint align="end">{{entityForm.get('srs') | characterCount}}</mat-hint>
             </mat-form-field>
-            <mat-form-field appearance="outline" class="half sitmun-cartography-rich-hint-field" subscriptSizing="dynamic">
+            <mat-form-field appearance="outline" class="half sitmun-cartography-rich-hint-field"
+                            subscriptSizing="dynamic">
               <mat-label>{{ 'entity.application.type.generic.situationmap' | translate }}</mat-label>
               <mat-select formControlName="situationMapId" class="form-control">
                 <mat-select-trigger>
                   <ng-container *ngIf="entityForm.get('situationMapId')?.value as selectedId">
-                    <a [routerLink]="['/layersPermits', selectedId, 'layersPermitsForm']" class="router-link">
-                      {{ getSituationMapName(selectedId) }}
-                    </a>
+                    {{ getSituationMapName(selectedId) }}
                   </ng-container>
                   <span *ngIf="!entityForm.get('situationMapId')?.value">
                     {{ 'common.form.none' | translate }}
@@ -186,14 +197,20 @@
                 </mat-select-trigger>
                 <mat-option [value]="null">{{ 'common.form.none' | translate }}</mat-option>
                 <mat-option [value]="situationMapObj.id" *ngFor="let situationMapObj of situationMapList">
-                  <div>
-                    <a [routerLink]="['/layersPermits', situationMapObj.id, 'layersPermitsForm']"
-                       (click)="$event.stopPropagation()" class="router-link">
-                      <span>{{ situationMapObj.name }}</span>
-                    </a>
-                  </div>
+                  {{ situationMapObj.name }}
                 </mat-option>
               </mat-select>
+              <a *ngIf="entityForm.get('situationMapId')?.value as selectedId"
+                 mat-icon-button
+                 matSuffix
+                 class="related-entity-open-link"
+                 [routerLink]="['/layersPermits', selectedId, 'layersPermitsForm']"
+                 target="_blank"
+                 rel="noopener"
+                 [matTooltip]="'common.relation.openNewTab' | translate"
+                 [attr.aria-label]="'common.relation.openNewTab' | translate">
+                <mat-icon class="related-entity-link-icon">open_in_new</mat-icon>
+              </a>
               <mat-hint align="start">{{ 'entity.application.hint.situationMap' | translate }}</mat-hint>
             </mat-form-field>
           </div>
@@ -378,6 +395,10 @@
         <mat-form-field appearance="outline" class="full">
           <mat-label>{{ 'entity.permissionGroup.serviceURL' | translate }}</mat-label>
           <input [maxlength]="500" formControlName="url" matInput required type="text">
+          <app-external-url-link
+            matSuffix
+            [url]="headerParamsTable.templateDialog('newHeaderParamDialog').form.get('url')?.value">
+          </app-external-url-link>
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="full">

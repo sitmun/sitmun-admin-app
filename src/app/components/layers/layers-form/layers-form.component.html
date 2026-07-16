@@ -60,10 +60,7 @@
             <mat-select formControlName="serviceId" [placeholder]="'entity.cartography.serviceName.select' | translate">
               <mat-select-trigger>
                 <ng-container *ngIf="entityForm.get('serviceId')?.value as serviceId">
-                  <a [routerLink]="['/service', serviceId, 'serviceForm']"
-                     class="router-link">
-                    {{ getServiceName(serviceId) }}
-                  </a>
+                  {{ getServiceName(serviceId) }}
                 </ng-container>
                 <span *ngIf="!entityForm.get('serviceId')?.value">
                   {{ 'entity.cartography.serviceName.select' | translate }}
@@ -71,12 +68,20 @@
               </mat-select-trigger>
               <mat-option [value]="null">{{ 'common.form.none' | translate }}</mat-option>
               <mat-option [value]="service.id" *ngFor="let service of services">
-                <a (click)="$event.stopPropagation()"
-                   [routerLink]="['/service', service.id, 'serviceForm']" class="router-link">
-                  {{ service.name }}
-                </a>
+                {{ service.name }}
               </mat-option>
             </mat-select>
+            <a *ngIf="entityForm.get('serviceId')?.value as serviceId"
+               mat-icon-button
+               matSuffix
+               class="related-entity-open-link"
+               [routerLink]="['/service', serviceId, 'serviceForm']"
+               target="_blank"
+               rel="noopener"
+               [matTooltip]="'common.relation.openNewTab' | translate"
+               [attr.aria-label]="'common.relation.openNewTab' | translate">
+              <mat-icon class="related-entity-link-icon">open_in_new</mat-icon>
+            </a>
             <mat-hint align="start">{{ 'entity.cartography.hint.service' | translate }}</mat-hint>
           </mat-form-field>
           <mat-form-field appearance="outline" class="full">
@@ -119,12 +124,20 @@
           </mat-form-field>
           <mat-form-field appearance="outline" class="full" subscriptSizing="dynamic">
             <mat-label>{{ 'entity.cartography.datasetURL' | translate }}</mat-label>
-            <input appUrlInput formControlName="datasetURL" matInput type="text">
+            <input formControlName="datasetURL" matInput type="text">
+            <app-external-url-link
+              matSuffix
+              [url]="entityForm.get('datasetURL')?.value">
+            </app-external-url-link>
             <mat-hint align="start">{{ 'entity.cartography.hint.datasetURL' | translate }}</mat-hint>
           </mat-form-field>
           <mat-form-field appearance="outline" class="full" subscriptSizing="dynamic">
             <mat-label>{{ 'entity.cartography.metadataURL' | translate }}</mat-label>
-            <input appUrlInput formControlName="metadataURL" matInput type="text">
+            <input formControlName="metadataURL" matInput type="text">
+            <app-external-url-link
+              matSuffix
+              [url]="entityForm.get('metadataURL')?.value">
+            </app-external-url-link>
             <mat-hint align="start">{{ 'entity.cartography.hint.metadataURL' | translate }}</mat-hint>
           </mat-form-field>
           <div class="sitmun-layers-order-source-row">
@@ -290,7 +303,11 @@
             </mat-form-field>
             <mat-form-field appearance="outline" class="full">
               <mat-label>{{ 'entity.cartography.styles.legendURL' | translate }}</mat-label>
-              <input appUrlInput formControlName="legendURL" matInput type="text">
+              <input formControlName="legendURL" matInput type="text">
+              <app-external-url-link
+                matSuffix
+                [url]="entityForm.get('legendURL')?.value">
+              </app-external-url-link>
             </mat-form-field>
           </mat-card-content>
         </mat-card>
@@ -387,7 +404,11 @@
     </mat-slide-toggle>
     <mat-form-field appearance="outline" class="full">
       <mat-label>{{ 'entity.cartography.styles.parameters.url' | translate }}</mat-label>
-      <input appUrlInput matInput type="text" formControlName="url">
+      <input matInput type="text" formControlName="url">
+      <app-external-url-link
+        matSuffix
+        [url]="stylesTable.templateDialog('newStyleDialog').form.get('url')?.value">
+      </app-external-url-link>
     </mat-form-field>
     <mat-form-field appearance="outline" class="full">
       <mat-label>{{ 'entity.cartography.styles.parameters.format' | translate }}</mat-label>

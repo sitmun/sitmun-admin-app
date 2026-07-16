@@ -70,7 +70,11 @@
 
           <mat-form-field appearance="outline" class="full sitmun-cartography-rich-hint-field" subscriptSizing="dynamic">
             <mat-label>{{ 'entity.service.endpoint' | translate }}</mat-label>
-            <input [maxlength]="4000" appUrlInput formControlName="serviceURL" matInput required type="text">
+            <input [maxlength]="4000" formControlName="serviceURL" matInput required type="text">
+            <app-external-url-link
+              matSuffix
+              [url]="entityForm.get('serviceURL')?.value">
+            </app-external-url-link>
             <mat-hint align="start">{{ 'entity.service.hint.serviceURL' | translate }}</mat-hint>
             <mat-hint align="end">{{ entityForm.get('serviceURL') | characterCount }}</mat-hint>
           </mat-form-field>
@@ -86,7 +90,11 @@
           </button>
           <mat-form-field appearance="outline" class="full sitmun-cartography-rich-hint-field" subscriptSizing="dynamic">
             <mat-label>{{ 'entity.service.metadataURL' | translate }}</mat-label>
-            <input [maxlength]="4000" appUrlInput formControlName="getInformationURL" matInput type="text">
+            <input [maxlength]="4000" formControlName="getInformationURL" matInput type="text">
+            <app-external-url-link
+              matSuffix
+              [url]="entityForm.get('getInformationURL')?.value">
+            </app-external-url-link>
             <mat-hint align="start">{{ 'entity.service.hint.metadataURL' | translate }}</mat-hint>
             <mat-hint align="end">{{ entityForm.get('getInformationURL') | characterCount }}</mat-hint>
           </mat-form-field>

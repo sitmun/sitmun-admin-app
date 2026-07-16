@@ -105,4 +105,51 @@ describe('data-grid-column-layout', () => {
 
     expect(sized[1]).toEqual(expect.objectContaining({field: 'name', width: 480}));
   });
+
+  it('explicit grow columns remain flex after prepareClientSideColumnDefs', () => {
+    const prepared = prepareClientSideColumnDefs([
+      {headerName: '', checkboxSelection: true},
+      {headerName: 'Name', field: 'name', flex: 2, minWidth: 160},
+      {headerName: 'Type', field: 'type', flex: 0, minWidth: 100},
+    ]);
+    expect(prepared[1]).toEqual(expect.objectContaining({field: 'name', flex: 2, minWidth: 160}));
+    expect(prepared[2]).toEqual(expect.objectContaining({field: 'type', flex: 0}));
+  });
+
+  it('checkbox, status and fixed columns do not become the fallback grow column', () => {
+    const prepared = prepareClientSideColumnDefs([
+      {headerName: '', checkboxSelection: true},
+      {headerName: 'Name', field: 'name'},
+      {headerName: 'Active', field: 'active', flex: 0, minWidth: 60, maxWidth: 80},
+      {headerName: 'Status', field: 'status'},
+    ]);
+    expect(prepared[0]).toEqual(expect.objectContaining({flex: 0}));
+    expect(prepared[2]).toEqual(expect.objectContaining({flex: 0}));
+    expect(prepared[3]).toEqual(expect.objectContaining({flex: 0}));
+    const growCols = prepared.filter((c: any) => c.flex > 0);
+    expect(growCols.length).toBe(1);
+    expect(growCols[0].field).toBe('name');
+  });
+
+  it('multiple weighted flex columns preserve weights and minimum widths', () => {
+    const prepared = prepareClientSideColumnDefs([
+      {headerName: '', checkboxSelection: true},
+      {headerName: 'Name', field: 'name', flex: 1, minWidth: 140},
+      {headerName: 'URL', field: 'url', flex: 2, minWidth: 200},
+      {headerName: 'Type', field: 'type', flex: 0, minWidth: 100},
+    ]);
+    expect(prepared[1]).toEqual(expect.objectContaining({flex: 1, minWidth: 140}));
+    expect(prepared[2]).toEqual(expect.objectContaining({flex: 2, minWidth: 200}));
+    expect(prepared[3]).toEqual(expect.objectContaining({flex: 0}));
+  });
+
+  it('legacy non-flex grid falls back to content-based sizing', () => {
+    const sourceDefs = [
+      {headerName: 'Name', field: 'name'},
+      {headerName: 'Type', field: 'type'},
+    ];
+    const prepared = prepareClientSideColumnDefs(sourceDefs);
+    expect(usesFlexColumnLayout(prepared)).toBe(true);
+    expect(resolveAutoSizeStrategy('clientSide', prepared)).toBeUndefined();
+  });
 });

@@ -163,7 +163,7 @@ export function prepareClientSideColumnDefs(columnDefs: DataGridColumnDef[]): Da
 function findFallbackFlexColumnIndex(columnDefs: DataGridColumnDef[]): number {
   for (let index = columnDefs.length - 1; index >= 0; index -= 1) {
     const col = columnDefs[index];
-    if (!col.checkboxSelection && col.field !== 'status') {
+    if (!col.checkboxSelection && col.field !== 'status' && col.flex !== 0) {
       return index;
     }
   }

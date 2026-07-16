@@ -84,6 +84,9 @@ export class CartographyAvailabilityProjection extends Resource {
   /** Name of the cartography service */
   public cartographyServiceName: string;
 
+  /** ID of the cartography service */
+  public cartographyServiceId: number;
+
   /**
    * Creates a new CartographyAvailabilityProjection instance copying only the properties declared in CartographyAvailabilityProjection and Resource classes
    * @param source The source object to copy properties from
@@ -98,7 +101,7 @@ export class CartographyAvailabilityProjection extends Resource {
       // CartographyAvailabilityProjection properties
       'id', 'createdDate', 'owner', 'territoryId', 'territoryName',
       'territoryCode', 'territoryType', 'cartographyId', 'cartographyName',
-      'cartographyLayers', 'cartographyServiceName'
+      'cartographyLayers', 'cartographyServiceName', 'cartographyServiceId'
     ];
     // Copy only defined properties that exist in our class
     propertiesToCopy.forEach(prop => {
@@ -119,6 +122,7 @@ export class CartographyAvailabilityProjection extends Resource {
       cartographyName: item.name,
       cartographyLayers: item.layers,
       cartographyServiceName: item.serviceName,
+      cartographyServiceId: item.serviceId,
     });
   }
 }
