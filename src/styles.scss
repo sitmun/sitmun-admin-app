@@ -124,6 +124,15 @@ h2 {
 .ag-theme-material {
   --ag-odd-row-background-color: rgba(0, 0, 0, 0.02);
   --ag-row-hover-color: rgba(0, 0, 0, 0.06);
+  // AG Grid 31 Material theme hardcodes Material Design defaults that don't match
+  // the SITMUN M2 orange theme:
+  //   --ag-material-primary-color: #3f51b5 (indigo) → focus borders, tab underlines
+  //   --ag-material-accent-color:  #ff4081 (pink)   → checkbox checked color
+  // Override both to SITMUN primary orange (M2 orange-500).
+  --ag-material-primary-color: #ff9800;
+  --ag-checkbox-checked-color: #ff9800;
+  --ag-checkbox-indeterminate-color: #ff9800;
+  --ag-selected-row-background-color: rgba(255, 152, 0, 0.12);
 
   // The Material theme sizes the inline editor taller than the row
   // (row-height + grid-size*3). With domLayout="autoHeight" rows are fixed
@@ -577,7 +586,7 @@ h4 > .mat-icon {
 
 // Ag-Grid
 
-.ag-header-cell.sitmun-centered-header {
+.ag-header-cell.sitmun-selection-header {
   padding: 0 !important;
   justify-content: center;
 
@@ -590,6 +599,14 @@ h4 > .mat-icon {
     justify-content: center;
     margin: 0;
     width: 100%;
+  }
+}
+
+.ag-header-cell.sitmun-centered-header {
+  justify-content: center;
+
+  .ag-header-cell-label {
+    justify-content: center;
   }
 }
 
@@ -691,6 +708,10 @@ mat-card-content {
   text-decoration: underline;
 }
 
+.related-entity-open-link {
+  color: inherit;
+}
+
 .url-link {
   color: #007bff;
   font-size: inherit;
@@ -702,12 +723,6 @@ mat-card-content {
 .url-link:hover {
   text-decoration: underline;
   color: #0056b3;
-}
-
-.external-link-icon {
-  font-size: 0.8em;
-  margin-left: 2px;
-  opacity: 0.7;
 }
 
 .sitmun-toggle-row {
