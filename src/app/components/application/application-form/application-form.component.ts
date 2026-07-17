@@ -67,7 +67,14 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
   private static readonly WARNING_PRIVATE_APP_PUBLIC_USER =
     'entity.application.warning.private-application-with-public-user';
 
+  private static readonly WARNING_POC_EMAIL_MISSING =
+    'entity.application.warning.point-of-contact-email-missing';
+
   readonly config = Configuration.APPLICATION;
+
+  readonly pointOfContactInfoMessageKeys = [
+    ApplicationFormComponent.WARNING_POC_EMAIL_MISSING,
+  ];
 
   readonly validationFieldLabelKeys: Record<string, string> = {
     name: 'entity.application.name',
@@ -132,6 +139,9 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
    * List of users available for selection in the application form.
    */
   protected usersList: User[] = [];
+
+  /** Original creatorId loaded from the projection; used to skip unchanged relation updates. */
+  private originalCreatorId: string | number | null = null;
 
   /**
    * Data table configuration for managing application trees.
@@ -299,6 +309,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
     }
 
     this.currentAppType = this.entityToEdit.type;
+    this.originalCreatorId = this.entityToEdit.creatorId ?? null;
     this.headerBaseLeft = Object.keys(this.headerParams.headerLeftSection);
     this.headerBaseRight = Object.keys(this.headerParams.headerRightSection);
     if (this.entityToEdit.headerParams != null)
@@ -332,6 +343,10 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
         optionalHttpOrHttpsUrlValidator,
       ]),
       maintenanceInformation: new UntypedFormControl(this.entityToEdit.maintenanceInformation,[]),
+      responsibleInstitutionName: new UntypedFormControl(
+        this.entityToEdit.responsibleInstitutionName,
+        [Validators.maxLength(250)]
+      ),
       creatorId: new UntypedFormControl(this.entityToEdit.creatorId,[]),
       isUnavailable: new UntypedFormControl(this.entityToEdit.isUnavailable ?? false,[]),
       appPrivate: new UntypedFormControl(this.entityToEdit.appPrivate, []),
@@ -357,6 +372,12 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
     this.headerParams.headerRightSection.homeMenu.visible = formValues.homeMenu;
     this.headerParams.headerRightSection.switchApplication.visible = formValues.switchApplication;
 
+    const institutionRaw = formValues.responsibleInstitutionName;
+    const responsibleInstitutionName =
+      institutionRaw == null || String(institutionRaw).trim() === ''
+        ? null
+        : String(institutionRaw).trim();
+
     safeToEdit = Object.assign(safeToEdit,
       formValues,
       {
@@ -364,6 +385,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
         scales: formValues.scales ? formValues.scales.toString().split(',') : null,
         situationMap: formValues.situationMapId ? this.cartographyGroupService.createProxy(formValues.situationMapId) : null,
         creator: formValues.creatorId ? this.userService.createProxy(formValues.creatorId) : null,
+        responsibleInstitutionName,
         appPrivate: formValues.appPrivate,
       }
     );
@@ -397,7 +419,12 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
     const entityToUpdate = this.createObject(this.entityID);
     await this.saveTranslations(entityToUpdate);
     await firstValueFrom(entityToUpdate.updateRelationEx("situationMap", entityToUpdate.situationMap));
-    await firstValueFrom(entityToUpdate.updateRelationEx("creator", entityToUpdate.creator));
+    const currentCreatorId = this.entityForm.get('creatorId')?.value ?? null;
+    const original = this.originalCreatorId ?? null;
+    const creatorChanged = String(currentCreatorId ?? '') !== String(original ?? '');
+    if (creatorChanged) {
+      await firstValueFrom(entityToUpdate.updateRelationEx("creator", entityToUpdate.creator));
+    }
   }
 
   override canSave(): boolean {
@@ -885,6 +912,34 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
 
   getUsername(creatorId: number): string {
     return this.usersList.find(user => user.id === creatorId)?.username || '';
+  }
+
+  get eligibleUsersList(): User[] {
+    return this.usersList.filter(user => this.isEligiblePointOfContact(user));
+  }
+
+  get currentIneligibleCreator(): User | null {
+    const creatorId = this.entityForm?.get('creatorId')?.value ?? this.entityToEdit?.creatorId;
+    if (creatorId == null || creatorId === '') {
+      return null;
+    }
+    const user = this.usersList.find(
+      candidate => candidate.id === creatorId || String(candidate.id) === String(creatorId)
+    );
+    if (!user || this.isEligiblePointOfContact(user)) {
+      return null;
+    }
+    return user;
+  }
+
+  isEligiblePointOfContact(user: User | null | undefined): boolean {
+    if (!user) {
+      return false;
+    }
+    if (user.username === 'public' || user.username === 'admin') {
+      return false;
+    }
+    return user.blocked !== true;
   }
 
   private readonly getAllHeaderParams = (): Observable<ApplicationHeaderParameter[]> => {

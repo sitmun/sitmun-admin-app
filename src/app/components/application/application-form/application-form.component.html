@@ -16,6 +16,7 @@
   entityLabelPrefix="entity.application"
   [fieldLabelKeys]="validationFieldLabelKeys"
   [warnings]="entityToEdit?.warnings"
+  [infoMessageKeys]="pointOfContactInfoMessageKeys"
   [customAlertMessage]="applicationTreeValidationWarningMessage">
 </app-entity-form-alerts>
 
@@ -83,7 +84,12 @@
                   </span>
                 </mat-select-trigger>
                 <mat-option [value]="null">{{ 'common.form.none' | translate }}</mat-option>
-                <mat-option [value]="user.id" *ngFor="let user of usersList">
+                <mat-option *ngIf="currentIneligibleCreator as ineligible"
+                            [value]="ineligible.id"
+                            disabled>
+                  {{ ineligible.username }}
+                </mat-option>
+                <mat-option [value]="user.id" *ngFor="let user of eligibleUsersList">
                   {{ user.username }}
                 </mat-option>
               </mat-select>
@@ -101,6 +107,15 @@
               <mat-hint align="start">{{ 'entity.application.hint.creatorId' | translate }}</mat-hint>
             </mat-form-field>
           </div>
+          <mat-form-field appearance="outline" class="full sitmun-cartography-rich-hint-field" subscriptSizing="dynamic">
+            <mat-label>{{ 'entity.application.responsibleInstitutionName' | translate }}</mat-label>
+            <input matInput type="text" formControlName="responsibleInstitutionName" [maxlength]="250">
+            <mat-hint align="start">{{ 'entity.application.hint.responsibleInstitutionName' | translate }}</mat-hint>
+            <mat-hint align="end">{{entityForm.get('responsibleInstitutionName') | characterCount:250}}</mat-hint>
+            <mat-error *ngIf="entityForm.get('responsibleInstitutionName')?.hasError('maxlength')">
+              {{ 'entity.territory.error.maxlength' | translate:{ requiredLength: 250 } }}
+            </mat-error>
+          </mat-form-field>
           <mat-form-field appearance="outline" class="full sitmun-cartography-rich-hint-field" subscriptSizing="dynamic">
             <mat-label>{{ 'entity.application.logo' | translate }}</mat-label>
             <input matInput type="text" formControlName="logo" [maxlength]="4000">

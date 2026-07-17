@@ -10,7 +10,7 @@ import {of} from 'rxjs';
 import {EntityListComponent} from '@app/components/shared/entity-list/entity-list.component';
 import {ExternalConfigurationService} from '@app/core/config/external-configuration.service';
 import {ExternalService, ResourceService} from '@app/core/hal';
-import { ApplicationService, CodeListService, TranslationService } from '@app/domain';
+import { Application, ApplicationService, CodeListService, TranslationService } from '@app/domain';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
 import { MaterialModule } from '@app/material-module';
 
@@ -98,6 +98,62 @@ describe('ApplicationComponent', () => {
 
   it('should instantiate externalService', () => {
     expect(externalService).toBeTruthy();
+  });
+
+  describe('warnings column', () => {
+    beforeEach(async () => {
+      await component.postFetchData();
+    });
+
+    it('defines a narrow warnings column after the checkbox', () => {
+      const fields = component.entityListConfig.columnDefs.map((c: any) => c.field);
+      expect(fields).toContain('warnings');
+      const warningsCol = component.entityListConfig.columnDefs.find((c: any) => c.field === 'warnings');
+      expect(warningsCol.width).toBe(48);
+      expect(warningsCol.sortable).toBe(false);
+      expect(warningsCol.filter).toBe(false);
+      expect(warningsCol.editable).toBe(false);
+      const checkboxIndex = component.entityListConfig.columnDefs.findIndex(
+        (c: any) => c.field === '__loadingSelection' || c.checkboxSelection
+      );
+      const warningsIndex = component.entityListConfig.columnDefs.findIndex(
+        (c: any) => c.field === 'warnings'
+      );
+      expect(warningsIndex).toBe(checkboxIndex + 1);
+    });
+
+    it('renders no icon when warnings are null or empty', () => {
+      const warningsCol: any = component.entityListConfig.columnDefs.find((c: any) => c.field === 'warnings');
+      expect(warningsCol.cellRenderer({ data: { warnings: null } })).toBe('');
+      expect(warningsCol.cellRenderer({ data: { warnings: [] } })).toBe('');
+    });
+
+    it('renders one accessible warning icon when warnings exist', () => {
+      const warningsCol: any = component.entityListConfig.columnDefs.find((c: any) => c.field === 'warnings');
+      const icon = warningsCol.cellRenderer({
+        data: {
+          warnings: [
+            'entity.application.warning.invalid-point-of-contact',
+            'entity.application.warning.point-of-contact-email-missing',
+          ],
+        },
+      }) as HTMLElement;
+      expect(icon).toBeTruthy();
+      expect(icon.classList.contains('material-icons')).toBe(true);
+      expect(icon.textContent).toBe('warning_amber');
+      expect(icon.getAttribute('aria-label')).toBeTruthy();
+      expect(icon.getAttribute('title')).toBe(icon.getAttribute('aria-label'));
+      expect(icon.getAttribute('aria-label')).toContain('\n');
+    });
+
+    it('hydrates warnings through Application.fromObject for list rows', () => {
+      expect(component.entityListConfig.infiniteBlockFetcher).toBeDefined();
+      const mapped = Application.fromObject({
+        type: 'I',
+        warnings: ['entity.application.warning.invalid-point-of-contact'],
+      });
+      expect(mapped.warnings).toEqual(['entity.application.warning.invalid-point-of-contact']);
+    });
   });
 
 });

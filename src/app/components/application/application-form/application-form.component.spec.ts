@@ -437,4 +437,139 @@ describe('ApplicationFormComponent', () => {
     });
   });
 
+  describe('responsibleInstitutionName', () => {
+    it('postFetchData creates optional control with loaded value', () => {
+      component.entityToEdit = Object.assign(component.empty(), {
+        responsibleInstitutionName: 'Institution',
+      });
+      component.postFetchData();
+      const control = component.entityForm.get('responsibleInstitutionName');
+      expect(control).toBeTruthy();
+      expect(control?.value).toBe('Institution');
+      expect(control?.valid).toBe(true);
+    });
+
+    it('accepts empty value and rejects more than 250 characters', () => {
+      const control = component.entityForm.get('responsibleInstitutionName');
+      control?.setValue('');
+      expect(control?.valid).toBe(true);
+      control?.setValue('x'.repeat(251));
+      expect(control?.hasError('maxlength')).toBe(true);
+      control?.setValue('x'.repeat(250));
+      expect(control?.valid).toBe(true);
+    });
+
+    it('createObject includes trimmed institution and maps blank to null', () => {
+      component.entityForm.patchValue({
+        name: 'name',
+        description: 'description',
+        type: constants.codeValue.applicationType.internalApp,
+        responsibleInstitutionName: '  Servei  ',
+      });
+      expect(component.createObject().responsibleInstitutionName).toBe('Servei');
+
+      component.entityForm.patchValue({ responsibleInstitutionName: '   ' });
+      expect(component.createObject().responsibleInstitutionName).toBeNull();
+
+      component.entityForm.patchValue({ responsibleInstitutionName: '' });
+      expect(component.createObject().responsibleInstitutionName).toBeNull();
+    });
+  });
+
+  describe('point of contact eligibility', () => {
+    const users = [
+      { id: 1, username: 'alice', blocked: false, email: 'a@example.com', administrator: false },
+      { id: 2, username: 'bob', blocked: false, email: null, administrator: false },
+      { id: 3, username: 'carol', blocked: false, email: '', administrator: false },
+      { id: 4, username: 'dave', blocked: false, email: '   ', administrator: false },
+      { id: 5, username: 'admin2', blocked: false, email: 'a2@example.com', administrator: true },
+      { id: 6, username: 'admin3', blocked: false, email: null, administrator: true },
+      { id: 7, username: 'public', blocked: false, email: 'p@example.com', administrator: false },
+      { id: 8, username: 'admin', blocked: false, email: 'admin@example.com', administrator: true },
+      { id: 9, username: 'blocked', blocked: true, email: 'b@example.com', administrator: false },
+    ] as any[];
+
+    beforeEach(() => {
+      (component as any).usersList = users;
+    });
+
+    it('eligibleUsersList includes ordinary and non-built-in admins with or without email', () => {
+      const usernames = component.eligibleUsersList.map(u => u.username);
+      expect(usernames).toEqual(['alice', 'bob', 'carol', 'dave', 'admin2', 'admin3']);
+    });
+
+    it('excludes public, built-in admin, and blocked users', () => {
+      const usernames = component.eligibleUsersList.map(u => u.username);
+      expect(usernames).not.toContain('public');
+      expect(usernames).not.toContain('admin');
+      expect(usernames).not.toContain('blocked');
+    });
+
+    it('exposes current ineligible creator for disabled option', () => {
+      component.entityToEdit = Object.assign(component.empty(), { creatorId: 9 });
+      component.postFetchData();
+      expect(component.currentIneligibleCreator?.username).toBe('blocked');
+      expect(component.isEligiblePointOfContact(users[0])).toBe(true);
+      expect(component.isEligiblePointOfContact(users[8])).toBe(false);
+    });
+
+    it('updateDataRelated skips creator relation when unchanged', async () => {
+      const entity = {
+        updateRelationEx: jest.fn().mockReturnValue(of(null)),
+        situationMap: null,
+        creator: { id: 9 },
+      };
+      jest.spyOn(component, 'createObject').mockReturnValue(entity as any);
+      jest.spyOn(component as any, 'saveTranslations').mockResolvedValue(undefined);
+      component.entityToEdit = Object.assign(component.empty(), { creatorId: 9 });
+      component.postFetchData();
+      component.entityID = 1;
+
+      await component.updateDataRelated(false);
+
+      expect(entity.updateRelationEx).toHaveBeenCalledWith('situationMap', null);
+      expect(entity.updateRelationEx).not.toHaveBeenCalledWith('creator', expect.anything());
+    });
+
+    it('updateDataRelated updates creator relation when changed', async () => {
+      const entity = {
+        updateRelationEx: jest.fn().mockReturnValue(of(null)),
+        situationMap: null,
+        creator: { id: 1 },
+      };
+      jest.spyOn(component, 'createObject').mockReturnValue(entity as any);
+      jest.spyOn(component as any, 'saveTranslations').mockResolvedValue(undefined);
+      component.entityToEdit = Object.assign(component.empty(), { creatorId: 9 });
+      component.postFetchData();
+      component.entityForm.patchValue({ creatorId: 1 });
+      component.entityID = 1;
+
+      await component.updateDataRelated(false);
+
+      expect(entity.updateRelationEx).toHaveBeenCalledWith('creator', entity.creator);
+    });
+  });
+
+  describe('point of contact warnings classification', () => {
+    it('passes email-missing as infoMessageKeys', () => {
+      expect(component.pointOfContactInfoMessageKeys).toContain(
+        'entity.application.warning.point-of-contact-email-missing'
+      );
+    });
+
+    it('keeps invalid-point-of-contact as a warning key', () => {
+      component.entityToEdit = Object.assign(component.empty(), {
+        warnings: ['entity.application.warning.invalid-point-of-contact'],
+      });
+      component.dataLoaded = true;
+      fixture.detectChanges();
+      expect(component.entityToEdit.warnings).toContain(
+        'entity.application.warning.invalid-point-of-contact'
+      );
+      expect(component.pointOfContactInfoMessageKeys).not.toContain(
+        'entity.application.warning.invalid-point-of-contact'
+      );
+    });
+  });
+
 });

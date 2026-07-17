@@ -17,7 +17,8 @@
   [fieldLabelKeys]="validationFieldLabelKeys"
   [warnings]="getUserDisplayWarnings()"
   [infoMessageKeys]="getBuiltInInfoWarningKeys()"
-  [infoStyle]="useInfoWarningsCardStyle() && !hasRequiredFieldAlerts()">
+  [infoStyle]="useInfoWarningsCardStyle() && !hasRequiredFieldAlerts()"
+  [customAlertMessage]="getPointOfContactImpactMessage()">
 </app-entity-form-alerts>
 
 <mat-tab-group
@@ -158,7 +159,10 @@
       </mat-card-content>
     </mat-card>
   </mat-tab>
-  <mat-tab label="{{ 'entity.user.applicationsAsContact.header' | translate }}" *ngIf="isEdition()">
+  <mat-tab
+    label="{{ 'entity.user.applicationsAsContact.header' | translate }}"
+    *ngIf="canShowApplicationsAsPointOfContact()"
+    data-testid="applications-as-point-of-contact-tab">
     <mat-card class="sitmun-mat-card-margin" appearance="outlined">
       <mat-card-header>
         <app-card-lead viewerKey="entity.user.card.applicationsAsContactLead.viewer"></app-card-lead>

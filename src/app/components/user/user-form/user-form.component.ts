@@ -94,6 +94,9 @@ export class UserFormComponent extends BaseFormComponent<UserProjection> {
   /** Flag indicating if this is the built-in public user */
   isBuiltInPublic = false;
 
+  /** Cached applications where this user is the point of contact. */
+  applicationsAsPointOfContact: Application[] = [];
+
   constructor(
     dialog: MatDialog,
     translateService: TranslateService,
@@ -142,6 +145,20 @@ export class UserFormComponent extends BaseFormComponent<UserProjection> {
     user.administrator = false;
     user.blocked = false;
     return user;
+  }
+
+  override async fetchRelatedData(): Promise<void> {
+    this.applicationsAsPointOfContact = [];
+    if (!this.isEdition()) {
+      return;
+    }
+    const username = this.entityToEdit?.username;
+    if (username === 'public' || username === 'admin') {
+      return;
+    }
+    this.applicationsAsPointOfContact = await firstValueFrom(
+      this.applicationService.findByCreatorId(this.entityID)
+    );
   }
 
   override postFetchData(): void {
@@ -447,12 +464,37 @@ export class UserFormComponent extends BaseFormComponent<UserProjection> {
       ])
       .withRelationsOrder('name')
       .withRelationsFetcher(() => {
-        if (!this.isEdition()) {
+        if (!this.canShowApplicationsAsPointOfContact()) {
           return of([]);
         }
-        return this.applicationService.findByCreatorId(this.entityID);
+        return of(this.applicationsAsPointOfContact);
       })
       .build();
+  }
+
+  canShowApplicationsAsPointOfContact(): boolean {
+    return this.isEdition() && !this.isBuiltInAdmin && !this.isBuiltInPublic;
+  }
+
+  getPointOfContactImpactMessage(): string | null {
+    if (!this.entityForm || this.applicationsAsPointOfContact.length === 0) {
+      return null;
+    }
+    const count = this.applicationsAsPointOfContact.length;
+    if (this.entityForm.get('blocked')?.value === true) {
+      return this.translateService.instant(
+        'entity.user.warning.point-of-contact-blocked-impact',
+        { count }
+      );
+    }
+    const email = String(this.entityForm.get('email')?.value ?? '').trim();
+    if (!email) {
+      return this.translateService.instant(
+        'entity.user.warning.point-of-contact-email-missing-impact',
+        { count }
+      );
+    }
+    return null;
   }
 
   isUsernamePublic(): boolean {

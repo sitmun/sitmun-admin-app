@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file. The format 
 
 ## [Unreleased]
 
+### Added
+
+- **Application**: optional responsible institution field, eligible point-of-contact selector (built-in/blocked excluded), application-list warning indicator, and user-form impact warnings when an assigned PoC is blocked or loses email ([#316](https://github.com/sitmun/sitmun-admin-app/issues/316)).
+- **User**: built-in `public` and `admin` user forms no longer show the applications-as-point-of-contact tab ([#316](https://github.com/sitmun/sitmun-admin-app/issues/316)).
+
 ### Fixed
 
 - **Auth**: backend request matching normalizes relative, absolute, bare-domain, and default-port URLs while rejecting cross-origin and path-prefix lookalikes.
