@@ -9,6 +9,8 @@
   <span class="spacer"></span>
   <ng-content></ng-content>
   <button
+    data-testid="form-save"
+    [attr.aria-label]="'common.button.save' | translate"
     [matTooltip]="'common.button.save' | translate"
     mat-mini-fab
     class="add-half-gap"
@@ -18,6 +20,8 @@
     <mat-icon fontSet="material-icons-round">save</mat-icon>
   </button>
   <button
+    data-testid="form-back"
+    [attr.aria-label]="'common.button.return' | translate"
     [matTooltip]="'common.button.return' | translate"
     mat-mini-fab
     class="add-half-gap"

@@ -6,6 +6,8 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Fixed
 
+- **Auth**: backend request matching normalizes relative, absolute, bare-domain, and default-port URLs while rejecting cross-origin and path-prefix lookalikes.
+- **Forms**: route changes between records hide stale controls until the latest entity finishes loading, preventing edits from being discarded by a late form rebuild.
 - **Task types**: list, task-group Tasks grids, and tree-node task pickers request `lang` so backend `@I18n` resolves `title` / `typeTitle`.
 - **Territory/Tasks**: task type titles request `lang` so backend `@I18n` resolves `taskTypeTitle` for the UI language.
 - **Grids**: boolean column headers are left-aligned and stay visible; selection checkboxes keep a separate header class; territory Permissions fills remaining width via flex on user/role while “applies to children” stays bounded.

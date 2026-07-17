@@ -311,6 +311,9 @@ export class DialogGridComponent implements OnInit {
   }
 
   doAdd(rowsToAdd: any[]){
+    if (rowsToAdd.length === 0 || rowsToAdd.some(rows => rows.length === 0)) {
+      return;
+    }
     this.dialogRef.close(DIALOG_GRID_EVENTS.ADD(rowsToAdd));
   }
 

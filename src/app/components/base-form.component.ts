@@ -2,11 +2,10 @@ import {AfterViewInit, ChangeDetectorRef, Component, OnDestroy, OnInit, QueryLis
 import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 import {FormControl, UntypedFormGroup} from "@angular/forms";
 import {MatDialog} from "@angular/material/dialog";
-import {ActivatedRoute, Router} from "@angular/router";
+import {ActivatedRoute, Params, Router} from "@angular/router";
 
 import {TranslateService} from "@ngx-translate/core";
-import {firstValueFrom, Observable} from "rxjs";
-import { tap} from "rxjs/operators";
+import {concatMap, filter, firstValueFrom, from, map, Observable, of, tap} from "rxjs";
 
 import {DataTablesRegistry} from "@app/components/data-tables.util";
 import {RelationGridComponent} from "@app/components/shared/relation-grid/relation-grid.component";
@@ -112,6 +111,12 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
    * Components should set this to true once all necessary data is available.
    */
   dataLoaded = false;
+
+  /**
+   * Monotonic epoch for in-flight {@link fetchData} calls.
+   * Route-param re-emissions can overlap; only the latest epoch may commit form state.
+   */
+  private fetchDataEpoch = 0;
 
   /**
    * The main form group for the entity.
@@ -245,17 +250,19 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
    * @returns {void}
    */
   ngOnInit(): void {
-    this.activatedRoute.params
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => {
-        this.fetchData()
-          .then(() => {
-            this.afterFetch();
-          })
-          .catch((reason) => {
-            this.errorHandler.handleError(reason, 'common.error.initialization');
-          });
-      });
+    this.activatedRoute.params.pipe(
+      map(params => ({params, epoch: ++this.fetchDataEpoch})),
+      tap(() => {
+        this.dataLoaded = false;
+      }),
+      concatMap(({params, epoch}) =>
+        epoch === this.fetchDataEpoch
+          ? from(this.fetchData(params, epoch))
+          : of(false)
+      ),
+      filter(committed => committed),
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe(() => this.afterFetch());
   }
 
   /**
@@ -340,25 +347,55 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
    * 4. Fetch related data if needed
    * 5. Set up the form and complete initialization
    *
-   * @returns {Promise<void>} Promise that resolves when all data is loaded
+   * @param params - Route params for this load cycle
+   * @param epoch - Fetch epoch from {@link ngOnInit}; stale epochs abort before mutating form state
+   * @returns {Promise<boolean>} true when this epoch committed form state, false when superseded
    */
-  async fetchData(): Promise<void> {
+  async fetchData(
+    params: Params = this.activatedRoute.snapshot.params,
+    epoch = ++this.fetchDataEpoch,
+  ): Promise<boolean> {
     try {
-      await this.processRouteParams();
+      await this.processRouteParams(params);
+      if (epoch !== this.fetchDataEpoch) {
+        return false;
+      }
       await this.preFetchData();
+      if (epoch !== this.fetchDataEpoch) {
+        return false;
+      }
       if (!this.isNewOrDuplicated()) {
-        this.entityToEdit = await this.fetchOriginal();
-        await this.fetchRelatedData()
+        const entity = await this.fetchOriginal();
+        if (epoch !== this.fetchDataEpoch) {
+          return false;
+        }
+        this.entityToEdit = entity;
+        await this.fetchRelatedData();
+        if (epoch !== this.fetchDataEpoch) {
+          return false;
+        }
       } else if (this.isDuplicated()) {
-        this.entityToEdit = await this.fetchCopy();
-        await this.fetchRelatedData()
+        const entity = await this.fetchCopy();
+        if (epoch !== this.fetchDataEpoch) {
+          return false;
+        }
+        this.entityToEdit = entity;
+        await this.fetchRelatedData();
+        if (epoch !== this.fetchDataEpoch) {
+          return false;
+        }
       } else {
         this.entityToEdit = this.empty();
       }
+      if (epoch !== this.fetchDataEpoch) {
+        return false;
+      }
       this.postFetchData();
       this.dataLoaded = true;
+      return true;
     } catch (error) {
       this.errorHandler.handleError(error, 'common.error.loadingFailed');
+      return false;
     }
   }
 
@@ -367,11 +404,11 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
    * Sets the entityID and duplicateID properties based on the current route.
    * Redirects to dashboard if route params are invalid (non-numeric).
    *
+   * @param params - Route params for this load cycle (defaults to the current snapshot)
    * @returns {Promise<void>} Promise that resolves when parameters are processed
    * @throws {Error} Throws an error if route params are invalid to abort fetchData
    */
-  async processRouteParams(): Promise<void> {
-    const params = this.activatedRoute.snapshot.params;
+  async processRouteParams(params: Params = this.activatedRoute.snapshot.params): Promise<void> {
     this.entityID = params.id != null ? Number(params.id) : -1;
     this.duplicateID = params.idDuplicate != null ? Number(params.idDuplicate) : -1;
 

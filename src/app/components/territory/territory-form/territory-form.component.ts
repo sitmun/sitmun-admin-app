@@ -249,10 +249,9 @@ export class TerritoryFormComponent extends BaseFormComponent<TerritoryProjectio
       firstValueFrom(this.utils.getCodeListValues('territory.scope'))
     ]);
 
-    this.territoryGroups.push(...territoryGroups);
-    this.territoryTypes.push(...territoryTypes);
-    this.territoryTypes.sort((a, b) => a.name.localeCompare(b.name));
-    this.scopeTypes.push(...scopeTypes);
+    this.territoryGroups = [...territoryGroups];
+    this.territoryTypes = [...territoryTypes].sort((a, b) => a.name.localeCompare(b.name));
+    this.scopeTypes = [...scopeTypes];
   }
 
   /**
