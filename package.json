@@ -7,6 +7,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
+    "start:e2e": "ng serve --configuration=e2e",
     "build": "ng build",
     "test": "jest",
     "test:watch": "jest --watch",
