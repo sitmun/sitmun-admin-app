@@ -338,7 +338,8 @@ export const config = {
         folder: {
           allowedChildren: ['cartography', 'folder'],
           capabilities: {
-            radio: true
+            radio: true,
+            loadData: true
           },
           icon: 'folder',
           showDescriptionPanel: true,

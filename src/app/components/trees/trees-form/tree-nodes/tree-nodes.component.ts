@@ -655,6 +655,21 @@ export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
       && this.treeRulesService.supportsNodeCapability(this.currentTreeType, 'folder', 'radio');
   }
 
+  get showLoadDataToggle(): boolean {
+    return this.currentNodeIsFolder
+      && this.treeRulesService.supportsNodeCapability(this.currentTreeType, 'folder', 'loadData');
+  }
+
+  get showQueryableActiveToggle(): boolean {
+    return !this.currentNodeIsFolder
+      && this.effectiveNodeType === constants.treeDomainKey.cartography;
+  }
+
+  /** True when the linked layer allows GetFeatureInfo (`queryableFeatureEnabled`). */
+  get canEnableQueryableActive(): boolean {
+    return this.showQueryableActiveToggle && this.isSelectedLayerQueryableFeatureEnabled();
+  }
+
   /** i18n key for appearance panel field label (image vs icon), from config. */
   get appearanceFieldLabelI18nKey(): string {
     const key = this.treeRulesService.getNodeTypeAppearanceLabelKey(this.currentTreeType, this.effectiveNodeType);
@@ -965,6 +980,8 @@ export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
     if (style) (this.availableStyles.length === 0 ? style.disable : style.enable).call(style, { emitEvent: false });
     this.syncActiveControlState();
     this.syncRadioControlState();
+    this.syncLoadDataControlState();
+    this.syncQueryableActiveControlState();
   }
 
   private syncActiveControlState(): void {
@@ -1005,6 +1022,60 @@ export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
       radio.setValue(false, { emitEvent: false });
     }
     (canEnable ? radio.enable : radio.disable).call(radio, { emitEvent: false });
+  }
+
+  private syncLoadDataControlState(): void {
+    const loadData = this.treeNodeForm?.get('loadData');
+    if (!loadData) {
+      return;
+    }
+    if (!this.showLoadDataToggle) {
+      if (loadData.value) {
+        loadData.setValue(false, { emitEvent: false });
+      }
+      loadData.disable({ emitEvent: false });
+      return;
+    }
+    loadData.enable({ emitEvent: false });
+  }
+
+  private syncQueryableActiveControlState(): void {
+    const queryableActive = this.treeNodeForm?.get('queryableActive');
+    if (!queryableActive) {
+      return;
+    }
+    if (!this.canEnableQueryableActive) {
+      if (queryableActive.value) {
+        queryableActive.setValue(false, { emitEvent: false });
+      }
+      queryableActive.disable({ emitEvent: false });
+      return;
+    }
+    queryableActive.enable({ emitEvent: false });
+  }
+
+  private isSelectedLayerQueryableFeatureEnabled(): boolean {
+    return this.isLayerQueryableFeatureEnabled(
+      this.treeNodeForm?.get('cartographyId')?.value,
+      this.treeNodeForm?.get('cartography')?.value ?? this.currentNodeCartography
+    );
+  }
+
+  private isLayerQueryableFeatureEnabled(
+    cartographyId?: number | null,
+    cartography?: { id?: number; queryableFeatureEnabled?: boolean } | null
+  ): boolean {
+    const obj =
+      cartography && typeof cartography === 'object' ? cartography : null;
+    if (obj && obj.queryableFeatureEnabled !== undefined) {
+      return obj.queryableFeatureEnabled === true;
+    }
+    const id = cartographyId ?? obj?.id ?? null;
+    if (id == null) {
+      return false;
+    }
+    const found = this.allCartographies.find((c) => c.id === id);
+    return found?.queryableFeatureEnabled === true;
   }
 
   private wireVisibleActiveSync(): void {
@@ -1093,6 +1164,8 @@ export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
       nodeType: new UntypedFormControl(null, []), // Optional for folders, will be validated conditionally
       cartography: new UntypedFormControl({ value: null, disabled: false }, []),
       radio: new UntypedFormControl(null, []),
+      loadData: new UntypedFormControl(false, []),
+      queryableActive: new UntypedFormControl(false, []),
       datasetURL: new UntypedFormControl(null, []),
       metadataURL: new UntypedFormControl(null, []),
       description: new UntypedFormControl(null, []),
@@ -1252,6 +1325,8 @@ export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
       cartographyId: node.cartographyId,
       oldCartography: node.cartographyId ? this.cartographyService.createProxy(node.cartographyId) : null,
       radio: node.radio,
+      loadData: node.loadData === true,
+      queryableActive: node.queryableActive === true,
       description: node.description,
       datasetURL: node.datasetURL,
       metadataURL: node.metadataURL,
@@ -1920,6 +1995,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
     const newFolder: any = {};
     newFolder.description = capability.Abstract;
     newFolder.radio = false;
+    newFolder.loadData = false;
 
     if (newFolder.description && newFolder.description.length > 250) {
       newFolder.description = newFolder.description.substring(0, 249);
@@ -2319,6 +2395,16 @@ export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
       radio: formValue.radio,
       children: directChildren,
     });
+    const normalizedLoadData = this.resolvePersistedLoadData({
+      nodeType: formValue.nodeType,
+      loadData: formValue.loadData,
+    });
+    const normalizedQueryableActive = this.resolvePersistedQueryableActive({
+      nodeType: formValue.nodeType,
+      cartographyId: formValue.cartographyId,
+      taskId: formValue.taskId,
+      queryableActive: formValue.queryableActive,
+    });
     const nodeUpdate = {
       ...formValue,
       nodeType: formValue.nodeType,
@@ -2326,6 +2412,8 @@ export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
       task: task != null && typeof task === 'object' ? task : null,
       active: normalizedActive,
       radio: normalizedRadio,
+      loadData: normalizedLoadData,
+      queryableActive: normalizedQueryableActive,
     };
     // Only push to tree when the user has actually changed the form; avoids tree showing "Modified" when e.g. opening the mapping dialog
     if (!this.treeNodeForm.dirty) {
@@ -2449,6 +2537,8 @@ export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
       treeNodeObj.visible = treeNode.visible !== false;
       treeNodeObj.active = this.resolvePersistedActive(treeNode);
       treeNodeObj.radio = this.resolvePersistedRadio(treeNode);
+      treeNodeObj.loadData = this.resolvePersistedLoadData(treeNode);
+      treeNodeObj.queryableActive = this.resolvePersistedQueryableActive(treeNode);
       treeNodeObj.datasetURL = treeNode.datasetURL;
       treeNodeObj.metadataURL = treeNode.metadataURL;
       treeNodeObj.description = treeNode.description;
@@ -2770,6 +2860,35 @@ export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
     return this.folderHasOnlyCartographyLeafChildren(treeNode);
   }
 
+  private resolvePersistedLoadData(treeNode: {
+    nodeType?: string;
+    loadData?: boolean;
+  }): boolean {
+    const isFolder = this.treeRulesService.canNodeTypeHaveChildren(
+      this.currentTreeType,
+      treeNode.nodeType ?? null
+    );
+    return (
+      isFolder
+      && this.treeRulesService.supportsNodeCapability(this.currentTreeType, 'folder', 'loadData')
+      && treeNode.loadData === true
+    );
+  }
+
+  private resolvePersistedQueryableActive(treeNode: {
+    nodeType?: string;
+    cartographyId?: number | null;
+    taskId?: number | null;
+    queryableActive?: boolean;
+    cartography?: { id?: number; queryableFeatureEnabled?: boolean } | null;
+  }): boolean {
+    return (
+      this.isCartographyLeaf(treeNode)
+      && treeNode.queryableActive === true
+      && this.isLayerQueryableFeatureEnabled(treeNode.cartographyId, treeNode.cartography)
+    );
+  }
+
   private showStyleError() {
     const dialogRef = this.dialog.open(DialogMessageComponent);
     dialogRef.componentInstance.title = this.utils.getTranslate("Error");
@@ -2947,6 +3066,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   async updateCartographyTreeLeft(cartography) {
+    this.currentNodeCartography = cartography;
     this.treeNodeForm.patchValue({
       cartography: cartography
     });
@@ -2961,6 +3081,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
       if (!this.currentNodeIsFolder) {
         const oldCartography = this.treeNodeForm.get('oldCartography').value;
         if (oldCartography) {
+          this.currentNodeCartography = oldCartography;
           this.treeNodeForm.patchValue({
             cartography: oldCartography,
             cartographyName: oldCartography.name,
@@ -3752,6 +3873,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
       this.treeNodeForm.patchValue({ status: 'Modified' });
     }
     this.treeNodeForm.markAsDirty();
+    this.syncFormControlsDisabledState();
     this.cdr.markForCheck();
 
     requestAnimationFrame(() => {

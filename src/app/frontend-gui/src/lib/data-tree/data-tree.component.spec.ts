@@ -1309,7 +1309,11 @@ describe('DataTreeComponent', () => {
       translate = TestBed.inject(TranslateService);
       translate.setTranslation('en', {
         'entity.tree.treeIndicator.radioFolder': 'Single selection folder (radio group)',
+        'entity.tree.treeIndicator.loadDataFolder':
+          'Folder shows a load control in the viewer catalog',
         'entity.tree.treeIndicator.loadByDefault': 'Loads in working layers when the map opens',
+        'entity.tree.treeIndicator.queryableActive':
+          'Queryable (GetFeatureInfo) in the viewer catalog',
       }, true);
       translate.use('en');
     });
@@ -1364,12 +1368,60 @@ describe('DataTreeComponent', () => {
       expect(component.showLoadByDefaultIndicator(node)).toBe(false);
     });
 
+    it('showLoadDataFolderIndicator is true for a loadData folder', () => {
+      const node = makeCartographyFolder({ loadData: true });
+      component.dataSource.data = [{ name: '', isRoot: true, id: null, order: 0, children: [node], type: 'folder' } as any];
+      expect(component.showLoadDataFolderIndicator(node)).toBe(true);
+    });
+
+    it('showLoadDataFolderIndicator is false for a folder without loadData', () => {
+      const node = makeCartographyFolder({ loadData: false });
+      component.dataSource.data = [{ name: '', isRoot: true, id: null, order: 0, children: [node], type: 'folder' } as any];
+      expect(component.showLoadDataFolderIndicator(node)).toBe(false);
+    });
+
+    it('showLoadDataFolderIndicator is false for a cartography leaf with loadData true', () => {
+      const node = makeCartographyLeaf({ loadData: true });
+      component.dataSource.data = [{ name: '', isRoot: true, id: null, order: 0, children: [node], type: 'folder' } as any];
+      expect(component.showLoadDataFolderIndicator(node)).toBe(false);
+    });
+
     it('radioFolderIndicatorTooltip returns the localized string', () => {
       expect(component.radioFolderIndicatorTooltip()).toBe('Single selection folder (radio group)');
     });
 
+    it('loadDataFolderIndicatorTooltip returns the localized string', () => {
+      expect(component.loadDataFolderIndicatorTooltip()).toBe(
+        'Folder shows a load control in the viewer catalog'
+      );
+    });
+
     it('loadByDefaultIndicatorTooltip returns the localized string', () => {
       expect(component.loadByDefaultIndicatorTooltip()).toBe('Loads in working layers when the map opens');
+    });
+
+    it('showQueryableActiveIndicator is true for a queryable cartography leaf', () => {
+      const node = makeCartographyLeaf({ queryableActive: true });
+      component.dataSource.data = [{ name: '', isRoot: true, id: null, order: 0, children: [node], type: 'folder' } as any];
+      expect(component.showQueryableActiveIndicator(node)).toBe(true);
+    });
+
+    it('showQueryableActiveIndicator is false when queryableActive is false', () => {
+      const node = makeCartographyLeaf({ queryableActive: false });
+      component.dataSource.data = [{ name: '', isRoot: true, id: null, order: 0, children: [node], type: 'folder' } as any];
+      expect(component.showQueryableActiveIndicator(node)).toBe(false);
+    });
+
+    it('showQueryableActiveIndicator is false for folders', () => {
+      const node = makeCartographyFolder({ queryableActive: true });
+      component.dataSource.data = [{ name: '', isRoot: true, id: null, order: 0, children: [node], type: 'folder' } as any];
+      expect(component.showQueryableActiveIndicator(node)).toBe(false);
+    });
+
+    it('queryableActiveIndicatorTooltip returns the localized string', () => {
+      expect(component.queryableActiveIndicatorTooltip()).toBe(
+        'Queryable (GetFeatureInfo) in the viewer catalog'
+      );
     });
   });
 

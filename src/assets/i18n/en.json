@@ -705,7 +705,6 @@
   "entity.task.locator.parameters.geometryField": "Geometry field",
   "entity.task.locator.parameters.geometryField.placeholder": "e.g. geometry",
   "entity.task.locator.parameters.geometryField.hint": "Path to the GeoJSON geometry object in each result. Default: geometry",
-
   "entity.task.locator.parameters.srs": "Coordinate reference system",
   "entity.task.locator.parameters.srs.placeholder": "e.g. EPSG:4326",
   "entity.task.locator.parameters.srs.hint": "CRS of the coordinates returned by the geocoder (not the map CRS). The map always reprojects to its own coordinate system. Default: EPSG:4326 (world standard, valid for ICGC, Nominatim and most services).",
@@ -1070,6 +1069,7 @@
   "entity.tree.hiddenInViewer.self": "Hidden in viewer: this node and its children are omitted from the map catalog.",
   "entity.tree.hiddenInViewer.ancestor": "Hidden in viewer because parent \"{{name}}\" is not in the map catalog.",
   "entity.tree.treeIndicator.radioFolder": "Single selection folder (radio group)",
+  "entity.tree.treeIndicator.loadDataFolder": "Folder shows a load control in the viewer catalog",
   "entity.tree.treeIndicator.loadByDefault": "Loads in working layers when the map opens",
   "entity.tree.webUrl": "URL web",
   "entity.user.administrator": "SITMUN administrator user",
@@ -1260,5 +1260,11 @@
   "tasksMoreInfoEntity.urlHint": "Use {variableName} for client parameters only. Direct redirect (no proxy). Backend variables #{} NOT supported here.",
   "tasksMoreInfoEntity.value": "Value",
   "treeStructureMessage.touristic.rootMustHaveChildren": "In a touristic tree, the single first-level node must contain at least one child node.",
-  "treeStructureMessage.touristic.singleRoot": "In a touristic tree only one first-level node is allowed. There are currently {{count}}."
+  "treeStructureMessage.touristic.singleRoot": "In a touristic tree only one first-level node is allowed. There are currently {{count}}.",
+  "entity.tree.loadData": "Show folder load control",
+  "entity.tree.hint.loadData": "When on, the viewer shows a load control on the folder row (checkbox, or radio if single-selection mode is on) to load or unload children (all leaves, or the first child if radio mode is on). The folder title only expands or collapses. Child rows can still be loaded individually.",
+  "entity.tree.queryableActive": "Queryable (GetFeatureInfo)",
+  "entity.tree.hint.queryableActive": "When on, the viewer catalog shows an informative queryable marker on this leaf. Requires the linked layer to allow GetFeatureInfo.",
+  "entity.tree.hint.queryableActive.layerDisabled": "Disabled because no layer is linked, or the linked layer does not allow GetFeatureInfo. Enable GetFeatureInfo on the layer form first.",
+  "entity.tree.treeIndicator.queryableActive": "Queryable (GetFeatureInfo) in the viewer catalog"
 }

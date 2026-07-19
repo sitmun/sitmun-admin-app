@@ -705,7 +705,6 @@
   "entity.task.locator.parameters.geometryField": "Camp de geometria",
   "entity.task.locator.parameters.geometryField.placeholder": "Ex: geometry",
   "entity.task.locator.parameters.geometryField.hint": "Camí a l'objecte de geometria GeoJSON de cada resultat. Per defecte: geometry",
-
   "entity.task.locator.parameters.srs": "Sistema de referència",
   "entity.task.locator.parameters.srs.placeholder": "Ex: EPSG:4326",
   "entity.task.locator.parameters.srs.hint": "CRS de les coordenades retornades pel geocodificador (no el del mapa). El mapa sempre reprojecta al seu propi sistema. Per defecte: EPSG:4326 (estàndard mundial, vàlid per a ICGC, Nominatim i la majoria de serveis).",
@@ -1068,6 +1067,7 @@
   "entity.tree.hiddenInViewer.self": "Ocult al visor: aquest node i els seus fills no es publiquen al catàleg del mapa.",
   "entity.tree.hiddenInViewer.ancestor": "Ocult al visor perquè el pare \"{{name}}\" no és al catàleg del mapa.",
   "entity.tree.treeIndicator.radioFolder": "Carpeta de selecció única (grup ràdio)",
+  "entity.tree.treeIndicator.loadDataFolder": "La carpeta mostra un control de càrrega al catàleg del visor",
   "entity.tree.treeIndicator.loadByDefault": "Es carrega a les capes de treball en obrir el mapa",
   "entity.tree.webUrl": "URL web",
   "entity.user.administrator": "Usuari administrador de SITMUN",
@@ -1260,5 +1260,11 @@
   "treeStructureMessage.touristic.rootMustHaveChildren": "En un arbre turístic, l'únic node de primer nivell ha de contenir almenys un node fill.",
   "treeStructureMessage.touristic.singleRoot": "En un arbre turístic només es permet un node de primer nivell. Actualment n'hi ha {{count}}.",
   "entity.territory.hint.center": "Punt focal dins del territori. Utilitzat pel visualitzador per calcular una extensió inicial centrada que manté visible tot el territori.",
-  "entity.territory.hint.extent": "Límits del territori (minX, maxX, minY, maxY) i sistema de referència espacial (SRS, p.ex., EPSG:4326). Enviats al perfil del client. L'extensió i el SRS (si està definit) anulen els valors de l'aplicació. Les quatre coordenades són requerides juntes. El backend utilitza l'extensió i el punt d'interès per calcular l'extensió del mapa. El nivell de zoom per defecte (si està configurat) anula l'escala després de l'ajust d'extensió."
+  "entity.territory.hint.extent": "Límits del territori (minX, maxX, minY, maxY) i sistema de referència espacial (SRS, p.ex., EPSG:4326). Enviats al perfil del client. L'extensió i el SRS (si està definit) anulen els valors de l'aplicació. Les quatre coordenades són requerides juntes. El backend utilitza l'extensió i el punt d'interès per calcular l'extensió del mapa. El nivell de zoom per defecte (si està configurat) anula l'escala després de l'ajust d'extensió.",
+  "entity.tree.loadData": "Mostrar control de càrrega a la carpeta",
+  "entity.tree.hint.loadData": "Si està activat, el visor mostra un control a la carpeta (casella, o ràdio si el mode de selecció única està actiu) per carregar o treure els fills (totes les fulles, o el primer fill si el mode ràdio està actiu). El títol només expandeix o contrau la carpeta. Les files filles es poden carregar individualment.",
+  "entity.tree.queryableActive": "Consultable (GetFeatureInfo)",
+  "entity.tree.hint.queryableActive": "Si està actiu, el catàleg del visor mostra un marcador informatiu de consulta en aquesta fulla. Requereix que la capa vinculada permeti GetFeatureInfo.",
+  "entity.tree.hint.queryableActive.layerDisabled": "Desactivat perquè no hi ha capa vinculada, o la capa no permet GetFeatureInfo. Activeu GetFeatureInfo al formulari de la capa primer.",
+  "entity.tree.treeIndicator.queryableActive": "Consultable (GetFeatureInfo) al catàleg del visor"
 }

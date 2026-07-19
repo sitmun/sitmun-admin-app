@@ -705,7 +705,6 @@
   "entity.task.locator.parameters.geometryField": "Champ de géométrie",
   "entity.task.locator.parameters.geometryField.placeholder": "Ex: geometry",
   "entity.task.locator.parameters.geometryField.hint": "Chemin vers l'objet géométrie GeoJSON de chaque résultat. Par défaut: geometry",
-
   "entity.task.locator.parameters.srs": "Système de référence",
   "entity.task.locator.parameters.srs.placeholder": "Ex: EPSG:4326",
   "entity.task.locator.parameters.srs.hint": "CRS des coordonnées retournées par le service. Par défaut: EPSG:4326",
@@ -1068,6 +1067,7 @@
   "entity.tree.hiddenInViewer.self": "Masqué dans le visualiseur : ce nœud et ses enfants sont omis du catalogue cartographique.",
   "entity.tree.hiddenInViewer.ancestor": "Masqué dans le visualiseur car le parent « {{name}} » n'est pas dans le catalogue cartographique.",
   "entity.tree.treeIndicator.radioFolder": "Dossier à sélection unique (groupe radio)",
+  "entity.tree.treeIndicator.loadDataFolder": "Le dossier affiche un contrôle de chargement dans le catalogue du visualiseur",
   "entity.tree.treeIndicator.loadByDefault": "Chargé dans les couches de travail à l'ouverture de la carte",
   "entity.tree.webUrl": "URL web",
   "entity.user.administrator": "Utilisateur administrateur SITMUN",
@@ -1260,5 +1260,11 @@
   "treeStructureMessage.touristic.rootMustHaveChildren": "Dans un arbre touristique, l'unique nœud de premier niveau doit contenir au moins un nœud enfant.",
   "treeStructureMessage.touristic.singleRoot": "Dans un arbre touristique, un seul nœud de premier niveau est autorisé. Il y en a actuellement {{count}}.",
   "entity.territory.hint.center": "Point focal dans le territoire. Utilisé par le visualiseur pour calculer une étendue initiale centrée qui garde tout le territoire visible.",
-  "entity.territory.hint.extent": "Limites du territoire (minX, maxX, minY, maxY) et système de référence spatiale (SRS, par ex., EPSG:4326). Envoyés au profil client. L'étendue et le SRS (si défini) remplacent les valeurs de l'application. Les quatre coordonnées sont requises ensemble. Le backend utilise l'étendue et le point d'intérêt pour calculer l'étendue de la carte. Le niveau de zoom par défaut (si configuré) remplace l'échelle après l'ajustement de l'étendue."
+  "entity.territory.hint.extent": "Limites du territoire (minX, maxX, minY, maxY) et système de référence spatiale (SRS, par ex., EPSG:4326). Envoyés au profil client. L'étendue et le SRS (si défini) remplacent les valeurs de l'application. Les quatre coordonnées sont requises ensemble. Le backend utilise l'étendue et le point d'intérêt pour calculer l'étendue de la carte. Le niveau de zoom par défaut (si configuré) remplace l'échelle après l'ajustement de l'étendue.",
+  "entity.tree.loadData": "Afficher le contrôle de chargement du dossier",
+  "entity.tree.hint.loadData": "Si activé, le visualiseur affiche un contrôle sur le dossier (case à cocher, ou radio si le mode sélection unique est actif) pour charger ou retirer les enfants (toutes les feuilles, ou le premier enfant si le mode radio est actif). Le titre ne fait qu'ouvrir ou fermer le dossier. Les lignes enfants peuvent toujours être chargées individuellement.",
+  "entity.tree.queryableActive": "Interrogeable (GetFeatureInfo)",
+  "entity.tree.hint.queryableActive": "Si activé, le catalogue du visualiseur affiche un marqueur informatif interrogeable sur cette feuille. La couche liée doit autoriser GetFeatureInfo.",
+  "entity.tree.hint.queryableActive.layerDisabled": "Désactivé car aucune couche n’est liée, ou la couche n’autorise pas GetFeatureInfo. Activez d’abord GetFeatureInfo dans le formulaire de couche.",
+  "entity.tree.treeIndicator.queryableActive": "Interrogeable (GetFeatureInfo) dans le catalogue du visualiseur"
 }

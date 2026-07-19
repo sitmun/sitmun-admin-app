@@ -6,6 +6,9 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Added
 
+- **Trees**: cartography folder form toggle for `loadData` (orthogonal to radio); persists via projection and save path ([sitmun-viewer-app#45](https://github.com/sitmun/sitmun-viewer-app/issues/45)).
+- **Trees**: admin tree shows a `check_box` badge for `loadData` folders (same pattern as radio), with i18n “load control” copy ([sitmun-viewer-app#45](https://github.com/sitmun/sitmun-viewer-app/issues/45)).
+- **Trees**: cartography leaf form toggle for `queryableActive` (GFI marker in the viewer catalog when the linked layer also has `queryableFeatureEnabled`); toggle is disabled and cleared when no layer is linked or layer GetFeatureInfo is off; admin tree shows an `i` badge when the node flag is on ([sitmun-viewer-app#45](https://github.com/sitmun/sitmun-viewer-app/issues/45)).
 - **Application**: optional responsible institution field, eligible point-of-contact selector (built-in/blocked excluded), application-list warning indicator, and user-form impact warnings when an assigned PoC is blocked or loses email ([#316](https://github.com/sitmun/sitmun-admin-app/issues/316)).
 - **User**: built-in `public` and `admin` user forms no longer show the applications-as-point-of-contact tab ([#316](https://github.com/sitmun/sitmun-admin-app/issues/316)).
 

@@ -1391,6 +1391,274 @@ describe('TreeNodesComponent', () => {
     });
   });
 
+  describe('queryableActive toggle', () => {
+    it('shows queryableActive toggle for cartography leaves', () => {
+      component.currentTreeType = 'cartography';
+      component['currentNodeType'] = constants.treeDomainKey.cartography;
+      component.treeNodeForm.patchValue({ nodeType: constants.treeDomainKey.cartography });
+      expect(component.showQueryableActiveToggle).toBe(true);
+    });
+
+    it('hides queryableActive toggle for folders', () => {
+      component.currentTreeType = 'cartography';
+      component['currentNodeType'] = constants.treeRenderType.folder;
+      component.treeNodeForm.patchValue({
+        nodeType: constants.treeRenderType.folder,
+        queryableActive: true,
+      });
+      expect(component.showQueryableActiveToggle).toBe(false);
+    });
+
+    it('disables queryableActive when the linked layer has GetFeatureInfo off', () => {
+      component.currentTreeType = 'cartography';
+      component['currentNodeType'] = constants.treeDomainKey.cartography;
+      component.allCartographies = [{ id: 11, queryableFeatureEnabled: false }];
+      component.currentNodeCartography = { id: 11, queryableFeatureEnabled: false };
+      component.treeNodeForm.patchValue({
+        nodeType: constants.treeDomainKey.cartography,
+        cartographyId: 11,
+        cartography: { id: 11, queryableFeatureEnabled: false },
+        queryableActive: true,
+      });
+      component['syncFormControlsDisabledState']();
+      expect(component.canEnableQueryableActive).toBe(false);
+      expect(component.treeNodeForm.get('queryableActive')?.disabled).toBe(true);
+      expect(component.treeNodeForm.get('queryableActive')?.value).toBe(false);
+    });
+
+    it('enables queryableActive when the linked layer allows GetFeatureInfo', () => {
+      component.currentTreeType = 'cartography';
+      component['currentNodeType'] = constants.treeDomainKey.cartography;
+      component.allCartographies = [{ id: 11, queryableFeatureEnabled: true }];
+      component.currentNodeCartography = { id: 11, queryableFeatureEnabled: true };
+      component.treeNodeForm.patchValue({
+        nodeType: constants.treeDomainKey.cartography,
+        cartographyId: 11,
+        cartography: { id: 11, queryableFeatureEnabled: true },
+        queryableActive: false,
+      });
+      component['syncFormControlsDisabledState']();
+      expect(component.canEnableQueryableActive).toBe(true);
+      expect(component.treeNodeForm.get('queryableActive')?.disabled).toBe(false);
+    });
+
+    it('persists queryableActive true for cartography leaves with layer GFI on', async () => {
+      component.currentTreeType = constants.codeValue.treeType.cartography;
+      component.allCartographies = [{ id: 11, queryableFeatureEnabled: true }];
+      const treeNodeService = TestBed.inject(TreeNodeService);
+      let captured: any;
+      jest.spyOn(treeNodeService, 'save').mockImplementation((node: any) => {
+        captured = node;
+        return of({ ...node } as any);
+      });
+
+      const leaf = {
+        id: 7,
+        parent: null,
+        name: 'Queryable leaf',
+        nodeType: constants.treeDomainKey.cartography,
+        cartographyId: 11,
+        queryableActive: true,
+        status: constants.entityStatus.modified,
+        visible: true,
+        active: false,
+        order: 0,
+      };
+
+      await (component as any).updateAllTreeNodes(
+        [leaf],
+        0,
+        new Map(),
+        [],
+        null,
+        null,
+        { id: 1 } as any,
+        1
+      );
+
+      expect(captured.queryableActive).toBe(true);
+    });
+
+    it('persists queryableActive false when layer GetFeatureInfo is off', async () => {
+      component.currentTreeType = constants.codeValue.treeType.cartography;
+      component.allCartographies = [{ id: 11, queryableFeatureEnabled: false }];
+      const treeNodeService = TestBed.inject(TreeNodeService);
+      let captured: any;
+      jest.spyOn(treeNodeService, 'save').mockImplementation((node: any) => {
+        captured = node;
+        return of({ ...node } as any);
+      });
+
+      const leaf = {
+        id: 7,
+        parent: null,
+        name: 'Stale queryable leaf',
+        nodeType: constants.treeDomainKey.cartography,
+        cartographyId: 11,
+        queryableActive: true,
+        status: constants.entityStatus.modified,
+        visible: true,
+        active: false,
+        order: 0,
+      };
+
+      await (component as any).updateAllTreeNodes(
+        [leaf],
+        0,
+        new Map(),
+        [],
+        null,
+        null,
+        { id: 1 } as any,
+        1
+      );
+
+      expect(captured.queryableActive).toBe(false);
+    });
+
+    it('persists queryableActive false for folders even when form value is true', async () => {
+      component.currentTreeType = constants.codeValue.treeType.cartography;
+      const treeNodeService = TestBed.inject(TreeNodeService);
+      let captured: any;
+      jest.spyOn(treeNodeService, 'save').mockImplementation((node: any) => {
+        captured = node;
+        return of({ ...node } as any);
+      });
+
+      const folder = {
+        id: 9,
+        parent: null,
+        name: 'Folder',
+        nodeType: constants.treeRenderType.folder,
+        queryableActive: true,
+        status: constants.entityStatus.modified,
+        visible: true,
+        active: false,
+        order: 0,
+      };
+
+      await (component as any).updateAllTreeNodes(
+        [folder],
+        0,
+        new Map(),
+        [],
+        null,
+        null,
+        { id: 1 } as any,
+        1
+      );
+
+      expect(captured.queryableActive).toBe(false);
+    });
+  });
+
+  describe('loadData toggle', () => {
+    it('shows loadData toggle only for folders on cartography trees', () => {
+      component.currentTreeType = 'cartography';
+      component['currentNodeType'] = constants.treeRenderType.folder;
+      component.treeNodeForm.patchValue({ nodeType: constants.treeRenderType.folder });
+      expect(component.showLoadDataToggle).toBe(true);
+
+      component.currentTreeType = 'touristic';
+      expect(component.showLoadDataToggle).toBe(false);
+    });
+
+    it('hides loadData toggle for cartography leaves', () => {
+      component.currentTreeType = 'cartography';
+      component['currentNodeType'] = constants.treeDomainKey.cartography;
+      component.treeNodeForm.patchValue({
+        nodeType: constants.treeDomainKey.cartography,
+        loadData: true,
+      });
+      expect(component.showLoadDataToggle).toBe(false);
+    });
+
+    it('keeps radio and loadData both true after persist for folders', async () => {
+      component.currentTreeType = constants.codeValue.treeType.cartography;
+      const treeNodeService = TestBed.inject(TreeNodeService);
+      const saved: any[] = [];
+      jest.spyOn(treeNodeService, 'save').mockImplementation((node: any) => {
+        saved.push(node);
+        return of({ ...node } as any);
+      });
+
+      const folder = {
+        id: 5,
+        parent: null,
+        name: 'Both flags',
+        nodeType: constants.treeRenderType.folder,
+        radio: true,
+        loadData: true,
+        status: constants.entityStatus.modified,
+        visible: true,
+        active: false,
+        order: 0,
+        children: [
+          {
+            id: 51,
+            parent: 5,
+            name: 'Leaf',
+            nodeType: constants.treeDomainKey.cartography,
+            cartographyId: 510,
+            children: [],
+            visible: true,
+            active: false,
+          },
+        ],
+      };
+
+      await (component as any).updateAllTreeNodes(
+        [folder],
+        0,
+        new Map(),
+        [],
+        null,
+        null,
+        { id: 1 } as any,
+        1
+      );
+
+      expect(saved[0].radio).toBe(true);
+      expect(saved[0].loadData).toBe(true);
+    });
+
+    it('persists loadData false for leaves even when form value is true', async () => {
+      component.currentTreeType = constants.codeValue.treeType.cartography;
+      const treeNodeService = TestBed.inject(TreeNodeService);
+      let captured: any;
+      jest.spyOn(treeNodeService, 'save').mockImplementation((node: any) => {
+        captured = node;
+        return of({ ...node } as any);
+      });
+
+      const leaf = {
+        id: 8,
+        parent: null,
+        name: 'Leaf',
+        nodeType: constants.treeDomainKey.cartography,
+        cartographyId: 80,
+        loadData: true,
+        status: constants.entityStatus.modified,
+        visible: true,
+        active: false,
+        order: 0,
+      };
+
+      await (component as any).updateAllTreeNodes(
+        [leaf],
+        0,
+        new Map(),
+        [],
+        null,
+        null,
+        { id: 1 } as any,
+        1
+      );
+
+      expect(captured.loadData).toBe(false);
+    });
+  });
+
   describe('TNO radio and active remediation', () => {
     function mockCartographyTree(children: any[] = []): void {
       component.currentTreeType = constants.codeValue.treeType.cartography;

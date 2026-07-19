@@ -705,7 +705,6 @@
   "entity.task.locator.parameters.geometryField": "Camp de geometria",
   "entity.task.locator.parameters.geometryField.placeholder": "Ex: geometry",
   "entity.task.locator.parameters.geometryField.hint": "Camin a l'objecte de geometria GeoJSON de cada resultat. Per defaut: geometry",
-
   "entity.task.locator.parameters.srs": "Sistèma de referéncia",
   "entity.task.locator.parameters.srs.placeholder": "Ex: EPSG:4326",
   "entity.task.locator.parameters.srs.hint": "CRS des coordenades retornades peth geocodificador (pas eth deth mapa). Eth mapa reprojecte adés en son propi sistèma. Per defaut: EPSG:4326 (estàndard mundial, valid entara ICGC, Nominatim e la majoria de servicis).",
@@ -1068,6 +1067,7 @@
   "entity.tree.hiddenInViewer.self": "Amagat dins lo visualizaire : aguest nòde e sos enfants son omitits del cataleg de mapa.",
   "entity.tree.hiddenInViewer.ancestor": "Amagat dins lo visualizaire perque lo parent « {{name}} » non es dins lo catalòg de mapa.",
   "entity.tree.treeIndicator.radioFolder": "Dorsièr de seleccion unica (grop ràdio)",
+  "entity.tree.treeIndicator.loadDataFolder": "Era carpeta mòstre un contraròtle de carga eth catalòg deth visor",
   "entity.tree.treeIndicator.loadByDefault": "Se carga enes capas de trabalh en dobrir lo mapa",
   "entity.tree.webUrl": "URL web",
   "entity.user.administrator": "Usèr administrator de SITMUN",
@@ -1260,5 +1260,11 @@
   "treeStructureMessage.touristic.rootMustHaveChildren": "En un arriu toristic, eth solet nòd de prumèr nivèu deu contier ath mens un nòd hilh.",
   "treeStructureMessage.touristic.singleRoot": "En un arriu toristic sonque ei permetut un nòd de prumèr nivèu. Actuaument n'i a {{count}}.",
   "entity.territory.hint.center": "Punt focau dens eth territòri. Utilizat peth visualizaire entà calcular ua extension iniciau centrada que manten visibla tot eth territòri.",
-  "entity.territory.hint.extent": "Limits deth territòri (minX, maxX, minY, maxY) e sistèma de referéncia espaciau (SRS, p.ex., EPSG:4326). Enviadi ath perfil deth client. Era extension e eth SRS (se definit) anulen eths valors dera aplicacion. Eres quatre coordenades son requirides juntes. Eth backend utiliza era extension e eth punt d'interès entà calcular era extension dera mapa. Eth nivèu de zoom per defecte (se configurat) anula era escala après der ajust d'extension."
+  "entity.territory.hint.extent": "Limits deth territòri (minX, maxX, minY, maxY) e sistèma de referéncia espaciau (SRS, p.ex., EPSG:4326). Enviadi ath perfil deth client. Era extension e eth SRS (se definit) anulen eths valors dera aplicacion. Eres quatre coordenades son requirides juntes. Eth backend utiliza era extension e eth punt d'interès entà calcular era extension dera mapa. Eth nivèu de zoom per defecte (se configurat) anula era escala après der ajust d'extension.",
+  "entity.tree.loadData": "Mòstrar eth contraròtle de carga ena carpeta",
+  "entity.tree.hint.loadData": "Se ei activat, eth visor mòstre un contraròtle ena carpeta (casa, o ràdio se eth mode de seleccion unica ei actiu) tà cargar o descarregar es enfants (totes es huelhes, o eth prumèr enfant se eth mode ràdio ei actiu). Eth títol sonque espandís o contrau eth dorsièr. Es files enfants se pòden cargar individualament.",
+  "entity.tree.queryableActive": "Consultable (GetFeatureInfo)",
+  "entity.tree.hint.queryableActive": "Se ei actiu, eth catàleg deth visor amòstre un marcador informatiu de consulta ena aguesta fuelha. Requerís quera capa vinculada permete GetFeatureInfo.",
+  "entity.tree.hint.queryableActive.layerDisabled": "Desactivat perque non i a capa vinculada, o era capa non permet GetFeatureInfo. Active GetFeatureInfo ena formulari dera capa abantes.",
+  "entity.tree.treeIndicator.queryableActive": "Consultable (GetFeatureInfo) eth catàleg deth visor"
 }

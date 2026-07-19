@@ -123,6 +123,7 @@ export class FileNode {
   parent: any;
   queryableActive: any;
   radio: any;
+  loadData: any;
   tooltip: any;
   image: any;
   taskName: any;
@@ -248,6 +249,7 @@ export class FileDatabase {
       parent: node.parent,
       queryableActive: node.queryableActive,
       radio: node.radio,
+      loadData: node.loadData,
       status: node.status,
       tooltip: node.tooltip,
       image: node.image,
@@ -1768,17 +1770,37 @@ export class DataTreeComponent implements OnInit {
     return this.isRadioFolder(this.resolveNode(node));
   }
 
+  showLoadDataFolderIndicator(node: FileFlatNode | FileNode | undefined): boolean {
+    const nested = this.resolveNode(node);
+    return !!nested
+      && nested.loadData === true
+      && this.treeRulesService.canNodeTypeHaveChildren(this.currentTreeType, nested.nodeType);
+  }
+
   showLoadByDefaultIndicator(node: FileFlatNode | FileNode | undefined): boolean {
     const nested = this.resolveNode(node);
     return this.isCartographyLeafNode(nested) && nested.visible !== false && nested.active === true;
+  }
+
+  showQueryableActiveIndicator(node: FileFlatNode | FileNode | undefined): boolean {
+    const nested = this.resolveNode(node);
+    return this.isCartographyLeafNode(nested) && nested.queryableActive === true;
   }
 
   radioFolderIndicatorTooltip(): string {
     return this.translate.instant('entity.tree.treeIndicator.radioFolder');
   }
 
+  loadDataFolderIndicatorTooltip(): string {
+    return this.translate.instant('entity.tree.treeIndicator.loadDataFolder');
+  }
+
   loadByDefaultIndicatorTooltip(): string {
     return this.translate.instant('entity.tree.treeIndicator.loadByDefault');
+  }
+
+  queryableActiveIndicatorTooltip(): string {
+    return this.translate.instant('entity.tree.treeIndicator.queryableActive');
   }
 
   /** @deprecated Use isNodeVisible */

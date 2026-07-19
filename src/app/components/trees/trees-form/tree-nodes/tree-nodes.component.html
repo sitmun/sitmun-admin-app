@@ -438,12 +438,29 @@
                           <span class="mat-hint">{{ 'entity.tree.hint.loadByDefault' | translate }}</span>
                         </div>
                       </div>
+                      <div class="display-option-group" *ngIf="showQueryableActiveToggle">
+                        <mat-slide-toggle color="primary" formControlName="queryableActive">
+                          {{ 'entity.tree.queryableActive' | translate }}
+                        </mat-slide-toggle>
+                        <div class="display-option-hints">
+                          <span class="mat-hint" *ngIf="canEnableQueryableActive">{{ 'entity.tree.hint.queryableActive' | translate }}</span>
+                          <span class="mat-hint" *ngIf="!canEnableQueryableActive">{{ 'entity.tree.hint.queryableActive.layerDisabled' | translate }}</span>
+                        </div>
+                      </div>
                       <div class="display-option-group" *ngIf="showRadioToggle">
                         <mat-slide-toggle color="primary" formControlName="radio">
                           {{ 'entity.tree.radio' | translate }}
                         </mat-slide-toggle>
                         <div class="display-option-hints">
                           <span class="mat-hint">{{ 'entity.tree.hint.radio' | translate }}</span>
+                        </div>
+                      </div>
+                      <div class="display-option-group" *ngIf="showLoadDataToggle">
+                        <mat-slide-toggle color="primary" formControlName="loadData">
+                          {{ 'entity.tree.loadData' | translate }}
+                        </mat-slide-toggle>
+                        <div class="display-option-hints">
+                          <span class="mat-hint">{{ 'entity.tree.hint.loadData' | translate }}</span>
                         </div>
                       </div>
                     </div>

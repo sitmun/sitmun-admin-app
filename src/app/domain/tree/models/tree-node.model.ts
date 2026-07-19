@@ -114,6 +114,7 @@ export class TreeNodeProjection extends Resource {
   viewMode: string;
   filterable: boolean;
   mapping: Map<string, any>;
+  loadData: boolean;
 
   /**
    * Creates a new TreeNodeProjection instance copying only the properties declared in TreeNodeProjection and Resource classes
@@ -131,7 +132,8 @@ export class TreeNodeProjection extends Resource {
       'radio', 'order', 'metadataURL', 'datasetURL', 'filterGetMap',
       'filterGetFeatureInfo', 'queryableActive', 'filterSelectable', 'isFolder',
       'cartographyName', 'cartographyId', 'taskName', 'taskId', 'treeId',
-      'treeName', 'style', 'image', 'imageName', 'viewMode', 'filterable', 'mapping'
+      'treeName', 'style', 'image', 'imageName', 'viewMode', 'filterable', 'mapping',
+      'loadData'
     ];
     // Copy only defined properties that exist in our class
     propertiesToCopy.forEach(prop => {

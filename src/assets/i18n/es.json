@@ -705,7 +705,6 @@
   "entity.task.locator.parameters.geometryField": "Campo de geometría",
   "entity.task.locator.parameters.geometryField.placeholder": "Ej: geometry",
   "entity.task.locator.parameters.geometryField.hint": "Ruta al objeto de geometría GeoJSON de cada resultado. Por defecto: geometry",
-
   "entity.task.locator.parameters.srs": "Sistema de referencia",
   "entity.task.locator.parameters.srs.placeholder": "Ej: EPSG:4326",
   "entity.task.locator.parameters.srs.hint": "CRS de las coordenadas devueltas por el geocodificador (no el del mapa). El mapa siempre reprojecta a su propio sistema. Por defecto: EPSG:4326 (estándar mundial, válido para ICGC, Nominatim y la mayoría de servicios).",
@@ -1070,6 +1069,7 @@
   "entity.tree.hiddenInViewer.self": "Oculto en el visor: este nodo y sus hijos no se publican en el catálogo del mapa.",
   "entity.tree.hiddenInViewer.ancestor": "Oculto en el visor porque el padre \"{{name}}\" no está en el catálogo del mapa.",
   "entity.tree.treeIndicator.radioFolder": "Carpeta de selección única (grupo radio)",
+  "entity.tree.treeIndicator.loadDataFolder": "La carpeta muestra un control de carga en el catálogo del visor",
   "entity.tree.treeIndicator.loadByDefault": "Se carga en capas de trabajo al abrir el mapa",
   "entity.tree.webUrl": "URL web",
   "entity.user.administrator": "Usuario administrador de SITMUN",
@@ -1260,5 +1260,11 @@
   "tasksMoreInfoEntity.urlHint": "Use {variableName} solo para parámetros del cliente. Redirección directa (sin proxy). Variables backend #{} NO soportadas aquí.",
   "tasksMoreInfoEntity.value": "Valor",
   "treeStructureMessage.touristic.rootMustHaveChildren": "En un árbol turístico, el único nodo de primer nivel debe contener al menos un nodo hijo.",
-  "treeStructureMessage.touristic.singleRoot": "En un árbol turístico solo se permite un nodo de primer nivel. Actualmente hay {{count}}."
+  "treeStructureMessage.touristic.singleRoot": "En un árbol turístico solo se permite un nodo de primer nivel. Actualmente hay {{count}}.",
+  "entity.tree.loadData": "Mostrar control de carga en la carpeta",
+  "entity.tree.hint.loadData": "Si está activado, el visor muestra un control en la carpeta (casilla, o radio si el modo de selección única está activo) para cargar o descargar los hijos (todas las hojas, o el primer hijo si el modo radio está activo). El título solo expande o contrae la carpeta. Las filas hijas se pueden cargar individualmente.",
+  "entity.tree.queryableActive": "Consultable (GetFeatureInfo)",
+  "entity.tree.hint.queryableActive": "Si está activo, el catálogo del visor muestra un marcador informativo de consulta en esta hoja. Requiere que la capa vinculada permita GetFeatureInfo.",
+  "entity.tree.hint.queryableActive.layerDisabled": "Desactivado porque no hay capa vinculada, o la capa no permite GetFeatureInfo. Active GetFeatureInfo en el formulario de la capa primero.",
+  "entity.tree.treeIndicator.queryableActive": "Consultable (GetFeatureInfo) en el catálogo del visor"
 }
