@@ -10,6 +10,8 @@ export class ConfigurationParameter extends Resource {
   public name: string;
   /** value */
   public value: string;
+  /** Transient i18n keys returned on create/save when the value was coerced */
+  public warnings?: string[];
 
   /**
    * Creates a new ConfigurationParameter instance copying only the properties declared in ConfigurationParameter and Resource classes
@@ -20,7 +22,7 @@ export class ConfigurationParameter extends Resource {
     const param = new ConfigurationParameter();
     const propertiesToCopy = [
       'proxyUrl', 'rootUrl', '_links', '_subtypes',
-      'id', 'name', 'value'
+      'id', 'name', 'value', 'warnings'
     ];
     propertiesToCopy.forEach(prop => {
       if (source[prop] !== undefined) {

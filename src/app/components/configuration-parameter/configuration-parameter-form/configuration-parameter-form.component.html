@@ -14,8 +14,10 @@
   *ngIf="dataLoaded"
   [form]="entityForm"
   entityLabelPrefix="entity.configurationParameter"
+  [warnings]="saveInfoKeys"
+  [infoMessageKeys]="saveInfoKeys"
   [customAlertMessage]="isProtectedParameter ? ('entity.configurationParameter.languageDefaultProtection' | translate) : null"
-  [infoStyle]="isProtectedParameter && entityForm?.valid">
+  [infoStyle]="(isProtectedParameter && entityForm?.valid) || saveInfoKeys.length > 0">
 </app-entity-form-alerts>
 
 <mat-tab-group

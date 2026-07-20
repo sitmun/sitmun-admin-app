@@ -434,6 +434,8 @@
   "entity.configurationParameter.languageDefaultProtection": "Eth paramètre 'language.default' non se pòt editar dirèctament. Emplegatz era interfaç de gestion d'idomes (Idomes → Establir coma predeterminat) entà garantir ua migracion sense pèrdues deth contengut traduit.",
   "entity.configurationParameter.name": "Nom",
   "entity.configurationParameter.plural": "Paramètres de configuracion",
+  "entity.configurationParameter.warning.proxy-defaulted": "Era URL deth proxy ère vueida o non valida, atau que s'a desat eth valor predeterminat configurat.",
+  "entity.configurationParameter.warning.proxy-normalized": "Era URL deth proxy s'a normalizat abans de desar (s'an eliminat eth pòrt per defaut e era barra finau).",
   "entity.connection.driver": "Driver JDBC",
   "entity.connection.label": "Connexion",
   "entity.connection.name": "Nom",

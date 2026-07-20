@@ -434,6 +434,8 @@
   "entity.configurationParameter.languageDefaultProtection": "Le paramètre 'language.default' ne peut pas être modifié directement. Utilisez l'interface de gestion des langues (Langues → Définir par défaut) pour garantir une migration sans perte du contenu traduit.",
   "entity.configurationParameter.name": "Nom",
   "entity.configurationParameter.plural": "Paramètres de configuration",
+  "entity.configurationParameter.warning.proxy-defaulted": "L’URL du proxy était vide ou invalide ; la valeur par défaut configurée a donc été enregistrée.",
+  "entity.configurationParameter.warning.proxy-normalized": "L’URL du proxy a été normalisée avant l’enregistrement (port par défaut et barre oblique finale retirés).",
   "entity.connection.driver": "Pilote JDBC",
   "entity.connection.label": "Connexion",
   "entity.connection.name": "Nom",

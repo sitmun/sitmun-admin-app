@@ -434,6 +434,8 @@
   "entity.configurationParameter.languageDefaultProtection": "El paràmetre 'language.default' no es pot editar directament. Utilitzeu la interfície de gestió d'idiomes (Idiomes → Establir com a predeterminat) per garantir una migració sense pèrdues del contingut traduït.",
   "entity.configurationParameter.name": "Nom",
   "entity.configurationParameter.plural": "Paràmetres de configuració",
+  "entity.configurationParameter.warning.proxy-defaulted": "L'URL del proxy era buida o no vàlida, així que s'ha desat el valor predeterminat configurat.",
+  "entity.configurationParameter.warning.proxy-normalized": "L'URL del proxy s'ha normalitzat abans de desar (s'han eliminat el port per defecte i la barra final).",
   "entity.connection.driver": "Controlador JDBC",
   "entity.connection.label": "Connexió",
   "entity.connection.name": "Nom",

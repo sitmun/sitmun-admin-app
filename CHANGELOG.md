@@ -15,6 +15,7 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Fixed
 
+- **Configuration Parameters**: after saving `proxy`, show Application-style info alerts when the backend normalized or defaulted the URL (keys from the create/update response only) ([#431](https://github.com/sitmun/sitmun-admin-app/issues/431)).
 - **Forms**: duplicate entity forms enable Save with the suggested copy name without requiring an extra edit ([#384](https://github.com/sitmun/sitmun-admin-app/issues/384)).
 - **Auth**: backend request matching normalizes relative, absolute, bare-domain, and default-port URLs while rejecting cross-origin and path-prefix lookalikes.
 - **Forms**: route changes between records hide stale controls until the latest entity finishes loading, preventing edits from being discarded by a late form rebuild.
