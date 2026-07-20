@@ -16,10 +16,11 @@ import {firstValueFrom, Subject} from 'rxjs';
 import {map} from 'rxjs/operators';
 
 import {HalOptions, HalParam} from '@app/core/hal/rest/rest.service';
-import {CodeList, CodeListService, Language, Translation, TranslationService} from '@app/domain';
+import {CodeList, CodeListService, Language, LanguageService, Translation, TranslationService} from '@app/domain';
 import {BtnCheckboxFilterComponent} from '@app/frontend-gui/src/lib/btn-checkbox-filter/btn-checkbox-filter.component';
 import {DialogMessageComponent, DialogTranslationComponent} from '@app/frontend-gui/src/lib/public_api';
 import {LoggerService} from '@app/services/logger.service';
+import {filterEnabledLanguages} from '@app/services/ui-language.resolver';
 import {config} from '@config';
 
 
@@ -45,6 +46,8 @@ export class UtilsService {
 
   private codeListService: CodeListService;
 
+  private languageService: LanguageService;
+
   constructor(
     private readonly translate: TranslateService,
     public dialog: MatDialog,
@@ -61,6 +64,7 @@ export class UtilsService {
           try {
             this.translationService = this.injector.get(TranslationService);
             this.codeListService = this.injector.get(CodeListService);
+            this.languageService = this.injector.get(LanguageService);
           } catch {
             // Injector may be destroyed (e.g. in tests after fixture destroy)
           }
@@ -865,16 +869,16 @@ export class UtilsService {
       Translation
     >();
 
-    const languagesToUse = config.languagesToUse ?? JSON.parse(localStorage.getItem('languages'));
-    if (languagesToUse) {
-      languagesToUse.forEach((language: Language) => {
-        const currentTranslation: Translation = new Translation();
-        currentTranslation.translation = null;
-        currentTranslation.column = columnName;
-        currentTranslation.language = language;
-        translationsList.set(language.shortname, currentTranslation);
-      });
-    }
+    const languagesToUse = filterEnabledLanguages(
+      config.languagesToUse ?? JSON.parse(localStorage.getItem('languages') || '[]')
+    );
+    languagesToUse.forEach((language: Language) => {
+      const currentTranslation: Translation = new Translation();
+      currentTranslation.translation = null;
+      currentTranslation.column = columnName;
+      currentTranslation.language = language;
+      translationsList.set(language.shortname, currentTranslation);
+    });
     return translationsList;
   }
 
@@ -888,12 +892,16 @@ export class UtilsService {
    * @returns Promise that resolves with updated translations or null if cancelled.
    */
   async openTranslationDialog(translationsMap: Map<string, Translation>, defaultLanguageValue?: string, maxLength?: number, useTextarea?: boolean) {
+    if (!this.languageService) {
+      this.languageService = this.injector.get(LanguageService);
+    }
+    const languagesAvailables = await firstValueFrom(this.languageService.refreshLanguagesToUse());
     const dialogRef = this.dialog.open(DialogTranslationComponent, {
       panelClass: 'translateDialogs',
     });
     dialogRef.componentInstance.translationsMap = translationsMap;
     dialogRef.componentInstance.languageByDefault = config.defaultLang;
-    dialogRef.componentInstance.languagesAvailables = config.languagesToUse;
+    dialogRef.componentInstance.languagesAvailables = languagesAvailables;
 
     // Get default language value from parameter or from translationsMap
     let defaultValue = defaultLanguageValue;

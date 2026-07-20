@@ -14,9 +14,10 @@ import { LoginService } from '@app/core/auth/login.service';
 import { Principal } from '@app/core/auth/principal.service';
 import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
 import { ExternalService, ResourceService } from '@app/core/hal/services';
-import { User } from '@app/domain';
+import { LanguageService, User } from '@app/domain';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
 import { MaterialModule } from '@app/material-module';
+import { config } from '@config';
 
 import { ToolbarComponent } from './toolbar.component';
 
@@ -114,5 +115,21 @@ describe('ToolbarComponent', () => {
 
   it('should instantiate externalService', () => {
     expect(externalService).toBeTruthy();
+  });
+
+  it('refreshes language menu when languagesToUse changes', () => {
+    const languageService = TestBed.inject(LanguageService);
+    const previous = config.languagesToUse;
+    config.languagesToUse = [
+      { shortname: 'en', name: 'English', enabled: true, order: 0 } as any,
+      { shortname: 'ca', name: 'Català', enabled: true, order: 1 } as any,
+    ];
+    languageService.applyLanguagesToUse([
+      { shortname: 'ca', name: 'Català', enabled: true, order: 0 } as any,
+      { shortname: 'en', name: 'English', enabled: false, order: 1 } as any,
+    ]);
+
+    expect(component.languages.map((l) => l.shortname)).toEqual(['ca']);
+    config.languagesToUse = previous;
   });
 });

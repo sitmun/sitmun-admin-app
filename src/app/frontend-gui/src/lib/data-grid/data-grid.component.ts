@@ -1367,12 +1367,13 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
     if (Array.isArray(this.defaultColumnSorting) && this.defaultColumnSorting.length === 0) {
       return;
     }
+    // Sort only — do not reorder columns (applyOrder would move the sorted col to the left).
     if (!Array.isArray(this.defaultColumnSorting)) {
       const sortModel = [{colId: this.defaultColumnSorting, sort: 'asc' as const}];
-      this.gridApi.applyColumnState({state: sortModel, applyOrder: true});
+      this.gridApi.applyColumnState({state: sortModel, applyOrder: false});
     } else {
       const sortModel = this.defaultColumnSorting.map((element) => ({colId: element, sort: 'asc' as const}));
-      this.gridApi.applyColumnState({state: sortModel, applyOrder: true});
+      this.gridApi.applyColumnState({state: sortModel, applyOrder: false});
     }
   }
 

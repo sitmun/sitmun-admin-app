@@ -9,7 +9,7 @@ import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
 
 import {ExternalService, ResourceService} from '@app/core/hal/services';
-import { CodeListService, TranslationService } from '@app/domain';
+import { CodeListService, LanguageService, TranslationService } from '@app/domain';
 
 import { LoginComponent } from './login.component';
 import { AccountService , AuthService , LoginService , Principal , ExternalConfigurationService } from '../../core';
@@ -56,6 +56,7 @@ describe('LoginComponent', () => {
         LoginService,
         AuthService,
         CodeListService,
+        LanguageService,
         Principal,
         AccountService,
         TranslationService,
@@ -126,7 +127,6 @@ describe('LoginComponent', () => {
   it('form invalid when mid-empty', () => {
     component.form.patchValue({
       password: 'password',
-      lang: 1,
     })
     //Miss username
     expect(component.form.valid).toBeFalsy();
@@ -136,7 +136,6 @@ describe('LoginComponent', () => {
     component.form.patchValue({
       username: 'username',
       password: 'password',
-      lang: 1,
     })
     expect(component.form.valid).toBeTruthy();
   });

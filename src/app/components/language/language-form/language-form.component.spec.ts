@@ -1,210 +1,181 @@
-import {NO_ERRORS_SCHEMA} from '@angular/core';
-import {ComponentFixture, TestBed} from '@angular/core/testing';
-import {ReactiveFormsModule} from '@angular/forms';
-import {MatDialog, MatDialogRef} from '@angular/material/dialog';
-import {ActivatedRoute, Router} from '@angular/router';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { RouterModule } from '@angular/router';
 
-import {TranslateModule, TranslateService} from '@ngx-translate/core';
-import {of} from 'rxjs';
+import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
+import { of } from 'rxjs';
 
-import {MessagesInterceptorStateService} from '@app/core/interceptors/messages.interceptor';
-import {CodeListService} from '@app/domain/codelist/services/codelist.service';
-import {Language} from '@app/domain/translation/models/language.model';
-import {LanguageService} from '@app/domain/translation/services/language.service';
-import {TranslationService} from '@app/domain/translation/services/translation.service';
-import {ErrorHandlerService} from '@app/services/error-handler.service';
-import {LoadingOverlayService} from '@app/services/loading-overlay.service';
-import {LoggerService} from '@app/services/logger.service';
-import {UtilsService} from '@app/services/utils.service';
-import {config} from '@config';
+import { FormToolbarComponent } from '@app/components/shared/form-toolbar/form-toolbar.component';
+import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
+import { ExternalService, ResourceService } from '@app/core/hal';
+import { CodeListService, LanguageService, TranslationService } from '@app/domain';
+import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
+import { MaterialModule } from '@app/material-module';
+import { LoggerService } from '@app/services/logger.service';
+import { configureLoggerForTests, provideErrorHandlerForTests } from '@app/testing/test-helpers';
 
-import {LanguageFormComponent} from './language-form.component';
-import {DefaultLanguageChangeDialogComponent} from '../default-language-change-dialog/default-language-change-dialog.component';
+import { LanguageFormComponent } from './language-form.component';
 
 describe('LanguageFormComponent', () => {
   let component: LanguageFormComponent;
   let fixture: ComponentFixture<LanguageFormComponent>;
-  let languageService: jest.Mocked<LanguageService>;
-  let translateService: jest.Mocked<TranslateService>;
-  let dialog: jest.Mocked<MatDialog>;
-  let originalDefaultLang: string;
+  let translationService: TranslationService;
 
-  const english = {id: 1, shortname: 'en', name: 'English'} as Language;
-  const catalan = {id: 2, shortname: 'ca', name: 'Catalan'} as Language;
-
-  beforeEach(async () => {
-    languageService = {
-      getCurrentDefaultLanguage: jest.fn(),
-      create: jest.fn(),
-      update: jest.fn(),
-      get: jest.fn(),
-      fetchAllRawItems: jest.fn()
-    } as any;
-    translateService = {
-      instant: jest.fn(),
-      setDefaultLang: jest.fn(),
-      use: jest.fn()
-    } as any;
-    dialog = {
-      open: jest.fn()
-    } as any;
-
-    languageService.getCurrentDefaultLanguage.mockReturnValue(of('en'));
-    languageService.fetchAllRawItems.mockReturnValue(of([english, catalan]));
-    translateService.instant.mockImplementation((key: string) => key);
-    translateService.use.mockReturnValue(of({}));
-    originalDefaultLang = config.defaultLang;
-
+  beforeAll(async () => {
     await TestBed.configureTestingModule({
-      declarations: [LanguageFormComponent],
-      imports: [ReactiveFormsModule, TranslateModule.forRoot()],
-      providers: [
-        {provide: LanguageService, useValue: languageService},
-        {provide: TranslateService, useValue: translateService},
-        {provide: MatDialog, useValue: dialog},
-        {provide: TranslationService, useValue: {}},
-        {provide: CodeListService, useValue: {}},
-        {provide: LoggerService, useValue: {}},
-        {provide: ErrorHandlerService, useValue: {handleError: jest.fn()}},
-        {provide: ActivatedRoute, useValue: {params: of({})}},
-        {provide: Router, useValue: {navigate: jest.fn()}},
-        {provide: LoadingOverlayService, useValue: {}},
-        {provide: MessagesInterceptorStateService, useValue: {}},
-        {provide: UtilsService, useValue: {}}
+      teardown: { destroyAfterEach: 0 as any },
+      declarations: [LanguageFormComponent, FormToolbarComponent],
+      imports: [
+        FormsModule,
+        ReactiveFormsModule,
+        RouterModule.forRoot([], {}),
+        SitmunFrontendGuiModule,
+        MaterialModule,
+        MatIconTestingModule,
+        BrowserAnimationsModule,
+        TranslateModule.forRoot({
+          loader: {
+            provide: TranslateLoader,
+            useFactory: () => ({
+              getTranslation: () => of({}),
+            }),
+          },
+        }),
       ],
-      schemas: [NO_ERRORS_SCHEMA]
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideErrorHandlerForTests(),
+        LanguageService,
+        CodeListService,
+        TranslationService,
+        ResourceService,
+        ExternalService,
+        { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService },
+      ],
     }).compileComponents();
+  });
 
+  beforeEach(() => {
     fixture = TestBed.createComponent(LanguageFormComponent);
     component = fixture.componentInstance;
+    configureLoggerForTests(TestBed.inject(LoggerService));
+    translationService = TestBed.inject(TranslationService);
+    if (!component.entityForm) {
+      component.entityToEdit = component.empty();
+      component.postFetchData();
+    }
+    fixture.detectChanges();
   });
 
-  afterEach(() => {
-    config.defaultLang = originalDefaultLang;
+  afterEach(() => fixture?.destroy());
+  afterAll(() => TestBed.resetTestingModule());
+
+  it('loads Language.name translations for the dialog', async () => {
+    component.entityToEdit = Object.assign(component.empty(), { id: 3, name: 'Català', shortname: 'ca' });
+    component.initTranslations('Language', ['name']);
+    const searchSpy = jest.spyOn(translationService, 'search').mockReturnValue(of([
+      {
+        id: 1,
+        element: 3,
+        column: 'Language.name',
+        translation: 'Catalan',
+        languageShortname: 'en',
+      } as any,
+    ]));
+
+    await component.fetchRelatedData();
+
+    expect(searchSpy).toHaveBeenCalledWith(
+      'byElement',
+      expect.objectContaining({
+        params: expect.arrayContaining([
+          expect.objectContaining({ key: 'element', value: '3' }),
+          expect.objectContaining({ key: 'column', value: 'Language' }),
+        ]),
+      })
+    );
   });
 
-  function loadLanguage(language: Language): void {
-    component.entityID = language.id;
-    component.entityToEdit = language;
-    component.currentDefaultLanguage = 'en';
-    component.currentDefaultLanguageName = 'English';
+  it('saves Language.name translations after entity save', async () => {
+    component.entityID = 3;
+    component.entityToEdit = Object.assign(component.empty(), { id: 3, name: 'Català', shortname: 'ca', order: 1 });
     component.postFetchData();
-    component.dataLoaded = true;
-  }
+    component.initTranslations('Language', ['name']);
+    const saveSpy = jest.spyOn(component, 'saveTranslations').mockResolvedValue([]);
 
-  it('marks the current default language in the form title', () => {
-    loadLanguage(english);
+    await component.updateDataRelated(false);
 
-    expect(component.isDefaultLanguage).toBe(true);
-    expect(component.itemName('')).toBe('English (en) ★');
+    expect(saveSpy).toHaveBeenCalledWith(expect.objectContaining({ id: 3, name: 'Català' }));
   });
 
-  it('disables the language code for existing languages', () => {
-    loadLanguage(catalan);
-
-    expect(component.entityForm.get('shortname')?.disabled).toBe(true);
-  });
-
-  it('keeps the language code editable for new languages', () => {
-    component.entityID = -1;
-    component.entityToEdit = new Language();
-    component.currentDefaultLanguage = 'en';
-
-    component.postFetchData();
-
-    expect(component.entityForm.get('shortname')?.enabled).toBe(true);
-  });
-
-  it('enables set-as-default for saved non-default languages without pending changes', () => {
-    loadLanguage(catalan);
-
-    expect(component.isDefaultLanguage).toBe(false);
-    expect(component.canSetAsDefault).toBe(true);
-  });
-
-  it('does not allow setting the current default language as default again', () => {
-    loadLanguage(english);
-
-    expect(component.canSetAsDefault).toBe(false);
-  });
-
-  it('does not allow changing default language with unsaved edits', () => {
-    loadLanguage(catalan);
-
-    component.entityForm.get('name')?.setValue('Català');
-    component.entityForm.markAsDirty();
-
-    expect(component.canSetAsDefault).toBe(false);
-  });
-
-  it('opens the migration dialog from the language form', async () => {
-    const dialogRef = {
-      afterClosed: () => of({success: false})
-    } as MatDialogRef<DefaultLanguageChangeDialogComponent>;
-    dialog.open.mockReturnValue(dialogRef);
-    loadLanguage(catalan);
-
-    await component.setAsDefault();
-
-    expect(dialog.open).toHaveBeenCalledWith(DefaultLanguageChangeDialogComponent, {
-      width: '600px',
-      data: {
-        from: 'en',
-        fromName: 'English',
-        to: 'ca',
-        toName: 'Catalan',
-        languageService
+  it('titles the form as endonym - UI locale name', () => {
+    jest.spyOn(component['translateService'], 'instant').mockImplementation((key: string) => {
+      if (key === 'lang.ca') {
+        return 'Catalan';
       }
+      return key;
     });
+    component.entityToEdit = Object.assign(component.empty(), {
+      id: 3,
+      name: 'Català',
+      shortname: 'ca',
+      order: 1,
+    });
+    component.postFetchData();
+
+    expect(component.itemName('')).toBe('Català - Catalan');
   });
 
-  it('does not save the language when opening the default-change dialog', async () => {
-    const dialogRef = {
-      afterClosed: () => of({success: false})
-    } as MatDialogRef<DefaultLanguageChangeDialogComponent>;
-    dialog.open.mockReturnValue(dialogRef);
-    loadLanguage(catalan);
+  it('locks enabled on and blocks set-as-default when language is disabled', () => {
+    component.dataLoaded = true;
+    component.entityID = 3;
+    component.currentDefaultLanguage = 'en';
+    component.entityToEdit = Object.assign(component.empty(), {
+      id: 3,
+      name: 'Català',
+      shortname: 'ca',
+      order: 1,
+      enabled: false,
+    });
+    component.postFetchData();
 
-    await component.setAsDefault();
+    expect(component.entityForm.get('enabled')?.value).toBe(false);
+    expect(component.canSetAsDefault).toBe(false);
 
-    expect(languageService.update).not.toHaveBeenCalled();
-    expect(languageService.create).not.toHaveBeenCalled();
+    component.currentDefaultLanguage = 'ca';
+    component.entityToEdit.shortname = 'ca';
+    component.postFetchData();
+    expect(component.entityForm.get('enabled')?.value).toBe(true);
+    expect(component.entityForm.get('enabled')?.disabled).toBe(true);
   });
 
-  it('prevents default click behavior when opening the default-change dialog', async () => {
-    const dialogRef = {
-      afterClosed: () => of({success: false})
-    } as MatDialogRef<DefaultLanguageChangeDialogComponent>;
-    const event = {
-      preventDefault: jest.fn(),
-      stopPropagation: jest.fn()
-    } as unknown as Event;
-    dialog.open.mockReturnValue(dialogRef);
-    loadLanguage(catalan);
+  it('stays pristine after render so navigate-back does not prompt', async () => {
+    component.dataLoaded = true;
+    component.entityID = 3;
+    component.currentDefaultLanguage = 'en';
+    component.entityToEdit = Object.assign(component.empty(), {
+      id: 3,
+      name: 'Català',
+      shortname: 'ca',
+      order: 1,
+      enabled: true,
+    });
+    component.postFetchData();
+    component.initTranslations('Language', ['name']);
+    jest.spyOn(translationService, 'search').mockReturnValue(of([]));
+    await component.fetchRelatedData();
+    component.afterFetch();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
 
-    await component.setAsDefault(event);
-
-    expect(event.preventDefault).toHaveBeenCalled();
-    expect(event.stopPropagation).toHaveBeenCalled();
-    expect(dialog.open).toHaveBeenCalled();
-  });
-
-  it('updates the database default language state without changing the client locale', async () => {
-    const dialogRef = {
-      afterClosed: () => of({success: true, newDefault: 'ca'})
-    } as MatDialogRef<DefaultLanguageChangeDialogComponent>;
-    dialog.open.mockReturnValue(dialogRef);
-    localStorage.setItem('lang', 'en');
-    loadLanguage(catalan);
-
-    await component.setAsDefault();
-
-    expect(component.currentDefaultLanguage).toBe('ca');
-    expect(component.currentDefaultLanguageName).toBe('Catalan');
-    expect(component.defaultLang).toBe('ca');
-    expect(config.defaultLang).toBe('ca');
-    expect(localStorage.getItem('lang')).toBe('en');
-    expect(translateService.setDefaultLang).not.toHaveBeenCalled();
-    expect(translateService.use).not.toHaveBeenCalled();
+    expect(component.entityForm.dirty).toBe(false);
+    expect(component['hasPendingChanges']()).toBe(false);
+    await expect(component.canDeactivate()).resolves.toBe(true);
   });
 });

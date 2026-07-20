@@ -1,10 +1,13 @@
 import { HttpClient, HttpContext } from '@angular/common/http';
 import { Injectable, Injector } from '@angular/core';
 
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 import { RestService } from '@app/core/hal/rest/rest.service';
 import {SUPPRESS_HTTP_NOTIFICATION} from '@app/core/interceptors/messages.interceptor';
+import { filterEnabledLanguages, sortByLanguageOrder } from '@app/services/ui-language.resolver';
+import { config } from '@config';
 
 import { Language } from '../models/language.model';
 
@@ -45,11 +48,41 @@ export interface MissingTranslationDto {
 })
 export class LanguageService extends RestService<Language> {
   private http: HttpClient;
+  private readonly languagesToUseSubject = new BehaviorSubject<Language[]>(
+    sortByLanguageOrder(config.languagesToUse || [])
+  );
+
+  /** Enabled languages for selectors (toolbar, login, translation dialogs). */
+  readonly languagesToUse$ = this.languagesToUseSubject.asObservable();
 
   /** constructor */
   constructor(injector: Injector) {
     super(Language, "languages", injector);
     this.http = injector.get(HttpClient);
+  }
+
+  /**
+   * Updates app config, localStorage, and notifies language selectors.
+   */
+  applyLanguagesToUse(languages: Language[]): Language[] {
+    const enabled = filterEnabledLanguages(sortByLanguageOrder(languages));
+    config.languagesToUse = enabled;
+    config.languagesObjects = {};
+    enabled.forEach((language) => {
+      config.languagesObjects[language.shortname] = language;
+    });
+    localStorage.setItem('languages', JSON.stringify(enabled));
+    this.languagesToUseSubject.next(enabled);
+    return enabled;
+  }
+
+  /**
+   * Reloads enabled languages into app config / localStorage (used by toolbar and translation dialogs).
+   */
+  refreshLanguagesToUse(): Observable<Language[]> {
+    return this.fetchAllItems().pipe(
+      map((languages) => this.applyLanguagesToUse(languages))
+    );
   }
 
   /**

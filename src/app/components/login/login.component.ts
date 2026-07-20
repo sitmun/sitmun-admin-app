@@ -7,8 +7,9 @@ import {Subject} from 'rxjs';
 import {takeUntil} from 'rxjs/operators';
 
 import {LoginService} from '@app/core/auth/login.service';
-import {Language} from '@app/domain';
-import {AppConfigService} from '@app/services/app-config.service';
+import {Language, LanguageService} from '@app/domain';
+import {toLanguageIsoCode} from '@app/services/language-iso';
+import {resolveUiLanguage} from '@app/services/ui-language.resolver';
 import {config} from '@config';
 
 export interface LoginMethod {
@@ -32,6 +33,7 @@ export interface AuthProvider {
 export class LoginComponent implements OnInit, OnDestroy {
 
   languages: Language[] = [];
+  currentShortname = '';
 
   /** bad credentials message*/
   badCredentials: string;
@@ -57,7 +59,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     private readonly loginService: LoginService,
     private readonly translateService: TranslateService,
     private readonly router: Router,
-    private readonly appConfigService: AppConfigService
+    private readonly languageService: LanguageService,
   ) {
     effect(() => {
       this.alternativeLoginMethods = this.loginMethods().get('oidc') ?? [];
@@ -77,39 +79,56 @@ export class LoginComponent implements OnInit, OnDestroy {
         }
       });
 
-    // Initialize the form with a default language
     this.form = this.fb.group({
       username: ['', Validators.required],
       password: ['', Validators.required],
-      lang: [this.translateService.getDefaultLang(), Validators.required],
     });
-    // Sort languages alphabetically by name
-    this.languages = (config.languagesToUse || []).sort((a, b) =>
-      (a.name || '').localeCompare(b.name || '')
-    );
-    // Subscribe to language changes to update translations immediately
-    this.form.get('lang')?.valueChanges
+    this.languageService.languagesToUse$
       .pipe(takeUntil(this.destroy$))
-      .subscribe((langCode: string) => {
-        if (langCode) {
-          this.translateService.use(langCode);
-        }
-      });
+      .subscribe((languages) => this.applyLanguages(languages));
+  }
+
+  isoCode(shortname: string): string {
+    return toLanguageIsoCode(shortname || '');
+  }
+
+  changeLanguage(shortname: string): void {
+    this.currentShortname = shortname;
+    this.translateService.use(shortname);
+    this.translateService.setDefaultLang(shortname);
+    localStorage.setItem('lang', shortname);
+  }
+
+  private applyLanguages(languages: Language[]): void {
+    this.languages = languages;
+    const chosen = resolveUiLanguage({
+      stored: this.translateService.currentLang || localStorage.getItem('lang'),
+      backendDefault: config.defaultLang,
+      availableShortnames: languages.map((language) => language.shortname),
+      staticFallback: config.defaultLang || languages[0]?.shortname || 'en',
+    });
+    if (chosen !== this.currentShortname) {
+      this.changeLanguage(chosen);
+    } else {
+      this.currentShortname = chosen;
+    }
   }
 
   /** login action */
   login() {
     const val = this.form.value;
     if (val.username && val.password) {
+      const langCode =
+        this.translateService.currentLang ||
+        localStorage.getItem('lang') ||
+        this.currentShortname;
       this.loginService.login(val).then(() => {
-        const langCode = val.lang;
         this.translateService.use(langCode);
         this.translateService.setDefaultLang(langCode);
         localStorage.setItem('lang', langCode);
 
         void this.router.navigateByUrl(this.defaultRoute);
       }, () => {
-        const langCode = val.lang;
         this.translateService.use(langCode);
         this.translateService.setDefaultLang(langCode);
         localStorage.setItem('lang', langCode);
@@ -120,41 +139,6 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   initAuth(provider: string): void {
     this.loginService.initOidcLogin(provider);
-  }
-
-  /**
-   * Get language icon path from AppConfigService
-   */
-  getLanguageIcon(shortname: string): string {
-    return this.appConfigService.getLanguageIcon(shortname);
-  }
-
-  /**
-   * Get language icon name for mat-icon svgIcon attribute
-   * Converts path like "assets/flags/spain.svg" to "flag-spain"
-   */
-  getLanguageIconName(shortname: string): string {
-    const iconPath = this.appConfigService.getLanguageIcon(shortname);
-    if (!iconPath) return '';
-
-    // Extract filename from path: "assets/flags/spain.svg" -> "spain"
-    const filename = iconPath.split('/').pop()?.replace('.svg', '') || '';
-    return filename ? `flag-${filename}` : '';
-  }
-
-  /**
-   * Check if language has an icon
-   */
-  hasLanguageIcon(shortname: string): boolean {
-    return !!this.getLanguageIcon(shortname);
-  }
-
-  /**
-   * Get the selected language object
-   */
-  getSelectedLanguage(): Language | undefined {
-    const selectedLangCode = this.form?.get('lang')?.value;
-    return this.languages.find(lang => lang.shortname === selectedLangCode);
   }
 
   /** cleanup subscriptions */

@@ -70,4 +70,36 @@ describe('DialogTranslationComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('omits disabled languages from availableLanguages', () => {
+    component.languageByDefault = 'en';
+    component.languagesAvailables = [
+      { shortname: 'en', name: 'English', enabled: true },
+      { shortname: 'ca', name: 'Català', enabled: true },
+      { shortname: 'fr', name: 'Français', enabled: false },
+    ];
+    expect(component.availableLanguages.map((l) => l.shortname)).toEqual(['ca']);
+  });
+
+  it('disables accept until a translation value changes', () => {
+    fixture = TestBed.createComponent(DialogTranslationComponent);
+    component = fixture.componentInstance;
+    component.languageByDefault = 'en';
+    component.languagesAvailables = [
+      { shortname: 'en', name: 'English', enabled: true },
+      { shortname: 'ca', name: 'Català', enabled: true },
+    ];
+    component.translationsMap = new Map([
+      ['ca', { translation: 'Catalan', column: 'Language.name' }],
+    ]);
+    component.ngOnInit();
+
+    expect(component.canAccept).toBe(false);
+
+    component.translationForm.get('caValue')?.setValue('Català');
+    expect(component.canAccept).toBe(true);
+
+    component.translationForm.get('caValue')?.setValue('Catalan');
+    expect(component.canAccept).toBe(false);
+  });
 });

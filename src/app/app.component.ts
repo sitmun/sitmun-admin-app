@@ -11,6 +11,7 @@ import {LoggerService} from '@app/services/logger.service';
 import {config} from '@config';
 
 import {AppStateService} from './services/app-state.service';
+import {resolveUiLanguage} from './services/ui-language.resolver';
 
 
 @Component({
@@ -54,29 +55,16 @@ export class AppComponent implements OnInit, OnDestroy {
 
   /** On component init, get logged user account*/
   ngOnInit() {
-    // Initialize error tracking after app bootstrap
-    // This ensures all services are fully initialized before error tracking starts
-    // and breaks the circular dependency chain
     this.initializeErrorTracking();
 
-    // Verify that languages are loaded
     if (!config.languagesToUse || config.languagesToUse.length === 0) {
       this.loggerService.warn('Languages not loaded - APP_INITIALIZER may have failed');
     } else {
       this.loggerService.debug(`App component initialized with ${config.languagesToUse.length} languages available`);
     }
 
-    // Set language based on stored preference or browser language
     this.setInitialLanguage();
 
-    // Listen for browser language changes
-    window.addEventListener('languagechange', () => {
-      if (!this.principal.isAuthenticated()) {
-        this.setInitialLanguage();
-      }
-    });
-
-    // Load user account if authenticated
     if (this.principal.isAuthenticated()) {
       this.principal.identity().then((account) => {
         this.currentAccount = account;
@@ -85,19 +73,10 @@ export class AppComponent implements OnInit, OnDestroy {
 
   }
 
-  /**
-   * Initialize error tracking after app bootstrap
-   * This breaks the circular dependency by deferring initialization
-   */
   private initializeErrorTracking(): void {
-    // ErrorTrackingService is now available after bootstrap
-    // This ensures LoggerService can safely use it via lazy injection
     try {
-      // Just accessing the service ensures it's initialized
-      // The actual tracking will happen via LoggerService's lazy injection
       this.loggerService.debug('Error tracking initialized');
     } catch (error) {
-      // Should not happen, but handle gracefully
       console.warn('Error tracking initialization warning:', error);
     }
   }
@@ -106,26 +85,16 @@ export class AppComponent implements OnInit, OnDestroy {
     this.subscription?.unsubscribe();
   }
 
-  /**
-   * Set initial language based on stored preference or browser language
-   */
   private setInitialLanguage() {
-    const storedLang = localStorage.getItem('lang');
-
-    if (storedLang && config.languagesToUse?.find(lang => lang.shortname === storedLang)) {
-      this.translate.use(storedLang);
-      this.translate.setDefaultLang(storedLang);
-    } else if (!this.principal.isAuthenticated()) {
-      // Use browser language for non-authenticated users
-      const navigatorLang = window.navigator.language.toLowerCase();
-      const baseLang = navigatorLang.replace(/-[A-Z]+$/, '');
-      const defaultLang = config.languagesToUse?.find(lang =>
-        lang.shortname.toLowerCase() === baseLang
-      )?.shortname ?? config.defaultLang ?? 'en';
-
-      this.translate.use(defaultLang);
-      this.translate.setDefaultLang(defaultLang);
-    }
+    const available = (config.languagesToUse || []).map(lang => lang.shortname);
+    const chosen = resolveUiLanguage({
+      stored: localStorage.getItem('lang'),
+      backendDefault: config.defaultLang,
+      availableShortnames: available,
+      staticFallback: config.defaultLang || available[0] || 'en',
+    });
+    this.translate.use(chosen);
+    this.translate.setDefaultLang(chosen);
   }
 
   /** Change app language*/
@@ -136,7 +105,6 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   navOpen(_$event): void {
-    // toggle condition here
     this.isOpen = !this.isOpen;
   }
 

@@ -39,7 +39,7 @@ export class LanguageComponent extends BaseListComponent<Language> implements On
     infiniteBlockFetcher: createPagedInfiniteFetcher(this.languageService),
     progressiveLocalFilter: false,
     backendSearch: true,
-    defaultColumnSorting: ['shortname'],
+    defaultColumnSorting: ['order'],
     gridOptions: {
       discardChangesButton: false,
       redoButton: false,
@@ -91,8 +91,8 @@ export class LanguageComponent extends BaseListComponent<Language> implements On
   }
 
   override async postFetchData(): Promise<void> {
-    const nameCol: any = {
-      ...this.utils.getRouterLinkColumnDef('entity.language.name', 'name', 'language/:id/languageForm', {id: 'id'}, 220),
+    const endonymCol: any = {
+      ...this.utils.getRouterLinkColumnDef('entity.language.endonym', 'name', 'language/:id/languageForm', {id: 'id'}, 180),
       valueGetter: (params) => {
         const name = params.data?.name || '';
         const shortname = params.data?.shortname || '';
@@ -101,17 +101,47 @@ export class LanguageComponent extends BaseListComponent<Language> implements On
         return shortname ? `${name} (${shortname})${defaultMarker}` : name;
       }
     };
-    nameCol.sortable = true;
-    nameCol.cellRendererParams = {...nameCol.cellRendererParams, sortField: 'name'};
-    nameCol.flex = 1;
-    nameCol.tooltipValueGetter = (params) => {
+    endonymCol.sortable = true;
+    endonymCol.cellRendererParams = {...endonymCol.cellRendererParams, sortField: 'name'};
+    endonymCol.flex = 1;
+    endonymCol.tooltipValueGetter = (params) => {
       const isDefault = params.data?.shortname === this.currentDefaultLanguage;
       return isDefault ? `${params.value} - Default database language` : params.value;
     };
 
+    const uiLocaleCol: any = {
+      ...this.utils.getNonEditableColumnDef('entity.language.label', 'translatedName', 160, 280),
+      valueGetter: (params) => {
+        const shortname = params.data?.shortname;
+        if (!shortname) {
+          return '';
+        }
+        const key = `lang.${shortname}`;
+        const label = this.translateService.instant(key);
+        return !label || label === key ? '' : label;
+      },
+      sortable: false,
+    };
+
+    const orderCol: any = {
+      ...this.utils.getNonEditableColumnDef('entity.language.order', 'order', 80, 100),
+      sortable: true,
+      cellRendererParams: {sortField: 'order'},
+    };
+
+    const enabledCol: any = {
+      ...this.utils.getBooleanColumnDef('entity.language.enabled', 'enabled', false, 90, 110),
+      sortable: true,
+      cellRendererParams: {sortField: 'enabled'},
+    };
+
+    // Identity → UI label → availability → sort weight
     this.entityListConfig.columnDefs = [
       this.utils.getRowCheckboxColumnDef(),
-      nameCol
+      endonymCol,
+      uiLocaleCol,
+      enabledCol,
+      orderCol,
     ];
   }
 

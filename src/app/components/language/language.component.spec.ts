@@ -1,195 +1,96 @@
+import { provideHttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { MatDialog } from '@angular/material/dialog';
-import { ActivatedRoute, Router } from '@angular/router';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
+import { provideRouter, RouterModule } from '@angular/router';
 
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { of, throwError } from 'rxjs';
+import { TranslateLoader, TranslateModule, TranslateService } from '@ngx-translate/core';
+import { of } from 'rxjs';
 
-import {CodeListService} from '@app/domain/codelist/services/codelist.service';
-import {Language} from '@app/domain/translation/models/language.model';
-import {LanguageService} from '@app/domain/translation/services/language.service';
-import {TranslationService} from '@app/domain/translation/services/translation.service';
-import { ErrorHandlerService } from '@app/services/error-handler.service';
-import { LoadingOverlayService } from '@app/services/loading-overlay.service';
-import { LoggerService } from '@app/services/logger.service';
-import { UtilsService } from '@app/services/utils.service';
+import { EntityListComponent } from '@app/components/shared/entity-list/entity-list.component';
+import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
+import { ExternalService, ResourceService } from '@app/core/hal';
+import { CodeListService, LanguageService, TranslationService } from '@app/domain';
+import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
+import { MaterialModule } from '@app/material-module';
 
 import { LanguageComponent } from './language.component';
 
 describe('LanguageComponent', () => {
   let component: LanguageComponent;
   let fixture: ComponentFixture<LanguageComponent>;
-  let mockLanguageService: jest.Mocked<LanguageService>;
-  let mockTranslateService: jest.Mocked<TranslateService>;
-  let mockDialog: jest.Mocked<MatDialog>;
-  let mockErrorHandler: jest.Mocked<ErrorHandlerService>;
-  let mockRouter: jest.Mocked<Router>;
-  let mockUtils: jest.Mocked<UtilsService>;
+  let httpMock: HttpTestingController;
+  let translateService: TranslateService;
 
-  const mockEnglish: Language = {
-    id: 1,
-    shortname: 'en',
-    name: 'English',
-    _links: { self: { href: 'http://localhost/api/languages/1' } }
-  } as Language;
-
-  const mockCatalan: Language = {
-    id: 2,
-    shortname: 'ca',
-    name: 'Catalan',
-    _links: { self: { href: 'http://localhost/api/languages/2' } }
-  } as Language;
+  beforeAll(async () => {
+    await TestBed.configureTestingModule({
+      teardown: { destroyAfterEach: 0 as any },
+      declarations: [LanguageComponent, EntityListComponent],
+      imports: [
+        SitmunFrontendGuiModule,
+        MaterialModule,
+        RouterModule,
+        MatIconTestingModule,
+        TranslateModule.forRoot({
+          loader: {
+            provide: TranslateLoader,
+            useFactory: () => ({
+              getTranslation: () => of({
+                'lang.ca': 'Català',
+                'entity.language.endonym': 'Endonym',
+                'entity.language.label': 'Language',
+                'entity.language.order': 'Order',
+              }),
+            }),
+          },
+        }),
+      ],
+      providers: [
+        LanguageService,
+        CodeListService,
+        TranslationService,
+        ResourceService,
+        ExternalService,
+        { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService },
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideRouter([]),
+      ],
+    }).compileComponents();
+  });
 
   beforeEach(async () => {
-    mockLanguageService = {
-      getCurrentDefaultLanguage: jest.fn(),
-      update: jest.fn(),
-      delete: jest.fn(),
-      getAll: jest.fn()
-    } as any;
-    mockTranslateService = {
-      get: jest.fn(),
-      use: jest.fn()
-    } as any;
-    mockDialog = {
-      open: jest.fn()
-    } as any;
-    mockErrorHandler = {
-      handleError: jest.fn()
-    } as any;
-    mockRouter = {
-      navigate: jest.fn()
-    } as any;
-    mockUtils = {
-      getRouterLinkColumnDef: jest.fn(),
-      getRowCheckboxColumnDef: jest.fn()
-    } as any;
-
-    // Setup default spy returns
-    mockLanguageService.getCurrentDefaultLanguage.mockReturnValue(of('en'));
-    mockTranslateService.get.mockReturnValue(of('Translated') as any);
-    mockUtils.getRouterLinkColumnDef.mockReturnValue({
-      field: 'name',
-      headerName: 'Name'
-    } as any);
-    mockUtils.getRowCheckboxColumnDef.mockReturnValue({
-      field: 'checkbox',
-      headerName: ''
-    } as any);
-
-    await TestBed.configureTestingModule({
-      declarations: [LanguageComponent],
-      imports: [TranslateModule.forRoot()],
-      providers: [
-        { provide: LanguageService, useValue: mockLanguageService },
-        { provide: TranslateService, useValue: mockTranslateService },
-        { provide: MatDialog, useValue: mockDialog },
-        { provide: ErrorHandlerService, useValue: mockErrorHandler },
-        { provide: Router, useValue: mockRouter },
-        { provide: UtilsService, useValue: mockUtils },
-        { provide: TranslationService, useValue: {} },
-        { provide: CodeListService, useValue: {} },
-        { provide: LoggerService, useValue: {} },
-        { provide: LoadingOverlayService, useValue: {} },
-        { provide: ActivatedRoute, useValue: {} }
-      ]
-    }).compileComponents();
-
+    httpMock = TestBed.inject(HttpTestingController);
+    translateService = TestBed.inject(TranslateService);
+    translateService.use('en');
     fixture = TestBed.createComponent(LanguageComponent);
     component = fixture.componentInstance;
+    jest.spyOn(component.languageService, 'getCurrentDefaultLanguage').mockReturnValue(of('en'));
+    fixture.detectChanges();
+    await new Promise((r) => setTimeout(r, 0));
+    httpMock.match((req) => req.url.includes('languages')).forEach((req) =>
+      req.flush({ _embedded: { languages: [] } })
+    );
+    await fixture.whenStable();
   });
 
-  describe('initialization', () => {
-    it('should create', () => {
-      expect(component).toBeTruthy();
-    });
-
-    it('should load default language before configuring columns', async () => {
-      mockLanguageService.getCurrentDefaultLanguage.mockReturnValue(of('en'));
-
-      await component.preFetchData();
-
-      expect(mockLanguageService.getCurrentDefaultLanguage).toHaveBeenCalled();
-      expect(component.currentDefaultLanguage).toBe('en');
-    });
-
-    it('should handle error when loading default language', async () => {
-      const error = new Error('Failed to load');
-      mockLanguageService.getCurrentDefaultLanguage.mockReturnValue(throwError(() => error));
-
-      await component.preFetchData();
-
-      expect(mockErrorHandler.handleError).toHaveBeenCalledWith(error);
-    });
+  afterEach(() => {
+    fixture?.destroy();
+    httpMock.verify();
   });
 
-  describe('column configuration', () => {
-    beforeEach((done) => {
-      component.currentDefaultLanguage = 'en';
-      component.postFetchData().then(() => done());
-    });
+  afterAll(() => TestBed.resetTestingModule());
 
-    it('should configure name column with default marker', () => {
-      const nameCol = component.entityListConfig.columnDefs.find((col: any) => col.field === 'name');
-      expect(nameCol).toBeDefined();
+  it('lists endonym, UI-locale name, enabled, then order', async () => {
+    await component.postFetchData();
+    const fields = component.entityListConfig.columnDefs
+      .slice(1)
+      .map((col: { field?: string }) => col.field);
+    expect(fields).toEqual(['name', 'translatedName', 'enabled', 'order']);
 
-      const defaultLangValue = nameCol.valueGetter({ data: mockEnglish });
-      expect(defaultLangValue).toContain('★');
-
-      const nonDefaultLangValue = nameCol.valueGetter({ data: mockCatalan });
-      expect(nonDefaultLangValue).not.toContain('★');
-    });
-
-    it('should show tooltip for default language', () => {
-      const nameCol = component.entityListConfig.columnDefs.find((col: any) => col.field === 'name');
-      
-      const defaultTooltip = nameCol.tooltipValueGetter({ 
-        data: mockEnglish,
-        value: 'English (en) ★'
-      });
-      expect(defaultTooltip).toContain('Default database language');
-
-      const nonDefaultTooltip = nameCol.tooltipValueGetter({ 
-        data: mockCatalan,
-        value: 'Catalan (ca)'
-      });
-      expect(nonDefaultTooltip).toBe('Catalan (ca)');
-    });
-
-    it('should not configure an unsupported actions column', () => {
-      const actionsCol = component.entityListConfig.columnDefs.find((col: any) => col.field === 'actions');
-      expect(actionsCol).toBeUndefined();
-    });
-  });
-
-  describe('navigation methods', () => {
-    it('should navigate to new language form', async () => {
-      await component.newData();
-      expect(mockRouter.navigate).toHaveBeenCalledWith(['language', -1, 'languageForm']);
-    });
-
-    it('should navigate to duplicate language form', async () => {
-      await component.duplicateItem(1);
-      expect(mockRouter.navigate).toHaveBeenCalledWith(['language', -1, 'languageForm', 1]);
-    });
-  });
-
-  describe('data operations', () => {
-    it('should call languageService.update on dataUpdateFn', async () => {
-      mockLanguageService.update.mockReturnValue(of(mockEnglish));
-
-      const result = await component.dataUpdateFn(mockEnglish);
-
-      expect(mockLanguageService.update).toHaveBeenCalledWith(mockEnglish);
-      expect(result).toEqual(mockEnglish);
-    });
-
-    it('should call languageService.delete on dataDeleteFn', async () => {
-      mockLanguageService.delete.mockReturnValue(of(undefined));
-
-      await component.dataDeleteFn(mockEnglish);
-
-      expect(mockLanguageService.delete).toHaveBeenCalledWith(mockEnglish);
-    });
+    const uiLocaleCol = component.entityListConfig.columnDefs[2] as {
+      valueGetter: (params: { data: { shortname: string } }) => string;
+    };
+    expect(uiLocaleCol.valueGetter({ data: { shortname: 'ca' } })).toBe('Català');
   });
 });

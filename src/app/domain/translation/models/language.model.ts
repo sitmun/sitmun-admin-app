@@ -7,8 +7,14 @@ export class Language extends Resource {
   public override id: number;
   /** BCP 47 language tag */
   public shortname: string;
-  /** Language name */
+  /** Endonym (own name of the language) */
   public name: string;
+  /** Display order in selectors */
+  public order?: number | null;
+  /** When false, language is hidden from menus and translation forms */
+  public enabled?: boolean;
+  /** Locale label for current ?lang= (read-only from API) */
+  public translatedName?: string;
 
   /**
    * Creates a new Language instance copying only the properties declared in Language and Resource classes
@@ -19,7 +25,7 @@ export class Language extends Resource {
     const language = new Language();
     const propertiesToCopy = [
       'proxyUrl', 'rootUrl', '_links', '_subtypes',
-      'id', 'shortname', 'name'
+      'id', 'shortname', 'name', 'order', 'enabled', 'translatedName'
     ];
     propertiesToCopy.forEach(prop => {
       if (source[prop] !== undefined) {

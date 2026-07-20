@@ -36,10 +36,22 @@
   preserveContent="true"
 >
   <mat-tab label="{{ 'common.form.details' | translate }}">
-    <form [formGroup]="entityForm" *ngIf="dataLoaded">
+    <form [formGroup]="entityForm" *ngIf="dataLoaded" class="sitmun-language-form-entity">
       <mat-card class="sitmun-mat-card-margin" appearance="outlined">
-        <mat-card-content>
-          <mat-form-field appearance="outline" class="half add-gap">
+        <mat-card-content class="sitmun-language-form-stack">
+          <mat-form-field appearance="outline" class="full sitmun-cartography-rich-hint-field" subscriptSizing="dynamic">
+            <mat-label>{{ 'entity.language.endonym' | translate }}</mat-label>
+            <input matInput type="text" formControlName="name" [maxlength]="50" required>
+            <mat-hint align="start">{{ 'entity.language.endonymHint' | translate }}</mat-hint>
+            <mat-hint align="end">{{entityForm.get('name') | characterCount}}</mat-hint>
+            <mat-icon matSuffix class="iconTranslate"
+                      (click)="onTranslated('name')"
+                      onKeyDown="onTranslated('name')">translate</mat-icon>
+            <mat-error *ngIf="entityForm.get('name')?.hasError('required') && entityForm.get('name')?.touched">
+              {{ 'common.error.required' | translate }}
+            </mat-error>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="half sitmun-cartography-rich-hint-field" subscriptSizing="dynamic">
             <mat-label>{{ 'entity.language.shortname' | translate }}</mat-label>
             <input matInput type="text" formControlName="shortname" [maxlength]="20" required>
             <mat-hint align="end">{{entityForm.get('shortname') | characterCount}}</mat-hint>
@@ -48,14 +60,25 @@
               {{ 'common.error.required' | translate }}
             </mat-error>
           </mat-form-field>
-          <mat-form-field appearance="outline" class="half">
-            <mat-label>{{ 'entity.language.name' | translate }} ({{ defaultLang }})</mat-label>
-            <input matInput type="text" formControlName="name" [maxlength]="50" required>
-            <mat-hint align="end">{{entityForm.get('name') | characterCount}}</mat-hint>
-            <mat-icon matSuffix class="iconTranslate"
-                      (click)="onTranslated('name')"
-                      onKeyDown="onTranslated('name')">translate</mat-icon>
-            <mat-error *ngIf="entityForm.get('name')?.hasError('required') && entityForm.get('name')?.touched">
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="sitmun-mat-card-margin" appearance="outlined">
+        <mat-card-content class="sitmun-language-form-stack">
+          <div class="sitmun-toggle-row">
+            <mat-slide-toggle
+              color="primary"
+              formControlName="enabled"
+              [matTooltip]="isDefaultLanguage ? ('entity.language.enabledDefaultHint' | translate) : null">
+              {{ 'entity.language.enabled' | translate }}
+            </mat-slide-toggle>
+            <p class="sitmun-toggle-hint">{{ 'entity.language.enabledHint' | translate }}</p>
+          </div>
+          <mat-form-field appearance="outline" class="half sitmun-cartography-rich-hint-field" subscriptSizing="dynamic">
+            <mat-label>{{ 'entity.language.order' | translate }}</mat-label>
+            <input matInput type="number" formControlName="order" required>
+            <mat-hint align="start">{{ 'entity.language.orderHint' | translate }}</mat-hint>
+            <mat-error *ngIf="entityForm.get('order')?.hasError('required') && entityForm.get('order')?.touched">
               {{ 'common.error.required' | translate }}
             </mat-error>
           </mat-form-field>

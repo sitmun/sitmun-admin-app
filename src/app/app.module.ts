@@ -139,11 +139,13 @@ import {AppStateService} from './services/app-state.service';
 import {IconsService, initializeIcons} from './services/icons.service';
 import {LoggerService} from './services/logger.service';
 import {ServicesModule} from './services/services.module';
+import {resolveUiLanguage} from './services/ui-language.resolver';
 
 
 // APP_INITIALIZER factory functions
 export function initializeLanguages(
   languageService: LanguageService,
+  configurationService: ConfigurationParametersService,
   translateService: TranslateService,
   loggerService: LoggerService,
   appStateService: AppStateService,
@@ -151,35 +153,37 @@ export function initializeLanguages(
   appConfigService: AppConfigService
 ) {
   return async () => {
-    // Initialize static logger services
-
     messagesInterceptorState.disable();
     DataTablesRegistry.setLoggerService(loggerService);
     Resource.setLoggerService(loggerService);
 
     try {
-      const languages = await firstValueFrom(languageService.fetchAllItems());
-      // Sort languages
-      languages.sort((a, b) => a.shortname.localeCompare(b.shortname));
-
-      // Store in config
-      config.languagesToUse = languages;
-      languages.forEach(language => {
-        config.languagesObjects[language.shortname] = language;
-      });
-
-      // Store in localStorage if not exists
-      if (!localStorage.getItem('languages')) {
-        localStorage.setItem('languages', JSON.stringify(languages));
+      if (!config.defaultLang) {
+        try {
+          const configParams = await firstValueFrom(configurationService.fetchAllItems());
+          const defaultLangParam = configParams.find(element => element.name === 'language.default');
+          if (defaultLangParam?.value) {
+            config.defaultLang = defaultLangParam.value;
+          }
+        } catch {
+          // configuration may load in a parallel initializer; fall back below
+        }
       }
 
-      // Set the default language (with appConfigService for fallback)
-      const defaultLang = getDefaultLanguage(languages, appConfigService);
-      translateService.setDefaultLang(defaultLang);
+      const languages = languageService.applyLanguagesToUse(
+        await firstValueFrom(languageService.fetchAllItems())
+      );
+
+      const chosen = resolveUiLanguage({
+        stored: localStorage.getItem('lang'),
+        backendDefault: config.defaultLang,
+        availableShortnames: languages.map(l => l.shortname),
+        staticFallback: appConfigService.getDefaultLanguageFallback() || 'en',
+      });
+      translateService.setDefaultLang(chosen);
       messagesInterceptorState.enable();
-      return await firstValueFrom(translateService.use(defaultLang));
+      return await firstValueFrom(translateService.use(chosen));
     } catch (error) {
-      // Create a proper error object for initialization errors
       const initError = {
         message: 'Failed to initialize languages',
         originalError: error,
@@ -189,9 +193,12 @@ export function initializeLanguages(
       appStateService.setInitializationError(initError, 'languages');
       messagesInterceptorState.enable();
 
-      const browserLang = translateService.getBrowserLang();
-      translateService.setDefaultLang(browserLang);
-      return await firstValueFrom(translateService.use(browserLang));
+      const fallback =
+        config.defaultLang ||
+        appConfigService.getDefaultLanguageFallback() ||
+        'en';
+      translateService.setDefaultLang(fallback);
+      return await firstValueFrom(translateService.use(fallback));
     }
   };
 }
@@ -211,12 +218,6 @@ export function initializeConfiguration(
 
       if (defaultLang) {
         config.defaultLang = defaultLang.value;
-
-        // Set language if it is not already set in localStorage
-        if (!localStorage.getItem('lang')) {
-          translateService.setDefaultLang(defaultLang.value);
-          translateService.use(defaultLang.value);
-        }
       }
 
       loggerService.debug(`Configuration initialized: ${configParams.length} parameters loaded`);
@@ -233,39 +234,6 @@ export function initializeConfiguration(
       messagesInterceptorState.enable();
     }
   };
-}
-
-// Helper function to get default language
-function getDefaultLanguage(languages: any[], appConfigService?: AppConfigService): string {
-  // Check localStorage first
-  const storedLang = localStorage.getItem('lang');
-  if (storedLang && languages.find(lang => lang.shortname === storedLang)) {
-    return storedLang;
-  }
-
-  // Check browser language
-  const navigatorLang = window.navigator.language.toLowerCase();
-  const baseLang = navigatorLang.replace(/-[A-Z]+$/, '');
-  const browserLang = languages.find(lang =>
-    lang.shortname.toLowerCase() === baseLang
-  );
-
-  if (browserLang) {
-    return browserLang.shortname;
-  }
-
-  // Fallback to backend config default
-  if (config.defaultLang) {
-    return config.defaultLang;
-  }
-
-  // Fallback to app-config.json default language (predictable fallback)
-  if (appConfigService) {
-    return appConfigService.getDefaultLanguageFallback();
-  }
-
-  // Final fallback: first language or 'en'
-  return languages.length > 0 ? languages[0].shortname : 'en';
 }
 
 @NgModule({ declarations: [
@@ -366,22 +334,23 @@ function getDefaultLanguage(languages: any[], appConfigService?: AppConfigServic
         provideAppInitializer(() => initializeAppConfig(inject(AppConfigService))()),
         provideAppInitializer(() => initializeIcons(inject(IconsService))()),
         provideAppInitializer(() =>
-            initializeLanguages(
-                inject(LanguageService),
-                inject(TranslateService),
-                inject(LoggerService),
-                inject(AppStateService),
-                inject(MessagesInterceptorStateService),
-                inject(AppConfigService)
-            )()
-        ),
-        provideAppInitializer(() =>
             initializeConfiguration(
                 inject(ConfigurationParametersService),
                 inject(TranslateService),
                 inject(LoggerService),
                 inject(AppStateService),
                 inject(MessagesInterceptorStateService)
+            )()
+        ),
+        provideAppInitializer(() =>
+            initializeLanguages(
+                inject(LanguageService),
+                inject(ConfigurationParametersService),
+                inject(TranslateService),
+                inject(LoggerService),
+                inject(AppStateService),
+                inject(MessagesInterceptorStateService),
+                inject(AppConfigService)
             )()
         ),
         AppConfigService,

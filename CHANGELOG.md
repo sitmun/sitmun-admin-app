@@ -6,6 +6,8 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Added
 
+- **Languages**: `enabled` flag on language form/list; disabled languages are excluded from menus and translation dialogs; cannot be set as database default; database default language cannot be disabled.
+- **Language chrome**: login and shell toolbars show closed BCP-47 ISO and open API endonyms (no flags); UI language resolves from `localStorage.lang` → `language.default` → static (never browser); Languages form edits endonym + `order`; dialog-translation uses `lang.*` labels sorted by `order`.
 - **Application trees**: application↔tree links use `/api/application-trees` with editable association `order` (lower = higher priority / default); Trees tab and tree Applications tab match the backgrounds pattern.
 - **Trees**: cartography folder form toggle for `loadData` (orthogonal to radio); persists via projection and save path ([sitmun-viewer-app#45](https://github.com/sitmun/sitmun-viewer-app/issues/45)).
 - **Trees**: admin tree shows a `check_box` badge for `loadData` folders (same pattern as radio), with i18n “load control” copy ([sitmun-viewer-app#45](https://github.com/sitmun/sitmun-viewer-app/issues/45)).
@@ -15,6 +17,9 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Fixed
 
+- **Languages**: translation dialog Accept stays disabled until a value changes; accepting without edits no longer marks the parent form as having unsaved changes.
+- **Languages**: toolbar/login selectors subscribe to `LanguageService.languagesToUse$` so enable/order saves refresh the chrome menu without reload.
+- **Languages**: list columns are endonym, UI-locale name (`lang.*`), then Active/Order; endonym translation dialog loads/saves `STM_TRANSLATION` rows for `Language.name` even though HAL `name` is no longer `@I18n`-overlaid.
 - **Configuration Parameters**: after saving `proxy`, show Application-style info alerts when the backend normalized or defaulted the URL (keys from the create/update response only) ([#431](https://github.com/sitmun/sitmun-admin-app/issues/431)).
 - **Forms**: duplicate entity forms enable Save with the suggested copy name without requiring an extra edit ([#384](https://github.com/sitmun/sitmun-admin-app/issues/384)).
 - **Auth**: backend request matching normalizes relative, absolute, bare-domain, and default-port URLs while rejecting cross-origin and path-prefix lookalikes.

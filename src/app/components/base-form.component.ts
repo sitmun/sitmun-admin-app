@@ -12,13 +12,14 @@ import {RelationGridComponent} from "@app/components/shared/relation-grid/relati
 import {HalOptions, HalParam, Resource} from "@app/core";
 import {CanComponentDeactivate} from '@app/core/guards/can-deactivate-guard.service';
 import {MessagesInterceptorStateService} from "@app/core/interceptors/messages.interceptor";
-import {CodeList, CodeListService, Language, Translation, TranslationService} from "@app/domain";
+import {CodeList, CodeListService, Language, LanguageService, Translation, TranslationService} from "@app/domain";
 import {DataGridComponent} from "@app/frontend-gui/src/lib/data-grid/data-grid.component";
 import {DialogTranslationComponent} from "@app/frontend-gui/src/lib/dialog-translation/dialog-translation.component";
 import {DIALOG_EVENTS, DialogMessageComponent} from '@app/frontend-gui/src/lib/public_api';
 import {ErrorHandlerService} from "@app/services/error-handler.service";
 import {LoadingOverlayService} from "@app/services/loading-overlay.service";
 import {LoggerService} from "@app/services/logger.service";
+import {filterEnabledLanguages} from "@app/services/ui-language.resolver";
 import {explainFormValidity} from "@app/utils/form.utils";
 import {config} from "@config";
 import {constants} from "@environments/constants";
@@ -170,6 +171,8 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
    * @param loadingService
    * @param messagesInterceptorState
    */
+  protected readonly languageService = inject(LanguageService);
+
   constructor(
     protected dialog: MatDialog,
     protected translateService: TranslateService,
@@ -945,10 +948,19 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
     // Extract maxLength and useTextarea from the form control
     const maxLength = this.getMaxLengthForProperty(property);
     const useTextarea = this.getUseTextareaForProperty(property);
+    const before = new Map<string, string | null>();
+    propertyTranslation.map.forEach((translation, shortname) => {
+      before.set(shortname, translation?.translation ?? null);
+    });
     const dialogResult = await this.openTranslationDialog(propertyTranslation.map, defaultLanguageValue, maxLength, useTextarea);
     if (dialogResult && dialogResult.event == 'Accept') {
-      propertyTranslation.modified = true;
-      this.changeDetectorRef.markForCheck();
+      const changed = Array.from(propertyTranslation.map.entries()).some(([shortname, translation]) =>
+        (translation?.translation ?? null) !== (before.get(shortname) ?? null)
+      ) || Array.from(before.keys()).some((shortname) => !propertyTranslation.map.has(shortname));
+      if (changed) {
+        propertyTranslation.modified = true;
+        this.changeDetectorRef.markForCheck();
+      }
     }
   }
 
@@ -1062,6 +1074,7 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
       }
     }
 
+    languagesToUse = filterEnabledLanguages(languagesToUse ?? []);
     if (!languagesToUse || languagesToUse.length === 0) {
       this.loggerService.warn('No languages configured for translations');
       return translationsList;
@@ -1198,12 +1211,13 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
    * @private
    */
   private async openTranslationDialog(translationsMap: Map<string, Translation>, defaultLanguageValue: string, maxLength: number, useTextarea: boolean): Promise<any> {
+    const languagesAvailables = await firstValueFrom(this.languageService.refreshLanguagesToUse());
     const dialogRef = this.dialog.open(DialogTranslationComponent, {
       panelClass: 'translateDialogs',
     });
     dialogRef.componentInstance.translationsMap = translationsMap;
     dialogRef.componentInstance.languageByDefault = config.defaultLang;
-    dialogRef.componentInstance.languagesAvailables = config.languagesToUse;
+    dialogRef.componentInstance.languagesAvailables = languagesAvailables;
     dialogRef.componentInstance.defaultLanguageValue = defaultLanguageValue;
     dialogRef.componentInstance.maxLength = maxLength;
     dialogRef.componentInstance.useTextarea = useTextarea;
