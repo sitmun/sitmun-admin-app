@@ -14,8 +14,11 @@ import {RelationGridComponent} from '@app/components/shared/relation-grid/relati
 import {Configuration} from "@app/core/config/configuration";
 import {MessagesInterceptorStateService} from '@app/core/interceptors/messages.interceptor';
 import {
-  Application,
+  ApplicationProjection,
   ApplicationService,
+  ApplicationTree,
+  ApplicationTreeProjection,
+  ApplicationTreeService,
   CodeListService,
   Role,
   RoleService,
@@ -26,7 +29,7 @@ import {
   TreeService
 } from '@app/domain';
 import {AdminRuntimeConfigurationService} from '@app/domain/admin-configuration/services/admin-runtime-configuration.service';
-import {onUpdatedRelation, Status} from '@app/frontend-gui/src/lib/public_api';
+import {onCreate, onDelete, onUpdate, onUpdatedRelation, Status} from '@app/frontend-gui/src/lib/public_api';
 import {ErrorHandlerService} from '@app/services/error-handler.service';
 import {LoadingOverlayService} from "@app/services/loading-overlay.service";
 import {LoggerService} from '@app/services/logger.service';
@@ -100,10 +103,10 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
 
   /**
    * Data table configuration for managing tree applications.
-   * Handles application assignments with duplicate prevention.
-   * Columns: checkbox, ID, name (editable), status
+   * Handles application assignments with duplicate prevention and order.
+   * Columns: checkbox, name, order (editable), status
    */
-  readonly applicationsTable: DataTableDefinition<Application, Application>;
+  readonly applicationsTable: DataTableDefinition<ApplicationTreeProjection, ApplicationProjection>;
 
   /**
    * Data table configuration for managing tree roles.
@@ -126,6 +129,7 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
     public utils: UtilsService,
     private treeService: TreeService,
     private applicationService: ApplicationService,
+    private applicationTreeService: ApplicationTreeService,
     private roleService: RoleService
   ) {
     super(dialog, translateService, translationService, codeListService, loggerService, errorHandler, activatedRoute, router, loadingService, messagesInterceptorState);
@@ -363,10 +367,10 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
       // Get applications from the data grid (includes new, modified, not deleted)
       const gridData = this.applicationsGrid?.getAllCurrentData() || [];
 
-      // Filter out applications marked for deletion and extract IDs
+      // Filter out associations marked for deletion and extract application IDs
       const applicationIds = gridData
-        .filter((app: any) => app.status !== 'pendingDelete')
-        .map((app: Application) => app.id)
+        .filter((row: ApplicationTreeProjection & Status) => row.status !== 'pendingDelete')
+        .map((row: ApplicationTreeProjection) => row.applicationId)
         .filter((id: number) => id != null);
 
       // Call validation endpoint
@@ -792,37 +796,53 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
    *
    * @returns Configured data table definition for applications
    */
-  private defineApplicationsTable(): DataTableDefinition<Application, Application> {
-    return DataTableDefinition.builder<Application, Application>(this.dialog, this.errorHandler, this.loadingService)
+  private defineApplicationsTable(): DataTableDefinition<ApplicationTreeProjection, ApplicationProjection> {
+    return DataTableDefinition.builder<ApplicationTreeProjection, ApplicationProjection>(this.dialog, this.errorHandler, this.loadingService)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
-        this.utils.getRouterLinkColumnDef('common.form.name', 'name', '/application/:id/applicationForm', {id: 'id'}),
+        Object.assign(this.utils.getRouterLinkColumnDef('common.form.name', 'applicationName', '/application/:id/applicationForm', {id: 'applicationId'}), {flex: 1, minWidth: 140}),
+        Object.assign(this.utils.getEditableColumnDef('common.form.order', 'order'), {flex: 0, minWidth: 80, maxWidth: 100}),
         this.utils.getStatusColumnDef()
       ])
-      .withRelationsOrder('name')
+      .withRelationsOrder('order')
       .withRelationsFetcher(() => {
         if (this.isNewOrDuplicated() || !this.entityToEdit) {
           return of([]);
         }
-        return this.entityToEdit.getRelationArrayEx(Application, 'availableApplications', {
+        return this.entityToEdit.getRelationArrayEx(ApplicationTreeProjection, 'availableApplications', {
           projection: 'view'
         });
       })
-      .withRelationsUpdater(async (applications: (Application & Status)[]) => {
-        await onUpdatedRelation(applications).forAll(item =>
-          this.entityToEdit.substituteAllRelation('availableApplications', item)
-        );
+      .withRelationsUpdater(async (applicationTrees: (ApplicationTreeProjection & Status)[]) => {
+        await onCreate(applicationTrees).forEach(item => {
+          const newItem = ApplicationTree.of(
+            this.applicationService.createProxy(item.applicationId),
+            this.treeService.createProxy(this.entityToEdit.id),
+            item.order);
+          return this.applicationTreeService.create(newItem);
+        });
+        await onUpdate(applicationTrees).forEach(item => {
+          const entity = this.applicationTreeService.createProxy(item.id)!;
+          entity.application = this.applicationService.createProxy(item.applicationId)!;
+          entity.tree = this.treeService.createProxy(this.entityToEdit.id)!;
+          entity.order = item.order;
+          return this.applicationTreeService.update(entity);
+        });
+        await onDelete(applicationTrees).forEach(item => {
+          const newItem = this.applicationTreeService.createProxy(item.id);
+          return this.applicationTreeService.delete(newItem);
+        });
       })
       .withTargetsColumns([
         this.utils.getSelCheckboxColumnDef(),
         this.utils.getNonEditableColumnDef('common.form.name', 'name'),
       ])
       .withTargetsOrder('name')
-      .withTargetsFetcher(() => this.applicationService.fetchAllItems())
-      .withTargetInclude((relations) => (target) =>
-        !relations.some((relation) => relation.id === target.id)
-      )
-      .withTargetToRelation((items) => items)
+      .withTargetsFetcher(() => this.applicationService.fetchProjectionItems(ApplicationProjection))
+      .withTargetInclude((applicationTrees: ApplicationTreeProjection[]) =>
+        (item: ApplicationProjection) => !applicationTrees.some((applicationTree) => applicationTree.applicationId === item.id))
+      .withTargetToRelation((items: ApplicationProjection[]) =>
+        items.map(item => ApplicationTreeProjection.of(item, this.entityToEdit, 0)))
       .withTargetsTitle('entity.permissionGroup.applications.header')
       .build();
   }

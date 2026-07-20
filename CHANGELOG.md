@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Added
 
+- **Application trees**: application↔tree links use `/api/application-trees` with editable association `order` (lower = higher priority / default); Trees tab and tree Applications tab match the backgrounds pattern.
 - **Trees**: cartography folder form toggle for `loadData` (orthogonal to radio); persists via projection and save path ([sitmun-viewer-app#45](https://github.com/sitmun/sitmun-viewer-app/issues/45)).
 - **Trees**: admin tree shows a `check_box` badge for `loadData` folders (same pattern as radio), with i18n “load control” copy ([sitmun-viewer-app#45](https://github.com/sitmun/sitmun-viewer-app/issues/45)).
 - **Trees**: cartography leaf form toggle for `queryableActive` (GFI marker in the viewer catalog when the linked layer also has `queryableFeatureEnabled`); toggle is disabled and cleared when no layer is linked or layer GetFeatureInfo is off; admin tree shows an `i` badge when the node flag is on ([sitmun-viewer-app#45](https://github.com/sitmun/sitmun-viewer-app/issues/45)).

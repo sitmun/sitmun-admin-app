@@ -86,6 +86,7 @@ import {
   ApplicationBackgroundService,
   ApplicationParameterService,
   ApplicationService,
+  ApplicationTreeService,
   BackgroundService,
   CapabilitiesService,
   CartographyAvailabilityService,
@@ -417,6 +418,7 @@ function getDefaultLanguage(languages: any[], appConfigService?: AppConfigServic
         CartographyFilterService,
         TaskUIService,
         ApplicationBackgroundService,
+        ApplicationTreeService,
         TreeNodeService,
         UserPositionService,
         provideHttpClient(withInterceptorsFromDi())

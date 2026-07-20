@@ -4,9 +4,9 @@ import {constants} from "@environments/constants";
 import {ApplicationBackground} from './application-background.model';
 import {ApplicationParameter} from './application-parameter.model';
 import {ApplicationTerritory} from "./application-territory.model";
+import {ApplicationTree} from './application-tree.model';
 import {CartographyGroup} from '../../cartography/models/cartography-group.model';
 import {Role} from '../../role/models/role.model';
-import {Tree} from '../../tree/models/tree.model';
 import {User} from '../../user/models/user.model';
 
 /**
@@ -54,7 +54,7 @@ export class Application extends Resource {
 
   public availableRoles: Role[];
 
-  public trees: Tree[];
+  public trees: ApplicationTree[];
 
   public backgrounds: ApplicationBackground[];
 

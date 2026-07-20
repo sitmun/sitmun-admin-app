@@ -5,7 +5,7 @@ import { TranslateModule } from '@ngx-translate/core';
 
 import {ExternalService, ResourceService} from '@app/core/hal';
 // Import services from feature folders
-import { ApplicationBackgroundService, ApplicationParameterService, ApplicationService } from '@app/domain/application';
+import { ApplicationBackgroundService, ApplicationParameterService, ApplicationService, ApplicationTreeService } from '@app/domain/application';
 import { CapabilitiesService } from '@app/domain/capabilities';
 import { BackgroundService , CartographyAvailabilityService , CartographyFilterService , CartographyGroupService , CartographyParameterService , CartographySpatialSelectionParameterService , CartographyStyleService , CartographyService } from '@app/domain/cartography';
 import { CodeListService } from '@app/domain/codelist';
@@ -72,6 +72,7 @@ export class DomainModule {
         ApplicationService,
         ApplicationParameterService,
         ApplicationBackgroundService,
+        ApplicationTreeService,
         UserPositionService,
         UserConfigurationService,
         TranslationService,

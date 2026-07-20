@@ -14,6 +14,7 @@ import { ExternalConfigurationService } from '@app/core/config/external-configur
 import {ExternalService, ResourceService} from '@app/core/hal';
 import {
   ApplicationService,
+  ApplicationTreeService,
   CapabilitiesService,
   CartographyService,
   CodeListService,
@@ -59,7 +60,7 @@ describe('TreesFormComponent', () => {
             })
           }
         })],
-      providers: [provideHttpClient(), provideHttpClientTesting(), provideErrorHandlerForTests(), TreeService, TreeNodeService, ApplicationService, ServiceService, CapabilitiesService, CartographyService, CodeListService, TranslationService, ResourceService, ExternalService, TaskService, RoleService,
+      providers: [provideHttpClient(), provideHttpClientTesting(), provideErrorHandlerForTests(), TreeService, TreeNodeService, ApplicationService, ApplicationTreeService, ServiceService, CapabilitiesService, CartographyService, CodeListService, TranslationService, ResourceService, ExternalService, TaskService, RoleService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService },
         {
           provide: AdminRuntimeConfigurationService,
@@ -1101,14 +1102,18 @@ describe('TreesFormComponent', () => {
 
     it('applicationsTable name links to the application form and omits the id column', () => {
       const columns = component['applicationsTable'].relationsColumnsDefs;
-      const nameColumn = columns.find((column: { field?: string }) => column.field === 'name');
+      const nameColumn = columns.find((column: { field?: string }) => column.field === 'applicationName');
 
       expect(columns.some((column: { field?: string }) => column.field === 'id')).toBe(false);
       expect(nameColumn?.cellRenderer).toBe('routerLinkRenderer');
       expect(nameColumn?.cellRendererParams).toEqual({
         route: '/application/:id/applicationForm',
-        paramFields: { id: 'id' },
+        paramFields: { id: 'applicationId' },
       });
+    });
+
+    it('applicationsTable should sort relations by order', () => {
+      expect(component['applicationsTable'].defaultRelationsSorting()).toEqual(['order']);
     });
 
     describe('Picker deduplication', () => {
@@ -1120,7 +1125,7 @@ describe('TreesFormComponent', () => {
       });
 
       it('applicationsTable excludes already-added applications by id from the picker', () => {
-        const relations = [{ id: 1 }, { id: 2 }] as any;
+        const relations = [{ applicationId: 1 }, { applicationId: 2 }] as any;
         const predicate = (component['applicationsTable'] as any).targetIncludeFn(relations);
         expect(predicate({ id: 1 })).toBe(false);
         expect(predicate({ id: 3 })).toBe(true);
@@ -1133,8 +1138,8 @@ describe('TreesFormComponent', () => {
       component.entityForm.patchValue({ type: 'touristic' });
       (component as any).applicationsGrid = {
         getAllCurrentData: () => [
-          { id: 1, status: 'statusOK' },
-          { id: 2, status: 'pendingDelete' },
+          { id: 100, applicationId: 1, status: 'statusOK' },
+          { id: 101, applicationId: 2, status: 'pendingDelete' },
         ],
       };
       const validateSpy = jest.spyOn(TestBed.inject(TreeService), 'validateTypeChange').mockReturnValue(of(undefined));

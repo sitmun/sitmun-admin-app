@@ -17,8 +17,9 @@ import {CoreModule} from '@app/core';
 import {ExternalConfigurationService} from '@app/core/config/external-configuration.service';
 import {ExternalService, ResourceService} from '@app/core/hal';
 import {
-  ApplicationBackgroundService, ApplicationParameterService, ApplicationService, BackgroundService,
-  CartographyGroupService, CodeListService, RoleService, TranslationService, TreeService, UserService
+  ApplicationBackgroundService, ApplicationParameterService, ApplicationService, ApplicationTreeService,
+  BackgroundService, CartographyGroupService, CodeListService, RoleService, TranslationService, TreeService,
+  UserService
 } from '@app/domain';
 import {DataGridComponent} from '@app/frontend-gui/src/lib/data-grid/data-grid.component';
 import {SitmunFrontendGuiModule} from '@app/frontend-gui/src/lib/public_api';
@@ -52,6 +53,7 @@ describe('ApplicationFormComponent', () => {
   let fixture: ComponentFixture<ApplicationFormComponent>;
   let roleService: RoleService;
   let applicationBackgroundService: ApplicationBackgroundService;
+  let applicationTreeService: ApplicationTreeService;
   let applicationService: ApplicationService;
   let codeListService: CodeListService;
   let cartographyGroupService: CartographyGroupService;
@@ -78,7 +80,7 @@ describe('ApplicationFormComponent', () => {
           }
         })],
       schemas: [NO_ERRORS_SCHEMA],
-      providers: [provideHttpClient(), provideHttpClientTesting(), provideErrorHandlerForTests(), ApplicationService, ApplicationBackgroundService, RoleService, ApplicationParameterService, TreeService,
+      providers: [provideHttpClient(), provideHttpClientTesting(), provideErrorHandlerForTests(), ApplicationService, ApplicationBackgroundService, ApplicationTreeService, RoleService, ApplicationParameterService, TreeService,
         BackgroundService, CodeListService, CartographyGroupService, TranslationService, ResourceService, ExternalService, UserService,
         {provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService},]
     })
@@ -90,6 +92,7 @@ describe('ApplicationFormComponent', () => {
     component = fixture.componentInstance;
     roleService = TestBed.inject(RoleService);
     applicationBackgroundService = TestBed.inject(ApplicationBackgroundService);
+    applicationTreeService = TestBed.inject(ApplicationTreeService);
     applicationService = TestBed.inject(ApplicationService);
     codeListService = TestBed.inject(CodeListService);
     cartographyGroupService = TestBed.inject(CartographyGroupService);
@@ -253,7 +256,7 @@ describe('ApplicationFormComponent', () => {
       component.entityForm.markAsDirty();
       (component as any).currentAppType = constants.codeValue.applicationType.internalApp;
       (component as any).treesDataGrid = {
-        rowData: [{ type: constants.codeValue.treeType.touristicTree, status: constants.entityStatus.statusOK }],
+        rowData: [{ treeType: constants.codeValue.treeType.touristicTree, status: constants.entityStatus.statusOK }],
       };
       expect(component.canSave()).toBe(false);
       expect(component.applicationTreeValidationWarningMessage).toBeTruthy();
@@ -348,6 +351,33 @@ describe('ApplicationFormComponent', () => {
       expect(component['treesTable'].hasStatusColumn()).toBe(true);
       expect(component['treesTable'].hasTemplateDialogs()).toBe(false);
     });
+
+    it('treesTable should sort relations by order', () => {
+      expect(component['treesTable'].defaultRelationsSorting()).toEqual(['order']);
+    });
+
+    it('treesTable updater should preserve HAL links when updating order', async () => {
+      jest
+        .spyOn(applicationTreeService, 'update')
+        .mockReturnValue(of({} as any));
+      component.entityToEdit = Object.assign(component.empty(), {id: 5});
+      (component as any).entityID = 5;
+
+      const row = {
+        id: 11,
+        treeId: 3,
+        order: 2,
+        status: 'pendingModify',
+        newItem: false,
+      } as any;
+
+      await component['treesTable']['relationsUpdateFn']([row]);
+
+      expect(applicationTreeService.update).toHaveBeenCalled();
+      const updated = (applicationTreeService.update as jest.Mock).mock.calls[0][0];
+      expect(updated.id).toBe(11);
+      expect(updated.order).toBe(2);
+    });
   });
 
   describe('headerParamsTable updater', () => {
@@ -423,7 +453,7 @@ describe('ApplicationFormComponent', () => {
 
   describe('Picker deduplication', () => {
     it('treesTable excludes already-added trees from the picker', () => {
-      const relations = [{ id: 1 }, { id: 2 }] as any;
+      const relations = [{ treeId: 1 }, { treeId: 2 }] as any;
       const predicate = (component['treesTable'] as any).targetIncludeFn(relations);
       expect(predicate({ id: 1 })).toBe(false);
       expect(predicate({ id: 3 })).toBe(true);
