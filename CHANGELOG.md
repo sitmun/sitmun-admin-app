@@ -14,6 +14,7 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Fixed
 
+- **Forms**: duplicate entity forms enable Save with the suggested copy name without requiring an extra edit ([#384](https://github.com/sitmun/sitmun-admin-app/issues/384)).
 - **Auth**: backend request matching normalizes relative, absolute, bare-domain, and default-port URLs while rejecting cross-origin and path-prefix lookalikes.
 - **Forms**: route changes between records hide stale controls until the latest entity finishes loading, preventing edits from being discarded by a late form rebuild.
 - **Task types**: list, task-group Tasks grids, and tree-node task pickers request `lang` so backend `@I18n` resolves `title` / `typeTitle`.

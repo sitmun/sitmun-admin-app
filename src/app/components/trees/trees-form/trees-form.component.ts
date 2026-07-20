@@ -459,8 +459,8 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
   /**
    * Computed property that determines if the save button should be enabled.
    * Extends base implementation to include tree node change detection.
-   * Does not treat "duplicate opened" alone as a change: Save enables only when the form, grids,
-   * translations, or tree nodes report real edits (cloned nodes appear as pending until first save).
+   * Duplicate mode inherits base pending-create enablement once structure data is loaded;
+   * cloned nodes alone do not add toolbar changes until the user mutates the tree.
    *
    * @returns True if save button should be enabled, false otherwise
    */

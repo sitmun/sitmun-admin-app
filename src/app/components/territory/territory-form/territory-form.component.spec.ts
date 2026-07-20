@@ -856,6 +856,38 @@ describe('TerritoryFormComponent', () => {
     });
   });
 
+  describe('Duplicate save enablement (TDD for #384)', () => {
+    it('enables save for a valid pristine duplicate form', () => {
+      component.entityID = -1;
+      component.duplicateID = 123;
+      component.entityForm.patchValue({
+        code: 'T1',
+        name: 'copy_Original Territory',
+        typeId: 1,
+        blocked: true,
+      });
+      component.entityForm.markAsPristine();
+
+      expect(component.entityForm.valid).toBe(true);
+      expect(component.canSaveEntity).toBe(true);
+    });
+
+    it('keeps save disabled for a valid pristine edit form', () => {
+      component.entityID = 123;
+      component.duplicateID = -1;
+      component.entityForm.patchValue({
+        code: 'T1',
+        name: 'Original Territory',
+        typeId: 1,
+        blocked: true,
+      });
+      component.entityForm.markAsPristine();
+
+      expect(component.entityForm.valid).toBe(true);
+      expect(component.canSaveEntity).toBe(false);
+    });
+  });
+
   describe('Duplicate Relation Loading (TDD for #383)', () => {
     beforeEach(() => {
       component.entityID = -1;

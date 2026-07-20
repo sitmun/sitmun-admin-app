@@ -838,7 +838,7 @@ describe('TreesFormComponent', () => {
 
   describe('Tree duplication save behavior (issue #392)', () => {
     describe('canSaveEntity in duplicate mode', () => {
-      it('does not enable save when duplicate tree is loaded but nothing changed', () => {
+      it('enables save when duplicate tree is loaded even if nothing else changed (#384)', () => {
         component.entityID = -1;
         component.duplicateID = 42;
         component.eagerLoadTreeStructure = true;
@@ -851,7 +851,7 @@ describe('TreesFormComponent', () => {
           getNodesForValidation: jest.fn(() => [createTouristicRootNode()] as any),
         });
 
-        expect(component.canSaveEntity).toBe(false);
+        expect(component.canSaveEntity).toBe(true);
       });
 
       it('enables save when duplicate tree has unsaved node changes', () => {
@@ -900,7 +900,9 @@ describe('TreesFormComponent', () => {
     });
 
     describe('canSave matches canSaveEntity', () => {
-      it('returns false when duplicate tree is ready but nothing changed', () => {
+      it('returns true when duplicate tree is ready even if nothing else changed (#384)', () => {
+        component.entityID = -1;
+        component.duplicateID = 42;
         component.eagerLoadTreeStructure = true;
         component.entityForm.patchValue({ name: 'Test Tree', type: 'touristic' });
         component.entityForm.markAsPristine();
@@ -909,11 +911,13 @@ describe('TreesFormComponent', () => {
           getNodesForValidation: jest.fn(() => [createTouristicRootNode()] as any),
         });
 
-        expect(component.canSave()).toBe(false);
+        expect(component.canSave()).toBe(true);
         expect(component.canSave()).toBe(component.canSaveEntity);
       });
 
       it('returns false when duplicate tree data is not loaded', () => {
+        component.entityID = -1;
+        component.duplicateID = 42;
         component.eagerLoadTreeStructure = true;
         component.entityForm.patchValue({ name: 'Test Tree', type: 'touristic' });
 

@@ -496,9 +496,11 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
 
   /**
    * Whether the form, grids, or translations have unsaved changes.
+   * Duplicate mode counts as pending create even when the form is still pristine.
    */
   protected hasPendingChanges(): boolean {
-    return (this.entityForm?.dirty ?? false)
+    return this.isDuplicated()
+      || (this.entityForm?.dirty ?? false)
       || this.dataTablesHaveChanges
       || this.hasTranslationChanges();
   }
@@ -577,6 +579,7 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
    * Returns true when the form is valid AND there are unsaved changes.
    *
    * Checks for changes in:
+   * - Duplicate mode (pending create with suggested copy values)
    * - Form fields (dirty state)
    * - Data tables (via dataTablesHaveChanges flag)
    * - Translations (modified flags)
@@ -590,7 +593,12 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
     const hasFormChanges = this.entityForm?.dirty ?? false;
     const hasTranslationChanges = this.hasTranslationChanges();
 
-    return isFormValid && (hasFormChanges || this.dataTablesHaveChanges || hasTranslationChanges);
+    return isFormValid && (
+      this.isDuplicated()
+      || hasFormChanges
+      || this.dataTablesHaveChanges
+      || hasTranslationChanges
+    );
   }
 
   /**
