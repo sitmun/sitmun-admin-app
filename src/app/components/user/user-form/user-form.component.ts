@@ -73,6 +73,9 @@ export class UserFormComponent extends BaseFormComponent<UserProjection> {
   /** Flag indicating if the password is set */
   passwordSet = false;
 
+  /** True when the loaded entity already had a stored password (server truth). */
+  private persistedPasswordSet = false;
+
   /** Flag indicating if the password is being edited */
   isPasswordBeingEdited = false;
 
@@ -165,12 +168,16 @@ export class UserFormComponent extends BaseFormComponent<UserProjection> {
     if (!this.entityToEdit) {
       throw new Error('Cannot initialize form: entity is undefined');
     }
-    if (this.isDuplicated()) {
+    if (this.isNew() || this.isDuplicated()) {
+      this.persistedPasswordSet = false;
       this.passwordSet = false;
     } else {
-      this.passwordSet = this.entityToEdit.passwordSet ?? false;
+      this.persistedPasswordSet = this.entityToEdit.passwordSet ?? false;
+      this.passwordSet = this.persistedPasswordSet;
     }
     this.isPasswordBeingEdited = false;
+    this.passwordModified = false;
+    this.actualPassword = null;
     this.passwordDirtyInSession = false;
     this.hadPasswordBeforeFocusSession = false;
 
@@ -217,8 +224,15 @@ export class UserFormComponent extends BaseFormComponent<UserProjection> {
         id: id,
       }
     );
-    if (this.isPasswordBeingEdited) {
-      safeToEdit.password = formValues.newPassword;
+    const pendingPassword =
+      this.actualPassword ??
+      (typeof formValues.newPassword === 'string' ? formValues.newPassword : null);
+    const shouldSendPassword =
+      (this.isPasswordBeingEdited || (this.passwordModified && this.actualPassword != null)) &&
+      !!pendingPassword &&
+      pendingPassword !== UserFormComponent.PASSWORD_PLACEHOLDER;
+    if (shouldSendPassword) {
+      safeToEdit.password = pendingPassword;
     }
     return User.fromObject(safeToEdit);
   }
@@ -236,8 +250,12 @@ export class UserFormComponent extends BaseFormComponent<UserProjection> {
 
   onPasswordFocus(): void {
     this.passwordDirtyInSession = false;
-    this.hadPasswordBeforeFocusSession = this.passwordSet;
-    this.clearPasswordPlaceholder();
+    this.hadPasswordBeforeFocusSession = this.persistedPasswordSet && !this.passwordModified;
+    if (this.passwordModified && this.actualPassword != null) {
+      this.entityForm.get('newPassword')?.setValue(this.actualPassword);
+    } else {
+      this.clearPasswordPlaceholder();
+    }
   }
 
   onPasswordBlur(): void {
@@ -267,7 +285,7 @@ export class UserFormComponent extends BaseFormComponent<UserProjection> {
   }
 
   private shouldRestorePasswordPlaceholder(): boolean {
-    if (!this.hadPasswordBeforeFocusSession) {
+    if (!this.hadPasswordBeforeFocusSession || this.passwordModified) {
       return false;
     }
     const value = this.entityForm?.get('newPassword')?.value ?? '';

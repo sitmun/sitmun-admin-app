@@ -29,6 +29,18 @@ import { configureLoggerForTests, provideErrorHandlerForTests } from '@app/testi
 
 import { UserFormComponent } from './user-form.component';
 
+function typePassword(component: UserFormComponent, value: string): void {
+  component.onPasswordFocus();
+  component.entityForm.get('newPassword')!.setValue(value);
+  component.onPasswordChange();
+  component.onPasswordBlur();
+}
+
+function refocusBlur(component: UserFormComponent): void {
+  component.onPasswordFocus();
+  component.onPasswordBlur();
+}
+
 describe('UserFormComponent', () => {
   let component: UserFormComponent;
   let fixture: ComponentFixture<UserFormComponent>;
@@ -90,6 +102,47 @@ describe('UserFormComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  describe('password session (#260)', () => {
+    it('keeps typed password on create after refocus/blur', () => {
+      const typed = 'secret-create-260';
+      typePassword(component, typed);
+      refocusBlur(component);
+
+      expect(component.createObject().password).toBe(typed);
+    });
+
+    it('omits password on edit when focus/blur leaves persisted password unchanged', () => {
+      component.entityID = 42;
+      component.entityToEdit = Object.assign(component.empty(), {
+        id: 42,
+        username: 'alice',
+        passwordSet: true,
+      });
+      component.postFetchData();
+
+      component.onPasswordFocus();
+      component.onPasswordBlur();
+
+      expect(component.createObject(42).password).toBeUndefined();
+    });
+
+    it('keeps pending password change on edit after refocus/blur', () => {
+      component.entityID = 42;
+      component.entityToEdit = Object.assign(component.empty(), {
+        id: 42,
+        username: 'alice',
+        passwordSet: true,
+      });
+      component.postFetchData();
+
+      const typed = 'secret-edit-260';
+      typePassword(component, typed);
+      refocusBlur(component);
+
+      expect(component.createObject(42).password).toBe(typed);
+    });
   });
 
   describe('Grid capability classification', () => {
