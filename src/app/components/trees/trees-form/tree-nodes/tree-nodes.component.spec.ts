@@ -875,6 +875,68 @@ describe('TreeNodesComponent', () => {
       });
       expect(component.fieldsConfigForm.get('input.width')?.get('value')?.value).toBe('');
     });
+
+    it('issue 432: reset preserves calculated/multilanguage booleans for getMappingByViewMode', () => {
+      component.currentViewMode = 'dl';
+      expect(component.fieldsConfigForm.get('output.id.calculated')?.value).toBe(false);
+      expect(component.fieldsConfigForm.get('output.id.multilanguage')?.value).toBe(false);
+      expect(component.fieldsConfigForm.get('output.leftbtnLabel.calculated')?.value).toBe(true);
+      expect(component.fieldsConfigForm.get('output.leftbtnLabel.value')?.value).toBe('Extra info');
+
+      component.fieldsConfigForm.reset();
+
+      expect(component.fieldsConfigForm.get('output.id.calculated')?.value).toBe(false);
+      expect(component.fieldsConfigForm.get('output.id.multilanguage')?.value).toBe(false);
+      expect(component.fieldsConfigForm.get('output.leftbtnLabel.calculated')?.value).toBe(true);
+      expect(component.fieldsConfigForm.get('output.leftbtnLabel.value')?.value).toBe('Extra info');
+
+      component.fieldsConfigForm.get('output.id')?.patchValue({ value: 'IDPUBLICACIO' });
+      const mapping = component.getMappingByViewMode() as {
+        output: Record<string, { value: unknown; calculated: unknown; multilanguage: unknown }>;
+      };
+      expect(mapping.output.id.calculated).toBe(false);
+      expect(mapping.output.id.multilanguage).toBe(false);
+      expect(mapping.output.id.value).toBe('IDPUBLICACIO');
+      expect(mapping.output.leftbtnLabel.calculated).toBe(true);
+      expect(mapping.output.leftbtnLabel.value).toBe('Extra info');
+    });
+
+    it('issue 432: legacy null Label value restores Extra info on open', async () => {
+      await openFieldsConfigWithMapping({
+        output: {
+          leftbtnLabel: { value: null, calculated: null, multilanguage: null }
+        },
+        input: {}
+      });
+      expect(component.fieldsConfigForm.get('output.leftbtnLabel.value')?.value).toBe('Extra info');
+      expect(component.fieldsConfigForm.get('output.leftbtnLabel.calculated')?.value).toBe(true);
+      const mapping = component.getMappingByViewMode() as {
+        output: Record<string, { value: unknown; calculated: unknown }>;
+      };
+      expect(mapping.output.leftbtnLabel.value).toBe('Extra info');
+      expect(mapping.output.leftbtnLabel.calculated).toBe(true);
+    });
+
+    it('issue 432: legacy null calculated/multilanguage normalize to booleans on save', async () => {
+      await openFieldsConfigWithMapping({
+        output: {
+          id: { value: 'IDPUBLICACIO', calculated: null, multilanguage: null },
+          leftbtnLabel: { value: 'Extra info', calculated: null, multilanguage: null }
+        },
+        input: {}
+      });
+      expect(component.fieldsConfigForm.get('output.id.calculated')?.value).toBe(false);
+      expect(component.fieldsConfigForm.get('output.id.multilanguage')?.value).toBe(false);
+      expect(component.fieldsConfigForm.get('output.leftbtnLabel.calculated')?.value).toBe(true);
+
+      const mapping = component.getMappingByViewMode() as {
+        output: Record<string, { value: unknown; calculated: unknown; multilanguage: unknown }>;
+      };
+      expect(mapping.output.id.calculated).toBe(false);
+      expect(mapping.output.id.multilanguage).toBe(false);
+      expect(mapping.output.leftbtnLabel.calculated).toBe(true);
+      expect(mapping.output.leftbtnLabel.multilanguage).toBe(false);
+    });
   });
 
   describe('Tree node task type filtering (query + edit)', () => {

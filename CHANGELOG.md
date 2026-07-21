@@ -17,6 +17,7 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Fixed
 
+- **Trees**: Field configuration no longer persists null `calculated` / `multilanguage` after dialog reset; Label fields keep the default `Extra info` value across dialog close ([#432](https://github.com/sitmun/sitmun-admin-app/issues/432)).
 - **Languages**: translation dialog Accept stays disabled until a value changes; accepting without edits no longer marks the parent form as having unsaved changes.
 - **Languages**: toolbar/login selectors subscribe to `LanguageService.languagesToUse$` so enable/order saves refresh the chrome menu without reload.
 - **Languages**: list columns are endonym, UI-locale name (`lang.*`), then Active/Order; endonym translation dialog loads/saves `STM_TRANSLATION` rows for `Language.name` even though HAL `name` is no longer `@I18n`-overlaid.

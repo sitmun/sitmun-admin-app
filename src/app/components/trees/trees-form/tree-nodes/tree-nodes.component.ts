@@ -1207,12 +1207,16 @@ export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
   initializeFieldsConfigForm() {
     const outputGroup = {};
     this.nodeOutputsControls.forEach(f => {
-      const booleanCalculated = f.key.includes('Label');
-      const defaultValue = f.key.includes('Label') ? 'Extra info' : null;
+      const isLabel = f.key.includes('Label');
+      const booleanCalculated = isLabel;
+      const defaultValue = isLabel ? 'Extra info' : null;
       outputGroup[f.key] = new UntypedFormGroup({
-        value: new UntypedFormControl(defaultValue, []),
-        calculated: new UntypedFormControl(booleanCalculated, []),
-        multilanguage: new UntypedFormControl(false, [])
+        // Label defaults must survive dialog reset (nonNullable); non-Label empty stays null.
+        value: isLabel
+          ? new UntypedFormControl(defaultValue, { nonNullable: true })
+          : new UntypedFormControl(defaultValue, []),
+        calculated: new UntypedFormControl(booleanCalculated, { nonNullable: true }),
+        multilanguage: new UntypedFormControl(false, { nonNullable: true })
       });
     });
     this.fieldsConfigForm = new UntypedFormGroup({
@@ -2143,8 +2147,14 @@ export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
       Object.entries(formValues.output).forEach(([clave, valor]: [string, any]) => {
         if (clave.includes('Label')) {
           valor.calculated = true;
+          if (valor.value === null || valor.value === undefined || valor.value === '') {
+            valor.value = 'Extra info';
+          }
         } else if (valor.calculated === null) {
           valor.calculated = false;
+        }
+        if (valor.multilanguage === null || valor.multilanguage === undefined) {
+          valor.multilanguage = false;
         }
       });
       this.unParseNamespaces(formValues);
@@ -2216,7 +2226,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
         this.nodeInputsControls.push(control);
         const newGroup = new UntypedFormGroup({
           value: new UntypedFormControl('', []),
-          calculated: new UntypedFormControl(false, [])
+          calculated: new UntypedFormControl(false, { nonNullable: true })
         });
         inputFormGroup.addControl(String(control.name), newGroup);
       });
@@ -2335,16 +2345,33 @@ export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
       Object.keys(item.input).forEach(key => {
         mapping.input[key] = {
           value: item.input[key].value === '' ? null : item.input[key].value,
-          calculated: item.input[key].calculated
+          calculated: item.input[key].calculated === true
         };
       });
     }
 
     const outputsKeys = this.nodeOutputsControls.filter(noc => noc.views.includes(this.currentViewMode)).map(c => c.key);
     outputsKeys.forEach(k => {
-      mapping.output[k] = item.output[k];
+      mapping.output[k] = this.normalizeOutputMappingEntry(k, item.output?.[k]);
     });
     return mapping;
+  }
+
+  /** Persist boolean flags (and Label defaults) — never null flags after dialog reset or legacy mapping. */
+  private normalizeOutputMappingEntry(
+    key: string,
+    entry: { value?: unknown; calculated?: unknown; multilanguage?: unknown } | null | undefined
+  ): { value: unknown; calculated: boolean; multilanguage: boolean } {
+    const isLabel = key.includes('Label');
+    let value = entry?.value ?? null;
+    if (isLabel && (value === null || value === undefined || value === '')) {
+      value = 'Extra info';
+    }
+    return {
+      value,
+      calculated: isLabel ? true : entry?.calculated === true,
+      multilanguage: entry?.multilanguage === true
+    };
   }
 
   parseNamespaces(namespaces: any) {
