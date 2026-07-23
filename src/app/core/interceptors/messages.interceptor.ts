@@ -13,6 +13,8 @@ import {getProblemTranslationKey, isProblemDetail, getErrorMessage, formatValida
 
 export const SUPPRESS_HTTP_NOTIFICATION = new HttpContextToken<boolean>(() => false);
 
+export const SKIP_MESSAGES_INTERCEPTOR = new HttpContextToken<boolean>(() => false);
+
 @Injectable({
   providedIn: 'root'
 })
@@ -69,7 +71,8 @@ export class MessagesInterceptor implements HttpInterceptor {
 
         const intercept: boolean = request.url.indexOf("/api/login") == -1
         && request.url.indexOf("/api/account") == -1 &&  request.url.indexOf("/api/authenticate")==-1
-        && this.stateService.isEnabled();
+        && this.stateService.isEnabled()
+        && !request.context.get(SKIP_MESSAGES_INTERCEPTOR);
         if (intercept) {
             this.utilsService.enableLoading();
 

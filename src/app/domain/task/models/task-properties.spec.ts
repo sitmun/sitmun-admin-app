@@ -14,6 +14,8 @@ describe('TaskPropertiesContract', () => {
     expect(TaskPropertiesContract.getCommand(properties)).toBeNull();
     expect(TaskPropertiesContract.getParameters(properties)).toEqual([]);
     expect(TaskPropertiesContract.getFields(properties)).toEqual([]);
+    expect(TaskPropertiesContract.getTemplateHtml(properties)).toBeNull();
+    expect(TaskPropertiesContract.getTemplateEditorState(properties)).toBeNull();
   });
 
   it('preserves unknown keys when updating known keys', () => {
@@ -40,5 +42,21 @@ describe('TaskPropertiesContract', () => {
 
     expect(TaskPropertiesContract.getParameters(withFields)).toEqual([{ name: 'id' }]);
     expect(TaskPropertiesContract.getFields(withFields)).toEqual([{ name: 'title' }]);
+  });
+
+  it('reads and writes template html preserving unknown keys', () => {
+    const updated = TaskPropertiesContract.withTemplateHtml({ scope: 'sql-query', custom: true }, '<h1>{{task_12.name}}</h1>');
+
+    expect(TaskPropertiesContract.getTemplateHtml(updated)).toBe('<h1>{{task_12.name}}</h1>');
+    expect(TaskPropertiesContract.getScope(updated)).toBe('sql-query');
+    expect(updated.custom).toBe(true);
+  });
+
+  it('stores template editor state preserving existing values', () => {
+    const editorState = { ops: [{ insert: 'hello' }] };
+    const updated = TaskPropertiesContract.withTemplateEditorState({ command: 'select 1' }, editorState);
+
+    expect(TaskPropertiesContract.getTemplateEditorState(updated)).toEqual(editorState);
+    expect(TaskPropertiesContract.getCommand(updated)).toBe('select 1');
   });
 });

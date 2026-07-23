@@ -1,0 +1,59 @@
+<h2 mat-dialog-title>{{ 'entity.literalTranslation.createTitle' | translate }}</h2>
+
+<mat-dialog-content [formGroup]="form" class="dialog-content">
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>{{ 'entity.literalTranslation.literalField' | translate }}</mat-label>
+    <textarea matInput cdkTextareaAutosize cdkAutosizeMinRows="3" cdkAutosizeMaxRows="6" formControlName="literal"></textarea>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>{{ 'entity.literalTranslation.sourceLanguage' | translate }}</mat-label>
+    <mat-select [formControl]="sourceLanguageControl">
+      <mat-option *ngFor="let language of orderedLanguages" [value]="language.shortname">
+        {{ language.name }} ({{ language.shortname }})
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <div class="language-switcher" role="tablist">
+    <button
+      *ngFor="let language of orderedLanguages"
+      mat-stroked-button
+      type="button"
+      class="language-switcher-item"
+      [class.language-switcher-item-active]="isActiveLanguage(language)"
+      (click)="setActiveLanguage(language.shortname)">
+      <span class="language-switcher-status language-switcher-status-missing" [class.language-switcher-status-ready]="hasTranslation(language)"></span>
+      <span class="language-switcher-code">{{ language.shortname }}</span>
+      <span>{{ language.name }}</span>
+    </button>
+  </div>
+
+  <div class="translation-card">
+    <ng-container *ngIf="getActiveLanguage() as language">
+      <div class="translation-card-header">
+        <strong>{{ language.name }}</strong>
+        <span>{{ language.shortname }}</span>
+      </div>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>{{ 'entity.literalTranslation.translationField' | translate }}</mat-label>
+        <textarea
+          matInput
+          cdkTextareaAutosize
+          cdkAutosizeMinRows="8"
+          cdkAutosizeMaxRows="14"
+          [formControl]="controlFor(language)"></textarea>
+      </mat-form-field>
+
+      <div *ngIf="isSourceLanguage(language)" class="hint-panel">
+        {{ 'entity.literalTranslation.sourceLanguageHint' | translate:{ lang: sourceLanguageControl.value } }}
+      </div>
+    </ng-container>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button type="button" (click)="close()">{{ 'common.button.cancel' | translate }}</button>
+  <button mat-flat-button color="primary" type="button" (click)="save()">{{ 'common.button.save' | translate }}</button>
+</mat-dialog-actions>

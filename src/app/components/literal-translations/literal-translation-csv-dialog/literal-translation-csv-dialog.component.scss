@@ -1,0 +1,40 @@
+.dialog-content {
+  min-width: min(760px, 90vw);
+}
+
+.description {
+  margin: 0 0 16px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.file-block {
+  margin-bottom: 16px;
+}
+
+.file-label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.file-picker {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.file-name {
+  color: rgba(0, 0, 0, 0.72);
+  font-size: 0.95rem;
+}
+
+.hint-panel {
+  background: #fafafa;
+  border-radius: 6px;
+  margin-top: 8px;
+  padding: 8px 12px;
+}

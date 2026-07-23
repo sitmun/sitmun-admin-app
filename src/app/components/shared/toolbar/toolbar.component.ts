@@ -5,8 +5,8 @@ import {Router} from '@angular/router';
 import {TranslateService} from '@ngx-translate/core';
 
 import {Language, LanguageService} from '@app/domain';
-import {LoggerService} from '@app/services/logger.service';
 import {toLanguageIsoCode} from '@app/services/language-iso';
+import {LoggerService} from '@app/services/logger.service';
 import {resolveUiLanguage} from '@app/services/ui-language.resolver';
 import {config} from '@config';
 

@@ -1,0 +1,129 @@
+<mat-card appearance="outlined" class="query-card">
+  <mat-card-header *ngIf="showEmbeddedChildChrome">
+    <mat-card-title>{{ typeLabel }} - {{ task.name }}</mat-card-title>
+    <mat-card-subtitle>ID: {{ task.id }}</mat-card-subtitle>
+    <div class="status-chip" [attr.data-status]="status">{{ statusTranslationKey | translate }}</div>
+  </mat-card-header>
+
+  <mat-card-content>
+    <div *ngIf="!showEmbeddedChildChrome" class="embedded-child-title">{{ typeLabel }} - {{ task.name }}</div>
+
+    <div class="task-reference-row" *ngIf="showEmbeddedChildChrome">
+      <span>{{ 'entity.task.template.htmlReference' | translate }}</span>
+      <span class="html-reference-token">{{ taskReference }}</span>
+      <button class="copy-icon-button" mat-icon-button type="button" (click)="copyTaskReference()" [attr.aria-label]="'common.copy' | translate">
+        <mat-icon>content_copy</mat-icon>
+      </button>
+    </div>
+
+    <div class="task-reference-row" *ngIf="showEmbeddedChildChrome && showTaskResultReference">
+      <span>{{ 'entity.task.template.resultReference' | translate }}</span>
+      <span class="html-reference-token">{{ taskResultReference }}</span>
+      <button class="copy-icon-button" mat-icon-button type="button" (click)="copyTaskResultReference()" [attr.aria-label]="'common.copy' | translate">
+        <mat-icon>content_copy</mat-icon>
+      </button>
+    </div>
+
+    <div class="parameter-row" *ngFor="let parameter of parameterDefinitions">
+      <label class="parameter-label" [attr.for]="'template-param-' + parameterControlName(parameter)">
+        <button class="copy-icon-button" mat-icon-button type="button" (click)="copyParameterReference(parameterControlName(parameter))" [attr.aria-label]="'common.copy' | translate">
+          <mat-icon>content_copy</mat-icon>
+        </button>
+        <span>{{ parameterControlName(parameter) }}</span>
+      </label>
+      <input
+        matInput
+        [id]="'template-param-' + parameterControlName(parameter)"
+        [formControl]="parameterForm.controls[parameterControlName(parameter)]">
+    </div>
+
+    <button *ngIf="showEmbeddedChildChrome" mat-flat-button color="primary" type="button" (click)="execute()">
+      {{ task.typeId === 15 ? 'Ejecutar plantilla' : 'Ejecutar' }}
+    </button>
+
+    <div class="nested-template-children" *ngIf="childrenReady && renderableChildTasks.length > 0">
+      <app-query-execution-card
+        #childCard
+        *ngFor="let childTask of renderableChildTasks; trackBy: trackChildTask"
+        [task]="childTask.task"
+        [referenceAlias]="childTask.referenceAlias"
+        [typeLabel]="childTaskTypeLabel(childTask.task)"
+        [templateChildTasks]="templateChildTasks"
+        [taskTypeLabelResolver]="taskTypeLabelResolver"
+        [templateRootTaskId]="resolvedTemplateTaskId"
+        [language]="language"
+        [nestingLevel]="nestingLevel + 1"
+        [ancestorTaskIds]="childAncestorTaskIds"
+        (executed)="onChildExecuted($event)"
+        (placeholderSelected)="placeholderSelected.emit($event)">
+      </app-query-execution-card>
+    </div>
+
+    <mat-error *ngIf="showEmbeddedChildChrome && errorMessage">{{ errorMessage }}</mat-error>
+
+    <div *ngIf="showEmbeddedChildChrome && showResponseTable" class="response-table-wrapper">
+      <div class="task-reference-row" *ngIf="!isFieldValueTable && responseColumns.length > 0">
+        <span>{{ 'entity.task.template.tableReference' | translate }}</span>
+        <button class="copy-icon-button" mat-icon-button type="button" (click)="copyResponseTable()" [attr.aria-label]="'common.copy' | translate">
+          <mat-icon>content_copy</mat-icon>
+        </button>
+      </div>
+      <div class="insert-action-row" *ngIf="canInsertResponseTableSnippet">
+        <button mat-stroked-button type="button" (click)="insertResponseTableSnippet()">
+          {{ 'entity.task.template.insertResponseTable' | translate }}
+        </button>
+      </div>
+      <table class="response-table">
+        <thead *ngIf="!isFieldValueTable">
+          <tr>
+            <th *ngFor="let column of responseColumns">
+              <button class="copy-icon-button" mat-icon-button type="button" (click)="copyResponseColumnTable(column)" [attr.aria-label]="'common.copy' | translate">
+                <mat-icon>content_copy</mat-icon>
+              </button>
+              <span class="response-header-label">{{ column }}</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of response.rows">
+            <ng-container *ngIf="isFieldValueTable; else genericResponseRow">
+              <td class="field-value-name-cell">
+                <button class="copy-icon-button" mat-icon-button type="button" (click)="copyResponseReference(stringifyFieldPath(row['field']))" [attr.aria-label]="'common.copy' | translate">
+                  <mat-icon>content_copy</mat-icon>
+                </button>
+                <span>{{ row['field'] }}</span>
+              </td>
+              <td>{{ row['value'] }}</td>
+            </ng-container>
+            <ng-template #genericResponseRow>
+              <td *ngFor="let column of responseColumns">{{ row[column] }}</td>
+            </ng-template>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div *ngIf="showEmbeddedChildChrome && response?.resourceUrl" class="resource-link-wrapper">
+      <a [href]="response.resourceUrl || '#'" target="_blank" rel="noopener noreferrer">{{ response.resourceUrl }}</a>
+      <button *ngIf="isBinaryResourceResponse" class="copy-icon-button" mat-icon-button type="button" (click)="copyBinaryContentSnippet()" [attr.aria-label]="'common.copy' | translate">
+        <mat-icon>content_copy</mat-icon>
+      </button>
+    </div>
+
+    <div *ngIf="showEmbeddedChildChrome && canInsertBinaryContentSnippet" class="insert-action-row">
+      <button mat-stroked-button type="button" (click)="insertBinaryContentSnippet()">
+        {{ (binaryMimeType.startsWith('image/') ? 'entity.task.template.insertImage' : 'entity.task.template.insertPdfIframe') | translate }}
+      </button>
+    </div>
+
+    <div *ngIf="showEmbeddedChildChrome && response?.resultType === 'template' && renderedTemplateHtml" class="template-result-wrapper">
+      <div class="template-result-header">
+        <strong>{{ 'entity.task.template.renderedHtml' | translate }}</strong>
+        <button class="copy-icon-button" mat-icon-button type="button" (click)="copyRenderedHtml()" [attr.aria-label]="'common.copy' | translate">
+          <mat-icon>content_copy</mat-icon>
+        </button>
+      </div>
+      <div class="template-result-panel" [innerHTML]="trustedRenderedTemplateHtml"></div>
+    </div>
+  </mat-card-content>
+</mat-card>

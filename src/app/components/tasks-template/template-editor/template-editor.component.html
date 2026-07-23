@@ -1,0 +1,236 @@
+<div class="template-editor-shell" (focusin)="onComponentFocusIn()" (focusout)="onComponentFocusOut($event)">
+  <div class="template-editor-toolbar">
+    <div class="template-editor-mode-switch">
+      <button type="button" class="mode-button" [class.mode-button--active]="editorMode === 'visual'"
+              (click)="setEditorMode('visual')">{{ 'entity.task.template.editor.visualMode' | translate }}
+      </button>
+      <button type="button" class="mode-button" [class.mode-button--active]="editorMode === 'html'"
+              (click)="setEditorMode('html')">{{ 'entity.task.template.editor.htmlMode' | translate }}
+      </button>
+    </div>
+
+  <div class="template-editor-actions template-editor-actions--grouped" *ngIf="editorMode === 'visual'">
+    <div class="toolbar-section">
+      <div class="toolbar-section__title">{{ 'entity.task.template.editor.elementsGroup' | translate }}</div>
+
+      <div class="toolbar-group">
+        <button type="button" class="action-button" [class.action-button--active]="isActive('paragraph')"
+                [disabled]="readonly" [title]="'entity.task.template.editor.paragraph' | translate"
+                (click)="setParagraph()">{{ 'entity.task.template.editor.paragraph' | translate }}
+        </button>
+        <button type="button" class="action-button" [class.action-button--active]="isActive('heading', { level: 1 })"
+                [disabled]="readonly" [title]="'entity.task.template.editor.heading1' | translate"
+                (click)="toggleHeading(1)">{{ 'entity.task.template.editor.heading1' | translate }}
+        </button>
+        <button type="button" class="action-button" [class.action-button--active]="isActive('heading', { level: 2 })"
+                [disabled]="readonly" [title]="'entity.task.template.editor.heading2' | translate"
+                (click)="toggleHeading(2)">{{ 'entity.task.template.editor.heading2' | translate }}
+        </button>
+        <button type="button" class="action-button" [class.action-button--active]="isActive('heading', { level: 3 })"
+                [disabled]="readonly" [title]="'entity.task.template.editor.heading3' | translate"
+                (click)="toggleHeading(3)">{{ 'entity.task.template.editor.heading3' | translate }}
+        </button>
+      </div>
+
+      <div class="toolbar-group">
+        <button type="button" class="action-button icon" [class.action-button--active]="isActive('bulletList')"
+                [disabled]="readonly" [title]="'entity.task.template.editor.bulletList' | translate"
+                (click)="toggleBulletList()">
+          <mat-icon>format_list_bulleted</mat-icon>
+        </button>
+        <button type="button" class="action-button icon" [class.action-button--active]="isActive('orderedList')"
+                [disabled]="readonly" [title]="'entity.task.template.editor.orderedList' | translate"
+                (click)="toggleOrderedList()">
+          <mat-icon>format_list_numbered</mat-icon>
+        </button>
+        <button type="button" class="action-button icon" [class.action-button--active]="isActive('link')"
+                [disabled]="readonly" [title]="'entity.task.template.editor.link' | translate" (click)="toggleLink()">
+          <mat-icon>link</mat-icon>
+        </button>
+        <button type="button" class="action-button icon" [disabled]="readonly"
+                [title]="'entity.task.template.editor.image' | translate" (click)="insertImage()">
+          <mat-icon>image</mat-icon>
+        </button>
+        <button type="button" class="action-button icon" [class.action-button--active]="isActive('table')"
+                [disabled]="readonly" [title]="'entity.task.template.editor.table' | translate" (click)="insertTable()">
+          <img ngSrc="assets/img/table.svg" alt="Table Icon" width="25" height="25"/>
+        </button>
+        <button type="button" class="action-button icon" [disabled]="readonly"
+                [title]="'entity.task.template.editor.addColumn' | translate"
+                (click)="addColumnAfter()">
+          <img ngSrc="assets/img/add_col_right.svg" alt="Add Column Icon" width="25" height="25"/>
+        </button>
+        <button type="button" class="action-button icon" [disabled]="readonly"
+                [title]="'entity.task.template.editor.addRow' | translate"
+                (click)="addRowAfter()">
+          <img ngSrc="assets/img/add_row_below.svg" alt="Add Row Icon" width="25" height="25"/>
+        </button>
+        <button type="button" class="action-button icon"
+                [class.action-button--active]="isActive('translationLiteral')" [disabled]="readonly"
+                [title]="'entity.task.template.editor.translationLiteral' | translate"
+                (click)="wrapSelectionInTranslationLiteral()">
+          <mat-icon>translate</mat-icon>
+        </button>
+        <button type="button" class="action-button icon action-button--danger" [disabled]="readonly || !canDeleteSelection"
+                [title]="'entity.task.template.editor.deleteSelection' | translate"
+                (click)="deleteSelectedElement()">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <div class="toolbar-section">
+      <div class="toolbar-section__title">{{ 'entity.task.template.editor.stylesGroup' | translate }}</div>
+
+      <div class="toolbar-group">
+        <button type="button" class="action-button" [class.action-button--active]="isActive('bold')" [disabled]="readonly"
+                [title]="'entity.task.template.editor.bold' | translate" (click)="toggleBold()">
+          <strong>{{ 'entity.task.template.editor.bold' | translate }}</strong></button>
+        <button type="button" class="action-button" [class.action-button--active]="isActive('italic')"
+                [disabled]="readonly" [title]="'entity.task.template.editor.italic' | translate" (click)="toggleItalic()">
+          <em>{{ 'entity.task.template.editor.italic' | translate }}</em></button>
+        <button type="button" class="action-button" [class.action-button--active]="isActive('underline')"
+                [disabled]="readonly" [title]="'entity.task.template.editor.underline' | translate"
+                (click)="toggleUnderline()"><u>{{ 'entity.task.template.editor.underline' | translate }}</u></button>
+        <button type="button" class="action-button icon" [class.action-button--active]="isTextAlignActive('left')"
+                [disabled]="readonly" [title]="'entity.task.template.editor.alignLeft' | translate"
+                (click)="toggleTextAlign('left')">
+          <mat-icon>format_align_left</mat-icon>
+        </button>
+        <button type="button" class="action-button icon" [class.action-button--active]="isTextAlignActive('center')"
+                [disabled]="readonly" [title]="'entity.task.template.editor.alignCenter' | translate"
+                (click)="toggleTextAlign('center')">
+          <mat-icon>format_align_center</mat-icon>
+        </button>
+        <button type="button" class="action-button icon" [class.action-button--active]="isTextAlignActive('right')"
+                [disabled]="readonly" [title]="'entity.task.template.editor.alignRight' | translate"
+                (click)="toggleTextAlign('right')">
+          <mat-icon>format_align_right</mat-icon>
+        </button>
+        <button type="button" class="action-button icon" [class.action-button--active]="isTextAlignActive('justify')"
+                [disabled]="readonly" [title]="'entity.task.template.editor.alignJustify' | translate"
+                (click)="toggleTextAlign('justify')">
+          <mat-icon>format_align_justify</mat-icon>
+        </button>
+      </div>
+
+      <div class="toolbar-group toolbar-group--compact">
+        <label class="toolbar-field toolbar-field--compact" [title]="'entity.task.template.editor.textColor' | translate">
+          <span>{{ 'entity.task.template.editor.textColor' | translate }}</span>
+          <input type="color" [disabled]="readonly" [value]="selectedTextColor"
+                 (input)="setTextColor($any($event.target).value)">
+        </label>
+        <button type="button" class="action-button icon action-button--subtle" [disabled]="readonly"
+                [title]="'entity.task.template.editor.clearTextColor' | translate"
+                (click)="clearTextColor()">
+          <mat-icon>format_color_reset</mat-icon>
+        </button>
+        <label class="toolbar-field toolbar-field--compact" [title]="'entity.task.template.editor.backgroundColor' | translate">
+          <span>{{ 'entity.task.template.editor.backgroundColor' | translate }}</span>
+          <input type="color" [disabled]="readonly" [value]="selectedHighlightColor"
+                 (input)="setHighlightColor($any($event.target).value)">
+        </label>
+        <button type="button" class="action-button icon action-button--subtle" [disabled]="readonly"
+                [title]="'entity.task.template.editor.clearBackgroundColor' | translate"
+                (click)="clearHighlightColor()">
+          <img ngSrc="assets/img/ink_highlighter_off.svg" alt="Remove Highlighting Icon" width="25" height="25"/>
+        </button>
+        <label class="toolbar-field toolbar-field--select-sm">
+          <span>{{ 'entity.task.template.editor.fontSize' | translate }}</span>
+          <select [disabled]="readonly" [ngModel]="selectedFontSize" (ngModelChange)="setFontSize($event)">
+            <option value="">{{ 'entity.task.template.editor.fontSizeDefault' | translate }}</option>
+            <option *ngFor="let option of fontSizeOptions" [value]="option">{{ option }}</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="toolbar-group toolbar-group--inspector" *ngIf="isTableContextVisible()">
+        <div class="toolbar-group__title">{{ 'entity.task.template.editor.tableSelection' | translate }}</div>
+        <button type="button" class="action-button" [class.action-button--active]="isTableSelectionActive('cell')"
+                [disabled]="readonly" [title]="'entity.task.template.editor.selectCell' | translate"
+                (click)="selectCurrentCell()">{{ 'entity.task.template.editor.selectCell' | translate }}
+        </button>
+        <button type="button" class="action-button" [class.action-button--active]="isTableSelectionActive('row')"
+                [disabled]="readonly" [title]="'entity.task.template.editor.selectRow' | translate"
+                (click)="selectCurrentRow()">{{ 'entity.task.template.editor.selectRow' | translate }}
+        </button>
+        <button type="button" class="action-button" [class.action-button--active]="isTableSelectionActive('column')"
+                [disabled]="readonly" [title]="'entity.task.template.editor.selectColumn' | translate"
+                (click)="selectCurrentColumn()">{{ 'entity.task.template.editor.selectColumn' | translate }}
+        </button>
+        <button type="button" class="action-button" [class.action-button--active]="isTableSelectionActive('table')"
+                [disabled]="readonly" [title]="'entity.task.template.editor.selectTable' | translate"
+                (click)="selectCurrentTable()">{{ 'entity.task.template.editor.selectTable' | translate }}
+        </button>
+        <label class="toolbar-field toolbar-field--compact" [title]="'entity.task.template.editor.cellBackground' | translate">
+          <span>{{ 'entity.task.template.editor.cellBackground' | translate }}</span>
+          <input type="color" [disabled]="readonly" [value]="selectedTableCellBackground"
+                 (input)="setTableCellBackground($any($event.target).value)">
+        </label>
+        <button type="button" class="action-button icon action-button--subtle" [disabled]="readonly"
+                [title]="'entity.task.template.editor.clearCellBackground' | translate"
+                (click)="clearTableCellBackground()">
+          <mat-icon>ink_eraser</mat-icon>
+        </button>
+        <label class="toolbar-field toolbar-field--number-sm">
+          <span>{{ 'entity.task.template.editor.borderWidth' | translate }}</span>
+          <input type="number" min="0" [disabled]="readonly" [ngModel]="selectedTableCellBorderWidth"
+                 (ngModelChange)="setTableCellBorderWidth($event)">
+        </label>
+        <label class="toolbar-field toolbar-field--compact" [title]="'entity.task.template.editor.borderColor' | translate">
+          <span>{{ 'entity.task.template.editor.borderColor' | translate }}</span>
+          <input type="color" [disabled]="readonly" [value]="selectedTableCellBorderColor"
+                 (input)="setTableCellBorderColor($any($event.target).value)">
+        </label>
+        <button type="button" class="action-button icon action-button--subtle" [disabled]="readonly"
+                [title]="'entity.task.template.editor.clearCellBorder' | translate"
+                (click)="clearTableCellBorder()">
+          <mat-icon>border_clear</mat-icon>
+        </button>
+      </div>
+
+      <div class="toolbar-group toolbar-group--inspector" *ngIf="isSizeControlVisible()">
+        <div class="toolbar-group__title">{{ 'entity.task.template.editor.selectedElement' | translate }}</div>
+        <label class="toolbar-field toolbar-field--number-sm">
+          <span>{{ 'entity.task.template.editor.width' | translate }}</span>
+          <input type="number" min="1" [disabled]="readonly" [ngModel]="selectedElementWidth"
+                 (ngModelChange)="updateSelectedElementSize('width', $event)">
+        </label>
+        <label class="toolbar-field toolbar-field--number-sm">
+          <span>{{ 'entity.task.template.editor.height' | translate }}</span>
+          <input type="number" min="1" [disabled]="readonly" [ngModel]="selectedElementHeight"
+                 (ngModelChange)="updateSelectedElementSize('height', $event)">
+        </label>
+      </div>
+    </div>
+  </div>
+
+    <div class="template-editor-actions" *ngIf="editorMode === 'html'">
+        <button type="button" class="action-button" [disabled]="readonly"
+                [title]="'entity.task.template.editor.formatHtml' | translate"
+                (click)="formatHtmlSource()">{{ 'entity.task.template.editor.formatHtml' | translate }}
+        </button>
+    </div>
+  </div>
+
+  <div class="template-editor-visual-surface"
+       [class.template-editor-visual-surface--hidden]="editorMode !== 'visual'"
+       [class.template-editor-visual-surface--inactive]="!editorFocused">
+    <div #editorHost class="template-editor-host"></div>
+  </div>
+
+  <textarea
+    *ngIf="editorMode === 'html'"
+    class="template-editor-source"
+    [readOnly]="readonly"
+    [value]="htmlSource"
+    (input)="onHtmlSourceChanged($any($event.target).value)"></textarea>
+
+  <div class="template-editor-errors" *ngIf="validationErrors.length > 0 || interactionErrors.length > 0">
+    <div class="template-editor-errors__title">{{ 'entity.task.template.editor.errorsTitle' | translate }}</div>
+    <ul>
+      <li *ngFor="let error of validationErrors">{{ error }}</li>
+      <li *ngFor="let error of interactionErrors">{{ error }}</li>
+    </ul>
+  </div>
+</div>

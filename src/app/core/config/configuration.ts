@@ -317,6 +317,38 @@ export class Configuration {
   };
 
   /**
+   * Template tasks configuration
+   */
+  static readonly TASK_TEMPLATE: FormConfiguration = {
+    id: 'tasksTemplate',
+    labelSingular: 'entity.task.template.label',
+    labelPlural: 'entity.task.template.label',
+    icon: 'description',
+    font: 'material-icons-round',
+    route: 'tasks/template',
+    formRoute: ':id/taskForm',
+    duplicateRoute: ':id/taskForm/:idDuplicate',
+    component: 'TasksTemplateComponent',
+    formComponent: 'TaskFormComponent'
+  };
+
+  /**
+   * Advanced More Info tasks configuration
+   */
+  static readonly TASK_MORE_INFO_ADVANCED: FormConfiguration = {
+    id: 'tasksMoreInfoAdvanced',
+    labelSingular: 'entity.task.moreInfoAdvanced.label',
+    labelPlural: 'entity.task.moreInfoAdvanced.label',
+    icon: 'picture_as_pdf',
+    font: 'material-icons-round',
+    route: 'tasks/moreInfoAdvanced',
+    formRoute: ':id/taskForm',
+    duplicateRoute: ':id/taskForm/:idDuplicate',
+    component: 'TasksMoreInfoAdvancedComponent',
+    formComponent: 'TaskMoreInfoAdvancedFormComponent'
+  };
+
+  /**
    * Edit tasks configuration
    */
   static readonly TASK_EDIT: FormConfiguration = {
@@ -362,6 +394,22 @@ export class Configuration {
     duplicateRoute: ':id/languageForm/:idDuplicate',
     component: 'LanguageComponent',
     formComponent: 'LanguageFormComponent'
+  };
+
+  /**
+   * Literal translations configuration
+   */
+  static readonly LITERAL_TRANSLATION: FormConfiguration = {
+    id: 'literalTranslations',
+    labelSingular: 'entity.literalTranslation.label',
+    labelPlural: 'entity.literalTranslation.plural',
+    icon: 'translate',
+    font: 'material-icons-round',
+    route: 'literalTranslations',
+    formRoute: '',
+    duplicateRoute: '',
+    component: 'LiteralTranslationsComponent',
+    formComponent: ''
   };
 
   /**
@@ -449,9 +497,11 @@ export class Configuration {
       Configuration.TASK_BASIC,
       Configuration.TASK_QUERY,
       Configuration.TASK_LOCATOR,
+      Configuration.TASK_TEMPLATE,
       Configuration.TASK_EDIT,
       Configuration.APPLICATION,
       Configuration.LANGUAGE,
+      Configuration.LITERAL_TRANSLATION,
       Configuration.TERRITORY_TYPE,
       Configuration.TASK_TYPE,
       Configuration.CODELIST_VALUE,
@@ -508,8 +558,10 @@ export class Configuration {
             Configuration.toMenuItem(Configuration.TASK_BASIC),
             Configuration.toMenuItem(Configuration.TASK_QUERY),
             Configuration.toMenuItem(Configuration.TASK_LOCATOR),
+            Configuration.toMenuItem(Configuration.TASK_TEMPLATE),
             Configuration.toMenuItem(Configuration.TASK_EDIT),
-            Configuration.toMenuItem(Configuration.TASK_MORE_INFO)
+            Configuration.toMenuItem(Configuration.TASK_MORE_INFO),
+            Configuration.toMenuItem(Configuration.TASK_MORE_INFO_ADVANCED)
           ]
         }
       ],
@@ -519,6 +571,7 @@ export class Configuration {
       [
         Configuration.toMenuItem(Configuration.TASK_UI),
         Configuration.toMenuItem(Configuration.LANGUAGE),
+        Configuration.toMenuItem(Configuration.LITERAL_TRANSLATION),
         Configuration.toMenuItem(Configuration.TERRITORY_TYPE),
         Configuration.toMenuItem(Configuration.TASK_TYPE),
         Configuration.toMenuItem(Configuration.CODELIST_VALUE),

@@ -366,6 +366,18 @@ app-login .mat-app-background {
 
 // Ensure Material overlay container (snackbars, dialogs) is above app overlays
 
+// Snackbar container overrides
+.mat-mdc-snack-bar-container {
+  .mdc-snackbar__surface {
+    background-color: transparent !important;
+    padding-right: 0 !important;
+  }
+
+  .mdc-snackbar__label {
+    padding: 0 !important;
+  }
+}
+
 //Dialogs
 .dialog h1 {
   font-size: 18px !important;

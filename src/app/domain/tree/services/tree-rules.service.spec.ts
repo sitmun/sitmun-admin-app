@@ -1,8 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 
-import { CodeList } from '@app/domain';
-
 import { TreeRulesService } from './tree-rules.service';
+import { CodeList } from '../../codelist/models/codelist.model';
+
 
 describe('TreeRulesService', () => {
   let service: TreeRulesService;

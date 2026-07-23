@@ -23,6 +23,7 @@ import {
   LayersPermitsFormComponent
 } from '@app/components/layers-permits/layers-permits-form/layers-permits-form.component';
 import {LayersPermitsComponent} from '@app/components/layers-permits/layers-permits.component';
+import {LiteralTranslationsComponent} from '@app/components/literal-translations/literal-translations/literal-translations.component';
 import {LoginComponent} from '@app/components/login/login.component';
 import {RoleFormComponent} from '@app/components/role/role-form/role-form.component';
 import {RoleComponent} from '@app/components/role/role.component';
@@ -43,8 +44,12 @@ import {TaskLocatorFormComponent} from '@app/components/tasks-locator/task-form/
 import {TasksLocatorComponent} from '@app/components/tasks-locator/tasks-locator.component';
 import {TaskMoreInfoFormComponent} from '@app/components/tasks-more-info/task-form/task-more-info-form.component';
 import {TasksMoreInfoComponent} from '@app/components/tasks-more-info/tasks-more-info.component';
+import {TaskMoreInfoAdvancedFormComponent} from '@app/components/tasks-more-info-advanced/task-form/task-more-info-advanced-form.component';
+import {TasksMoreInfoAdvancedComponent} from '@app/components/tasks-more-info-advanced/tasks-more-info-advanced.component';
 import {TaskQueryFormComponent} from '@app/components/tasks-query/task-form/task-query-form.component';
 import {TasksQueryComponent} from '@app/components/tasks-query/tasks-query.component';
+import { TaskTemplateFormComponent } from '@app/components/tasks-template/task-form/task-template-form.component';
+import { TasksTemplateComponent } from '@app/components/tasks-template/tasks-template.component';
 import {TerritoryFormComponent} from '@app/components/territory/territory-form/territory-form.component';
 import {TerritoryComponent} from '@app/components/territory/territory.component';
 import {TerritoryTypeFormComponent} from '@app/components/territory-type/territory-type-form/territory-type-form.component';
@@ -88,6 +93,7 @@ export const APP_ROUTES: Routes = [
       {path: `tasks/:id/${magic.taskEditTypeId}`, component: TaskEditFormComponent, canDeactivate: [CanDeactivateGuard]},
       {path: `tasks/:id/${magic.taskBasicTypeId}`, component: TaskBasicFormComponent, canDeactivate: [CanDeactivateGuard]},
       {path: `tasks/:id/${magic.taskQueryTypeId}`, component: TaskQueryFormComponent, canDeactivate: [CanDeactivateGuard]},
+      {path: `tasks/:id/${magic.taskTemplateTypeId}`, component: TaskTemplateFormComponent, canDeactivate: [CanDeactivateGuard]},
       {path: 'tasksEdit', component: TasksEditComponent},
       {path: 'taskEdit/:id/:type', component: TaskEditFormComponent, canDeactivate: [CanDeactivateGuard]},
       {path: 'taskEdit/:id/:type/:idDuplicate', component: TaskEditFormComponent, canDeactivate: [CanDeactivateGuard]},
@@ -103,12 +109,18 @@ export const APP_ROUTES: Routes = [
       {path: 'tasksQuery', component: TasksQueryComponent, canDeactivate: [CanDeactivateGuard]},
       {path: 'taskQuery/:id/:type', component: TaskQueryFormComponent, canDeactivate: [CanDeactivateGuard]},
       {path: 'taskQuery/:id/:type/:idDuplicate', component: TaskQueryFormComponent, canDeactivate: [CanDeactivateGuard]},
+      {path: 'tasksTemplate', component: TasksTemplateComponent, canDeactivate: [CanDeactivateGuard]},
+      {path: 'taskTemplate/:id/:type', component: TaskTemplateFormComponent, canDeactivate: [CanDeactivateGuard]},
+      {path: 'taskTemplate/:id/:type/:idDuplicate', component: TaskTemplateFormComponent, canDeactivate: [CanDeactivateGuard]},
       {path: 'tasksLocator', component: TasksLocatorComponent, canDeactivate: [CanDeactivateGuard]},
       {path: 'tasksLocator/:id/:type', component: TaskLocatorFormComponent, canDeactivate: [CanDeactivateGuard]},
       {path: 'tasksLocator/:id/:type/:idDuplicate', component: TaskLocatorFormComponent, canDeactivate: [CanDeactivateGuard]},
       {path: 'tasksMoreInfo', component: TasksMoreInfoComponent, canDeactivate: [CanDeactivateGuard]},
       {path: 'tasksMoreInfo/:id/:type', component: TaskMoreInfoFormComponent, canDeactivate: [CanDeactivateGuard]},
       {path: 'tasksMoreInfo/:id/:type/:idDuplicate', component: TaskMoreInfoFormComponent, canDeactivate: [CanDeactivateGuard]},
+      {path: 'tasksMoreInfoAdvanced', component: TasksMoreInfoAdvancedComponent, canDeactivate: [CanDeactivateGuard]},
+      {path: 'tasksMoreInfoAdvanced/:id/:type', component: TaskMoreInfoAdvancedFormComponent, canDeactivate: [CanDeactivateGuard]},
+      {path: 'tasksMoreInfoAdvanced/:id/:type/:idDuplicate', component: TaskMoreInfoAdvancedFormComponent, canDeactivate: [CanDeactivateGuard]},
       {path: 'territory', component: TerritoryComponent, canDeactivate: [CanDeactivateGuard]},
       {path: 'territory/:id/territoryForm', component: TerritoryFormComponent, canDeactivate: [CanDeactivateGuard]},
       {path: 'territory/:id/territoryForm/:idDuplicate', component: TerritoryFormComponent, canDeactivate: [CanDeactivateGuard]},
@@ -124,6 +136,7 @@ export const APP_ROUTES: Routes = [
       {path: 'language', component: LanguageComponent, canDeactivate: [CanDeactivateGuard]},
       {path: 'language/:id/languageForm', component: LanguageFormComponent, canDeactivate: [CanDeactivateGuard]},
       {path: 'language/:id/languageForm/:idDuplicate', component: LanguageFormComponent, canDeactivate: [CanDeactivateGuard]},
+      {path: 'literalTranslations', component: LiteralTranslationsComponent, canDeactivate: [CanDeactivateGuard]},
       {path: 'territoryType', component: TerritoryTypeComponent, canDeactivate: [CanDeactivateGuard]},
       {path: 'territoryType/:id/territoryTypeForm', component: TerritoryTypeFormComponent, canDeactivate: [CanDeactivateGuard]},
       {path: 'territoryType/:id/territoryTypeForm/:idDuplicate', component: TerritoryTypeFormComponent, canDeactivate: [CanDeactivateGuard]},

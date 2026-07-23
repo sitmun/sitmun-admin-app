@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 
-import { CodeList } from '@app/domain';
 import { config } from '@config';
+
+import type { CodeList } from '../../codelist/models/codelist.model';
 
 interface TreeTypeNodeConfig {
   allowedChildren?: string[];

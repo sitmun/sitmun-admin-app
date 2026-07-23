@@ -1,0 +1,146 @@
+<div class="literal-translations-page">
+  <mat-toolbar>
+    <span class="spacer"></span>
+    <h4>
+      <span>
+        <mat-icon aria-hidden="true" fontSet="material-icons-round">translate</mat-icon>
+        {{ 'entity.literalTranslation.plural' | translate }}
+      </span>
+    </h4>
+  </mat-toolbar>
+
+  <div class="workspace" [class.workspace-editing]="isEditing()">
+    <mat-card appearance="outlined" class="grid-card">
+      <mat-toolbar class="grid-toolbar">
+        <mat-form-field subscriptSizing="dynamic" appearance="outline" class="toolbar-field search-field">
+          <mat-label>{{ 'common.button.search' | translate }}</mat-label>
+          <input matInput [formControl]="searchControl">
+          <mat-icon matSuffix fontSet="material-icons-round">search</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field subscriptSizing="dynamic" appearance="outline" class="toolbar-field language-field">
+          <mat-label>{{ 'entity.literalTranslation.targetLanguage' | translate }}</mat-label>
+          <mat-select [formControl]="languageControl">
+            <mat-option *ngFor="let language of orderedLanguages" [value]="language.shortname">
+              {{ language.name }} ({{ language.shortname }})
+            </mat-option>
+          </mat-select>
+          <div class="progress-container">
+            <mat-progress-bar
+              mode="determinate"
+              [value]="langCompletionPct">
+            </mat-progress-bar>
+
+            <span class="progress-text">{{ langCompletionPct| number:'1.0-2' }}%</span>
+          </div>
+        </mat-form-field>
+
+        <button
+          type="button"
+          color="primary"
+          mat-mini-fab
+          class="toolbar-button"
+          matTooltip="{{ 'agGrid.resetFilter' | translate }}"
+          [disabled]="!hasActiveColumnFilters"
+          (click)="clearFilters()">
+          <mat-icon fontSet="material-icons-round">filter_alt_off</mat-icon>
+        </button>
+        <button
+          type="button"
+          color="primary"
+          mat-mini-fab
+          class="toolbar-button"
+          matTooltip="{{ 'common.button.new' | translate }}"
+          (click)="createNew()">
+          <mat-icon fontSet="material-icons-round">add_circle_outline</mat-icon>
+        </button>
+        <button
+          type="button"
+          color="primary"
+          mat-mini-fab
+          class="toolbar-button"
+          matTooltip="{{ 'common.button.remove' | translate }}"
+          [disabled]="deleting || csvBusy || selectedRows.length === 0"
+          (click)="deleteSelected()">
+          <mat-icon fontSet="material-icons-round">delete</mat-icon>
+        </button>
+        <button
+          type="button"
+          color="primary"
+          mat-mini-fab
+          class="toolbar-button"
+          matTooltip="{{ 'entity.literalTranslation.csv.importButton' | translate }}"
+          [disabled]="csvBusy || languages.length === 0"
+          (click)="importCsv()">
+          <mat-icon fontSet="material-icons-round">file_upload</mat-icon>
+        </button>
+        <button
+          type="button"
+          color="primary"
+          mat-mini-fab
+          class="toolbar-button"
+          matTooltip="{{ 'entity.literalTranslation.csv.exportButton' | translate }}"
+          [disabled]="csvBusy || languages.length === 0"
+          (click)="exportCsv()">
+          <mat-icon fontSet="material-icons-round">file_download</mat-icon>
+        </button>
+      </mat-toolbar>
+
+      <mat-card-content class="grid-card-content">
+        <ag-grid-angular
+          class="ag-theme-material literal-translations-grid"
+          [columnDefs]="columnDefs"
+          [rowModelType]="'infinite'"
+          [cacheBlockSize]="pageSize"
+          [infiniteInitialRowCount]="0"
+          [pagination]="false"
+          [rowSelection]="'multiple'"
+          [suppressRowClickSelection]="true"
+          [maxConcurrentDatasourceRequests]="1"
+          [blockLoadDebounceMillis]="100"
+          [maxBlocksInCache]="3"
+          [overlayLoadingTemplate]="loadingOverlayTemplate"
+          [overlayNoRowsTemplate]="noRowsOverlayTemplate"
+          (gridReady)="onGridReady($event)"
+          (cellClicked)="onCellClicked($event)"
+          (filterChanged)="onFilterChanged($event)"
+          (selectionChanged)="onSelectionChanged()">
+        </ag-grid-angular>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card #detailCard *ngIf="isEditing()" appearance="outlined" class="detail-card">
+      <mat-card-content class="detail-card-content" [formGroup]="form">
+        <div class="detail-actions">
+          <button mat-flat-button color="primary" type="button" [disabled]="saving" (click)="save()">
+            {{ 'common.button.save' | translate }}
+          </button>
+          <button mat-button type="button" (click)="closeEditor()">{{ 'common.button.cancel' | translate }}</button>
+        </div>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>{{ 'entity.literalTranslation.literalField' | translate }}</mat-label>
+          <textarea matInput cdkTextareaAutosize cdkAutosizeMinRows="3" cdkAutosizeMaxRows="6" formControlName="literal"></textarea>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>{{ 'entity.literalTranslation.sourceLanguage' | translate }}</mat-label>
+          <input matInput formControlName="sourceLanguage" readonly>
+        </mat-form-field>
+
+        <div>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ 'entity.literalTranslation.translationField' | translate }}</mat-label>
+            <textarea matInput cdkTextareaAutosize cdkAutosizeMinRows="6" cdkAutosizeMaxRows="10" formControlName="translation"></textarea>
+          </mat-form-field>
+          <div *ngIf="form.controls.sourceLanguage.value === languageControl.value" class="hint-panel">
+            {{ 'entity.literalTranslation.sourceLanguageHint' | translate:{ lang: form.controls.sourceLanguage.value } }}
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <div *ngIf="!isEditing()" class="empty-detail-state">
+    {{ 'entity.literalTranslation.selectToEdit' | translate }}
+  </div>
+</div>

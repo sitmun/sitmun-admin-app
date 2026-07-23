@@ -36,6 +36,9 @@ import {
   LayersPermitsFormComponent
 } from '@app/components/layers-permits/layers-permits-form/layers-permits-form.component';
 import {LayersPermitsComponent} from '@app/components/layers-permits/layers-permits.component';
+import {LiteralTranslationCreateDialogComponent} from '@app/components/literal-translations/literal-translation-create-dialog/literal-translation-create-dialog.component';
+import {LiteralTranslationCsvDialogComponent} from '@app/components/literal-translations/literal-translation-csv-dialog/literal-translation-csv-dialog.component';
+import {LiteralTranslationsComponent} from '@app/components/literal-translations/literal-translations/literal-translations.component';
 import {LoginComponent} from '@app/components/login/login.component';
 import {RoleFormComponent} from '@app/components/role/role-form/role-form.component';
 import {RoleComponent} from '@app/components/role/role.component';
@@ -66,8 +69,14 @@ import {TaskLocatorFormComponent} from '@app/components/tasks-locator/task-form/
 import {TasksLocatorComponent} from '@app/components/tasks-locator/tasks-locator.component';
 import {TaskMoreInfoFormComponent} from "@app/components/tasks-more-info/task-form/task-more-info-form.component";
 import {TasksMoreInfoComponent} from "@app/components/tasks-more-info/tasks-more-info.component";
+import {TaskMoreInfoAdvancedFormComponent} from '@app/components/tasks-more-info-advanced/task-form/task-more-info-advanced-form.component';
+import {TasksMoreInfoAdvancedComponent} from '@app/components/tasks-more-info-advanced/tasks-more-info-advanced.component';
 import {TaskQueryFormComponent} from "@app/components/tasks-query/task-form/task-query-form.component";
 import {TasksQueryComponent} from "@app/components/tasks-query/tasks-query.component";
+import { QueryExecutionCardComponent } from '@app/components/tasks-template/query-execution-card/query-execution-card.component';
+import { TaskTemplateFormComponent } from '@app/components/tasks-template/task-form/task-template-form.component';
+import { TasksTemplateComponent } from '@app/components/tasks-template/tasks-template.component';
+import { TemplateEditorComponent } from '@app/components/tasks-template/template-editor/template-editor.component';
 import {TerritoryFormComponent} from '@app/components/territory/territory-form/territory-form.component';
 import {TerritoryComponent} from '@app/components/territory/territory.component';
 import {TerritoryTypeFormComponent} from '@app/components/territory-type/territory-type-form/territory-type-form.component';
@@ -260,6 +269,12 @@ export function initializeConfiguration(
         TasksLocatorComponent,
         TaskMoreInfoFormComponent,
 	      TasksMoreInfoComponent,
+        TaskMoreInfoAdvancedFormComponent,
+        TasksMoreInfoAdvancedComponent,
+        TemplateEditorComponent,
+        QueryExecutionCardComponent,
+        TaskTemplateFormComponent,
+        TasksTemplateComponent,
         TasksQueryComponent,
         TaskQueryFormComponent,
         ConnectionFormComponent,
@@ -324,7 +339,10 @@ export function initializeConfiguration(
         CardLeadComponent,
         EntityFormAlertsComponent,
         WarningsPanelComponent,
-        ImagePreviewComponent], providers: [
+        ImagePreviewComponent,
+        LiteralTranslationsComponent,
+        LiteralTranslationCreateDialogComponent,
+        LiteralTranslationCsvDialogComponent], providers: [
         { provide: LOCALE_ID, useValue: 'es-ES' },
         { provide: ErrorHandler, useClass: GlobalErrorHandler },
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService },

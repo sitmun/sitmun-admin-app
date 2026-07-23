@@ -79,10 +79,20 @@ export function getErrorMessage(error: any): string {
   if (isProblemDetail(error)) {
     // RFC 9457 format
     return error.error.detail || error.error.title || 'An error occurred';
-  } else {
-    // Legacy format
-    return error.error?.message || error.message || 'An error occurred';
   }
+
+  // Spring Boot default ProblemDetail uses type "about:blank" but still exposes detail/title
+  const detail = error?.error?.detail;
+  if (typeof detail === 'string' && detail.trim()) {
+    return detail;
+  }
+  const title = error?.error?.title;
+  if (typeof title === 'string' && title.trim()) {
+    return title;
+  }
+
+  // Legacy format (avoid Angular's generic "Http failure response for …" when a body exists)
+  return error?.error?.message || error?.message || 'An error occurred';
 }
 
 const MAX_FIELD_ERRORS = 5;

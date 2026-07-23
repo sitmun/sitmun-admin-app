@@ -14,14 +14,18 @@ export class TaskMoreInfoParameter {
   /** description */
   public description?: string;
 
+  /** whether the parameter value is provided/fixed (not from client) */
+  public provided?: boolean;
+
   /**
    * Constructor for TaskMoreInfoParameter
    */
-  constructor(label?: string, order?: number | null, value?: string, description?: string) {
+  constructor(label?: string, order?: number | null, value?: string, description?: string, provided?: boolean) {
     this.label = label;
     this.order = order ?? null;
     this.value = value;
     this.description = description;
+    this.provided = provided;
   }
 
   /**
@@ -32,7 +36,7 @@ export class TaskMoreInfoParameter {
   public static fromObject(source: any): TaskMoreInfoParameter {
     const parameter = new TaskMoreInfoParameter();
     const propertiesToCopy = [
-      'label', 'order', 'value', 'description'
+      'label', 'order', 'value', 'description', 'provided'
     ];
     propertiesToCopy.forEach(prop => {
       if (source[prop] !== undefined) {

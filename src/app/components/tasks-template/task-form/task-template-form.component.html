@@ -1,0 +1,323 @@
+<app-form-toolbar
+  entityType="{{ config.labelSingular }}"
+  font="{{ config.font }}"
+  icon="{{ config.icon }}"
+  [itemName]="entityForm?.get('name')?.value"
+  [isNew]="isNew()"
+  [additionalText]="taskTypeNameTranslated"
+  [canSave]="canSaveEntity"
+  [dataLoaded]="dataLoaded"
+  (save)="onSaveButtonClicked()"
+  (back)="utils.navigateBack()">
+</app-form-toolbar>
+
+<app-entity-form-alerts
+  *ngIf="dataLoaded"
+  [form]="entityForm"
+  entityLabelPrefix="entity.task.template"
+  [fieldLabelKeys]="validationFieldLabels">
+</app-entity-form-alerts>
+
+<mat-tab-group
+  mat-stretch-tabs="false"
+  mat-align-tabs="end"
+  [dynamicHeight]="true"
+  preserveContent="true">
+  <mat-tab label="{{ 'common.form.details' | translate }}">
+    <form [formGroup]="entityForm" *ngIf="dataLoaded">
+      <mat-card class="sitmun-mat-card-margin" appearance="outlined">
+        <mat-card-content>
+          <mat-form-field appearance="outline" class="full">
+            <mat-label>{{ 'entity.task.template.label' | translate }}</mat-label>
+            <input matInput type="text" formControlName="name" [maxlength]="512" required>
+            <mat-hint align="end" [class.text-warning]="entityForm.get('name')?.value?.length > 512">
+              {{ entityForm.get('name') | characterCount }}
+            </mat-hint>
+            <mat-icon matSuffix class="iconTranslate" (click)="onTranslated('name')">translate</mat-icon>
+          </mat-form-field>
+
+                    <mat-form-field appearance="outline" class="half add-gap">
+            <mat-label>{{ 'entity.taskGroup.label' | translate }}</mat-label>
+            <mat-select formControlName="taskGroupId" class="form-control">
+              <mat-select-trigger>
+                <ng-container *ngIf="entityForm.get('taskGroupId')?.value as taskGroupId">
+                  {{ getTaskGroupName(taskGroupId) }}
+                </ng-container>
+              </mat-select-trigger>
+              <mat-option [value]="taskGroup.id" *ngFor="let taskGroup of taskGroupList">
+                {{ taskGroup.name }}
+              </mat-option>
+            </mat-select>
+            <a *ngIf="entityForm.get('taskGroupId')?.value as taskGroupId"
+               mat-icon-button
+               matSuffix
+               class="related-entity-open-link"
+               [routerLink]="['/taskGroup', taskGroupId, 'taskGroupForm']"
+               target="_blank"
+               rel="noopener"
+               [matTooltip]="'common.relation.openNewTab' | translate"
+               [attr.aria-label]="'common.relation.openNewTab' | translate">
+              <mat-icon class="related-entity-link-icon">open_in_new</mat-icon>
+            </a>
+          </mat-form-field>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="sitmun-mat-card-margin" appearance="outlined">
+        <mat-card-header>
+          <mat-card-title>{{ 'entity.taskGroup.tasks.header' | translate }}</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <table class="linked-tasks-table" *ngIf="linkedTasks.length > 0; else emptyLinkedTasks">
+            <thead>
+              <tr>
+                <th>{{ 'entity.task.name' | translate }}</th>
+                <th>{{ 'entity.task.template.referenceAlias' | translate }}</th>
+                <th>{{ 'common.form.type' | translate }}</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let linkedTask of linkedTasks; trackBy: trackLinkedTask">
+                <td>{{ linkedTask.name }} (ID: {{ linkedTask.taskId }})</td>
+                <td>
+                  <mat-form-field appearance="outline" class="reference-alias-field">
+                    <mat-label>{{ 'entity.task.template.referenceAlias' | translate }}</mat-label>
+                    <input
+                      matInput
+                      type="text"
+                      [value]="linkedTask.draftReferenceAlias"
+                      (input)="onReferenceAliasDraftChanged(linkedTask, $any($event.target).value)"
+                      (keydown.enter)="applyReferenceAliasChange(linkedTask)"
+                      (keydown.escape)="resetReferenceAliasDraft(linkedTask)">
+                    <button
+                      mat-icon-button
+                      matSuffix
+                      type="button"
+                      class="reference-alias-apply-button"
+                      [disabled]="!hasPendingReferenceAliasChange(linkedTask)"
+                      [attr.aria-label]="'entity.task.template.applyReferenceAlias' | translate"
+                      [matTooltip]="'entity.task.template.applyReferenceAlias' | translate"
+                      (click)="applyReferenceAliasChange(linkedTask)">
+                      <mat-icon>check</mat-icon>
+                    </button>
+                  </mat-form-field>
+                </td>
+                <td>{{ linkedTask.typeLabel }}</td>
+                <td class="actions-cell">
+                  <button mat-icon-button type="button" (click)="removeLinkedTask(linkedTask.taskId, linkedTask.relationType)">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <ng-template #emptyLinkedTasks>
+            <p class="muted-message">{{ 'entity.task.template.emptyTasks' | translate }}</p>
+          </ng-template>
+
+          <mat-form-field appearance="outline" class="full add-linked-task-field">
+            <mat-label>{{ 'entity.task.report.taskName' | translate }}</mat-label>
+            <input matInput type="text" [formControl]="linkTaskSearchControl" [matAutocomplete]="linkedTaskAuto">
+            <mat-autocomplete #linkedTaskAuto="matAutocomplete" (optionSelected)="onLinkableTaskSelected($event)" [displayWith]="displayLinkableTaskWith">
+              <mat-option *ngFor="let task of filteredLinkableTasks | async; trackBy: trackLinkableTask" [value]="task">
+                {{ task.name }} (ID: {{ task.taskId }}) - {{ task.typeLabel }}
+              </mat-option>
+            </mat-autocomplete>
+          </mat-form-field>
+
+          <mat-hint *ngIf="excludedAuthenticatedApiTasks > 0" class="warning-hint">
+            {{ 'entity.task.template.apiAuthWarning' | translate }}
+          </mat-hint>
+          <mat-hint *ngIf="nestingLimitWarning" class="warning-hint">
+            {{ nestingLimitWarning }}
+          </mat-hint>
+          <div *ngIf="pendingReferenceAliasChange" class="reference-alias-confirmation">
+            <mat-icon>warning</mat-icon>
+            <span>{{ formatPendingReferenceAliasMessage() }}</span>
+            <button mat-stroked-button color="primary" type="button" (click)="confirmPendingReferenceAliasChange(true)">
+              {{ 'common.button.replace' | translate }}
+            </button>
+            <button mat-button type="button" (click)="confirmPendingReferenceAliasChange(false)">
+              {{ 'entity.task.template.keepExistingPlaceholders' | translate }}
+            </button>
+            <button mat-icon-button type="button" (click)="cancelPendingReferenceAliasChange()" [attr.aria-label]="'common.button.cancel' | translate">
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="sitmun-mat-card-margin" appearance="outlined">
+        <mat-card-content>
+          <div class="query-section">
+            <ng-container *ngFor="let linkedTask of linkedTasks; trackBy: trackLinkedTask">
+              <app-query-execution-card
+                *ngIf="resolveTask(linkedTask.taskId) as task"
+                [task]="task"
+                [referenceAlias]="linkedTask.referenceAlias"
+                [typeLabel]="linkedTask.typeLabel"
+                [templateChildTasks]="templateChildTasks"
+                [taskTypeLabelResolver]="taskTypeLabelResolver"
+                [templateRootTaskId]="entityToEdit?.id ?? null"
+                [language]="previewLanguageControl.value"
+                (executed)="onTaskExecuted($event)"
+                (placeholderSelected)="onPlaceholderSelected($event)">
+              </app-query-execution-card>
+            </ng-container>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="sitmun-mat-card-margin" appearance="outlined">
+        <mat-card-content class="template-workspace">
+          <div class="editor-section">
+            <h3>{{ 'entity.task.template.editor' | translate }}</h3>
+            <app-template-editor
+              [html]="entityForm.get('templateHtml')?.value || ''"
+              (validationChange)="onTemplateValidationChanged($event)"
+              (htmlChange)="onTemplateHtmlChanged($event)">
+            </app-template-editor>
+
+            <div class="info-note">
+              {{ 'entity.task.template.placeholders' | translate }}
+            </div>
+            <div class="info-note info-note--backend">
+              <div>{{ 'entity.task.template.backendVariables' | translate }}</div>
+              <div *ngIf="getSystemVariablesHelp()" class="info-note-secondary">
+                {{ 'entity.task.parameters.systemVariablesLabel' | translate }} {{ getSystemVariablesHelp() }}
+              </div>
+            </div>
+          </div>
+
+          <div class="preview-section">
+            <div class="preview-header">
+              <h3>{{ 'entity.task.template.preview' | translate }}</h3>
+              <button mat-flat-button color="primary" type="button" (click)="renderPreview()">
+                {{ 'entity.task.template.renderPreview' | translate }}
+              </button>
+            </div>
+            <div class="preview-controls">
+              <mat-form-field appearance="outline" class="preview-language-field">
+                <mat-label>{{ 'entity.language.label' | translate }}</mat-label>
+                <mat-select [formControl]="previewLanguageControl">
+                  <mat-option *ngFor="let language of previewLanguages" [value]="language.shortname">
+                    {{ language.name }} ({{ language.shortname }})
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+            <div class="muted-message preview" [style.visibility]="previewDirty ? 'visible' : 'hidden'">
+              {{ 'entity.task.template.previewPending' | translate }}
+            </div>
+            <div class="preview-error" *ngIf="previewError">
+              {{ previewError }}
+            </div>
+            <div class="preview-panel ql-editor" [innerHTML]="trustedPreviewHtml"></div>
+            <div class="preview-placeholder-list" *ngIf="previewPlaceholders.length > 0">
+              <strong>{{ 'entity.task.template.detectedPlaceholders' | translate }}</strong>
+              <div>{{ previewPlaceholders.join(', ') }}</div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </form>
+  </mat-tab>
+
+  <mat-tab label="{{ 'entity.task.parameters.header' | translate }}">
+    <mat-card class="sitmun-mat-card-margin" appearance="outlined">
+      <mat-card-content>
+        <app-data-grid [changeHeightButton]="true"
+                       [allNewElements]="isNewOrDuplicated()"
+                       [columnDefs]="parametersTable.relationsColumnsDefs"
+                       [getAll]="parametersTable.relationsFetchFn"
+                       [eventAddItemsSubscription]="parametersTable.addCommandEvent$.asObservable()"
+                       [eventGetAllRowsSubscription]="parametersTable.saveCommandEvent$.asObservable()"
+                       [eventRefreshSubscription]="parametersTable.refreshCommandEvent$.asObservable()"
+                       [discardChangesButton]="true"
+                       [actionButton]="true"
+                       [redoButton]="true"
+                       [undoButton]="true"
+                       [deleteButton]="true"
+                       [newButton]="true"
+                       [defaultColumnSorting]="parametersTable.defaultRelationsSorting()"
+                       (new)="parametersTable.openTemplateDialog('newParameterDialog')"
+                       (getAllRows)="parametersTable.handleSaveRelations($event)"
+                       (duplicate)="parametersTable.duplicateRelations($event)"
+                       *ngIf="dataLoaded">
+        </app-data-grid>
+      </mat-card-content>
+    </mat-card>
+  </mat-tab>
+
+  <mat-tab label="{{ 'entity.task.roles.header' | translate }}">
+    <mat-card class="sitmun-mat-card-margin" appearance="outlined">
+      <mat-card-content>
+        <app-data-grid [changeHeightButton]="true"
+                       [allNewElements]="isNewOrDuplicated()"
+                       [columnDefs]="rolesTable.relationsColumnsDefs"
+                       [getAll]="rolesTable.relationsFetchFn"
+                       [eventAddItemsSubscription]="rolesTable.addCommandEvent$.asObservable()"
+                       [eventGetAllRowsSubscription]="rolesTable.saveCommandEvent$.asObservable()"
+                       [eventRefreshSubscription]="rolesTable.refreshCommandEvent$.asObservable()"
+                       [actionButton]="true"
+                       [discardChangesButton]="true"
+                       [redoButton]="true"
+                       [undoButton]="true"
+                       [deleteButton]="true"
+                       [addButton]="true"
+                       [defaultColumnSorting]="rolesTable.defaultRelationsSorting()"
+                       [hideDuplicateButton]="true"
+                       (getAllRows)="rolesTable.handleSaveRelations($event)"
+                       (add)="rolesTable.openDialog($event)"
+                       *ngIf="dataLoaded">
+        </app-data-grid>
+      </mat-card-content>
+    </mat-card>
+  </mat-tab>
+
+  <mat-tab label="{{ 'entity.task.territories.header' | translate }}">
+    <mat-card class="sitmun-mat-card-margin" appearance="outlined">
+      <mat-card-content>
+        <app-data-grid [changeHeightButton]="true"
+                       [allNewElements]="isNewOrDuplicated()"
+                       [columnDefs]="availabilitiesTable.relationsColumnsDefs"
+                       [getAll]="availabilitiesTable.relationsFetchFn"
+                       [eventAddItemsSubscription]="availabilitiesTable.addCommandEvent$.asObservable()"
+                       [eventGetAllRowsSubscription]="availabilitiesTable.saveCommandEvent$.asObservable()"
+                       [eventRefreshSubscription]="availabilitiesTable.refreshCommandEvent$.asObservable()"
+                       [actionButton]="true"
+                       [discardChangesButton]="true"
+                       [redoButton]="true"
+                       [undoButton]="true"
+                       [deleteButton]="true"
+                       [addButton]="true"
+                       [hideReplaceButton]="true"
+                       [defaultColumnSorting]="availabilitiesTable.defaultRelationsSorting()"
+                       [hideDuplicateButton]="true"
+                       (getAllRows)="availabilitiesTable.handleSaveRelations($event)"
+                       (add)="availabilitiesTable.openDialog($event)"
+                       *ngIf="dataLoaded">
+        </app-data-grid>
+      </mat-card-content>
+    </mat-card>
+  </mat-tab>
+</mat-tab-group>
+
+<ng-template #newParameterDialog>
+  <form [formGroup]="parametersTable.templateDialog('newParameterDialog').form">
+    <mat-card appearance="outlined">
+      <mat-card-content>
+        <mat-form-field appearance="outline" class="full">
+          <mat-label>{{ 'common.form.name' | translate }}</mat-label>
+          <input matInput type="text" formControlName="name" required>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="full">
+          <mat-label>{{ 'common.form.value' | translate }}</mat-label>
+          <input matInput type="text" formControlName="value">
+        </mat-form-field>
+      </mat-card-content>
+    </mat-card>
+  </form>
+</ng-template>

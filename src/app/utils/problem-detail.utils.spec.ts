@@ -81,6 +81,19 @@ describe('getErrorMessage', () => {
     expect(getErrorMessage(error)).toBe('Legacy error');
   });
 
+  it('should prefer Spring about:blank detail over Angular HttpClient message', () => {
+    const error = {
+      message: 'Http failure response for http://localhost/api: 400 OK',
+      error: {
+        type: 'about:blank',
+        title: 'Bad Request',
+        status: 400,
+        detail: 'Bad request',
+      },
+    };
+    expect(getErrorMessage(error)).toBe('Bad request');
+  });
+
   it('should return default when nothing is available', () => {
     expect(getErrorMessage(makeError(null))).toBe('An error occurred');
   });

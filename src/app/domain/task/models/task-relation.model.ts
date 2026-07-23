@@ -14,5 +14,7 @@ export class TaskRelation extends Resource {
 
   public relationType: string;
 
+  public referenceAlias: string | null;
+
   public relatedTask: Task;
 }
