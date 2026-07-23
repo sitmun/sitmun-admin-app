@@ -30,13 +30,15 @@ import {ErrorPageComponent} from "@app/components/error-page/error-page.componen
 import {DefaultLanguageChangeDialogComponent} from '@app/components/language/default-language-change-dialog/default-language-change-dialog.component';
 import {LanguageFormComponent} from '@app/components/language/language-form/language-form.component';
 import {LanguageComponent} from '@app/components/language/language.component';
-import {LiteralTranslationsComponent} from '@app/components/literal-translations/literal-translations/literal-translations.component';
 import {LayersFormComponent} from '@app/components/layers/layers-form/layers-form.component';
 import {LayersComponent} from '@app/components/layers/layers.component';
 import {
   LayersPermitsFormComponent
 } from '@app/components/layers-permits/layers-permits-form/layers-permits-form.component';
 import {LayersPermitsComponent} from '@app/components/layers-permits/layers-permits.component';
+import {LiteralTranslationCreateDialogComponent} from '@app/components/literal-translations/literal-translation-create-dialog/literal-translation-create-dialog.component';
+import {LiteralTranslationCsvDialogComponent} from '@app/components/literal-translations/literal-translation-csv-dialog/literal-translation-csv-dialog.component';
+import {LiteralTranslationsComponent} from '@app/components/literal-translations/literal-translations/literal-translations.component';
 import {LoginComponent} from '@app/components/login/login.component';
 import {RoleFormComponent} from '@app/components/role/role-form/role-form.component';
 import {RoleComponent} from '@app/components/role/role.component';
@@ -66,15 +68,15 @@ import {TasksEditComponent} from '@app/components/tasks-edit/tasks-edit.componen
 import {TaskLocatorFormComponent} from '@app/components/tasks-locator/task-form/task-locator-form.component';
 import {TasksLocatorComponent} from '@app/components/tasks-locator/tasks-locator.component';
 import {TaskMoreInfoFormComponent} from "@app/components/tasks-more-info/task-form/task-more-info-form.component";
-import {TaskMoreInfoAdvancedFormComponent} from '@app/components/tasks-more-info-advanced/task-form/task-more-info-advanced-form.component';
 import {TasksMoreInfoComponent} from "@app/components/tasks-more-info/tasks-more-info.component";
-import { TaskTemplateFormComponent } from '@app/components/tasks-template/task-form/task-template-form.component';
-import { TasksTemplateComponent } from '@app/components/tasks-template/tasks-template.component';
-import { QueryExecutionCardComponent } from '@app/components/tasks-template/query-execution-card/query-execution-card.component';
-import { TemplateEditorComponent } from '@app/components/tasks-template/template-editor/template-editor.component';
+import {TaskMoreInfoAdvancedFormComponent} from '@app/components/tasks-more-info-advanced/task-form/task-more-info-advanced-form.component';
 import {TasksMoreInfoAdvancedComponent} from '@app/components/tasks-more-info-advanced/tasks-more-info-advanced.component';
 import {TaskQueryFormComponent} from "@app/components/tasks-query/task-form/task-query-form.component";
 import {TasksQueryComponent} from "@app/components/tasks-query/tasks-query.component";
+import { QueryExecutionCardComponent } from '@app/components/tasks-template/query-execution-card/query-execution-card.component';
+import { TaskTemplateFormComponent } from '@app/components/tasks-template/task-form/task-template-form.component';
+import { TasksTemplateComponent } from '@app/components/tasks-template/tasks-template.component';
+import { TemplateEditorComponent } from '@app/components/tasks-template/template-editor/template-editor.component';
 import {TerritoryFormComponent} from '@app/components/territory/territory-form/territory-form.component';
 import {TerritoryComponent} from '@app/components/territory/territory.component';
 import {TerritoryTypeFormComponent} from '@app/components/territory-type/territory-type-form/territory-type-form.component';
@@ -174,17 +176,8 @@ export function initializeLanguages(
           }
         } catch {
           // configuration may load in a parallel initializer; fall back below
-      const languages = await firstValueFrom(languageService.fetchAllItems());
-
-      // Store in config
-      config.languagesToUse = languages;
-      config.languagesObjects = {};
-      languages.forEach(language => {
-        config.languagesObjects[language.shortname] = language;
-      });
-
-      // Keep local cache aligned with backend-defined language order
-      localStorage.setItem('languages', JSON.stringify(languages));
+        }
+      }
 
       const languages = languageService.applyLanguagesToUse(
         await firstValueFrom(languageService.fetchAllItems())
@@ -252,48 +245,6 @@ export function initializeConfiguration(
   };
 }
 
-// Helper function to get default language
-function getDefaultLanguage(languages: any[], appConfigService?: AppConfigService): string {
-  const configuredDefault = languages.find(lang => lang.defaultLanguage === true)?.shortname;
-  if (configuredDefault) {
-    config.defaultLang = configuredDefault;
-  }
-
-  // Check localStorage first
-  const storedLang = localStorage.getItem('lang');
-  if (storedLang && languages.find(lang => lang.shortname === storedLang)) {
-    return storedLang;
-  }
-
-  // Check browser language
-  const navigatorLang = window.navigator.language.toLowerCase();
-  const baseLang = navigatorLang.replace(/-[A-Z]+$/, '');
-  const browserLang = languages.find(lang =>
-    lang.shortname.toLowerCase() === baseLang
-  );
-
-  if (browserLang) {
-    return browserLang.shortname;
-  }
-
-  if (configuredDefault) {
-    return configuredDefault;
-  }
-
-  // Fallback to backend config default
-  if (config.defaultLang) {
-    return config.defaultLang;
-  }
-
-  // Fallback to app-config.json default language (predictable fallback)
-  if (appConfigService) {
-    return appConfigService.getDefaultLanguageFallback();
-  }
-
-  // Final fallback: first language or 'en'
-  return languages.length > 0 ? languages[0].shortname : 'en';
-}
-
 @NgModule({ declarations: [
         BaseFormComponent,
         AppComponent,
@@ -317,13 +268,13 @@ function getDefaultLanguage(languages: any[], appConfigService?: AppConfigServic
         TaskLocatorFormComponent,
         TasksLocatorComponent,
         TaskMoreInfoFormComponent,
+	      TasksMoreInfoComponent,
         TaskMoreInfoAdvancedFormComponent,
-        TasksMoreInfoComponent,
         TasksMoreInfoAdvancedComponent,
-        TasksTemplateComponent,
-        TaskTemplateFormComponent,
-        QueryExecutionCardComponent,
         TemplateEditorComponent,
+        QueryExecutionCardComponent,
+        TaskTemplateFormComponent,
+        TasksTemplateComponent,
         TasksQueryComponent,
         TaskQueryFormComponent,
         ConnectionFormComponent,
@@ -384,13 +335,14 @@ function getDefaultLanguage(languages: any[], appConfigService?: AppConfigServic
         }),
         APP_ROUTING,
         BrowserAnimationsModule,
-        CoreModule,
-        LiteralTranslationsComponent,
         NgOptimizedImage,
         CardLeadComponent,
         EntityFormAlertsComponent,
         WarningsPanelComponent,
-        ImagePreviewComponent], providers: [
+        ImagePreviewComponent,
+        LiteralTranslationsComponent,
+        LiteralTranslationCreateDialogComponent,
+        LiteralTranslationCsvDialogComponent], providers: [
         { provide: LOCALE_ID, useValue: 'es-ES' },
         { provide: ErrorHandler, useClass: GlobalErrorHandler },
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService },

@@ -6,13 +6,17 @@
   [isNew]="isNew()"
   [additionalText]="taskTypeNameTranslated"
   [canSave]="canSaveEntity"
-  [form]="entityForm"
-  entityLabelPrefix="entity.task.template"
-  [validationFieldLabelKeys]="validationFieldLabels"
   [dataLoaded]="dataLoaded"
   (save)="onSaveButtonClicked()"
   (back)="utils.navigateBack()">
 </app-form-toolbar>
+
+<app-entity-form-alerts
+  *ngIf="dataLoaded"
+  [form]="entityForm"
+  entityLabelPrefix="entity.task.template"
+  [fieldLabelKeys]="validationFieldLabels">
+</app-entity-form-alerts>
 
 <mat-tab-group
   mat-stretch-tabs="false"
@@ -32,22 +36,29 @@
             <mat-icon matSuffix class="iconTranslate" (click)="onTranslated('name')">translate</mat-icon>
           </mat-form-field>
 
-          <mat-form-field appearance="outline" class="half add-gap">
+                    <mat-form-field appearance="outline" class="half add-gap">
             <mat-label>{{ 'entity.taskGroup.label' | translate }}</mat-label>
             <mat-select formControlName="taskGroupId" class="form-control">
               <mat-select-trigger>
                 <ng-container *ngIf="entityForm.get('taskGroupId')?.value as taskGroupId">
-                  <a [routerLink]="['/taskGroup', taskGroupId, 'taskGroupForm']" class="router-link">
-                    {{ getTaskGroupName(taskGroupId) }}
-                  </a>
+                  {{ getTaskGroupName(taskGroupId) }}
                 </ng-container>
               </mat-select-trigger>
               <mat-option [value]="taskGroup.id" *ngFor="let taskGroup of taskGroupList">
-                <a [routerLink]="['/taskGroup', taskGroup.id, 'taskGroupForm']" class="router-link">
-                  {{ taskGroup.name }}
-                </a>
+                {{ taskGroup.name }}
               </mat-option>
             </mat-select>
+            <a *ngIf="entityForm.get('taskGroupId')?.value as taskGroupId"
+               mat-icon-button
+               matSuffix
+               class="related-entity-open-link"
+               [routerLink]="['/taskGroup', taskGroupId, 'taskGroupForm']"
+               target="_blank"
+               rel="noopener"
+               [matTooltip]="'common.relation.openNewTab' | translate"
+               [attr.aria-label]="'common.relation.openNewTab' | translate">
+              <mat-icon class="related-entity-link-icon">open_in_new</mat-icon>
+            </a>
           </mat-form-field>
         </mat-card-content>
       </mat-card>

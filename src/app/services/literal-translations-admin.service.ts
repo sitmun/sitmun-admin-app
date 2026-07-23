@@ -1,13 +1,14 @@
 import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
+import { LiteralTranslationItem } from '@app/components/literal-translations/literal-translation.model';
 import type { HalPage } from '@app/core/hal/hal-page';
 import type { InfiniteBlockRequest } from '@app/core/hal/infinite-block-request';
 import { ResourceHelper } from '@app/core/hal/resource/resource-helper';
 
-import { LiteralTranslationItem } from '@app/components/literal-translations/literal-translation.model';
 
 interface LiteralTranslationPageResponse {
   content: Array<Partial<LiteralTranslationItem>>;

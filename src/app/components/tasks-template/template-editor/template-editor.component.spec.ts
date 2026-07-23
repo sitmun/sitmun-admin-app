@@ -1,5 +1,5 @@
-import { TemplateHtmlValidatorService } from './template-html-validator.service';
 import { normalizeEditorColorValue, normalizeHandlebarsMarkup, protectStructuralHandlebarsBlocks, protectTableHandlebarsBlocks, TemplateEditorComponent } from './template-editor.component';
+import { TemplateHtmlValidatorService } from './template-html-validator.service';
 
 const createSpyObj = (methods: string[]): Record<string, jest.Mock> =>
   methods.reduce((acc, methodName) => {

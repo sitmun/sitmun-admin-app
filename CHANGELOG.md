@@ -6,6 +6,9 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Added
 
+- **Plantilla**: TipTap HTML editor, ADMIN preview, and linked-child execute-child dry-run (coords not required).
+- **More Info Advanced**: admin task configuration UI (typeId 16); runtime map render remains in the viewer.
+- **Literal translations**: admin CRUD, CSV import/export, and completion indicators.
 - **Languages**: `enabled` flag on language form/list; disabled languages are excluded from menus and translation dialogs; cannot be set as database default; database default language cannot be disabled.
 - **Language chrome**: login and shell toolbars show closed BCP-47 ISO and open API endonyms (no flags); UI language resolves from `localStorage.lang` → `language.default` → static (never browser); Languages form edits endonym + `order`; dialog-translation uses `lang.*` labels sorted by `order`.
 - **Application trees**: application↔tree links use `/api/application-trees` with editable association `order` (lower = higher priority / default); Trees tab and tree Applications tab match the backgrounds pattern.
@@ -55,11 +58,13 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Security
 
+- **Plantilla**: ADMIN preview uses trusted HTML (`bypassSecurityTrustHtml`); the editor HTML validator is not a sanitizer. Persisted HTML (including iframes) must be sanitized at viewer render (viewer#162 / DOMPurify).
 - **Auth**: login now calls `POST /api/authenticate/admin` to receive a scoped `admin_access_token` cookie; the previous shared `access_token` endpoint is no longer used.
 - **Auth**: `AuthInterceptor` adds `X-SITMUN-Client: admin` to every backend request so the server targets the correct admin cookie for authentication and logout.
 
 ### Changed
 
+- **Query tasks**: save is blocked when command `#{param}` placeholders are undeclared (operators must declare matching parameters).
 - **Trees**: align tree node display options with backend semantics — `visible` controls catalog visibility, `active` controls load-by-default on cartography leaves; radio folder toggle is limited to cartography trees via config capability.
 - **Auth**: `authGuard` reloads account identity with credentials, preserves cached identity on transient failures, and warns valid non-admin users that administrator rights are required.
 - **Auth**: `AuthExpiredInterceptor` validates the session through `/api/account` after protected API 401 responses; concurrent failures share one probe, sequential transient failures show one warning until validation succeeds, and only a probe 401 clears local state and redirects to login without POSTing logout.

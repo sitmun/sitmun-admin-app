@@ -13,9 +13,9 @@
   </mat-form-field>
 
   <div *ngIf="isImport" class="file-block">
-    <label class="file-label">{{ 'entity.literalTranslation.csv.file' | translate }}</label>
+    <label class="file-label" for="literal-translation-csv-file">{{ 'entity.literalTranslation.csv.file' | translate }}</label>
     <div class="file-picker">
-      <input #fileInput hidden type="file" accept=".csv,text/csv" (change)="onFileSelected($event)">
+      <input id="literal-translation-csv-file" #fileInput hidden type="file" accept=".csv,text/csv" (change)="onFileSelected($event)">
       <button mat-stroked-button type="button" (click)="fileInput.click()">
         {{ 'entity.literalTranslation.csv.chooseFile' | translate }}
       </button>

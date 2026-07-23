@@ -8,22 +8,12 @@ import {ErrorHandlerService} from '@app/services/error-handler.service';
 import {LoadingOverlayService} from '@app/services/loading-overlay.service';
 import {LoggerService} from '@app/services/logger.service';
 import {UtilsService} from '@app/services/utils.service';
-import {suppressAgGridConsoleWarnings} from '@app/testing/test-helpers';
 
 import {DataGridComponent} from './data-grid.component';
 
 describe('DataGridComponent', () => {
   let component: DataGridComponent;
   let fixture: ComponentFixture<DataGridComponent>;
-  let restoreConsoleWarn: () => void;
-
-  beforeAll(() => {
-    restoreConsoleWarn = suppressAgGridConsoleWarnings();
-  });
-
-  afterAll(() => {
-    restoreConsoleWarn?.();
-  });
 
   beforeAll(async () => {
      
@@ -118,7 +108,7 @@ describe('DataGridComponent', () => {
     expect(component.gridApi.updateGridOptions).toHaveBeenCalledWith({columnDefs: component.columnDefs});
   });
 
-  it('clears autoSizeStrategy before relation-grid initialization without updating the live grid option', () => {
+  it('clears autoSizeStrategy after preparing relation-grid column defs on grid ready', () => {
     component.rowModelMode = 'clientSide';
     component.columnDefs = [
       {headerName: '', checkboxSelection: true, headerCheckboxSelection: true},
@@ -126,12 +116,6 @@ describe('DataGridComponent', () => {
       {headerName: 'Task type', field: 'typeName'},
     ];
     component.gridOptions = {autoSizeStrategy: {type: 'fitCellContents'}};
-    component.dataGrid = {nativeElement: document.createElement('div')} as any;
-
-    component.ngOnInit();
-
-    expect(component.gridOptions.autoSizeStrategy).toBeUndefined();
-
     component.gridApi = {
       updateGridOptions: jest.fn(),
       setGridOption: jest.fn(),
@@ -143,38 +127,11 @@ describe('DataGridComponent', () => {
     component.onGridReady({api: component.gridApi, columnApi: {}});
 
     expect(component.columnDefs[2]).toEqual(expect.objectContaining({field: 'typeName', flex: 1}));
-    expect(component.gridApi.setGridOption).not.toHaveBeenCalledWith(
-      'autoSizeStrategy',
-      expect.anything()
-    );
-  });
-
-  it('keeps fitCellContents as initial strategy for fixed-width client-side grids', () => {
-    component.rowModelMode = 'clientSide';
-    component.columnDefs = [
-      {headerName: 'A', field: 'a', flex: 0, width: 120},
-      {headerName: 'B', field: 'b', flex: 0, width: 120},
-    ];
-    component.gridOptions = {};
-    component.dataGrid = {nativeElement: document.createElement('div')} as any;
-
-    component.ngOnInit();
-
-    expect(component.gridOptions.autoSizeStrategy).toEqual({type: 'fitCellContents'});
-  });
-
-  it('omits autoSizeStrategy before infinite grid initialization', () => {
-    component.rowModelMode = 'infinite';
-    component.columnDefs = [{headerName: 'Name', field: 'name', width: 150}];
-    component.gridOptions = {autoSizeStrategy: {type: 'fitCellContents'}};
-    component.dataGrid = {nativeElement: document.createElement('div')} as any;
-
-    component.ngOnInit();
-
     expect(component.gridOptions.autoSizeStrategy).toBeUndefined();
+    expect(component.gridApi.setGridOption).toHaveBeenCalledWith('autoSizeStrategy', undefined);
   });
 
-  it('toggles horizontal scroll visibility in flex-layout relation grids', () => {
+  it('auto-sizes fixed display columns in flex-layout relation grids', () => {
     component.rowModelMode = 'clientSide';
     component.columnDefs = [
       {headerName: '', checkboxSelection: true, flex: 0, width: 56},
@@ -187,6 +144,9 @@ describe('DataGridComponent', () => {
     };
     component.gridApi = {
       getAllDisplayedColumns: jest.fn(() => [nameColumn, nameColumn]),
+      autoSizeColumns: jest.fn(),
+      getColumn: jest.fn((colId: string) => (colId === 'name' ? nameColumn : null)),
+      applyColumnState: jest.fn(),
       setGridOption: jest.fn(),
       isDestroyed: () => false,
     } as any;
@@ -194,9 +154,8 @@ describe('DataGridComponent', () => {
 
     component['applyFlexColumnLayoutSizing']();
 
-    expect(component.hasHiddenColumns).toBe(false);
-    expect(component.gridApi.setGridOption).toHaveBeenCalledWith('suppressHorizontalScroll', true);
-    expect(component.gridApi.setGridOption).toHaveBeenCalledWith('alwaysShowHorizontalScroll', false);
+    expect(component.gridApi.autoSizeColumns).toHaveBeenCalledWith(['name']);
+    expect(component.gridApi.applyColumnState).not.toHaveBeenCalled();
   });
 
   it('ignores refresh events replayed before the grid is ready', fakeAsync(() => {

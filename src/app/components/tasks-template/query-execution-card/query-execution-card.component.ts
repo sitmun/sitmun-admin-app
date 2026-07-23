@@ -11,6 +11,7 @@ import {
   TemplateTaskExecutionEvent,
   TemplateTaskExecutionResponse,
 } from '@app/domain';
+import { getErrorMessage } from '@app/utils/problem-detail.utils';
 import { magic } from '@environments/constants';
 
 type ExecutionStatus = 'PENDING' | 'RUNNING' | 'COMPLETED' | 'FAILED';
@@ -148,6 +149,7 @@ export class QueryExecutionCardComponent implements OnChanges, OnDestroy {
   get canInsertBinaryContentSnippet(): boolean {
     return !!this.binaryContentReference
       && this.isBinaryResourceResponse
+      && (this.binaryMimeType === 'application/pdf' || this.binaryMimeType.startsWith('image/'));
   }
 
   get showTaskResultReference(): boolean {
@@ -262,9 +264,7 @@ export class QueryExecutionCardComponent implements OnChanges, OnDestroy {
       this.cdr.markForCheck();
     } catch (error) {
       this.status = 'FAILED';
-      this.errorMessage = (error as { error?: { message?: string }, message?: string } | undefined)?.error?.message
-        || (error as { message?: string } | undefined)?.message
-        || 'Execution failed';
+      this.errorMessage = getErrorMessage(error) || 'Execution failed';
       this.cdr.markForCheck();
     }
   }

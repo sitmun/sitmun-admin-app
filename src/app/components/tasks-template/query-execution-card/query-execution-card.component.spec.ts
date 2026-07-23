@@ -1,9 +1,10 @@
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
-import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
+
 import { TranslateModule } from '@ngx-translate/core';
 import { of, Subject, throwError } from 'rxjs';
 
@@ -142,6 +143,25 @@ describe('QueryExecutionCardComponent', () => {
 
     expect(component.status).toBe('FAILED');
     expect(component.errorMessage).toBe('Execution failed');
+  });
+
+  it('should prefer Spring Problem Detail detail over Angular HttpClient message', async () => {
+    previewService.executeLinkedTask.mockReturnValueOnce(
+      throwError(() => ({
+        message: 'Http failure response for http://localhost:9000/backend/api/tasks/template/execute-child?lang=ca: 400 OK',
+        error: {
+          type: 'about:blank',
+          title: 'Bad Request',
+          status: 400,
+          detail: 'Bad request',
+        },
+      })),
+    );
+
+    await component.execute();
+
+    expect(component.status).toBe('FAILED');
+    expect(component.errorMessage).toBe('Bad request');
   });
 
   it('should request OnPush refresh when execution starts and completes', async () => {

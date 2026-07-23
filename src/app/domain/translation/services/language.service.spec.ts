@@ -195,4 +195,13 @@ describe('LanguageService', () => {
       req.error(new ErrorEvent('Invalid language'));
     });
   });
+
+  describe('dead language admin APIs (must stay absent)', () => {
+    it('does not expose reorder or setDefault helpers', () => {
+      expect(service).not.toHaveProperty('reorder');
+      expect(service).not.toHaveProperty('setDefault');
+      expect(typeof (service as any).reorder).toBe('undefined');
+      expect(typeof (service as any).setDefault).toBe('undefined');
+    });
+  });
 });

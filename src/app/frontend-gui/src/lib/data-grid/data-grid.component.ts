@@ -59,7 +59,6 @@ import {
 import {BtnEditRenderedComponent} from '../btn-edit-rendered/btn-edit-rendered.component';
 import {DialogMessageComponent} from '../dialog-message/dialog-message.component';
 import {EditableLinkRendererComponent} from '../editable-link-renderer/editable-link-renderer.component';
-import {ExternalUrlRendererComponent} from '../external-url-renderer/external-url-renderer.component';
 import {RouterLinkRendererComponent} from '../router-link-renderer/router-link-renderer.component';
 
 // Removed jQuery dependency
@@ -529,11 +528,11 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
   /** Event emitter for row order changes triggered by drag and drop */
   @Output() rowOrderChanged: EventEmitter<any[]>;
 
-  /** Event emitter for visibility state */
-  @Output() visible = new EventEmitter<HTMLElement>();
-
   /** Emits true/false whenever the selection state changes */
   @Output() selectionChanged = new EventEmitter<boolean>();
+
+  /** Event emitter for visibility state */
+  @Output() visible = new EventEmitter<HTMLElement>();
 
   /** Reference to the data grid element */
   @ViewChild('dataGrid', {static: true}) dataGrid: ElementRef;
@@ -574,6 +573,9 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
         const translated = this.translate.instant(key);
         return translated !== key ? translated : params.defaultValue;
       },
+      autoSizeStrategy: {
+        type: 'fitCellContents'
+      },
       onCellMouseOver: (params) => this.markTruncatedCell(params),
       onCellMouseOut: (params) => this.unmarkTruncatedCell(params),
       onCellClicked: (params) => this.expandTruncatedCellColumn(params),
@@ -605,9 +607,8 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
         },
       },
       rowSelection: 'multiple',
-      suppressHorizontalScroll: true,
       rowDragManaged: this.rowDragManaged,
-      suppressHorizontalScroll: false,
+      suppressHorizontalScroll: true,
       // Add alternating row background
       getRowStyle: (params) => {
         if (params.node.rowIndex! % 2 === 0) {
@@ -631,8 +632,7 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
       btnCheckboxRendererComponent: BtnCheckboxRenderedComponent,
       btnCheckboxFilterComponent: BtnCheckboxFilterComponent,
       routerLinkRenderer: RouterLinkRendererComponent,
-      editableLinkRenderer: EditableLinkRendererComponent,
-      externalUrlRenderer: ExternalUrlRendererComponent
+      editableLinkRenderer: EditableLinkRendererComponent
     };
   }
 
@@ -640,7 +640,7 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
    * Handles component initialization
    */
   ngOnInit(): void {
-    this.configureInitialAutoSizeStrategy();
+    this.configureAutoSizeStrategy();
 
     // Set up debounced search (300ms delay)
     this.searchSubject
@@ -1083,16 +1083,11 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
-  private configureInitialAutoSizeStrategy(): void {
-    const preparedColumnDefs = this.columnDefs?.length
-      ? this.applyReadOnlyToColumnDefs(
-          this.prepareColumnDefsForRowModel(
-            this.columnDefs.map((col) => this.withoutCellTooltips(col))
-          )
-        )
-      : [];
-
-    this.configureAutoSizeStrategy(preparedColumnDefs);
+  private syncAutoSizeStrategyToGrid(): void {
+    if (!this.gridApi || this.gridApi.isDestroyed()) {
+      return;
+    }
+    this.gridApi.setGridOption('autoSizeStrategy', this.gridOptions.autoSizeStrategy);
   }
 
   /**
@@ -1239,6 +1234,13 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
       return;
     }
 
+    const fixedFieldIds = (this.columnDefs ?? [])
+      .filter((col) => !col.checkboxSelection && col.flex === 0 && typeof col.field === 'string' && col.field)
+      .map((col) => col.field as string);
+    if (fixedFieldIds.length > 0 && typeof this.gridApi.autoSizeColumns === 'function') {
+      this.gridApi.autoSizeColumns(fixedFieldIds);
+    }
+
     const displayedColumns = this.gridApi?.getAllDisplayedColumns?.() ?? [];
     const viewportWidth = this.getGridViewportWidth();
     const totalWidth = displayedColumns.reduce((total: number, column: any) => {
@@ -1304,14 +1306,9 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
       this.gridOptions.rowSelection = 'single'
     }
 
+    this.gridOptions.rowDragManaged = this.rowDragManaged;
     this.statusColumn = false;
     this.someColumnIsEditable = false;
-    this.gridOptions.rowDragManaged = this.rowDragManaged;
-
-    // Configure column sizes and flex
-    this.columnDefs.forEach((col, index) => {
-      // Ensure each column has minimum width
-      col.minWidth = col.minWidth ?? 100;
 
     this.columnDefs = this.columnDefs.map((col) => this.withoutCellTooltips(col));
 
@@ -1321,6 +1318,9 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
 
     // Apply the updated column definitions
     this.gridApi.updateGridOptions({columnDefs: this.columnDefs});
+
+    this.configureAutoSizeStrategy(this.columnDefs);
+    this.syncAutoSizeStrategyToGrid();
 
     this.applyDefaultColumnSorting();
 
@@ -1382,13 +1382,12 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
     if (Array.isArray(this.defaultColumnSorting) && this.defaultColumnSorting.length === 0) {
       return;
     }
-    // Sort only — do not reorder columns (applyOrder would move the sorted col to the left).
     if (!Array.isArray(this.defaultColumnSorting)) {
       const sortModel = [{colId: this.defaultColumnSorting, sort: 'asc' as const}];
-      this.gridApi.applyColumnState({state: sortModel, applyOrder: false});
+      this.gridApi.applyColumnState({state: sortModel, applyOrder: true});
     } else {
       const sortModel = this.defaultColumnSorting.map((element) => ({colId: element, sort: 'asc' as const}));
-      this.gridApi.applyColumnState({state: sortModel, applyOrder: false});
+      this.gridApi.applyColumnState({state: sortModel, applyOrder: true});
     }
   }
 
@@ -2416,8 +2415,8 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
    * @param changes - SimpleChanges object containing changed properties
    */
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes.rowModelMode && !changes.rowModelMode.firstChange) {
-      this.configureInitialAutoSizeStrategy();
+    if (changes.rowModelMode) {
+      this.configureAutoSizeStrategy();
     }
     if (changes.rowData && !changes.rowData.firstChange) {
       this.updateGridData(changes.rowData.currentValue);

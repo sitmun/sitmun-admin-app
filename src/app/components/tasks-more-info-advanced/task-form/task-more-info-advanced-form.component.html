@@ -6,13 +6,17 @@
   [isNew]="isNew()"
   [additionalText]="taskTypeNameTranslated"
   [canSave]="canSaveEntity"
-  [form]="entityForm"
-  validationEntityType="task"
-  [validationFieldLabelKeys]="validationFieldLabels"
   [dataLoaded]="dataLoaded"
   (save)="onSaveButtonClicked()"
   (back)="utils.navigateBack()">
 </app-form-toolbar>
+
+<app-entity-form-alerts
+  *ngIf="dataLoaded"
+  [form]="entityForm"
+  entityLabelPrefix="entity.task.moreInfoAdvanced"
+  [fieldLabelKeys]="validationFieldLabels">
+</app-entity-form-alerts>
 
 <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="end" [dynamicHeight]="true" preserveContent="true">
   <mat-tab label="{{ 'common.form.details' | translate }}">

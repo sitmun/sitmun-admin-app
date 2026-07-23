@@ -25,13 +25,16 @@
     </div>
 
     <div class="parameter-row" *ngFor="let parameter of parameterDefinitions">
-      <label class="parameter-label">
+      <label class="parameter-label" [attr.for]="'template-param-' + parameterControlName(parameter)">
         <button class="copy-icon-button" mat-icon-button type="button" (click)="copyParameterReference(parameterControlName(parameter))" [attr.aria-label]="'common.copy' | translate">
           <mat-icon>content_copy</mat-icon>
         </button>
         <span>{{ parameterControlName(parameter) }}</span>
       </label>
-      <input matInput [formControl]="parameterForm.controls[parameterControlName(parameter)]">
+      <input
+        matInput
+        [id]="'template-param-' + parameterControlName(parameter)"
+        [formControl]="parameterForm.controls[parameterControlName(parameter)]">
     </div>
 
     <button *ngIf="showEmbeddedChildChrome" mat-flat-button color="primary" type="button" (click)="execute()">

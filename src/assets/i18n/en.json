@@ -182,6 +182,7 @@
   "common.form.logo": "Logo",
   "common.form.name": "Name",
   "common.form.none": "None",
+  "common.form.noData": "No data",
   "common.form.order": "Order",
   "common.form.password.label": "Password",
   "common.form.password.set": "Password is set",

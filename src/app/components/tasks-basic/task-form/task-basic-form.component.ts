@@ -8,7 +8,6 @@ import { firstValueFrom, map, of} from "rxjs";
 
 import {BaseFormComponent} from "@app/components/base-form.component";
 import {DataTableDefinition, TemplateDialog} from "@app/components/data-tables.util";
-import {defineTaskRolesTable} from "@app/components/task-roles-table.util";
 import {Configuration} from "@app/core/config/configuration";
 import {MessagesInterceptorStateService} from "@app/core/interceptors/messages.interceptor";
 import {
@@ -37,6 +36,7 @@ import {
   canKeepOrUpdate,
   onCreate,
   onDelete,
+  onUpdatedRelation,
   Status
 } from "@app/frontend-gui/src/lib/data-grid/data-grid.component";
 import {ErrorHandlerService} from "@app/services/error-handler.service";
@@ -293,6 +293,8 @@ export class TaskBasicFormComponent extends BaseFormComponent<TaskProjection> {
    */
   createObject(id: number = null): Task {
     let safeToEdit = TaskProjection.fromObject(this.entityToEdit);
+    const parameters = TaskPropertiesContract.getParameters(safeToEdit.properties);
+    safeToEdit.properties = TaskPropertiesContract.withParameters(safeToEdit.properties, parameters);
     const formValues = this.entityForm.getRawValue();
     safeToEdit = Object.assign(safeToEdit,
       formValues,
@@ -372,15 +374,40 @@ export class TaskBasicFormComponent extends BaseFormComponent<TaskProjection> {
    * @returns Configured data table definition for roles
    */
   private defineRolesTable(): DataTableDefinition<Role, Role> {
-    return defineTaskRolesTable({
-      dialog: this.dialog,
-      errorHandler: this.errorHandler,
-      loadingService: this.loadingService,
-      utils: this.utils,
-      roleService: this.roleService,
-      getEntityToEdit: () => this.entityToEdit,
-      isNew: () => this.isNew(),
-    });
+    return DataTableDefinition.builder<Role, Role>(this.dialog, this.errorHandler, this.loadingService)
+      .withRelationsColumns([
+        this.utils.getSelCheckboxColumnDef(),
+        this.utils.getRouterLinkColumnDef(
+          'common.form.name',
+          'name',
+          '/role/:id/roleForm',
+          {
+            id: 'id',
+          }
+        ),
+        this.utils.getNonEditableColumnDef('common.form.description', 'description'),
+        this.utils.getStatusColumnDef()
+      ])
+      .withRelationsOrder('name')
+      .withRelationsFetcher(() => {
+        if (this.isNew()) {
+          return of([]);
+        }
+        return this.entityToEdit.getRelationArrayEx(Role, 'roles', {projection: 'view'})
+      })
+      .withRelationsUpdater(async (roles: (Role & Status)[]) => {
+        await onUpdatedRelation(roles).forAll(item => this.entityToEdit.substituteAllRelation('roles', item));
+      })
+      .withTargetsColumns([
+        this.utils.getSelCheckboxColumnDef(),
+        this.utils.getNonEditableColumnDef('common.form.name', 'name'),
+        this.utils.getNonEditableColumnDef('common.form.description', 'description'),
+      ])
+      .withTargetsOrder('name')
+      .withTargetsFetcher(() => this.roleService.fetchAllItems())
+      .withTargetToRelation((items) => items)
+      .withTargetsTitle('entity.task.roles.title')
+      .build();
   }
 
   /**
@@ -393,17 +420,17 @@ export class TaskBasicFormComponent extends BaseFormComponent<TaskProjection> {
     return DataTableDefinition.builder<TaskAvailabilityProjection, TerritoryProjection>(this.dialog, this.errorHandler, this.loadingService)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
-        Object.assign(this.utils.getRouterLinkColumnDef(
+        this.utils.getRouterLinkColumnDef(
           'common.form.name',
           'territoryName',
           '/territory/:id/territoryForm',
           {
             id: 'territoryId',
           }
-        ), {flex: 2, minWidth: 160}),
-        Object.assign(this.utils.getNonEditableColumnDef('common.form.code', 'territoryCode'), {flex: 0, minWidth: 100}),
-        Object.assign(this.utils.getNonEditableColumnDef('common.form.type', 'territoryTypeName'), {flex: 0, minWidth: 120}),
-        Object.assign(this.utils.getNonEditableDateColumnDef('common.form.created', 'createdDate'), {flex: 0, minWidth: 120}),
+        ),
+        this.utils.getNonEditableColumnDef('common.form.code', 'territoryCode'),
+        this.utils.getNonEditableColumnDef('common.form.type', 'territoryTypeName'),
+        this.utils.getNonEditableDateColumnDef('common.form.created', 'createdDate'),
         this.utils.getStatusColumnDef()
       ])
       .withRelationsOrder('territoryName')
@@ -450,9 +477,9 @@ export class TaskBasicFormComponent extends BaseFormComponent<TaskProjection> {
     return DataTableDefinition.builder<TaskParameter, TaskParameter>(this.dialog, this.errorHandler, this.loadingService)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
-        Object.assign(this.utils.getEditableColumnDef('common.form.name', 'name'), {flex: 2, minWidth: 140}),
-        Object.assign(this.utils.getNonEditableColumnDef('common.form.type', 'type'), {flex: 0, minWidth: 100}),
-        Object.assign(this.utils.getEditableColumnDef('common.form.value', 'value'), {flex: 2, minWidth: 160}),
+        this.utils.getEditableColumnDef('common.form.name', 'name'),
+        this.utils.getNonEditableColumnDef('common.form.type', 'type'),
+        this.utils.getEditableColumnDef('common.form.value', 'value', 300, 500),
         this.utils.getStatusColumnDef()])
       .withRelationsOrder('name')
       .withRelationsFetcher(() => {

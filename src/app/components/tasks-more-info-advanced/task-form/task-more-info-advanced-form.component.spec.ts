@@ -1,6 +1,10 @@
+import {ChangeDetectorRef} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
 import {FormControl} from '@angular/forms';
+
 import {of, throwError} from 'rxjs';
+
+import {LanguageService} from '@app/domain/translation/services/language.service';
 
 import {TaskMoreInfoAdvancedFormComponent} from './task-more-info-advanced-form.component';
 
@@ -15,7 +19,22 @@ describe('TaskMoreInfoAdvancedFormComponent', () => {
   };
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
+    TestBed.configureTestingModule({
+      providers: [
+        {
+          provide: ChangeDetectorRef,
+          useValue: {markForCheck: jest.fn(), detectChanges: jest.fn()},
+        },
+        {
+          provide: LanguageService,
+          useValue: {
+            applyLanguagesToUse: (languages: unknown[]) => languages,
+            fetchAllItems: () => of([]),
+            languagesToUse$: of([]),
+          },
+        },
+      ],
+    });
 
     const translateService = createSpyObj(['instant', 'get']);
     translateService.instant.mockImplementation((key: string) => key);
@@ -46,13 +65,13 @@ describe('TaskMoreInfoAdvancedFormComponent', () => {
       createSpyObj(['navigate']) as any,
       createSpyObj(['show', 'hide']) as any,
       createSpyObj(['enable', 'disable']) as any,
-      createSpyObj(['create', 'update', 'getProjection', 'getAllProjection', 'createProxy']) as any,
-      createSpyObj(['getAllEx']) as any,
-      createSpyObj(['getAllEx', 'createProxy']) as any,
-      createSpyObj(['getAll']) as any,
+      createSpyObj(['create', 'update', 'fetchProjectionById', 'fetchAllProjectionItems', 'createProxy']) as any,
+      createSpyObj(['fetchAllRawItems']) as any,
+      createSpyObj(['fetchAllRawItems', 'createProxy']) as any,
+      createSpyObj(['fetchAllRawItems']) as any,
       utilsService as any,
-      createSpyObj(['getAll']) as any,
-      createSpyObj(['getAllProjection', 'createProxy']) as any,
+      createSpyObj(['fetchAllRawItems']) as any,
+      createSpyObj(['fetchAllProjectionItems', 'createProxy']) as any,
       createSpyObj(['create', 'delete', 'createProxy']) as any
     ));
   });

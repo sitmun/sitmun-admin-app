@@ -1,7 +1,7 @@
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
@@ -16,6 +16,7 @@ import {
   CodeListService, RoleService, TaskAvailabilityService, TaskService,
   TerritoryService, TranslationService, TaskUIService, TaskTypeService, TaskGroupService
 } from '@app/domain';
+import { TaskProjection } from '@app/domain/task/models/task.model';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
 import { MaterialModule } from '@app/material-module';
 import { LoggerService } from '@app/services/logger.service';
@@ -110,5 +111,23 @@ describe('TaskBasicFormComponent', () => {
       expect(table.supportsDuplicate()).toBe(true);
       expect(table.hasPickerAdd()).toBe(false);
     });
+  });
+
+  it('adds an empty parameters array on createObject when properties are empty', () => {
+    const component = Object.create(TaskBasicFormComponent.prototype) as TaskBasicFormComponent;
+    component.entityToEdit = TaskProjection.fromObject({
+      id: null,
+      name: 'basic',
+      properties: null
+    });
+    component.entityForm = new FormGroup({
+      name: new FormControl('basic'),
+      uiId: new FormControl(16),
+      taskGroupId: new FormControl(1)
+    });
+
+    const result = component.createObject();
+
+    expect(result.properties?.parameters).toEqual([]);
   });
 });

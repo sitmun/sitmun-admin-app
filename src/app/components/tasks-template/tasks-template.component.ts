@@ -3,18 +3,19 @@ import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { TranslateService } from '@ngx-translate/core';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, of } from 'rxjs';
 
 import { BaseListComponent } from '@app/components/base-list.component';
 import { EntityListConfig } from '@app/components/shared/entity-list';
 import { Configuration } from '@app/core/config/configuration';
-import { HalOptions, HalParam } from '@app/core/hal';
+import { createPagedInfiniteFetcher } from '@app/core/hal';
+import { INFINITE_PAGE_SIZE_DEFAULT } from '@app/core/hal/infinite-page-size';
 import { CodeListService, Task, TaskService, TranslationService } from '@app/domain';
 import { ErrorHandlerService } from '@app/services/error-handler.service';
 import { LoadingOverlayService } from '@app/services/loading-overlay.service';
 import { LoggerService } from '@app/services/logger.service';
 import { UtilsService } from '@app/services/utils.service';
-import { config } from '@config';
+import { magic } from '@environments/constants';
 
 @Component({
   selector: 'app-tasks-template',
@@ -28,14 +29,17 @@ export class TasksTemplateComponent extends BaseListComponent<Task> {
     iconName: Configuration.TASK_TEMPLATE.icon,
     font: Configuration.TASK_TEMPLATE.font,
     columnDefs: [],
-    dataFetchFn: () => {
-      const params: HalParam[] = [{ key: 'type.id', value: config.tasksTypes.template }];
-      const query: HalOptions = { params };
-      return this.taskService.getAll(query, undefined, 'tasks');
-    },
+    dataFetchFn: () => of([]),
+    rowModelMode: 'infinite',
+    pageSize: INFINITE_PAGE_SIZE_DEFAULT,
+    infiniteGridHeight: '80vh',
+    infiniteBlockFetcher: createPagedInfiniteFetcher(this.taskService, {
+      params: [{ key: 'typeId', value: magic.taskTemplateTypeId }],
+    }),
+    progressiveLocalFilter: false,
+    backendSearch: true,
     defaultColumnSorting: ['name'],
     gridOptions: {
-      globalSearch: true,
       discardChangesButton: false,
       redoButton: false,
       undoButton: false,
@@ -77,19 +81,22 @@ export class TasksTemplateComponent extends BaseListComponent<Task> {
   override async postFetchData(): Promise<void> {
     this.entityListConfig.columnDefs = [
       this.utils.getSelCheckboxColumnDef(),
-      this.utils.getRouterLinkColumnDef('common.form.name', 'name', `taskTemplate/:id/${config.tasksTypes.template}`, { id: 'id' }),
+      this.utils.getRouterLinkColumnDef(
+        'common.form.name',
+        'name',
+        `taskTemplate/:id/${magic.taskTemplateTypeId}`,
+        { id: 'id' },
+      ),
     ];
   }
 
   override async newData() {
-    await this.router.navigate(['taskTemplate', -1, config.tasksTypes.template]);
+    await this.router.navigate(['taskTemplate', -1, magic.taskTemplateTypeId]);
   }
 
   override async duplicateItem(id: number) {
-    await this.router.navigate(['taskTemplate', -1, config.tasksTypes.template, id]);
+    await this.router.navigate(['taskTemplate', -1, magic.taskTemplateTypeId, id]);
   }
-
-  override dataFetchFn = () => this.taskService.getAll();
 
   override dataUpdateFn = (data: Task) => firstValueFrom(this.taskService.update(data));
 

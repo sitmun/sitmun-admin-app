@@ -1,3 +1,4 @@
+import { ChangeDetectorRef } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -6,8 +7,10 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 
-import { TaskTemplateFormComponent } from './task-template-form.component';
+import { LanguageService } from '@app/domain/translation/services/language.service';
 import { magic } from '@environments/constants';
+
+import { TaskTemplateFormComponent } from './task-template-form.component';
 
 describe('TaskTemplateFormComponent', () => {
   let component: TaskTemplateFormComponent;
@@ -35,6 +38,20 @@ describe('TaskTemplateFormComponent', () => {
             }),
           },
         }),
+      ],
+      providers: [
+        {
+          provide: ChangeDetectorRef,
+          useValue: { markForCheck: jest.fn(), detectChanges: jest.fn() },
+        },
+        {
+          provide: LanguageService,
+          useValue: {
+            applyLanguagesToUse: (languages: unknown[]) => languages,
+            fetchAllItems: () => of([]),
+            languagesToUse$: of([]),
+          },
+        },
       ],
     });
 
@@ -78,12 +95,12 @@ describe('TaskTemplateFormComponent', () => {
       createSpyObj(['navigate']) as any,
       createSpyObj(['show', 'hide']) as any,
       createSpyObj(['enable', 'disable']) as any,
-      createSpyObj(['create', 'update', 'getProjection']) as any,
-      createSpyObj(['getAllEx']) as any,
-      createSpyObj(['getAllEx', 'createProxy']) as any,
+      createSpyObj(['create', 'update', 'fetchProjectionById']) as any,
+      createSpyObj(['fetchAllRawItems']) as any,
+      createSpyObj(['fetchAllRawItems', 'createProxy']) as any,
       createSpyObj(['create', 'delete']) as any,
-      createSpyObj(['getAll']) as any,
-      createSpyObj(['getAllProjection', 'createProxy']) as any,
+      createSpyObj(['fetchAllRawItems']) as any,
+      createSpyObj(['fetchAllProjectionItems', 'createProxy']) as any,
       createSpyObj(['create', 'delete', 'createProxy']) as any,
       previewService as any,
       notificationService as any,

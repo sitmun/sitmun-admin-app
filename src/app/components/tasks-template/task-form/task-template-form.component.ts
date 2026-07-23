@@ -45,9 +45,9 @@ import { LoadingOverlayService } from '@app/services/loading-overlay.service';
 import { LoggerService } from '@app/services/logger.service';
 import { NotificationService } from '@app/services/notification.service';
 import { UtilsService } from '@app/services/utils.service';
+import { config } from '@config';
 import { magic } from '@environments/constants';
 import { environment } from '@environments/environment';
-import { config } from '@config';
 
 import { QueryExecutionCardComponent, TemplateChildTaskLink } from '../query-execution-card/query-execution-card.component';
 import { TemplateValidationResult } from '../template-editor/template-html-validator.service';
@@ -193,8 +193,8 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
     }
 
     const [taskTypes, taskGroups] = await Promise.all([
-      firstValueFrom(this.taskTypeService.getAllEx()),
-      firstValueFrom(this.taskGroupService.getAllEx()),
+      firstValueFrom(this.taskTypeService.fetchAllRawItems()),
+      firstValueFrom(this.taskGroupService.fetchAllRawItems()),
     ]);
 
     this.taskType = taskTypes.find((taskType) => taskType.id === typeId) ?? null;
@@ -209,8 +209,8 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
     const queryTaskOptions = { params: [{ key: 'type.id', value: magic.taskQueryTypeId }] };
     const templateTaskOptions = { params: [{ key: 'type.id', value: magic.taskTemplateTypeId }] };
     const [queryTasks, templateTasks] = await Promise.all([
-      firstValueFrom(this.taskService.getAllProjection(TaskProjection, queryTaskOptions, undefined, 'tasks')),
-      firstValueFrom(this.taskService.getAllProjection(TaskProjection, templateTaskOptions, undefined, 'tasks')),
+      firstValueFrom(this.taskService.fetchAllProjectionItems(TaskProjection, queryTaskOptions, undefined, 'tasks')),
+      firstValueFrom(this.taskService.fetchAllProjectionItems(TaskProjection, templateTaskOptions, undefined, 'tasks')),
     ]);
 
     [...queryTasks, ...templateTasks].forEach((task) => this.taskLookup.set(task.id, task));
@@ -234,12 +234,12 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
   }
 
   override fetchOriginal(): Promise<TaskProjection> {
-    return firstValueFrom(this.taskService.getProjection(TaskProjection, this.entityID));
+    return firstValueFrom(this.taskService.fetchProjectionById(TaskProjection, this.entityID));
   }
 
   override fetchCopy(): Promise<TaskProjection> {
     return firstValueFrom(
-      this.taskService.getProjection(TaskProjection, this.duplicateID).pipe(
+      this.taskService.fetchProjectionById(TaskProjection, this.duplicateID).pipe(
         map((copy: TaskProjection) => {
           copy.name = this.translateService.instant('copy_') + copy.name;
           return copy;
@@ -1031,7 +1031,7 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
         this.utils.getNonEditableColumnDef('common.form.description', 'description'),
       ])
       .withTargetsOrder('name')
-      .withTargetsFetcher(() => this.roleService.getAll())
+      .withTargetsFetcher(() => this.roleService.fetchAllItems())
       .withTargetsTitle(this.translateService.instant('entity.task.roles.title'))
       .build();
   }
@@ -1072,7 +1072,7 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
         this.utils.getNonEditableColumnDef('common.form.type', 'typeName'),
       ])
       .withTargetsOrder('name')
-      .withTargetsFetcher(() => this.territoryService.getAllProjection(TerritoryProjection))
+      .withTargetsFetcher(() => this.territoryService.fetchAllProjectionItems(TerritoryProjection))
       .withTargetInclude((availabilities: TaskAvailabilityProjection[]) => (item: TerritoryProjection) => {
         return !availabilities.some((availability) => availability.territoryId === item.id);
       })

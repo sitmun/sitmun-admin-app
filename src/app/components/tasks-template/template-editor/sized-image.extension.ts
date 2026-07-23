@@ -1,5 +1,5 @@
-import Image from '@tiptap/extension-image';
 import { mergeAttributes } from '@tiptap/core';
+import Image from '@tiptap/extension-image';
 import { NodeSelection } from '@tiptap/pm/state';
 
 export const SizedImageExtension = Image.extend({

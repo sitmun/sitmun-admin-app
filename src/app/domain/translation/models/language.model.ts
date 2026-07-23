@@ -35,3 +35,17 @@ export class Language extends Resource {
     return language;
   }
 }
+
+export function compareLanguagesByOrder(left: Language, right: Language): number {
+  const leftOrder = typeof left.order === 'number' ? left.order : Number.MAX_SAFE_INTEGER;
+  const rightOrder = typeof right.order === 'number' ? right.order : Number.MAX_SAFE_INTEGER;
+  if (leftOrder !== rightOrder) {
+    return leftOrder - rightOrder;
+  }
+  return (left.id ?? 0) - (right.id ?? 0);
+}
+
+export function sortLanguagesByOrder(languages: readonly Language[]): Language[] {
+  return [...languages].sort(compareLanguagesByOrder);
+}
+

@@ -397,6 +397,22 @@ export class Configuration {
   };
 
   /**
+   * Literal translations configuration
+   */
+  static readonly LITERAL_TRANSLATION: FormConfiguration = {
+    id: 'literalTranslations',
+    labelSingular: 'entity.literalTranslation.label',
+    labelPlural: 'entity.literalTranslation.plural',
+    icon: 'translate',
+    font: 'material-icons-round',
+    route: 'literalTranslations',
+    formRoute: '',
+    duplicateRoute: '',
+    component: 'LiteralTranslationsComponent',
+    formComponent: ''
+  };
+
+  /**
    * Territory type configuration
    */
   static readonly TERRITORY_TYPE: FormConfiguration = {
@@ -460,19 +476,6 @@ export class Configuration {
     formComponent: 'ConfigurationParameterFormComponent'
   };
 
-  static readonly LITERAL_TRANSLATION: FormConfiguration = {
-    id: 'literalTranslations',
-    labelSingular: 'entity.literalTranslation.label',
-    labelPlural: 'entity.literalTranslation.plural',
-    icon: 'translate',
-    font: 'material-icons-round',
-    route: 'literalTranslations',
-    formRoute: '',
-    duplicateRoute: '',
-    component: 'LiteralTranslationsComponent',
-    formComponent: ''
-  };
-
   /**
    * Get all form configurations as an array
    */
@@ -495,16 +498,14 @@ export class Configuration {
       Configuration.TASK_QUERY,
       Configuration.TASK_LOCATOR,
       Configuration.TASK_TEMPLATE,
-      Configuration.TASK_MORE_INFO,
-      Configuration.TASK_MORE_INFO_ADVANCED,
       Configuration.TASK_EDIT,
       Configuration.APPLICATION,
       Configuration.LANGUAGE,
+      Configuration.LITERAL_TRANSLATION,
       Configuration.TERRITORY_TYPE,
       Configuration.TASK_TYPE,
       Configuration.CODELIST_VALUE,
       Configuration.CONFIGURATION_PARAMETER
-       Configuration.LITERAL_TRANSLATION,
     ];
   }
 
