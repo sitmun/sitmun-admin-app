@@ -32,7 +32,7 @@
             <mat-hint align="end">{{entityForm.get('name') | characterCount}}</mat-hint>
             <mat-icon matSuffix class="iconTranslate"
                       (click)="onTranslated('name')"
-                      onKeyDown="onTranslated('name')">translate</mat-icon>
+                      (keydown)="onTranslated('name')">translate</mat-icon>
             <mat-error *ngIf="entityForm.get('name')?.hasError('required') && entityForm.get('name')?.touched">
               {{ 'common.error.required' | translate }}
             </mat-error>

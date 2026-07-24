@@ -43,13 +43,10 @@
             <mat-label>{{ 'common.form.name' | translate }} ({{ defaultLang }})</mat-label>
             <input matInput type="text" formControlName="name" [maxlength]="50" required>
             <mat-hint align="start">{{ 'entity.application.hint.name' | translate }}</mat-hint>
-            <mat-hint align="end" [class.text-warning]="entityForm.get('name')?.value?.length > 50">
-              {{entityForm.get('name') | characterCount}}
-              <mat-icon *ngIf="entityForm.get('name')?.value?.length > 50" fontIcon="warning" class="warning-icon"></mat-icon>
-            </mat-hint>
-          <mat-icon matSuffix class="iconTranslate"
+            <mat-hint align="end">{{entityForm.get('name') | characterCount}}</mat-hint>
+            <mat-icon matSuffix class="iconTranslate"
                       (click)="onTranslated('name')"
-                      onKeyDown="onTranslated('name')">translate</mat-icon>
+                      (keydown)="onTranslated('name')">translate</mat-icon>
           </mat-form-field>
           <mat-form-field appearance="outline" class="full sitmun-cartography-rich-hint-field" subscriptSizing="dynamic">
             <mat-label>{{ 'common.form.description' | translate }} ({{ defaultLang }})</mat-label>
@@ -58,7 +55,7 @@
               <mat-hint align="end">{{entityForm.get('description') | characterCount}}</mat-hint>
               <mat-icon matSuffix class="iconTranslate"
                       (click)="onTranslated('description')"
-                      onKeyDown="onTranslated('description')">translate</mat-icon>
+                      (keydown)="onTranslated('description')">translate</mat-icon>
           </mat-form-field>
           <div class="application-form-field-row application-form-field-row--two-col">
             <mat-form-field appearance="outline" class="half add-gap" subscriptSizing="dynamic">
@@ -146,7 +143,7 @@
             <textarea matInput type="text" formControlName="maintenanceInformation" [maxlength]="4000"></textarea>
             <mat-icon matSuffix class="iconTranslate"
                       (click)="onTranslated('maintenanceInformation')"
-                      onKeyDown="onTranslated('maintenanceInformation')">translate</mat-icon>
+                      (keydown)="onTranslated('maintenanceInformation')">translate</mat-icon>
             <mat-hint align="start">{{ 'entity.application.hint.maintenanceInformation' | translate }}</mat-hint>
             <mat-hint align="end">{{entityForm.get('maintenanceInformation') | characterCount}}</mat-hint>
           </mat-form-field>
@@ -180,7 +177,7 @@
             <input matInput type="text" formControlName="title" [maxlength]="250">
             <mat-icon matSuffix class="iconTranslate"
                       (click)="onTranslated('title')"
-                      onKeyDown="onTranslated('title')"
+                      (keydown)="onTranslated('title')"
                       >translate</mat-icon>
             <mat-hint align="start">{{ 'entity.application.hint.title' | translate }}</mat-hint>
             <mat-hint align="end">{{entityForm.get('title') | characterCount}}</mat-hint>

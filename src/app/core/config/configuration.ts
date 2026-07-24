@@ -246,10 +246,10 @@ export class Configuration {
     icon: 'sync',
     font: 'material-icons-round',
     route: 'tasks',
-    formRoute: ':id/:taskType',
+    formRoute: 'tasks/:id/:type',
     duplicateRoute: '',
     component: 'TasksComponent',
-    formComponent: 'TaskFormComponent'
+    formComponent: ''
   };
 
   /**
@@ -261,11 +261,11 @@ export class Configuration {
     labelPlural: 'entity.task.basic.label',
     icon: 'sync',
     font: 'material-icons-round',
-    route: 'tasks/basic',
-    formRoute: ':id/taskForm',
-    duplicateRoute: ':id/taskForm/:idDuplicate',
+    route: 'tasksBasic',
+    formRoute: 'taskBasic/:id/:type',
+    duplicateRoute: 'taskBasic/:id/:type/:idDuplicate',
     component: 'TasksBasicComponent',
-    formComponent: 'TaskFormComponent'
+    formComponent: 'TaskBasicFormComponent'
   };
 
   /**
@@ -277,11 +277,11 @@ export class Configuration {
     labelPlural: 'entity.task.query.label',
     icon: 'sync',
     font: 'material-icons-round',
-    route: 'tasks/query',
-    formRoute: ':id/taskForm',
-    duplicateRoute: ':id/taskForm/:idDuplicate',
+    route: 'tasksQuery',
+    formRoute: 'taskQuery/:id/:type',
+    duplicateRoute: 'taskQuery/:id/:type/:idDuplicate',
     component: 'TasksQueryComponent',
-    formComponent: 'TaskFormComponent'
+    formComponent: 'TaskQueryFormComponent'
   };
 
   /**
@@ -293,9 +293,9 @@ export class Configuration {
     labelPlural: 'entity.task.locator.label',
     icon: 'search',
     font: 'material-icons-round',
-    route: 'tasks/locator',
-    formRoute: ':id/taskForm',
-    duplicateRoute: ':id/taskForm/:idDuplicate',
+    route: 'tasksLocator',
+    formRoute: 'tasksLocator/:id/:type',
+    duplicateRoute: 'tasksLocator/:id/:type/:idDuplicate',
     component: 'TasksLocatorComponent',
     formComponent: 'TaskLocatorFormComponent'
   };
@@ -309,11 +309,11 @@ export class Configuration {
     labelPlural: 'entity.task.moreInfo.label',
     icon: 'task',
     font: 'material-icons-round',
-    route: 'tasks/moreInfo',
-    formRoute: ':id/taskForm',
-    duplicateRoute: ':id/taskForm/:idDuplicate',
+    route: 'tasksMoreInfo',
+    formRoute: 'tasksMoreInfo/:id/:type',
+    duplicateRoute: 'tasksMoreInfo/:id/:type/:idDuplicate',
     component: 'TasksMoreInfoComponent',
-    formComponent: 'TaskFormComponent'
+    formComponent: 'TaskMoreInfoFormComponent'
   };
 
   /**
@@ -325,11 +325,11 @@ export class Configuration {
     labelPlural: 'entity.task.template.label',
     icon: 'description',
     font: 'material-icons-round',
-    route: 'tasks/template',
-    formRoute: ':id/taskForm',
-    duplicateRoute: ':id/taskForm/:idDuplicate',
+    route: 'tasksTemplate',
+    formRoute: 'taskTemplate/:id/:type',
+    duplicateRoute: 'taskTemplate/:id/:type/:idDuplicate',
     component: 'TasksTemplateComponent',
-    formComponent: 'TaskFormComponent'
+    formComponent: 'TaskTemplateFormComponent'
   };
 
   /**
@@ -341,9 +341,9 @@ export class Configuration {
     labelPlural: 'entity.task.moreInfoAdvanced.label',
     icon: 'picture_as_pdf',
     font: 'material-icons-round',
-    route: 'tasks/moreInfoAdvanced',
-    formRoute: ':id/taskForm',
-    duplicateRoute: ':id/taskForm/:idDuplicate',
+    route: 'tasksMoreInfoAdvanced',
+    formRoute: 'tasksMoreInfoAdvanced/:id/:type',
+    duplicateRoute: 'tasksMoreInfoAdvanced/:id/:type/:idDuplicate',
     component: 'TasksMoreInfoAdvancedComponent',
     formComponent: 'TaskMoreInfoAdvancedFormComponent'
   };
@@ -357,11 +357,11 @@ export class Configuration {
     labelPlural: 'entity.task.edit.label',
     icon: 'sync',
     font: 'material-icons-round',
-    route: 'tasks/edit',
-    formRoute: ':id/taskForm',
-    duplicateRoute: ':id/taskForm/:idDuplicate',
+    route: 'tasksEdit',
+    formRoute: 'taskEdit/:id/:type',
+    duplicateRoute: 'taskEdit/:id/:type/:idDuplicate',
     component: 'TasksEditComponent',
-    formComponent: 'TaskFormComponent'
+    formComponent: 'TaskEditFormComponent'
   };
 
   /**
@@ -497,7 +497,9 @@ export class Configuration {
       Configuration.TASK_BASIC,
       Configuration.TASK_QUERY,
       Configuration.TASK_LOCATOR,
+      Configuration.TASK_MORE_INFO,
       Configuration.TASK_TEMPLATE,
+      Configuration.TASK_MORE_INFO_ADVANCED,
       Configuration.TASK_EDIT,
       Configuration.APPLICATION,
       Configuration.LANGUAGE,

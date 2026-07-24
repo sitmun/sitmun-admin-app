@@ -30,14 +30,10 @@
             <mat-label>{{ 'entity.service.title' | translate }} ({{ defaultLang }})</mat-label>
             <input matInput type="text" formControlName="name" [maxlength]="60" required>
             <mat-hint align="start">{{ 'entity.service.hint.name' | translate }}</mat-hint>
-            <mat-hint align="end" [class.text-warning]="entityForm.get('name')?.value?.length > 60">
-              {{ entityForm.get('name') | characterCount }}
-              <mat-icon *ngIf="entityForm.get('name')?.value?.length > 60" fontIcon="warning"
-                        class="warning-icon"></mat-icon>
-            </mat-hint>
+            <mat-hint align="end">{{ entityForm.get('name') | characterCount }}</mat-hint>
             <mat-icon matSuffix class="iconTranslate"
                       (click)="onTranslated('name')"
-                      onKeyDown="onTranslated('name')">translate</mat-icon>
+                      (keydown)="onTranslated('name')">translate</mat-icon>
           </mat-form-field>
           <mat-form-field appearance="outline" class="full sitmun-cartography-rich-hint-field" subscriptSizing="dynamic">
             <mat-label>{{ 'entity.service.description' | translate }} ({{ defaultLang }})</mat-label>
@@ -46,7 +42,7 @@
             <mat-hint align="end">{{ entityForm.get('description') | characterCount }}</mat-hint>
             <mat-icon matSuffix class="iconTranslate"
                       (click)="onTranslated('description')"
-                      onKeyDown="onTranslated('description')">translate</mat-icon>
+                      (keydown)="onTranslated('description')">translate</mat-icon>
           </mat-form-field>
           <div class="sitmun-toggle-row">
             <mat-slide-toggle color="primary" formControlName="blocked">
@@ -236,8 +232,7 @@
         <mat-form-field appearance="outline" class="full">
           <mat-label>{{ 'common.form.name' | translate }}</mat-label>
           <input matInput type="text" formControlName="name" required [maxlength]="50">
-          <mat-hint
-            align="end">{{ parametersTable.templateDialog('newParameterDialog').form.get('name') | characterCount }}
+          <mat-hint align="end">{{ parametersTable.templateDialog('newParameterDialog').form.get('name') | characterCount }}
           </mat-hint>
         </mat-form-field>
         <mat-form-field appearance="outline" class="full">
@@ -252,8 +247,7 @@
         <mat-form-field appearance="outline" class="full">
           <mat-label>{{ 'common.form.value' | translate }}</mat-label>
           <input matInput type="text" formControlName="value" [maxlength]="250">
-          <mat-hint
-            align="end">{{ parametersTable.templateDialog('newParameterDialog').form.get('value') | characterCount }}
+          <mat-hint align="end">{{ parametersTable.templateDialog('newParameterDialog').form.get('value') | characterCount }}
           </mat-hint>
         </mat-form-field>
       </mat-card-content>

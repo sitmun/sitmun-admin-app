@@ -103,9 +103,6 @@
                 <mat-error *ngIf="entityForm?.get('email')?.hasError('email')">
                   {{ 'common.error.invalidEmail' | translate }}
                 </mat-error>
-                <mat-error *ngIf="entityForm?.get('email')?.hasError('pattern')">
-                  {{ 'common.error.invalidEmailFormat' | translate }}
-                </mat-error>
               </mat-form-field>
             </mat-card-content>
           </mat-card>

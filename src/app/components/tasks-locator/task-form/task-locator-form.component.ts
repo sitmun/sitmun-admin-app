@@ -92,6 +92,7 @@ export class TaskLocatorFormComponent extends BaseFormComponent<TaskProjection> 
   protected filteredQueryTasks = of<TaskProjection[]>([]);
   protected queryTaskErrorMatcher = new QueryTaskErrorStateMatcher();
 
+  protected readonly queryTaskTypeId = magic.taskQueryTypeId;
   protected validationFieldLabels: Record<string, string> = {
     'name': 'entity.task.locator.name',
     'taskGroupId': 'entity.taskGroup.label',
@@ -176,7 +177,7 @@ export class TaskLocatorFormComponent extends BaseFormComponent<TaskProjection> 
 
   override fetchCopy(): Promise<TaskProjection> {
     return firstValueFrom(this.taskService.fetchProjectionById(TaskProjection, this.duplicateID).pipe(map((copy: TaskProjection) => {
-      copy.name = this.translateService.instant("copy_") + copy.name;
+      copy.name = this.translateService.instant('common.copyPrefix') + copy.name;
       return copy;
     })));
   }
@@ -514,7 +515,7 @@ export class TaskLocatorFormComponent extends BaseFormComponent<TaskProjection> 
       .withTargetsOrder('name')
       .withTargetsFetcher(() => this.roleService.fetchAllItems())
       .withTargetToRelation((items) => items)
-      .withTargetsTitle(this.translateService.instant('entity.task.roles.title'))
+      .withTargetsTitle('entity.task.roles.title')
       .build();
   }
 
@@ -561,7 +562,7 @@ export class TaskLocatorFormComponent extends BaseFormComponent<TaskProjection> 
       .withTargetToRelation((items: TerritoryProjection[]) => {
         return items.map(item => TaskAvailabilityProjection.of(this.entityToEdit, item));
       })
-      .withTargetsTitle(this.translateService.instant('entity.task.territories.title'))
+      .withTargetsTitle('entity.task.territories.title')
       .withTargetsOrder('name')
       .build();
   }

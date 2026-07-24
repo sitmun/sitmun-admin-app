@@ -768,6 +768,22 @@ describe('LayersFormComponent', () => {
       expect(filterDialog).toContain('mat-slide-toggle color="primary" formControlName="required"');
       expect(filterDialog).not.toContain('mat-checkbox formControlName="required"');
     });
+
+    it('scopes the Details entity form and keeps Territories on app-relation-grid', () => {
+      const detailsTab = layersFormTemplate.match(
+        /label="\{\{ 'common\.form\.details' \| translate \}\}"[\s\S]*?(?=<mat-tab label="\{\{ 'entity\.cartography\.territories)/,
+      )?.[0] ?? '';
+      const territoriesTab = layersFormTemplate.match(
+        /entity\.cartography\.territories\.header[\s\S]*?<\/mat-tab>/,
+      )?.[0] ?? '';
+
+      expect(detailsTab).toContain('<form');
+      expect(detailsTab).toContain('sitmun-cartography-form-entity');
+      expect(detailsTab).toContain('related-entity-open-link');
+      expect(detailsTab).toContain("['/service', serviceId, 'serviceForm']");
+      expect(territoriesTab).toContain('app-relation-grid');
+      expect(territoriesTab).not.toContain('sitmun-cartography-form-entity');
+    });
   });
 
   describe('grid boolean column sizing', () => {

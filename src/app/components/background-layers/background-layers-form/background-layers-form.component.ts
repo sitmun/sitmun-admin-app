@@ -324,7 +324,7 @@ export class BackgroundLayersFormComponent extends BaseFormComponent<BackgroundP
       .withTargetInclude((relations) => (target) =>
         !relations.some((relation) => relation.id === target.id)
       )
-      .withTargetsTitle('entity.permissionGroup.roles.title')
+      .withTargetsTitle('entity.background.roles.title')
       .withTargetToRelation((items) => items)
       .build();
   }
@@ -379,7 +379,7 @@ export class BackgroundLayersFormComponent extends BaseFormComponent<BackgroundP
       .withTargetInclude((applicationBackgrounds: (ApplicationBackgroundProjection)[]) =>
         (item: ApplicationProjection) => !applicationBackgrounds.some((applicationBackground) => applicationBackground.applicationId === item.id))
       .withTargetToRelation((items: ApplicationProjection[]) => items.map(item => ApplicationBackgroundProjection.of(item, this.entityToEdit, 0)))
-      .withTargetsTitle('entity.permissionGroup.applications.title')
+      .withTargetsTitle('entity.background.applications.title')
       .withTargetsOrder('name')
       .build();
   }
@@ -426,7 +426,7 @@ export class BackgroundLayersFormComponent extends BaseFormComponent<BackgroundP
       .withTargetInclude((cartographies: (CartographyProjection & Status)[]) => (item: CartographyProjection) => {
         return !cartographies.some((cartography) => cartography.id === item.id);
       })
-      .withTargetsTitle('entity.permissionGroup.layers.title')
+      .withTargetsTitle('entity.background.layers.title')
       .withTargetToRelation((items) => items)
       .build();
   }

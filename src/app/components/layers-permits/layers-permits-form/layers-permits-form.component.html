@@ -27,11 +27,15 @@
       <mat-card-content>
         <mat-form-field appearance="outline" class="full">
           <mat-label>{{ 'common.form.name' | translate }}</mat-label>
-          <input matInput type="text" formControlName="name" required>
+          <input matInput type="text" formControlName="name" [maxlength]="50" required>
+          <mat-hint align="end">{{entityForm.get('name') | characterCount}}</mat-hint>
+          <mat-error *ngIf="entityForm.get('name')?.hasError('required') && entityForm.get('name')?.touched">
+            {{ 'common.error.required' | translate }}
+          </mat-error>
         </mat-form-field>
         <mat-form-field appearance="outline" class="quarter">
           <mat-label>{{ 'common.form.type' | translate }}</mat-label>
-          <mat-select formControlName="type" class="form-control">
+          <mat-select formControlName="type" class="form-control" required>
             <mat-option [value]="permissionGroupType.value" *ngFor="let permissionGroupType of permissionGroupTypes">
               {{permissionGroupType.description}}
             </mat-option>
@@ -41,18 +45,26 @@
     </mat-card>
   </form>
   </mat-tab>
-  <mat-tab label=" {{ 'entity.permissionGroup.layers.header' | translate }}">
-    <app-relation-grid
-      *ngIf="dataLoaded"
-      [table]="membersTable"
-      [allNewElements]="isNewOrDuplicated()">
-    </app-relation-grid>
+  <mat-tab label="{{ 'entity.permissionGroup.layers.header' | translate }}">
+    <mat-card class="sitmun-mat-card-margin" appearance="outlined">
+      <mat-card-content>
+        <app-relation-grid
+          *ngIf="dataLoaded"
+          [table]="membersTable"
+          [allNewElements]="isNewOrDuplicated()">
+        </app-relation-grid>
+      </mat-card-content>
+    </mat-card>
   </mat-tab>
   <mat-tab label="{{ 'entity.permissionGroup.roles.header' | translate }}">
-    <app-relation-grid
-      *ngIf="dataLoaded"
-      [table]="rolesTable"
-      [allNewElements]="isNewOrDuplicated()">
-    </app-relation-grid>
+    <mat-card class="sitmun-mat-card-margin" appearance="outlined">
+      <mat-card-content>
+        <app-relation-grid
+          *ngIf="dataLoaded"
+          [table]="rolesTable"
+          [allNewElements]="isNewOrDuplicated()">
+        </app-relation-grid>
+      </mat-card-content>
+    </mat-card>
   </mat-tab>
 </mat-tab-group>

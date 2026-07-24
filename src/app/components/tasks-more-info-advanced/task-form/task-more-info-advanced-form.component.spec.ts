@@ -388,6 +388,12 @@ describe('TaskMoreInfoAdvancedFormComponent', () => {
     expect(rebuiltNestedTemplateView.expanded).toBe(false);
   });
 
+  it('builds deep task form links from id and typeId', () => {
+    expect(component.getTaskFormLink({id: 42, typeId: 16} as any)).toEqual(['/tasks', 42, 16]);
+    expect(component.getTaskFormLink({id: 42} as any)).toBeNull();
+    expect(component.getTaskFormLink({typeId: 16} as any)).toBeNull();
+  });
+
   it('prunes stale direct and nested mappings when saving parameters from the grid', async () => {
     setupForm({
       childTaskOrderIds: [queryTask.id, templateTask.id],

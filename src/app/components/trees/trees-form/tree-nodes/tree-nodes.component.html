@@ -64,11 +64,7 @@
                         *ngIf="hasNodeSelection">
                         <mat-label>{{ 'entity.tree.name' | translate }} ({{ defaultLang }})</mat-label>
                         <input matInput type="text" formControlName="name" [maxlength]="80">
-                        <mat-hint align="end" [class.text-warning]="treeNodeForm.get('name')?.value?.length > 80">
-                          {{ treeNodeForm.get('name') | characterCount }}
-                          <mat-icon *ngIf="treeNodeForm.get('name')?.value?.length > 80" fontIcon="warning"
-                            class="warning-icon"></mat-icon>
-                        </mat-hint>
+                        <mat-hint align="end">{{ treeNodeForm.get('name') | characterCount }}</mat-hint>
                         <mat-icon matSuffix class="iconTranslate" (click)="onTreeNodeNameTranslationButtonClicked()"
                           matTooltip="{{ 'common.translate' | translate }}">translate</mat-icon>
                         <mat-error *ngIf="treeNodeForm.get('name')?.hasError('required')">

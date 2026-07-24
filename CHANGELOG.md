@@ -20,6 +20,7 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Fixed
 
+- **Forms**: restore modified-field highlight (`.input-modified` green background emptied by a prior SCSS prune); wire translate icon `(keydown)` where native `onKeyDown` never fired.
 - **Trees**: Field configuration no longer persists null `calculated` / `multilanguage` after dialog reset; Label fields keep the default `Extra info` value across dialog close ([#432](https://github.com/sitmun/sitmun-admin-app/issues/432)).
 - **Languages**: translation dialog Accept stays disabled until a value changes; accepting without edits no longer marks the parent form as having unsaved changes.
 - **Languages**: toolbar/login selectors subscribe to `LanguageService.languagesToUse$` so enable/order saves refresh the chrome menu without reload.
@@ -64,6 +65,7 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Changed
 
+- **Forms**: remove unreachable character-limit warning icons when HTML maxlength already enforces the bound; keep character counts; remove dead email `pattern` error branch; prune unused global status/form CSS.
 - **Query tasks**: save is blocked when command `#{param}` placeholders are undeclared (operators must declare matching parameters).
 - **Trees**: align tree node display options with backend semantics — `visible` controls catalog visibility, `active` controls load-by-default on cartography leaves; radio folder toggle is limited to cartography trees via config capability.
 - **Auth**: `authGuard` reloads account identity with credentials, preserves cached identity on transient failures, and warns valid non-admin users that administrator rights are required.

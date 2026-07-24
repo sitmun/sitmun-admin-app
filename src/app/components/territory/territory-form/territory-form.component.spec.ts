@@ -1,3 +1,6 @@
+import {readFileSync} from 'fs';
+import {join} from 'path';
+
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import {ComponentFixture, TestBed} from '@angular/core/testing';
@@ -36,6 +39,11 @@ import {LoggerService} from '@app/services/logger.service';
 import {configureLoggerForTests, provideErrorHandlerForTests} from '@app/testing/test-helpers';
 
 import {TerritoryFormComponent} from './territory-form.component';
+
+const territoryFormTemplate = readFileSync(
+  join(__dirname, 'territory-form.component.html'),
+  'utf8',
+);
 
 describe('TerritoryFormComponent', () => {
   let component: TerritoryFormComponent;
@@ -1084,6 +1092,14 @@ describe('TerritoryFormComponent', () => {
 
     it('membersTable has picker add enabled', () => {
       expect(component.membersTable.hasPickerAdd()).toBe(true);
+    });
+  });
+
+  describe('template markup', () => {
+    it('exposes open-in-new for territory type', () => {
+      expect(territoryFormTemplate).toContain('related-entity-open-link');
+      expect(territoryFormTemplate).toContain("['/territoryType', typeId, 'territoryTypeForm']");
+      expect(territoryFormTemplate).toContain('target="_blank"');
     });
   });
 });

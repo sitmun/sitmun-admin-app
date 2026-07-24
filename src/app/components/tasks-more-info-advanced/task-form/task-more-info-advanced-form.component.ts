@@ -167,8 +167,8 @@ export class TaskMoreInfoAdvancedFormComponent extends BaseFormComponent<TaskPro
   protected filteredAvailableTasks: Observable<TaskProjection[]> = of([]);
 
   protected readonly parentLayouts: Array<{ value: string, key: string }> = [
-    {value: 'tabs', key: 'tasksMoreInfoAdvancedEntity.parentLayout.tabs'},
-    {value: 'scroll', key: 'tasksMoreInfoAdvancedEntity.parentLayout.scroll'}
+    {value: 'tabs', key: 'entity.task.moreInfoAdvanced.parentLayout.tabs'},
+    {value: 'scroll', key: 'entity.task.moreInfoAdvanced.parentLayout.scroll'}
   ];
 
   protected readonly trackTaskById = (_index: number, task: TaskProjection): number => task.id;
@@ -179,9 +179,10 @@ export class TaskMoreInfoAdvancedFormComponent extends BaseFormComponent<TaskPro
   private readonly maxTemplateNestingDepth = 6;
 
   protected validationFieldLabels: Record<string, string> = {
-    'name': 'entity.task.label',
-    'taskGroupId': 'tasksMoreInfoAdvancedEntity.taskGroup',
-    'cartographyId': 'tasksMoreInfoAdvancedEntity.cartography'
+    'name': 'entity.task.moreInfoAdvanced.taskName',
+    'taskGroupId': 'entity.task.moreInfoAdvanced.taskGroup',
+    'cartographyId': 'entity.task.moreInfoAdvanced.cartography',
+    'parentLayout': 'entity.task.moreInfoAdvanced.parentLayout'
   };
 
   constructor(
@@ -272,6 +273,7 @@ export class TaskMoreInfoAdvancedFormComponent extends BaseFormComponent<TaskPro
         nonNullable: true
       }),
       parentLayout: new FormControl(properties.parentLayout || 'tabs', {
+        validators: [Validators.required],
         nonNullable: true
       })
     });
@@ -575,6 +577,17 @@ export class TaskMoreInfoAdvancedFormComponent extends BaseFormComponent<TaskPro
 
   getTaskTypeName(task: TaskProjection): string {
     return task.typeName || this.translateService.instant('common.form.unknown');
+  }
+
+  getTaskGroupName(taskGroupId: number): string {
+    return this.taskGroups.find(group => group.id === taskGroupId)?.name || '';
+  }
+
+  getTaskFormLink(task: TaskProjection): (string | number)[] | null {
+    if (!task?.id || task.typeId == null) {
+      return null;
+    }
+    return ['/tasks', task.id, task.typeId];
   }
 
   // --- Private helpers ---
@@ -1136,7 +1149,8 @@ export class TaskMoreInfoAdvancedFormComponent extends BaseFormComponent<TaskPro
       ])
       .withTargetsOrder('name')
       .withTargetsFetcher(() => this.roleService.fetchAllItems())
-      .withTargetsTitle(this.translateService.instant('entity.task.roles.title'))
+      .withTargetToRelation((items) => items)
+      .withTargetsTitle('entity.task.roles.title')
       .build();
   }
 
@@ -1183,7 +1197,7 @@ export class TaskMoreInfoAdvancedFormComponent extends BaseFormComponent<TaskPro
       .withTargetToRelation((items: TerritoryProjection[]) => {
         return items.map(item => TaskAvailabilityProjection.of(this.entityToEdit, item));
       })
-      .withTargetsTitle(this.translateService.instant('entity.task.territories.title'))
+      .withTargetsTitle('entity.task.territories.title')
       .build();
   }
 }
