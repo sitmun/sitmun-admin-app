@@ -3,7 +3,7 @@
   font="{{ config.font }}"
   icon="{{ config.icon }}"
   [itemName]="entityForm?.get('name')?.value"
-  [isNew]="isNew()"
+  [isNew]="isNewOrDuplicated()"
   [additionalText]="taskTypeNameTranslated"
   [canSave]="canSaveEntity"
   [dataLoaded]="dataLoaded"
@@ -30,14 +30,10 @@
           <mat-form-field appearance="outline" class="full">
             <mat-label>{{ 'common.form.name' | translate }} ({{ defaultLang }})</mat-label>
             <input matInput type="text" formControlName="name" [maxlength]="512" required>
-            <mat-hint align="end" [class.text-warning]="entityForm.get('name')?.value?.length > 512">
-              {{ entityForm.get('name') | characterCount }}
-              <mat-icon *ngIf="entityForm.get('name')?.value?.length > 512" fontIcon="warning"
-                        class="warning-icon"></mat-icon>
-            </mat-hint>
+            <mat-hint align="end">{{ entityForm.get('name') | characterCount }}</mat-hint>
             <mat-icon matSuffix class="iconTranslate"
                       (click)="onTranslated('name')"
-                      onKeyDown="onTranslated('name')">translate</mat-icon>
+                      (keydown)="onTranslated('name')">translate</mat-icon>
           </mat-form-field>
           <mat-form-field appearance="outline" class="half add-gap"
                           [matTooltip]="getUIName(entityForm.get('uiId')?.value)"
@@ -51,6 +47,17 @@
                 {{ ui.tooltip || ui.name }}
               </mat-option>
             </mat-select>
+            <a *ngIf="entityForm.get('uiId')?.value as uiId"
+               mat-icon-button
+               matSuffix
+               class="related-entity-open-link"
+               [routerLink]="['/task-ui', uiId, 'taskUIForm']"
+               target="_blank"
+               rel="noopener"
+               [matTooltip]="'common.relation.openNewTab' | translate"
+               [attr.aria-label]="'common.relation.openNewTab' | translate">
+              <mat-icon class="related-entity-link-icon">open_in_new</mat-icon>
+            </a>
           </mat-form-field>
           <mat-form-field appearance="outline" class="half">
             <mat-label>{{ 'entity.taskGroup.label' | translate }}</mat-label>

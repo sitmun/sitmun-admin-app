@@ -328,6 +328,15 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
     return this.taskGroupList.find((group) => group.id === taskGroupId)?.name || '';
   }
 
+  protected getLinkedTaskFormLink(linkedTask: LinkedTemplateTask): (string | number)[] | null {
+    if (!linkedTask?.taskId) {
+      return null;
+    }
+    const typeId = this.taskLookup.get(linkedTask.taskId)?.typeId
+      ?? (linkedTask.relationType === 'template-nested' ? magic.taskTemplateTypeId : magic.taskQueryTypeId);
+    return ['/tasks', linkedTask.taskId, typeId];
+  }
+
   protected displayLinkableTask(task: LinkableTemplateTask | string): string {
     if (typeof task === 'string') {
       return task;
@@ -1032,7 +1041,8 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
       ])
       .withTargetsOrder('name')
       .withTargetsFetcher(() => this.roleService.fetchAllItems())
-      .withTargetsTitle(this.translateService.instant('entity.task.roles.title'))
+      .withTargetToRelation((items) => items)
+      .withTargetsTitle('entity.task.roles.title')
       .build();
   }
 
@@ -1077,7 +1087,7 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
         return !availabilities.some((availability) => availability.territoryId === item.id);
       })
       .withTargetToRelation((items: TerritoryProjection[]) => items.map((item) => TaskAvailabilityProjection.of(this.entityToEdit, item)))
-      .withTargetsTitle(this.translateService.instant('entity.task.territories.title'))
+      .withTargetsTitle('entity.task.territories.title')
       .withTargetsOrder('name')
       .build();
   }

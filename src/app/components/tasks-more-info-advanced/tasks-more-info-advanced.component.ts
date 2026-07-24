@@ -87,7 +87,7 @@ export class TasksMoreInfoAdvancedComponent extends BaseListComponent<Task> {
         `tasksMoreInfoAdvanced/:id/${magic.taskMoreInfoAdvancedTypeId}`,
         { id: 'id' },
       ),
-      this.utils.getNonEditableColumnDef('tasksMoreInfoAdvancedEntity.cartography', 'cartographyName'),
+      this.utils.getNonEditableColumnDef('entity.task.moreInfoAdvanced.cartography', 'cartographyName'),
     ];
   }
 

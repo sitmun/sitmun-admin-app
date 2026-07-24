@@ -2,7 +2,7 @@
   (back)="utils.navigateBack()"
   (save)="onSaveButtonClicked()"
   [additionalText]="taskTypeNameTranslated"
-  [isNew]="isNew()"
+  [isNew]="isNewOrDuplicated()"
   [itemName]="entityForm?.get('name')?.value"
   [canSave]="canSaveEntity"
   [dataLoaded]="dataLoaded"
@@ -30,14 +30,10 @@
           <mat-form-field appearance="outline" class="full">
             <mat-label>{{ 'common.form.name' | translate }} ({{ defaultLang }})</mat-label>
             <input [maxlength]="512" formControlName="name" matInput required type="text">
-            <mat-hint [class.text-warning]="entityForm.get('name')?.value?.length > 512" align="end">
-              {{ entityForm.get('name') | characterCount }}
-              <mat-icon *ngIf="entityForm.get('name')?.value?.length > 512" class="warning-icon"
-                        fontIcon="warning"></mat-icon>
-            </mat-hint>
+            <mat-hint align="end">{{ entityForm.get('name') | characterCount }}</mat-hint>
             <mat-icon (click)="onTranslated('name')" class="iconTranslate"
                       matSuffix
-                      onKeyDown="onTranslated('name')">translate</mat-icon>
+                      (keydown)="onTranslated('name')">translate</mat-icon>
           </mat-form-field>
           <mat-form-field appearance="outline" class="half add-gap" *ngIf="isNew()">
             <mat-label>{{ 'common.form.type' | translate }}</mat-label>

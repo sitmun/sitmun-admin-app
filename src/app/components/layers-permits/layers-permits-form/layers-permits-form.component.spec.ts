@@ -1,3 +1,6 @@
+import { readFileSync } from 'fs';
+import { join } from 'path';
+
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -27,6 +30,11 @@ import {configureLoggerForTests, provideErrorHandlerForTests} from '@app/testing
 import {constants} from '@environments/constants';
 
 import { LayersPermitsFormComponent } from './layers-permits-form.component';
+
+const layersPermitsFormTemplate = readFileSync(
+  join(__dirname, 'layers-permits-form.component.html'),
+  'utf8',
+);
 
 describe('LayersPermitsFormComponent', () => {
   let component: LayersPermitsFormComponent;
@@ -218,6 +226,15 @@ describe('LayersPermitsFormComponent', () => {
       const predicate = (component['rolesTable'] as any).targetIncludeFn(relations);
       expect(predicate({ id: 10 })).toBe(false);
       expect(predicate({ id: 30 })).toBe(true);
+    });
+  });
+
+  describe('template markup', () => {
+    it('uses name maxlength, character count, required error, and card-wrapped relation grids', () => {
+      expect(layersPermitsFormTemplate).toContain('[maxlength]="50"');
+      expect(layersPermitsFormTemplate).toContain('characterCount');
+      expect(layersPermitsFormTemplate).toContain("'common.error.required'");
+      expect(layersPermitsFormTemplate).toMatch(/<mat-card[\s\S]*<app-relation-grid/);
     });
   });
 });

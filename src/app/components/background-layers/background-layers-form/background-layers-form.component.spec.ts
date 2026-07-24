@@ -1,3 +1,6 @@
+import { readFileSync } from 'fs';
+import { join } from 'path';
+
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -28,6 +31,11 @@ import {LoggerService} from '@app/services/logger.service';
 import {configureLoggerForTests, provideErrorHandlerForTests} from '@app/testing/test-helpers';
 
 import { BackgroundLayersFormComponent } from './background-layers-form.component';
+
+const backgroundLayersFormTemplate = readFileSync(
+  join(__dirname, 'background-layers-form.component.html'),
+  'utf8',
+);
 
 describe('BackgroundLayersFormComponent', () => {
   let component: BackgroundLayersFormComponent;
@@ -231,6 +239,16 @@ describe('BackgroundLayersFormComponent', () => {
       const predicate = (component['rolesTable'] as any).targetIncludeFn(relations);
       expect(predicate({ id: 10 })).toBe(false);
       expect(predicate({ id: 30 })).toBe(true);
+    });
+  });
+
+  describe('template markup', () => {
+    it('uses entity.background tab headers and card-wrapped relation grids', () => {
+      expect(backgroundLayersFormTemplate).toContain("'entity.background.layers.header'");
+      expect(backgroundLayersFormTemplate).toContain("'entity.background.roles.header'");
+      expect(backgroundLayersFormTemplate).toContain("'entity.background.applications.header'");
+      expect(backgroundLayersFormTemplate).not.toContain("'entity.permissionGroup.");
+      expect(backgroundLayersFormTemplate).toMatch(/<mat-card[\s\S]*<app-relation-grid/);
     });
   });
 

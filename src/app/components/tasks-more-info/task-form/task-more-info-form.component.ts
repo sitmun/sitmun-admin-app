@@ -100,6 +100,7 @@ export class TaskMoreInfoFormComponent extends BaseFormComponent<TaskProjection>
     'cartographyId': 'entity.task.moreInfo.cartography',
     'queryTaskId': 'entity.task.moreInfo.queryTask'
   };
+  protected readonly queryTaskTypeId = magic.taskQueryTypeId;
 
   @ViewChild('newParameterDialog', {static: true})
   private readonly newParameterDialog: TemplateRef<any>;
@@ -187,7 +188,7 @@ export class TaskMoreInfoFormComponent extends BaseFormComponent<TaskProjection>
 
   override fetchCopy(): Promise<TaskProjection> {
     return firstValueFrom(this.taskService.fetchProjectionById(TaskProjection, this.duplicateID).pipe(map((copy: TaskProjection) => {
-      copy.name = this.translateService.instant("copy_") + copy.name;
+      copy.name = this.translateService.instant('common.copyPrefix') + copy.name;
       return copy;
     })));
   }
@@ -597,7 +598,7 @@ export class TaskMoreInfoFormComponent extends BaseFormComponent<TaskProjection>
       .withTargetsOrder('name')
       .withTargetsFetcher(() => this.roleService.fetchAllItems())
       .withTargetToRelation((items) => items)
-      .withTargetsTitle(this.translateService.instant('entity.task.roles.title'))
+      .withTargetsTitle('entity.task.roles.title')
       .build();
   }
 
@@ -646,7 +647,7 @@ export class TaskMoreInfoFormComponent extends BaseFormComponent<TaskProjection>
       .withTargetToRelation((items: TerritoryProjection[]) => {
         return items.map(item => TaskAvailabilityProjection.of(this.entityToEdit, item));
       })
-      .withTargetsTitle(this.translateService.instant('entity.task.territories.title'))
+      .withTargetsTitle('entity.task.territories.title')
       .withTargetsOrder('name')
       .build();
   }
