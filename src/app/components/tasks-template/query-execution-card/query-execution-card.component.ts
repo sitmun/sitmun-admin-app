@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, In
 import { FormControl, FormGroup } from '@angular/forms';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
+import { TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 
 import {
@@ -61,6 +62,7 @@ export class QueryExecutionCardComponent implements OnChanges, OnDestroy {
     private readonly previewService: TaskTemplatePreviewService,
     private readonly domSanitizer: DomSanitizer,
     private readonly cdr: ChangeDetectorRef,
+    private readonly translateService: TranslateService,
   ) {}
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -406,14 +408,19 @@ export class QueryExecutionCardComponent implements OnChanges, OnDestroy {
   }
 
   private buildBinaryContentSnippet(contentReference: string): string {
-    const label = this.escapeHtml(this.task?.name || 'Contenido binario');
+    const label = this.escapeHtml(
+      this.task?.name || this.translateService.instant('entity.task.template.binaryContent'),
+    );
     if (this.binaryMimeType === 'application/pdf') {
       return `<iframe src="${contentReference}" width="100%" height="360" title="${label}"></iframe>`;
     }
     if (this.binaryMimeType.startsWith('image/')) {
       return `<img src="${contentReference}" alt="${label}">`;
     }
-    return `<a href="${contentReference}" target="_blank" rel="noopener noreferrer">Descargar contenido</a>`;
+    const downloadLabel = this.escapeHtml(
+      this.translateService.instant('entity.task.template.downloadContent'),
+    );
+    return `<a href="${contentReference}" target="_blank" rel="noopener noreferrer">${downloadLabel}</a>`;
   }
 
   private escapeHtml(value: string): string {

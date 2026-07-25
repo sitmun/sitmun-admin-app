@@ -38,7 +38,7 @@
     </div>
 
     <button *ngIf="showEmbeddedChildChrome" mat-flat-button color="primary" type="button" (click)="execute()">
-      {{ task.typeId === 15 ? 'Ejecutar plantilla' : 'Ejecutar' }}
+      {{ (isTemplateTask ? 'entity.task.template.executeTemplate' : 'entity.task.template.execute') | translate }}
     </button>
 
     <div class="nested-template-children" *ngIf="childrenReady && renderableChildTasks.length > 0">

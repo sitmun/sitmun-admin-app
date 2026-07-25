@@ -1630,7 +1630,6 @@
   "entity.task.template.editor.validation.nestedT": "No es permet niuar etiquetes <t>.",
   "entity.task.template.editor.validation.unopenedT": "Etiqueta <t> sense apertura.",
   "entity.task.template.editor.validation.unclosedT": "Etiqueta <t> sense tancament.",
-  "entity.task.template.apiAuthWarning": "Les tasques Web API amb autenticació habilitada no es poden vincular a Plantilla per ara.",
   "backend.error.default-language-required": "Ha d'existir exactament un idioma per defecte",
   "common.button.import": "Importar",
   "entity.language.default": "Idioma per defecte",
@@ -1644,6 +1643,8 @@
   "entity.literalTranslation.error.source_language_required": "source_language és obligatori",
   "entity.literalTranslation.error.literal_required": "El literal és obligatori",
   "entity.literalTranslation.error.duplicate_literal": "El literal es troba duplicat al CSV",
+  "entity.literalTranslation.error.literal_too_long": "El literal supera 4000 caràcters",
+  "entity.literalTranslation.error.translation_too_long": "La traducció supera 4000 caràcters",
   "entity.literalTranslation.csv.exportAll": "S'exportaran tots els literals de l'idioma de destí.",
   "entity.literalTranslation.csv.exportButton": "Exportar CSV",
   "entity.literalTranslation.csv.exportDescription": "S'exportaran les traduccions de l'idioma de destí seleccionat.",
@@ -1686,5 +1687,9 @@
   "entity.task.moreInfoAdvanced.templateChildMappings": "Paràmetres de tasques enllaçades a la plantilla",
   "entity.task.moreInfoAdvanced.noTemplateChildren": "Aquesta plantilla no té tasques enllaçades.",
   "entity.task.template.linkedTasks.header": "Tasques vinculades",
-  "entity.task.template.addTask": "Afegir tasca"
+  "entity.task.template.addTask": "Afegir tasca",
+  "entity.task.template.execute": "Executar",
+  "entity.task.template.executeTemplate": "Executar plantilla",
+  "entity.task.template.binaryContent": "Contingut binari",
+  "entity.task.template.downloadContent": "Descarregar contingut"
 }

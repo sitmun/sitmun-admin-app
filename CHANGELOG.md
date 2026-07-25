@@ -65,6 +65,7 @@ All notable changes to this project will be documented in this file. The format 
 
 ### Changed
 
+- **Literal translations**: CSV import surfaces `literal_too_long` / `translation_too_long` when values exceed 4000 characters.
 - **Forms**: remove unreachable character-limit warning icons when HTML maxlength already enforces the bound; keep character counts; remove dead email `pattern` error branch; prune unused global status/form CSS.
 - **Query tasks**: save is blocked when command `#{param}` placeholders are undeclared (operators must declare matching parameters).
 - **Trees**: align tree node display options with backend semantics — `visible` controls catalog visibility, `active` controls load-by-default on cartography leaves; radio folder toggle is limited to cartography trees via config capability.

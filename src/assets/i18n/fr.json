@@ -1630,7 +1630,6 @@
   "entity.task.template.editor.validation.nestedT": "L'imbrication des balises <t> n'est pas autorisée.",
   "entity.task.template.editor.validation.unopenedT": "Balise <t> sans ouverture.",
   "entity.task.template.editor.validation.unclosedT": "Balise <t> sans fermeture.",
-  "entity.task.template.apiAuthWarning": "Les tâches Web API avec authentification activée ne peuvent pas être liées à un modèle pour l'instant.",
   "backend.error.default-language-required": "Il doit exister exactement une langue par défaut",
   "common.button.import": "Importer",
   "entity.language.default": "Langue par défaut",
@@ -1643,6 +1642,8 @@
   "entity.literalTranslation.error.source_language_required": "source_language est obligatoire",
   "entity.literalTranslation.error.literal_required": "Le littéral est obligatoire",
   "entity.literalTranslation.error.duplicate_literal": "Le littéral est dupliqué dans le CSV",
+  "entity.literalTranslation.error.literal_too_long": "Le littéral dépasse 4000 caractères",
+  "entity.literalTranslation.error.translation_too_long": "La traduction dépasse 4000 caractères",
   "entity.literalTranslation.csv.chooseFile": "Choisir un fichier",
   "entity.literalTranslation.csv.exportAll": "Tous les littéraux de la langue cible seront exportés.",
   "entity.literalTranslation.csv.exportButton": "Exporter CSV",
@@ -1686,5 +1687,9 @@
   "entity.task.moreInfoAdvanced.templateChildMappings": "Paramètres des tâches liées dans le modèle",
   "entity.task.moreInfoAdvanced.noTemplateChildren": "Ce modèle n'a aucune tâche liée.",
   "entity.task.template.linkedTasks.header": "Tâches liées",
-  "entity.task.template.addTask": "Ajouter une tâche"
+  "entity.task.template.addTask": "Ajouter une tâche",
+  "entity.task.template.execute": "Exécuter",
+  "entity.task.template.executeTemplate": "Exécuter le modèle",
+  "entity.task.template.binaryContent": "Contenu binaire",
+  "entity.task.template.downloadContent": "Télécharger le contenu"
 }

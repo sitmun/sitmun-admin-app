@@ -1630,7 +1630,6 @@
   "entity.task.template.editor.validation.nestedT": "Nesting <t> tags is not allowed.",
   "entity.task.template.editor.validation.unopenedT": "Tag <t> without opening.",
   "entity.task.template.editor.validation.unclosedT": "Tag <t> without closing.",
-  "entity.task.template.apiAuthWarning": "Web API tasks with authentication enabled cannot be linked to a Template at this time.",
   "backend.error.default-language-required": "Exactly one default language must exist",
   "common.button.import": "Import",
   "entity.language.default": "Default language",
@@ -1643,6 +1642,8 @@
   "entity.literalTranslation.error.source_language_required": "source_language is required",
   "entity.literalTranslation.error.literal_required": "The literal is required",
   "entity.literalTranslation.error.duplicate_literal": "The literal is duplicated in the CSV",
+  "entity.literalTranslation.error.literal_too_long": "The literal exceeds 4000 characters",
+  "entity.literalTranslation.error.translation_too_long": "The translation exceeds 4000 characters",
   "entity.literalTranslation.csv.chooseFile": "Choose file",
   "entity.literalTranslation.csv.exportAll": "All literals in the target language will be exported.",
   "entity.literalTranslation.csv.exportButton": "Export CSV",
@@ -1686,5 +1687,9 @@
   "entity.task.moreInfoAdvanced.templateChildMappings": "Linked task parameters in the template",
   "entity.task.moreInfoAdvanced.noTemplateChildren": "This template has no linked tasks.",
   "entity.task.template.linkedTasks.header": "Linked tasks",
-  "entity.task.template.addTask": "Add task"
+  "entity.task.template.addTask": "Add task",
+  "entity.task.template.execute": "Execute",
+  "entity.task.template.executeTemplate": "Execute template",
+  "entity.task.template.binaryContent": "Binary content",
+  "entity.task.template.downloadContent": "Download content"
 }

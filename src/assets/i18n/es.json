@@ -1628,7 +1628,6 @@
   "entity.task.template.editor.validation.nestedT": "No se permite anidar etiquetas <t>.",
   "entity.task.template.editor.validation.unopenedT": "Etiqueta <t> sin apertura.",
   "entity.task.template.editor.validation.unclosedT": "Etiqueta <t> sin cierre.",
-  "entity.task.template.apiAuthWarning": "Las tareas Web API con autenticación habilitada no se pueden vincular a Plantilla por ahora.",
   "backend.error.default-language-required": "Debe existir exactamente un idioma por defecto",
   "common.button.import": "Importar",
   "entity.language.default": "Idioma por defecto",
@@ -1641,6 +1640,8 @@
   "entity.literalTranslation.error.source_language_required": "source_language es obligatorio",
   "entity.literalTranslation.error.literal_required": "El literal es obligatorio",
   "entity.literalTranslation.error.duplicate_literal": "El literal está duplicado en el CSV",
+  "entity.literalTranslation.error.literal_too_long": "El literal supera 4000 caracteres",
+  "entity.literalTranslation.error.translation_too_long": "La traducción supera 4000 caracteres",
   "entity.literalTranslation.csv.chooseFile": "Elegir archivo",
   "entity.literalTranslation.csv.exportAll": "Se exportarán todos los literales del idioma destino.",
   "entity.literalTranslation.csv.exportButton": "Exportar CSV",
@@ -1684,5 +1685,9 @@
   "entity.task.moreInfoAdvanced.templateChildMappings": "Parámetros de tareas enlazadas en la plantilla",
   "entity.task.moreInfoAdvanced.noTemplateChildren": "Esta plantilla no tiene tareas enlazadas.",
   "entity.task.template.linkedTasks.header": "Tareas vinculadas",
-  "entity.task.template.addTask": "Añadir tarea"
+  "entity.task.template.addTask": "Añadir tarea",
+  "entity.task.template.execute": "Ejecutar",
+  "entity.task.template.executeTemplate": "Ejecutar plantilla",
+  "entity.task.template.binaryContent": "Contenido binario",
+  "entity.task.template.downloadContent": "Descargar contenido"
 }

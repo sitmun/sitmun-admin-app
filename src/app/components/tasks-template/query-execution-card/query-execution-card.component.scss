@@ -111,6 +111,18 @@
   background: #fff;
 }
 
+.template-result-panel .sitmun-template-placeholder {
+  padding: 0.1rem 0.35rem;
+  border-radius: 0.25rem;
+  background: #dbeafe;
+  color: #1d4ed8;
+  font-family: monospace;
+}
+
+.template-result-panel .sitmun-template-child-error {
+  color: #b00020;
+}
+
 .response-table {
   width: 100%;
   border-collapse: collapse;

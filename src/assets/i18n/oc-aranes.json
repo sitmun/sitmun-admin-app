@@ -1630,7 +1630,6 @@
   "entity.task.template.editor.validation.nestedT": "Non se permet niuar etiquetes <t>.",
   "entity.task.template.editor.validation.unopenedT": "Etiqueta <t> sense apertura.",
   "entity.task.template.editor.validation.unclosedT": "Etiqueta <t> sense tancament.",
-  "entity.task.template.apiAuthWarning": "Es tasques Web API damb autenticacion activada non se pòden vincular a Plantilha ara com ara.",
   "backend.error.default-language-required": "A d'existir exactament ua lengua per defecte",
   "common.button.import": "Importar",
   "entity.language.default": "Lengua per defecte",
@@ -1643,6 +1642,8 @@
   "entity.literalTranslation.error.source_language_required": "source_language ei obligatòri",
   "entity.literalTranslation.error.literal_required": "Eth literau ei obligatòri",
   "entity.literalTranslation.error.duplicate_literal": "Eth literau ei duplicat en CSV",
+  "entity.literalTranslation.error.literal_too_long": "Eth literau demore 4000 caractèrs",
+  "entity.literalTranslation.error.translation_too_long": "Era traduccion demore 4000 caractèrs",
   "entity.literalTranslation.csv.chooseFile": "Dar un fichèr",
   "entity.literalTranslation.csv.exportAll": "S'exportaràn toti es literaus dera lengua de destin.",
   "entity.literalTranslation.csv.exportButton": "Exportar CSV",
@@ -1686,5 +1687,9 @@
   "entity.task.moreInfoAdvanced.templateChildMappings": "Paramètres des trabalhs ligadi ena plantilha",
   "entity.task.moreInfoAdvanced.noTemplateChildren": "Aguesta plantilha non a trabalhs ligadi.",
   "entity.task.template.linkedTasks.header": "Tasques vinculades",
-  "entity.task.template.addTask": "Ajustar ua tasca"
+  "entity.task.template.addTask": "Ajustar ua tasca",
+  "entity.task.template.execute": "Executar",
+  "entity.task.template.executeTemplate": "Executar plantilha",
+  "entity.task.template.binaryContent": "Contengut binari",
+  "entity.task.template.downloadContent": "Descargar contengut"
 }

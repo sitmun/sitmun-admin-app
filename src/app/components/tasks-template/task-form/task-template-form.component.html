@@ -137,9 +137,6 @@
             </mat-autocomplete>
           </mat-form-field>
 
-          <mat-hint *ngIf="excludedAuthenticatedApiTasks > 0" class="warning-hint">
-            {{ 'entity.task.template.apiAuthWarning' | translate }}
-          </mat-hint>
           <mat-hint *ngIf="nestingLimitWarning" class="warning-hint">
             {{ nestingLimitWarning }}
           </mat-hint>

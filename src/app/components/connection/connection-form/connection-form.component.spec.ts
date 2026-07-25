@@ -28,6 +28,9 @@ describe('ConnectionFormComponent', () => {
   let notificationService: NotificationService;
   let _consoleErrorSpy: jest.SpyInstance;
 
+  // Full-suite load can push createComponent + whenStable past Jest's 5s hook default.
+  jest.setTimeout(30_000);
+
   const PASSWORD_PLACEHOLDER = '••••••••';
 
   const flushCodeListRequests = (): void => {
