@@ -1,83 +1,348 @@
 # Changelog
 
-All notable changes to this project will be documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
 ### Added
 
-- **Plantilla**: TipTap HTML editor, ADMIN preview, and linked-child execute-child dry-run (coords not required).
-- **More Info Advanced**: admin task configuration UI (typeId 16); runtime map render remains in the viewer.
-- **Literal translations**: admin CRUD, CSV import/export, and completion indicators.
-- **Languages**: `enabled` flag on language form/list; disabled languages are excluded from menus and translation dialogs; cannot be set as database default; database default language cannot be disabled.
-- **Language chrome**: login and shell toolbars show closed BCP-47 ISO and open API endonyms (no flags); UI language resolves from `localStorage.lang` → `language.default` → static (never browser); Languages form edits endonym + `order`; dialog-translation uses `lang.*` labels sorted by `order`.
-- **Application trees**: application↔tree links use `/api/application-trees` with editable association `order` (lower = higher priority / default); Trees tab and tree Applications tab match the backgrounds pattern.
-- **Trees**: cartography folder form toggle for `loadData` (orthogonal to radio); persists via projection and save path ([sitmun-viewer-app#45](https://github.com/sitmun/sitmun-viewer-app/issues/45)).
-- **Trees**: admin tree shows a `check_box` badge for `loadData` folders (same pattern as radio), with i18n “load control” copy ([sitmun-viewer-app#45](https://github.com/sitmun/sitmun-viewer-app/issues/45)).
-- **Trees**: cartography leaf form toggle for `queryableActive` (GFI marker in the viewer catalog when the linked layer also has `queryableFeatureEnabled`); toggle is disabled and cleared when no layer is linked or layer GetFeatureInfo is off; admin tree shows an `i` badge when the node flag is on ([sitmun-viewer-app#45](https://github.com/sitmun/sitmun-viewer-app/issues/45)).
-- **Application**: optional responsible institution field, eligible point-of-contact selector (built-in/blocked excluded), application-list warning indicator, and user-form impact warnings when an assigned PoC is blocked or loses email ([#316](https://github.com/sitmun/sitmun-admin-app/issues/316)).
-- **User**: built-in `public` and `admin` user forms no longer show the applications-as-point-of-contact tab ([#316](https://github.com/sitmun/sitmun-admin-app/issues/316)).
-
-### Fixed
-
-- **Forms**: restore modified-field highlight (`.input-modified` green background emptied by a prior SCSS prune); wire translate icon `(keydown)` where native `onKeyDown` never fired.
-- **Trees**: Field configuration no longer persists null `calculated` / `multilanguage` after dialog reset; Label fields keep the default `Extra info` value across dialog close ([#432](https://github.com/sitmun/sitmun-admin-app/issues/432)).
-- **Languages**: translation dialog Accept stays disabled until a value changes; accepting without edits no longer marks the parent form as having unsaved changes.
-- **Languages**: toolbar/login selectors subscribe to `LanguageService.languagesToUse$` so enable/order saves refresh the chrome menu without reload.
-- **Languages**: list columns are endonym, UI-locale name (`lang.*`), then Active/Order; endonym translation dialog loads/saves `STM_TRANSLATION` rows for `Language.name` even though HAL `name` is no longer `@I18n`-overlaid.
-- **Configuration Parameters**: after saving `proxy`, show Application-style info alerts when the backend normalized or defaulted the URL (keys from the create/update response only) ([#431](https://github.com/sitmun/sitmun-admin-app/issues/431)).
-- **Forms**: duplicate entity forms enable Save with the suggested copy name without requiring an extra edit ([#384](https://github.com/sitmun/sitmun-admin-app/issues/384)).
-- **Auth**: backend request matching normalizes relative, absolute, bare-domain, and default-port URLs while rejecting cross-origin and path-prefix lookalikes.
-- **Forms**: route changes between records hide stale controls until the latest entity finishes loading, preventing edits from being discarded by a late form rebuild.
-- **Task types**: list, task-group Tasks grids, and tree-node task pickers request `lang` so backend `@I18n` resolves `title` / `typeTitle`.
-- **Territory/Tasks**: task type titles request `lang` so backend `@I18n` resolves `taskTypeTitle` for the UI language.
-- **Grids**: boolean column headers are left-aligned and stay visible; selection checkboxes keep a separate header class; territory Permissions fills remaining width via flex on user/role while “applies to children” stays bounded.
-- **Territory**: Cartography tab columns are name, layers, service (service navigable); Tasks Type shows the localized `taskTypeTitle` instead of the internal type name.
-- **Territory**: Permissions, Cartography, and Tasks relation grids link user/role, layer/service, and task names with dual navigation.
-- **Layers permits**: Type select keeps the current value visible when it is outside the create-time filter (e.g. background map groups opened by direct URL).
-- **Background layers**: Image is treated as an optional http(s) URL with a new-tab open action, matching backend `@Http` semantics.
-- **Trees**: Applications and Roles relation grids drop the id column and link names to the application/role forms, matching other relation grids.
-- **Forms/URLs**: editable URL fields no longer navigate when their text is clicked; a Material-aligned suffix action opens valid URLs in a new tab, and grid external links use the same icon and accessibility contract.
-- **Layers**: Service selection text is plain so the selector opens normally, with a new-tab icon retained; editable style legend URL cells keep plain text and isolate navigation to a separate icon ([#376](https://github.com/sitmun/sitmun-admin-app/issues/376)).
-- **Layers**: Trees tab keeps a selection checkbox column so read-only rows can still be selected for download.
-- **Services**: existing layers in the service form Layers grid link to the layer form; unregistered capability rows stay plain text and remain editable.
-- **Forms**: relation selects and tree relation autocompletes keep plain selected text so controls open and edit normally; only the adjacent `open_in_new` icon navigates in a new tab. Entity lists and relation grids retain dual navigation ([#376](https://github.com/sitmun/sitmun-admin-app/issues/376)).
-- **Trees**: radio folder persistence normalizes via `resolvePersistedRadio`; sibling load-by-default saves deactivate before activate to avoid backend radio conflicts; invalid direct children block radio enable and folder placement under radio parents.
-- **Data grid**: resolves AG Grid `autoSizeStrategy` before grid initialization and no longer updates the Initial-only option after `onGridReady`, removing the console warning.
-- **Services**: proxy and authentication are grouped in one card; authentication fields stay visible but are disabled until **Use SITMUN proxy** is enabled, and disabling proxy clears stored credentials in the form to match runtime behavior.
-- **Services**: obtaining service details prefills `Service.name` and `Service.description` translation rows from alternate `xml:lang` entries; when the DB default language is absent from capabilities, the first entry still populates the main field and its language translation row (e.g. `ca` + `es` with default `en`) ([#46](https://github.com/sitmun/sitmun-application-stack/issues/46)).
-- **Application parameters**: bind service update/delete in the parameters relation updater so saves no longer throw `TypeError`.
-- **Application backgrounds**: relation order updates now persist on save by updating existing HAL resources instead of rebuilding rows without `_links` ([#428](https://github.com/sitmun/sitmun-admin-app/issues/428)).
-- **Auth**: `Principal.identity()` treats `/api/account` 401 as anonymous instead of leaving a stale authenticated flag.
-- **Messages**: skip error toast handling for 401 responses so auth-expired flow owns session cleanup.
-- **Messages**: forbidden API responses preserve authentication state and produce one error notification.
-- **Dialogs**: `dialog-form` and `dialog-grid` Add buttons no longer close before validation or row collection completes.
-- **Dialogs**: dual-tab pickers preserve inactive grid selections via `preserveContent` and reset collection state between Add attempts.
-- **Dialogs**: picker width heuristics account for flex columns; content area scrolls instead of reserving fixed empty height.
-- **Layers**: filter/style modal booleans use primary slide toggles; boolean grid columns use bounded width; fix `add-gap` typo on feature-information field.
-- **UX**: grid boolean checkboxes use primary accent; experimental tab icons are hidden from screen readers.
-
-### Security
-
-- **Plantilla**: ADMIN preview uses trusted HTML (`bypassSecurityTrustHtml`); the editor HTML validator is not a sanitizer. Persisted HTML (including iframes) must be sanitized at viewer render (viewer#162 / DOMPurify).
-- **Auth**: login now calls `POST /api/authenticate/admin` to receive a scoped `admin_access_token` cookie; the previous shared `access_token` endpoint is no longer used.
-- **Auth**: `AuthInterceptor` adds `X-SITMUN-Client: admin` to every backend request so the server targets the correct admin cookie for authentication and logout.
+- **Templates** / **More Info Advanced**: TipTap HTML editor, ADMIN preview, linked-child execute-child dry-run (coords not required); typeId 16 MIA task configuration UI (runtime map render remains in the viewer).
+- **Literal translations**: Admin CRUD, CSV import/export, and completion indicators.
+- **Task types**: List and title-only form (`/taskType`, `/taskType/:id/taskTypeForm`) with side-menu entry (duplicate hidden); i18n strings in all five locales.
+- **Languages** / **Language chrome**: `enabled`/`order` on language form/list (disabled excluded from menus/dialogs; default language cannot be disabled); toolbar/login show closed BCP-47 ISO and open API endonyms; UI language from `localStorage.lang` → `language.default` → static; guarded set-default workflow with missing-translation preview; `language.default` protected in configuration parameters.
+- **Trees** / **Application trees**: `loadData` and `queryableActive` cartography toggles with admin-tree badges; application↔tree links via `/api/application-trees` with editable `order` ([sitmun-viewer-app#45](https://github.com/sitmun/sitmun-viewer-app/issues/45)).
+- **Application**: Optional responsible institution, eligible PoC selector (built-in/blocked excluded), list warning indicator, and user-form impact warnings ([#316](https://github.com/sitmun/sitmun-admin-app/issues/316)).
+- **Tests**: Jest coverage for WMS metadata parsing, service-form translation prefill, auth/session validation, admin guard feedback, HAL credentials, dialog/grid/URL/relation-selector regressions.
 
 ### Changed
 
-- **Literal translations**: CSV import surfaces `literal_too_long` / `translation_too_long` when values exceed 4000 characters.
-- **Forms**: remove unreachable character-limit warning icons when HTML maxlength already enforces the bound; keep character counts; remove dead email `pattern` error branch; prune unused global status/form CSS.
-- **Query tasks**: save is blocked when command `#{param}` placeholders are undeclared (operators must declare matching parameters).
-- **Trees**: align tree node display options with backend semantics — `visible` controls catalog visibility, `active` controls load-by-default on cartography leaves; radio folder toggle is limited to cartography trees via config capability.
-- **Auth**: `authGuard` reloads account identity with credentials, preserves cached identity on transient failures, and warns valid non-admin users that administrator rights are required.
-- **Auth**: `AuthExpiredInterceptor` validates the session through `/api/account` after protected API 401 responses; concurrent failures share one probe, sequential transient failures show one warning until validation succeeds, and only a probe 401 clears local state and redirects to login without POSTing logout.
-- **Auth**: explicit logout routes through `LoginService.logout()` returning an `Observable` so callers wait for backend cookie removal before navigation.
-- **HAL**: HAL `Resource` and `AccountService` requests send `withCredentials: true` so session cookies reach the API.
+- **Literal translations** / **Forms** / **Query tasks**: CSV import surfaces `literal_too_long` / `translation_too_long` over 4000 chars; remove unreachable character-limit warning icons; query-task save blocked when `#{param}` placeholders are undeclared.
+- **Trees** / **Task types**: `visible`/`active` semantics aligned with backend; radio folder toggle limited to cartography trees; relation grids and tree-node pickers show localized `typeTitle` and request `lang`.
+- **Connections**: Field hints, Tasks tab intro/quick search, and raised primary JDBC test button aligned with service/layer patterns.
+- **Data grid**: `app-relation-grid` wrapper with capability flags and dirty tracking rolled out across admin form relation grids; auto discard/undo/redo when grids own pending changes; direct `app-data-grid` remains for entity lists, pickers, and the wrapper delegate.
+- **Layers** / **Dialogs**: Relation-tab column widths tuned; template modals use shared `formDialogs` width (640px); picker modals hide export and size from column `minWidth`.
+- **Auth** / **HAL**: Credentialed `authGuard` identity reload with admin-rights warning; coalesced `AuthExpiredInterceptor` `/api/account` probe after 401; Observable logout waits for cookie removal; HAL `Resource`/`AccountService` send `withCredentials: true`.
+
+### Fixed
+
+- **Forms**: Restored modified-field highlight and translate-icon `(keydown)`; `CanDeactivateGuard` unsaved-changes ([#374](https://github.com/sitmun/sitmun-admin-app/issues/374)); route-id reload and save toolbar gated on loaded data; duplicate Save without extra edit ([#384](https://github.com/sitmun/sitmun-admin-app/issues/384)); plain-text URL/relation selects with `open_in_new` suffix ([#376](https://github.com/sitmun/sitmun-admin-app/issues/376)).
+- **Trees**: Field-config booleans and Label default Extra info across dialog close ([#432](https://github.com/sitmun/sitmun-admin-app/issues/432)); radio/`loadByDefault` persistence and child validation; Applications/Roles relation grids link names (no id column).
+- **Languages**: Translation dialog Accept gated on real edits; chrome menus refresh via `languagesToUse$`; list columns endonym / UI-locale name / Active / Order; endonym rows persist in `STM_TRANSLATION` for `Language.name`.
+- **Services** / **Connections** / **Configuration Parameters**: Multilingual WMS Title/Abstract prefill into translation rows ([#46](https://github.com/sitmun/sitmun-application-stack/issues/46)); proxy+auth card with credentials disabled until proxy enabled; saved connection `GET …/test` without re-password ([#424](https://github.com/sitmun/sitmun-admin-app/issues/424)); proxy save shows normalization/default warnings ([#431](https://github.com/sitmun/sitmun-admin-app/issues/431)).
+- **Layers** / **Territory** / **Background layers** / **Layers permits**: CSV mapping for `layers`/`queryableLayers`/`selectableLayers`; style dialog legend nesting; Trees tab keeps selection checkbox; Cartography/Permissions/Tasks dual navigation; Image URL open action; Type select keeps out-of-filter values.
+- **Application** / **Task groups** / **Data grid** / **Dialogs** / **Navigation**: Parameters updater binds service update/delete; backgrounds order persists via HAL resources ([#428](https://github.com/sitmun/sitmun-admin-app/issues/428)); task-group add/remove persistence; `autoSizeStrategy`/status-dot fixes; dialog Add waits for validation; connection/task deep links corrected.
+- **Auth** / **Messages** / **UX**: Backend URL matching hardened; `/api/account` 401 treated as anonymous; 401 toasts skipped for auth-expired flow; forbidden responses keep session with one notification; primary boolean accents; experimental tab icons `aria-hidden`.
 
 ### Removed
 
-- **Auth**: remove `HasAnyAuthorityDirective`, `HasAnyAuthorityOnTerritoryDirective`, and unused `Principal` authority helpers from `@app/core`.
+- **Auth** / **User**: Unused authority directives and `Principal` helpers; built-in `public`/`admin` forms no longer show the applications-as-point-of-contact tab ([#316](https://github.com/sitmun/sitmun-admin-app/issues/316)).
+
+### Security
+
+- **Templates**: ADMIN preview uses trusted HTML (`bypassSecurityTrustHtml`); editor validator is not a sanitizer — persisted HTML must be sanitized at viewer render ([#162](https://github.com/sitmun/sitmun-viewer-app/issues/162) / DOMPurify).
+- **Auth** / **Forms**: Login via `POST /api/authenticate/admin` for `admin_access_token`; `AuthInterceptor` sends `X-SITMUN-Client: admin`; service, task-query, and connection password inputs use `type="password"` (BUG-033).
+
+## [1.2.7] - 2026-06-05
 
 ### Added
 
-- **Tests**: Jest coverage for WMS metadata parsing, service-form translation prefill, coalesced auth/session validation, admin guard rights feedback, HAL credentials, dialog Add validation, grid selection batching, layers form markup, feature-flag icon a11y, dual internal-navigation markup, external URL suffix/grid renderers, and relation-selector/autocomplete overlay regression coverage.
+- **Trees**: improved authoring UX with image validation (PNG/JPEG, 2 MB), duplicate-name save checks, node cartography/task linkage, hidden-in-viewer indicators, and unsaved-changes confirmation.
+- **Trees**: introduced shared `TreeRulesService` for tree-type node behavior and validation rules.
+- **User management**: richer user form guidance and validation UX (hints, counters, tab lead text, compact warnings with tab indicators) plus new read-only “Applications (point of contact)” tab and extended user-list columns.
+- **User form relations**: manual territory picker for positions, relation-grid layout improvements, and i18n support for role/position warnings and tab guidance across all locales.
+- **i18n**: completed missing keys for user hints/warnings and tab lead messages in ca/en/es/fr/oc-aranes; updated application creator hint wording for email-only publication.
+- **Form alerts**: added shared `app-entity-form-alerts` + `FormFieldLabelResolver` for in-form validation/warning display; added compact warnings-panel mode and supporting global styles.
+- **Data grid**: added dedicated clientSide/infinite column-layout paths, fixed-width selection checkbox column, and centered checkbox cell styling.
+
+### Changed
+
+- **Trees**: save trigger routed through `onTreeSaveRequested`; batch-delete tests and tree-form test helpers were extracted.
+- **Entity forms**: required-field feedback and cross-tab warnings moved to `app-entity-form-alerts`; toolbar simplified to title/save/back.
+- **Application form**: backend warnings and touristic tree rules now surface in alerts card; private-app/public-user warning shows on Roles tab.
+- **User form**: alerts card moved above tabs, invalid-state indicators added, and toolbar/form internals simplified (`itemName`, `isNewOrDuplicated`, dead code removal, readonly table definitions).
+- **Territory form**: `defaultZoomLevel` is now a standard extent-adjacent field and extent hints reflect runtime zoom behavior.
+- **Data grid**: status column sizing/filter behavior tightened; Roles tab territorial-role column renamed with editable boolean renderer and clearer propagation context.
+- **i18n**: position-warning semantics aligned with backend (`name`/`organization` required), blocked-user hint wording refined, and locale string corrections applied (including ca/es date labels).
+- **Tests/tooling**: deprecated Angular test modules replaced with provider-based setup; `APP_INITIALIZER` moved to `provideAppInitializer`; TypeScript/ESLint/Node type tooling updated.
+- **Build**: dev bundle budgets raised to 20 MB / 24 MB.
+
+### Removed
+
+- `FormValidationBannerComponent` (`app-form-validation-banner`) and toolbar validation/custom-warning inputs were removed from admin form toolbars and `sitmun-frontend-gui` exports.
+- Feature flag `TERRITORY_FOCAL_POINT_FEATURE` and related `featureFlags.territoryFocalPoint.description` i18n keys.
+- Territory form: separate `entity.territory.hint.defaultZoomLevel` field hint (covered by extent hint).
+
+### Fixed
+
+- Data grid: undo/redo handling fixed (counter timing, `source: 'undo'|'redo'`, boolean handling, checkbox stack behavior).
+- Grid/list Jest expectations; `tsconfig.app.json` excludes test-only paths.
+
+## [1.2.6] - 2026-05-08
+
+### Added
+
+- Functional route guard (`authGuard`, `CanActivateFn`) on the authenticated layout so access to the shell waits on a resolved identity from `Principal`.
+- `LoginService` for credential login (`firstValueFrom` + `Principal.identity`), OIDC initiation (`initOidcLogin` with `client_type=admin`), `getEnabledAuthMethods`, and coordinated logout shared by the login page, toolbar, `AppComponent`, and `AuthExpiredInterceptor`.
+- Jest coverage for `CallbackComponent` and expanded specs around login/auth where they ship with this change.
+
+### Changed
+
+- ngx-translate keys `callback.processing` and `callback.redirect` added across ca, en, es, fr, and oc-aranes for the post-OIDC callback screen.
+- HttpClient cookie sessions: `AuthInterceptor` clones requests with `withCredentials: true`; `AuthService` authenticate and logout use `observe: 'response'` with the same flag.
+- `AuthExpiredInterceptor` clears authentication through `LoginService` on 401/403 outside `authenticate` and the login route, with a redirect guard to avoid repeated navigation loops.
+- `CallbackComponent` implemented as a standalone component (`TranslateModule` imports); after the OIDC redirect it navigates to the dashboard when identity exists, otherwise shows localized error feedback via `NotificationService`.
+- GitHub Actions CI uses Node.js 20.19 (aligned with `package.json` engines and `.nvmrc`), runs ESLint before unit tests, and builds with the `production` Angular configuration and `/admin-app/` base href (the previous `testdeployment` profile is not defined in `angular.json`).
+- `.npmrc` sets `legacy-peer-deps=true` so `npm ci` stays reproducible on npm 10 while the lockfile carries compatible-but-strict peer skew across `@angular/*` patch lines.
+
+### Fixed
+
+- ESLint `import/order` in `tree-node.service.spec.ts` and an unused spy binding in `data-tree.component.spec.ts` so `ng lint` passes in CI.
+- Tree duplication: Save stays consistent when switching tabs (`canSave` matches `canSaveEntity`); Save is not enabled solely because the form is a duplicate—it follows real edits (form, grids, translations, or tree node pending changes). Saving from any tab still persists header and structure together (sitmun-admin-app#392).
+- Task forms: align parameter modals and fix duplicate columns in task-edit grid.
+
+## [1.2.5] - 2026-03-11
+
+### Added
+
+- Missing translations tracker dev tool with sidebar UI for identifying untranslated keys during development.
+- Comprehensive test coverage for TreeNodeService achieving 100% statements, branches, functions, and lines coverage.
+- Extensive test coverage improvements for TreesFormComponent and DataTreeComponent.
+- Test suites for TreeNodeService covering all CRUD operations, relation management (tree, cartography, task, parent), and error handling scenarios.
+
+### Changed
+
+- Standardized form validation labels to use consistent `entity.*` i18n keys across all entity forms.
+- Reorganized and completed all locale files (ca, en, es, fr, oc-aranes) with alphabetically sorted keys.
+- **DataTreeComponent modernization**: Replaced deprecated Angular Material Tree APIs with modern `childrenAccessor` pattern, improving performance and maintainability.
+- TreesFormComponent enhanced with tree type change warning dialog when existing nodes may be incompatible.
+- TreeNodesComponent updated to work with modernized DataTreeComponent API and emit proper tree node updates.
+- Type safety improvements throughout tree management components with proper TypeScript interfaces.
+- Tree Structure tab content now loads lazily and tree rendering waits for codelist initialization to avoid early heavy work on form open.
+- Tree/data-tree rendering callbacks were stabilized and node type/view mode label resolution now uses caches to reduce change detection churn.
+- Tree node unit tests now rebuild codelist caches after injecting mocked codelists to match runtime behavior.
+
+### Fixed
+
+- Shortened Catalan label for permission groups to "Permisos a capes".
+- Removed `[DEV]` prefix from trigger test error label in all locales.
+- DataTreeComponent subscription cleanup using `takeUntilDestroyed` to prevent memory leaks.
+- Tree expansion state persistence when filtering and reordering nodes.
+- Restored tree save-constraint explanation banner in the toolbar by wiring `treeValidationWarningMessage` into `app-form-toolbar`.
+- Resolved tree form unresponsiveness when opening existing trees and when entering the Tree Structure tab.
+- Updated problem-detail translation-key tests to use the `backend.error.*` namespace.
+- Removed temporary debugging instrumentation introduced during freeze/root-cause investigation.
+
+### Removed
+
+- Unused frontend-gui locale files (`src/app/frontend-gui/src/assets/i18n`).
+
+## [1.2.4] - 2026-03-04
+
+### Added
+
+- Detailed validation error messages in notifications: show field-level errors from RFC 9457 `errors` array, i18n for `messageCode` (e.g. `validation.NotBlank`, `validation.BoundingBox`), multi-line display in notification component.
+- Tree view mode handling with icons and labels for different view modes in tree nodes component.
+- Task properties regression tests to prevent model drift.
+
+### Changed
+
+- Node.js requirement updated to `>=20.19.0` (engines).
+- Angular framework upgraded to version 19 (^19.2.x) with latest features and performance improvements.
+- Tree node type unification: consolidated `treenode.folder.type` and `treenode.leaf.type` into unified `treenode.node.type` for consistent node handling across the application.
+- Task properties made opaque to improve encapsulation and type safety.
+
+### Fixed
+
+- Save failure: show a single error notification (interceptor only) and skip post-save logic; log error in component catch instead of calling ErrorHandlerService to avoid duplicate snackbar.
+- Development API URL set to `http://localhost:9000/backend` so `ng serve` uses the Nginx proxy path and CORS works correctly.
+- Tree duplication: await recursive node updates so child nodes complete before navigation; strip `_links` on duplicated nodes for clean create path (fixes #359).
+- Tree node type handling and mapping dialog state stabilization.
+- Aranés flag SVG metadata removed to fix language selector label display on login screen (fixes #360).
+
+## [1.2.3] - 2026-02-26
+
+### Added
+
+- More Information task support for API/SQL/URL scopes in task configuration.
+- API key input support for More Information API integrations.
+- Additional form hints and i18n entries for URL and SQL parameterized More Information tasks.
+- Test coverage for More Information task workflows.
+
+### Changed
+
+- More Information model/field mapping updated to use `type` semantics instead of previous `scope` naming.
+- More Information form workflow and field behavior refined for cleaner payloads and easier cartography selection.
+
+### Removed
+
+- Redundant More Information parameter fields (`key`, `name`, `type`) from task configuration values.
+
+## [1.2.2] - 2026-02-16
+
+### Added
+
+- System configuration menu for admin users.
+- Tree type constraints enforcement for node type selection and validation.
+
+## [1.2.1] - 2026-02-06
+
+### Added
+
+- OIDC authentication support with dynamically configured providers ([c4cfdb5](https://github.com/sitmun/sitmun-admin-app/commit/c4cfdb5ee))
+- Callback component to handle backend redirection and JWT storage ([c4cfdb5](https://github.com/sitmun/sitmun-admin-app/commit/c4cfdb5ee))
+- Cookie-based JWT transport using ngx-cookie-service for future HttpOnly cookie support ([c4cfdb5](https://github.com/sitmun/sitmun-admin-app/commit/c4cfdb5ee))
+- OIDC provider buttons dynamically rendered below separator in login form ([c4cfdb5](https://github.com/sitmun/sitmun-admin-app/commit/c4cfdb5ee))
+- Translation strings for OIDC authentication flows ([c4cfdb5](https://github.com/sitmun/sitmun-admin-app/commit/c4cfdb5ee))
+- Callback component tests ([4d30914](https://github.com/sitmun/sitmun-admin-app/commit/4d309140))
+
+### Changed
+
+- Refactored auth constants for better organization ([dfd0ff3](https://github.com/sitmun/sitmun-admin-app/commit/dfd0ff3b))
+- Updated to Material spinner component ([dfd0ff3](https://github.com/sitmun/sitmun-admin-app/commit/dfd0ff3b))
+- Enhanced authentication test coverage ([dfd0ff3](https://github.com/sitmun/sitmun-admin-app/commit/dfd0ff3b))
+
+## [1.2.0] - 2026-01-27
+
+### Added
+
+- New tree node view mode
+- Help tooltips in node mapping and task edit attributes forms
+
+### Fixed
+
+- Numeric layer names handling in WMS capabilities processing
+- Translation infrastructure with defensive programming and null checks
+- Role form save payload to include form values via createObject
+- Field rename from spatialSelectionConnectionId to spatialSelectionServiceId in layers form
+
+## [1.1.1] - 2025-08-28
+
+### Added
+
+- Application header parameter configuration with customizable left and right sections
+- Header display controls for SITMUN logo, application switcher, home menu, language selector, profile and logout buttons
+- Enhanced task selection functionality on tree nodes with improved validation
+- Application privacy controls through `appPrivate` property configuration
+
+### Changed
+
+- Modernized territory form component with BaseFormComponent pattern for consistency
+- Enhanced tree node task selection with better validation and error messaging
+- Improved warnings panel component with expandable interface and badge notifications
+
+### Fixed
+
+- Angular compiler strict template compliance issues across multiple components
+- Background maps filtering in layers-permits grid to prevent display conflicts
+- Error handling with localized messages for initialization and service capabilities
+- Fallback message translation handling for better internationalization
+- Application form initialization to ensure `isUnavailable` property is properly set
+- Route-driven authentication layout with simplified auth flow
+- Core/HAL module with dropped Node polyfills and modernized RxJS error handling
+
+## [1.1.0] - 2025-08-03
+
+### Added
+
+- Warnings panel to surface user validation issues from backend
+- Application privacy controls with `appPrivate` property
+- Feature flag system with directive, pipe, component, and service
+- Task edit management components for enhanced task administration
+- User info component to toolbar for better user experience
+- Email field to user form with validation
+- Description field to territory form and model
+- Search and replace functionality to data grid
+- Roles management tab to trees form
+- Tree node mapping fields and namespaces for XML
+- Router link renderer for improved data grid functionality
+- Application dashboard field
+- Creator field and maintenance information to application form
+- Character counter and validation to various forms
+- Comprehensive logging facilities and URI template support
+- Docker support for development environment
+
+### Changed
+
+- Migrated multiple components to `BaseFormComponent` pattern for consistency
+- Modernized territory form component with `BaseFormComponent` pattern
+- Migrated from TSLint to ESLint for better code quality
+- Replaced Karma with Jest testing framework
+- Enhanced error handling with localized messages
+- Improved database connection validation
+- Standardized side menu structure and translation handling
+- Migrated from frontend-core to domain module architecture for better organization
+- Reorganized HAL module as part of core with functional structure
+- Modernized component architecture with base component patterns
+- Updated RxJS from v6.6.0 to v7.8.1 for Angular 16 compatibility
+
+### Fixed
+
+- Route-driven authentication layout and simplified auth flow
+- Angular compiler strict template compliance issues
+- Background maps filtering in layers-permits grid
+- Error handling and fallback message translation
+- 403 errors now properly redirect to login page
+- Logout functionality issues and prevented API request loops
+- TypeScript compilation errors for Angular 16 compatibility
+- Deprecated AG Grid and Angular form APIs
+- Empty SCSS files and restored variables.scss
+- Multiple territories assignment to multiple roles
+- Task form validation and UI improvements
+- Layer permissions and roles components
+- AG Grid autoresize functionality
+- Dashboard component issues
+- Login functionality restoration
+
+### Removed
+
+- Node polyfills from core/hal module
+- Syncfusion dependencies
+- Protractor testing framework
+- Unused save methods from domain services
+- Redundant translations and improved structure
+
+## [1.0.0] - 2024-11-12
+
+### Added
+
+- Initial stable release of SITMUN Admin Application
+- Comprehensive user management interface
+- Territory and application administration
+- Cartography and service management
+- Task management system with multiple task types (basic, query, edit)
+- Tree and node management
+- Background layers administration
+- Role-based access control interface
+- Connection management for database connections
+- Multilingual support (Catalan, English, Spanish, French, Occitan)
+- Responsive design with modern UI components
+- Form validation and error handling
+- Data grid functionality with AG Grid
+- Authentication and authorization system
+- REST API integration with HAL+JSON
+- Comprehensive test suite with Karma and Jasmine
+
+### Changed
+
+- Implemented proper dependency management
+- Enhanced code quality and maintainability
+
+### Fixed
+
+- Various bug fixes and improvements from development phase
+
+[Unreleased]: https://github.com/sitmun/sitmun-admin-app/compare/sitmun-admin-app/1.2.7...HEAD
+[1.2.7]: https://github.com/sitmun/sitmun-admin-app/compare/sitmun-admin-app/1.2.6...sitmun-admin-app/1.2.7
+[1.2.6]: https://github.com/sitmun/sitmun-admin-app/compare/sitmun-admin-app/1.2.5...sitmun-admin-app/1.2.6
+[1.2.5]: https://github.com/sitmun/sitmun-admin-app/compare/sitmun-admin-app/1.2.4...sitmun-admin-app/1.2.5
+[1.2.4]: https://github.com/sitmun/sitmun-admin-app/compare/sitmun-admin-app/1.2.3...sitmun-admin-app/1.2.4
+[1.2.3]: https://github.com/sitmun/sitmun-admin-app/compare/sitmun-admin-app/1.2.2...sitmun-admin-app/1.2.3
+[1.2.2]: https://github.com/sitmun/sitmun-admin-app/compare/sitmun-admin-app/1.2.1...sitmun-admin-app/1.2.2
+[1.2.1]: https://github.com/sitmun/sitmun-admin-app/compare/sitmun-admin-app/1.2.0...sitmun-admin-app/1.2.1
+[1.2.0]: https://github.com/sitmun/sitmun-admin-app/compare/sitmun-admin-app/1.1.1...sitmun-admin-app/1.2.0
+[1.1.1]: https://github.com/sitmun/sitmun-admin-app/compare/sitmun-admin-app/1.1.0...sitmun-admin-app/1.1.1
+[1.1.0]: https://github.com/sitmun/sitmun-admin-app/compare/sitmun-admin-app/1.0.0...sitmun-admin-app/1.1.0
+[1.0.0]: https://github.com/sitmun/sitmun-admin-app/releases/tag/sitmun-admin-app/1.0.0
