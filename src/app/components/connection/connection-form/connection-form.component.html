@@ -23,98 +23,97 @@
   [dynamicHeight]="true"
   preserveContent="true">
   <mat-tab label="{{ 'common.form.details' | translate }}">
-    <form [formGroup]='entityForm' *ngIf="dataLoaded">
+    <form [formGroup]='entityForm' *ngIf="dataLoaded" class="sitmun-service-form-entity">
       <mat-card class="sitmun-mat-card-margin" appearance="outlined">
-        <mat-card-content>
-          <mat-form-field appearance="outline" class="full">
+        <mat-card-content class="sitmun-service-form-stack">
+          <mat-form-field appearance="outline" class="full sitmun-cartography-rich-hint-field" subscriptSizing="dynamic">
             <mat-label> {{ 'common.form.name' | translate }}</mat-label>
             <input matInput type="text" formControlName="name" required [maxlength]="50">
+            <mat-hint align="start">{{ 'entity.connection.hint.name' | translate }}</mat-hint>
             <mat-hint align="end">
               {{ entityForm.get('name') | characterCount }}
             </mat-hint>
           </mat-form-field>
-          <mat-form-field appearance="outline" class="half">
+          <mat-form-field appearance="outline" class="full sitmun-cartography-rich-hint-field" subscriptSizing="dynamic">
             <mat-label>{{ 'entity.connection.driver' | translate }}</mat-label>
             <mat-select formControlName="driver">
               <mat-option [value]="driver.value" *ngFor="let driver of this.codeList('databaseConnection.driver')">
                 {{ driver.description }}
               </mat-option>
             </mat-select>
-          </mat-form-field>
-          <div class="break"></div>
-
-          <mat-form-field appearance="outline" class="half add-gap">
-            <mat-label> {{ 'entity.user.label' | translate }}</mat-label>
-            <input matInput type="text" formControlName="user" [maxlength]="50">
-            <mat-hint align="end">
-              {{ entityForm.get('user') | characterCount }}
-            </mat-hint>
+            <mat-hint align="start">{{ 'entity.connection.hint.driver' | translate }}</mat-hint>
           </mat-form-field>
 
-          <mat-form-field *ngIf="isPasswordBeingEdited" appearance="outline" class="half">
-            <mat-label>{{ 'common.form.password.label' | translate }}</mat-label>
-            <input matInput
-                   formControlName="newPassword"
-                   type="text"
-                   [maxlength]="50"
-                   (input)="onPasswordChange()"
-                   class="password-input">
-            <mat-hint align="end">
-              {{ entityForm.get('newPassword') | characterCount }}
-            </mat-hint>
-          </mat-form-field>
-          <mat-form-field *ngIf="!isPasswordBeingEdited" appearance="outline" class="half">
-            <mat-label>{{ 'common.form.password.label' | translate }}</mat-label>
-            <input (input)="passwordChanged($event)"
-                   [formControlName]="'newPassword'"
-                   [maxlength]="50"
-                   [type]="'text'"
-                   class="password-input"
-                   matInput>
-          </mat-form-field>
-          <mat-form-field appearance="outline" class="full">
-            <mat-label>{{ 'entity.connection.url' | translate }}</mat-label>
-            <input matInput type="text" formControlName="url" required [maxlength]="250">
-            <mat-hint align="end">
-              {{ entityForm.get('url') | characterCount }}
-            </mat-hint>
-          </mat-form-field>
+          <div class="sitmun-connection-form-credentials">
+            <mat-form-field appearance="outline" class="half sitmun-cartography-rich-hint-field" subscriptSizing="dynamic">
+              <mat-label> {{ 'entity.user.label' | translate }}</mat-label>
+              <input matInput type="text" formControlName="user" [maxlength]="50">
+              <mat-hint align="start">{{ 'entity.connection.hint.user' | translate }}</mat-hint>
+              <mat-hint align="end">
+                {{ entityForm.get('user') | characterCount }}
+              </mat-hint>
+            </mat-form-field>
 
-          <button
-            mat-raised-button
-            type="button"
-            [disabled]="!canValidateConnection()"
-            (click)="validateConnection()"
-            color="primary"
-          >
-            {{ "common.button.validate" | translate }}
-          </button>
+            <mat-form-field appearance="outline" class="half sitmun-cartography-rich-hint-field" subscriptSizing="dynamic">
+              <mat-label>{{ 'common.form.password.label' | translate }}</mat-label>
+              <input matInput
+                     formControlName="newPassword"
+                     type="password"
+                     [maxlength]="50"
+                     (focus)="onPasswordFocus()"
+                     (blur)="onPasswordBlur()"
+                     (input)="onPasswordChange()"
+                     class="password-input">
+              <mat-hint align="start">{{ 'entity.connection.hint.password' | translate }}</mat-hint>
+              <mat-hint align="end" *ngIf="isPasswordBeingEdited || !passwordSet">
+                {{ entityForm.get('newPassword') | characterCount }}
+              </mat-hint>
+            </mat-form-field>
+          </div>
+
+          <div class="sitmun-connection-form-url-section">
+            <mat-form-field appearance="outline" class="full sitmun-cartography-rich-hint-field" subscriptSizing="dynamic">
+              <mat-label>{{ 'entity.connection.url' | translate }}</mat-label>
+              <input matInput type="text" formControlName="url" required [maxlength]="250">
+              <mat-hint align="start">{{ 'entity.connection.hint.url' | translate }}</mat-hint>
+              <mat-hint align="end">
+                {{ entityForm.get('url') | characterCount }}
+              </mat-hint>
+            </mat-form-field>
+
+            <div class="sitmun-connection-form-test-block">
+              <button
+                mat-raised-button
+                color="primary"
+                type="button"
+                class="sitmun-connection-form-test-button"
+                [disabled]="!canValidateConnection()"
+                [matTooltip]="!canValidateConnection() ? ('entity.connection.test.disabledHint' | translate) : ''"
+                (click)="validateConnection()"
+              >
+                {{ 'entity.connection.button.testConnection' | translate }}
+              </button>
+              <p class="sitmun-connection-form-validate-hint">{{ 'entity.connection.hint.validate' | translate }}</p>
+            </div>
+          </div>
         </mat-card-content>
       </mat-card>
     </form>
   </mat-tab>
   <mat-tab label="{{ 'entity.task.plural' | translate }}">
     <mat-card appearance="outlined">
+      <mat-card-header>
+        <app-card-lead
+          viewerKey="entity.connection.card.tasksLead"
+          [viewerPrefixKey]="''">
+        </app-card-lead>
+      </mat-card-header>
       <mat-card-content>
-        <app-data-grid [changeHeightButton]="true"
-                       [allNewElements]="isNewOrDuplicated()"
-                       [columnDefs]="tasksTable.relationsColumnsDefs"
-                       [getAll]='tasksTable.relationsFetchFn'
-                       [eventAddItemsSubscription]='tasksTable.addCommandEvent$.asObservable()'
-                       [eventGetAllRowsSubscription]='tasksTable.saveCommandEvent$.asObservable()'
-                       [eventRefreshSubscription]='tasksTable.refreshCommandEvent$.asObservable()'
-                       [actionButton]=false
-                       [discardChangesButton]=false
-                       [redoButton]=false
-                       [undoButton]=false
-                       [deleteButton]=false
-                       [addButton]=false
-                       [hideReplaceButton]=true
-                       [defaultColumnSorting]='tasksTable.defaultRelationsSorting()'
-                       [hideDuplicateButton]=true
-                       (getAllRows)="tasksTable.handleSaveRelations($event)"
-                       *ngIf="dataLoaded"
-        ></app-data-grid>
+        <app-relation-grid
+          *ngIf="dataLoaded"
+          [table]="tasksTable"
+          [readOnly]="true"
+        ></app-relation-grid>
       </mat-card-content>
     </mat-card>
   </mat-tab>

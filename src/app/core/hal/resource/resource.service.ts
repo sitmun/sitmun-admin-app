@@ -72,7 +72,7 @@ export class ResourceService {
 
         this.setUrls(result);
         result.sortInfo = options ? options.sort : undefined;
-      const observable = ResourceHelper.getHttp().get(uri, {headers: ResourceHelper.headers, params: params});
+      const observable = ResourceHelper.getHttp().get(uri, ResourceHelper.authenticatedOptions({headers: ResourceHelper.headers, params: params}));
         return observable.pipe(map(response => ResourceHelper.instantiateResourceCollection(type, response, result, subType,embeddedName)),
             catchError(error => throwError(() => error)));
     }
@@ -89,7 +89,7 @@ export class ResourceService {
 
     this.setUrls(result);
     result.sortInfo = options ? options.sort : undefined;
-    const observable = ResourceHelper.getHttp().get(uri, { headers: ResourceHelper.headers, params: params });
+    const observable = ResourceHelper.getHttp().get(uri, ResourceHelper.authenticatedOptions({ headers: ResourceHelper.headers, params: params }));
     return observable.pipe(map(response => ResourceHelper.instantiateResourceCollection(type, response, result, subType,embeddedName)),
       catchError(error => throwError(() => error)));
   }
@@ -109,7 +109,7 @@ export class ResourceService {
         const result: T = new type();
 
         this.setUrlsResource(result);
-    const observable = ResourceHelper.getHttp().get(uri, {headers: ResourceHelper.headers, params: params});
+    const observable = ResourceHelper.getHttp().get(uri, ResourceHelper.authenticatedOptions({headers: ResourceHelper.headers, params: params}));
         return observable.pipe(map(data => ResourceHelper.instantiateResource(result, data)),
             catchError(error => throwError(() => error)));
     }
@@ -120,7 +120,7 @@ export class ResourceService {
     const params = new HttpParams();
     const result: T = new type();
     this.setUrlsResource(result);
-    const observable = ResourceHelper.getHttp().get(uri, { headers: ResourceHelper.headers, params: params });
+    const observable = ResourceHelper.getHttp().get(uri, ResourceHelper.authenticatedOptions({ headers: ResourceHelper.headers, params: params }));
     return observable.pipe(map(data => ResourceHelper.instantiateResource(result, data)),
       catchError(error => throwError(() => error)));
   }
@@ -138,7 +138,7 @@ export class ResourceService {
         const result: T = new type();
 
         this.setUrlsResource(result);
-    const observable = ResourceHelper.getHttp().get(ResourceHelper.getProxy(resourceLink), {headers: ResourceHelper.headers});
+    const observable = ResourceHelper.getHttp().get(ResourceHelper.getProxy(resourceLink), ResourceHelper.authenticatedOptions({headers: ResourceHelper.headers}));
         return observable.pipe(map(data => ResourceHelper.instantiateResource(result, data)),
             catchError(error => throwError(() => error)));
     }
@@ -180,7 +180,7 @@ export class ResourceService {
         const result: ResourceArray<T> = ResourceHelper.createEmptyResult<T>(_embedded);
 
         this.setUrls(result);
-      const observable = ResourceHelper.getHttp().get(uri, {headers: ResourceHelper.headers, params: params});
+      const observable = ResourceHelper.getHttp().get(uri, ResourceHelper.authenticatedOptions({headers: ResourceHelper.headers, params: params}));
         return observable.pipe(map(response => ResourceHelper.instantiateResourceCollection(type, response, result, subType, embeddedName)),
             catchError(error => throwError(() => error)));
     }
@@ -200,7 +200,7 @@ export class ResourceService {
         const result: T = new type();
 
         this.setUrlsResource(result);
-      const observable = ResourceHelper.getHttp().get(uri, {headers: ResourceHelper.headers, params: params});
+      const observable = ResourceHelper.getHttp().get(uri, ResourceHelper.authenticatedOptions({headers: ResourceHelper.headers, params: params}));
         return observable.pipe(map(response => ResourceHelper.instantiateResource(result, response)),
             catchError(error => throwError(() => error)));
     }
@@ -220,7 +220,7 @@ export class ResourceService {
         const params = ResourceHelper.optionParams(new HttpParams(), options);
         const result: ResourceArray<T> = ResourceHelper.createEmptyResult<T>(_embedded);
         this.setUrls(result);
-      const observable = ResourceHelper.getHttp().get(uri, {headers: ResourceHelper.headers, params: params});
+      const observable = ResourceHelper.getHttp().get(uri, ResourceHelper.authenticatedOptions({headers: ResourceHelper.headers, params: params}));
         return observable.pipe(map(response => ResourceHelper.instantiateResourceCollection(type, response, result)),
             catchError(error => throwError(() => error)));
     }
@@ -231,7 +231,7 @@ export class ResourceService {
     const params = ResourceHelper.optionParams(new HttpParams(), options).append('projection', 'view');
     const result: ResourceArray<T> = ResourceHelper.createEmptyResult<T>(_embedded);
     this.setUrls(result);
-    const observable = ResourceHelper.getHttp().get(uri, {headers: ResourceHelper.headers, params: params});
+    const observable = ResourceHelper.getHttp().get(uri, ResourceHelper.authenticatedOptions({headers: ResourceHelper.headers, params: params}));
     return observable.pipe(map(response => ResourceHelper.instantiateResourceCollection(type, response, result)),
       catchError(error => throwError(() => error)));
   }
@@ -248,7 +248,7 @@ export class ResourceService {
       const result: T = new type();
 
         this.setUrlsResource(result);
-      const observable = ResourceHelper.getHttp().get(resourceLink, {headers: ResourceHelper.headers});
+      const observable = ResourceHelper.getHttp().get(resourceLink, ResourceHelper.authenticatedOptions({headers: ResourceHelper.headers}));
         return observable.pipe(map(data => ResourceHelper.instantiateResource(result, data)),
             catchError(error => throwError(() => error)));
     }
@@ -267,7 +267,7 @@ export class ResourceService {
         const result: ResourceArray<T> = ResourceHelper.createEmptyResult<T>(_embedded);
         this.setUrls(result);
         const params = ResourceHelper.optionParams(new HttpParams(), options);
-      const observable = ResourceHelper.getHttp().get(resourceLink, {headers: ResourceHelper.headers, params});
+      const observable = ResourceHelper.getHttp().get(resourceLink, ResourceHelper.authenticatedOptions({headers: ResourceHelper.headers, params}));
         return observable.pipe(map(response => ResourceHelper.instantiateResourceCollection(type, response, result, builder)),
             catchError(error => throwError(() => error)));
     }
@@ -281,7 +281,7 @@ export class ResourceService {
         this.loggerService.trace("ResourceService.count:", resource);
         const uri = this.getResourceUrl(resource).concat('/search/countAll');
 
-        return ResourceHelper.getHttp().get(uri, { headers: ResourceHelper.headers, observe: 'body' }).pipe(
+        return ResourceHelper.getHttp().get(uri, ResourceHelper.authenticatedOptions({ headers: ResourceHelper.headers, observe: 'body' })).pipe(
             map((response: Response) => Number(response.body)),
             catchError(error => throwError(() => error)));
     }
@@ -299,7 +299,7 @@ export class ResourceService {
         const payload = ResourceHelper.resolveRelations(entity);
 
         this.setUrlsResource(entity);
-        const observable = ResourceHelper.getHttp().post(uri, payload, { headers: ResourceHelper.headers, observe: 'response' });
+        const observable = ResourceHelper.getHttp().post(uri, payload, ResourceHelper.authenticatedOptions({ headers: ResourceHelper.headers, observe: 'response' }));
         return observable.pipe(switchMap((response: HttpResponse<string>) => {
             return of(ResourceHelper.instantiateResource(entity, response.body));
         }));
@@ -325,7 +325,7 @@ export class ResourceService {
         );
         const payload = ResourceHelper.resolveRelations(entity);
 
-      const observable = ResourceHelper.getHttp().put(uri, payload, { headers: ResourceHelper.headers, observe: 'response' });
+      const observable = ResourceHelper.getHttp().put(uri, payload, ResourceHelper.authenticatedOptions({ headers: ResourceHelper.headers, observe: 'response' }));
       return observable.pipe(
         switchMap((response: HttpResponse<string>) => {
           return of(ResourceHelper.instantiateResource(entity, response.body));
@@ -350,7 +350,7 @@ export class ResourceService {
             'Content-Type': 'text/uri-list'
         });
 
-        const observable: Observable<HttpResponse<any>> = ResourceHelper.getHttp().put(uri, payload, { headers: headers, observe: 'response' });
+        const observable: Observable<HttpResponse<any>> = ResourceHelper.getHttp().put(uri, payload, ResourceHelper.authenticatedOptions({ headers: headers, observe: 'response' }));
         return observable.pipe(map((_response: HttpResponse<string>) => {
             return resourceArray;
         }));
@@ -389,10 +389,10 @@ export class ResourceService {
         );
         const payload = ResourceHelper.resolveRelations(entity);
 
-      const observable = ResourceHelper.getHttp().patch(uri, payload, {
+      const observable = ResourceHelper.getHttp().patch(uri, payload, ResourceHelper.authenticatedOptions({
         headers: ResourceHelper.headers,
         observe: 'response'
-      });
+      }));
         return observable.pipe(map((response: HttpResponse<string>) => {
             return ResourceHelper.instantiateResource(entity, response.body);
         }));
@@ -420,10 +420,10 @@ export class ResourceService {
             httpContext.set(ENTITY_NAME_KEY, entityName);
         }
 
-        return ResourceHelper.getHttp().delete<T>(uri, {
+        return ResourceHelper.getHttp().delete<T>(uri, ResourceHelper.authenticatedOptions({
             headers: ResourceHelper.headers,
             context: httpContext
-        }).pipe(catchError(error => throwError(() => error)));
+        })).pipe(catchError(error => throwError(() => error)));
     }
 
     /**

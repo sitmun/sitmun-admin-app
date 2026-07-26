@@ -249,10 +249,9 @@ export class TerritoryFormComponent extends BaseFormComponent<TerritoryProjectio
       firstValueFrom(this.utils.getCodeListValues('territory.scope'))
     ]);
 
-    this.territoryGroups.push(...territoryGroups);
-    this.territoryTypes.push(...territoryTypes);
-    this.territoryTypes.sort((a, b) => a.name.localeCompare(b.name));
-    this.scopeTypes.push(...scopeTypes);
+    this.territoryGroups = [...territoryGroups];
+    this.territoryTypes = [...territoryTypes].sort((a, b) => a.name.localeCompare(b.name));
+    this.scopeTypes = [...scopeTypes];
   }
 
   /**
@@ -585,14 +584,29 @@ export class TerritoryFormComponent extends BaseFormComponent<TerritoryProjectio
     return DataTable2Definition.builder<UserConfigurationProjection, User, Role>(this.dialog, this.errorHandler, this.loadingService)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
-        this.utils.getNonEditableColumnDef('entity.territory.permissions.user', 'user'),
-        this.utils.getNonEditableColumnDef('entity.territory.permissions.role', 'role'),
-        this.utils.getBooleanColumnDef(
-          'entity.territory.permissions.appliesToChildrenTerritories',
-          'appliesToChildrenTerritories',
-          true
+        Object.assign(
+          this.utils.getRouterLinkColumnDef('entity.territory.permissions.user', 'user', '/user/:id/userForm', {
+            id: 'userId',
+          }),
+          {flex: 2, minWidth: 140, tooltipField: 'user'}
         ),
-        this.utils.getStatusColumnDef(),
+        Object.assign(
+          this.utils.getRouterLinkColumnDef('entity.territory.permissions.role', 'role', '/role/:id/roleForm', {
+            id: 'roleId',
+          }),
+          {flex: 3, minWidth: 160, tooltipField: 'role'}
+        ),
+        Object.assign(
+          this.utils.getBooleanColumnDef(
+            'entity.territory.permissions.appliesToChildrenTerritories',
+            'appliesToChildrenTerritories',
+            true,
+            180,
+            220
+          ),
+          {flex: 0}
+        ),
+        Object.assign(this.utils.getStatusColumnDef(), {flex: 0}),
       ])
       .withTargetsLeftColumns([
         this.utils.getSelCheckboxColumnDef(),
@@ -638,6 +652,7 @@ export class TerritoryFormComponent extends BaseFormComponent<TerritoryProjectio
           return this.userConfigurationService.delete(newItem);
         })
       })
+      .withFieldRestrictions(['userId', 'roleId', 'appliesToChildrenTerritories'])
       .withTargetsTitle('entity.territory.permissions.title')
       .withTargetsLeftTitle('entity.territory.users')
       .withTargetsRightTitle('entity.territory.roles')
@@ -703,6 +718,10 @@ export class TerritoryFormComponent extends BaseFormComponent<TerritoryProjectio
       .withTargetsFetcher(() => this.territoryService.fetchProjectionItems(TerritoryProjection).pipe(
         map((territories: TerritoryProjection[]) => this.filterParentTargetTerritories(territories))
       ))
+      .withTargetInclude((relations) => (target) =>
+        !relations.some((relation) => relation.id === target.id)
+      )
+      .withTargetToRelation((items) => items)
       .withRelationsUpdater(async (territories: (TerritoryProjection & Status)[]) => {
         await onUpdatedRelation(territories)
           .map((item) => this.territoryService.createProxy(item.id))
@@ -752,6 +771,10 @@ export class TerritoryFormComponent extends BaseFormComponent<TerritoryProjectio
       .withTargetsFetcher(() => this.territoryService.fetchProjectionItems(TerritoryProjection).pipe(
         map((territories: TerritoryProjection[]) => this.filterChildTargetTerritories(territories))
       ))
+      .withTargetInclude((relations) => (target) =>
+        !relations.some((relation) => relation.id === target.id)
+      )
+      .withTargetToRelation((items) => items)
       .withRelationsUpdater(async (territories: (TerritoryProjection & Status)[]) => {
         await onUpdatedRelation(territories)
           .map((item) => this.territoryService.createProxy(item.id))
@@ -770,12 +793,26 @@ export class TerritoryFormComponent extends BaseFormComponent<TerritoryProjectio
     return DataTableDefinition.builder<CartographyAvailabilityProjection, CartographyProjection>(this.dialog, this.errorHandler, this.loadingService)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
-        this.utils.getNonEditableColumnDef('common.form.name', 'cartographyName'),
-        this.utils.getNonEditableColumnDef('entity.service.label', 'cartographyServiceName'),
+        this.utils.getRouterLinkColumnDef(
+          'common.form.name',
+          'cartographyName',
+          '/layers/:id/layersForm',
+          {
+            id: 'cartographyId',
+          }
+        ),
         {
           ...this.utils.getNonEditableColumnDef('entity.cartography.plural', 'cartographyLayers'),
           ...this.utils.getArrayValueParser(),
         },
+        this.utils.getRouterLinkColumnDef(
+          'entity.service.label',
+          'cartographyServiceName',
+          '/service/:id/serviceForm',
+          {
+            id: 'cartographyServiceId',
+          }
+        ),
         this.utils.getStatusColumnDef(),
       ])
       .withRelationsFetcher(() => {
@@ -784,7 +821,7 @@ export class TerritoryFormComponent extends BaseFormComponent<TerritoryProjectio
         }
         return this.entityToEdit.getRelationArrayEx(CartographyAvailabilityProjection, 'cartographyAvailabilities', {projection: 'view'})
       })
-      .withRelationsOrder(['name'])
+      .withRelationsOrder('cartographyName')
       .withRelationsUpdater(async (cartographies: (CartographyAvailabilityProjection & Status)[]) => {
         await onDelete(cartographies).forEach(availability => {
           const itemToDelete = this.cartographyAvailabilityService.createProxy(availability.id);
@@ -805,16 +842,19 @@ export class TerritoryFormComponent extends BaseFormComponent<TerritoryProjectio
       .withTargetsColumns([
         this.utils.getSelCheckboxColumnDef(),
         this.utils.getNonEditableColumnDef('common.form.name', 'name'),
-        this.utils.getNonEditableColumnDef('entity.service.label', 'serviceName'),
         {
           ...this.utils.getNonEditableColumnDef('entity.cartography.plural', 'layers'),
           ...this.utils.getArrayValueParser(),
         },
+        this.utils.getNonEditableColumnDef('entity.service.label', 'serviceName'),
       ])
+      .withTargetInclude((relations) => (target) =>
+        !relations.some((relation) => relation.cartographyId === target.id)
+      )
       .withTargetToRelation((items) => {
         return items.map(item => CartographyAvailabilityProjection.of(this.entityToEdit, item))
       })
-      .withFieldRestriction('id')
+      .withFieldRestriction('cartographyId')
       .build();
   }
 
@@ -822,16 +862,22 @@ export class TerritoryFormComponent extends BaseFormComponent<TerritoryProjectio
     return DataTableDefinition.builder<TaskAvailabilityProjection, TaskProjection>(this.dialog, this.errorHandler, this.loadingService)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
-        this.utils.getNonEditableColumnDef('common.form.name', 'taskName'),
-        this.utils.getNonEditableColumnDef('common.form.type', 'taskTypeName', 300),
+        this.utils.getRouterLinkColumnDef('common.form.name', 'taskName', '/tasks/:id/:typeId', {
+          id: 'taskId',
+          typeId: 'taskTypeId',
+        }),
+        this.utils.getNonEditableColumnDef('entity.taskType.label', 'taskTypeTitle', 300),
         this.utils.getStatusColumnDef(),
       ])
-      .withRelationsOrder(['taskTypeName'])
+      .withRelationsOrder(['taskTypeTitle'])
       .withRelationsFetcher(() => {
         if (this.isNew()) {
           return of([]);
         }
-        return this.entityToEdit.getRelationArrayEx(TaskAvailabilityProjection, 'taskAvailabilities', {projection: 'view'})
+        return this.entityToEdit.getRelationArrayEx(TaskAvailabilityProjection, 'taskAvailabilities', {
+          projection: 'view',
+          lang: this.requestLang(),
+        })
       })
       .withRelationsUpdater(async (tasks: (TaskAvailabilityProjection & Status)[]) => {
         await onDelete(tasks).forEach(task => {
@@ -851,12 +897,17 @@ export class TerritoryFormComponent extends BaseFormComponent<TerritoryProjectio
       .withTargetsColumns([
         this.utils.getSelCheckboxColumnDef(),
         this.utils.getNonEditableColumnDef('common.form.name', 'name'),
-        this.utils.getNonEditableColumnDef('common.form.type', 'typeName', 300),
+        this.utils.getNonEditableColumnDef('entity.taskType.label', 'typeTitle', 300),
         this.utils.getStatusColumnDef()
       ])
-      .withTargetsFetcher(() => this.taskService.fetchProjectionItems(TaskProjection))
+      .withTargetsFetcher(() => this.taskService.fetchProjectionItems(TaskProjection, {
+        params: [{key: 'lang', value: this.requestLang()}],
+      }))
+      .withTargetInclude((relations) => (target) =>
+        !relations.some((relation) => relation.taskId === target.id)
+      )
       .withFieldRestriction('taskId')
-      .withTargetsOrder(['typeName'])
+      .withTargetsOrder(['typeTitle'])
       .withTargetToRelation((tasks) => tasks.map(task => TaskAvailabilityProjection.of(task, this.entityToEdit)))
       .build();
   }

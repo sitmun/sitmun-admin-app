@@ -6,6 +6,11 @@
  
 export type DataGridColumnDef = Record<string, any>;
 
+const TEXT_WIDTH_FACTOR_PX = 8;
+const CELL_CHROME_PX = 56;
+const DEFAULT_DATA_WIDTH_CAP_PX = 480;
+const DATA_WIDTH_VIEWPORT_FRACTION = 0.45;
+
 function narrowCheckboxColumn(col: DataGridColumnDef): DataGridColumnDef {
   return {
     ...col,
@@ -94,6 +99,7 @@ export function prepareClientSideColumnDefs(columnDefs: DataGridColumnDef[]): Da
   const hasFlexGrow = columnDefs.some(
     (col) => !col.checkboxSelection && typeof col.flex === 'number' && col.flex > 0
   );
+  const fallbackFlexIndex = hasFlexGrow ? -1 : findFallbackFlexColumnIndex(columnDefs);
 
   return columnDefs.map((col, index) => {
     if (col.checkboxSelection) {
@@ -139,7 +145,7 @@ export function prepareClientSideColumnDefs(columnDefs: DataGridColumnDef[]): Da
       return processed;
     }
 
-    if (index === columnDefs.length - 1) {
+    if (index === fallbackFlexIndex) {
       processed.flex = 1;
       processed.minWidth = col.minWidth ?? 100;
       delete processed.width;
@@ -152,6 +158,16 @@ export function prepareClientSideColumnDefs(columnDefs: DataGridColumnDef[]): Da
     applyHeaderMinWidth(col, processed);
     return processed;
   });
+}
+
+function findFallbackFlexColumnIndex(columnDefs: DataGridColumnDef[]): number {
+  for (let index = columnDefs.length - 1; index >= 0; index -= 1) {
+    const col = columnDefs[index];
+    if (!col.checkboxSelection && col.field !== 'status' && col.flex !== 0) {
+      return index;
+    }
+  }
+  return -1;
 }
 
 /** True when at least one column uses flex grow (clientSide grids that should not auto-size to content). */
@@ -170,4 +186,89 @@ export function usesContentBasedColumnSizing(
     return false;
   }
   return !usesFlexColumnLayout(columnDefs);
+}
+
+/**
+ * Estimates fixed column widths from row values before AG Grid renders the rows.
+ * This avoids the visible post-render width change caused by DOM-based auto-sizing.
+ */
+export function applyDataBasedColumnWidths<T>(
+  columnDefs: DataGridColumnDef[],
+  rows: T[],
+  viewportWidth: number,
+  getValue: (row: T, colDef: DataGridColumnDef) => unknown = defaultColumnValue,
+): DataGridColumnDef[] {
+  if (!usesFlexColumnLayout(columnDefs) || rows.length === 0) {
+    return columnDefs;
+  }
+
+  return columnDefs.map((colDef) => {
+    if (!isDataSizedFixedColumn(colDef)) {
+      return colDef;
+    }
+
+    const minWidth = colDef.minWidth ?? colDef.width ?? 100;
+    const maxWidth = colDef.maxWidth ?? defaultDataWidthCap(minWidth, viewportWidth);
+    const headerWidth = estimateHeaderMinWidth(colDef.headerName ?? '');
+    const contentWidth = rows.reduce((maxWidthForRows, row) => {
+      const value = getValue(row, colDef);
+      const text = Array.isArray(value) ? value.join(',') : `${value ?? ''}`;
+      return Math.max(maxWidthForRows, estimateCellTextWidth(text));
+    }, headerWidth);
+    const width = Math.min(Math.max(contentWidth, minWidth), Math.max(minWidth, maxWidth));
+
+    return {
+      ...colDef,
+      width,
+    };
+  });
+}
+
+function isDataSizedFixedColumn(colDef: DataGridColumnDef): boolean {
+  if (colDef.checkboxSelection || colDef.field === 'status') {
+    return false;
+  }
+  if (colDef.flex !== 0) {
+    return false;
+  }
+  return !!(colDef.field || colDef.colId);
+}
+
+function estimateCellTextWidth(text: string): number {
+  return Math.ceil(text.trim().length * TEXT_WIDTH_FACTOR_PX) + CELL_CHROME_PX;
+}
+
+function defaultDataWidthCap(minWidth: number, viewportWidth: number): number {
+  if (viewportWidth <= 0) {
+    return Math.max(minWidth, DEFAULT_DATA_WIDTH_CAP_PX);
+  }
+  const viewportCap = Math.floor(Math.max(minWidth, viewportWidth) * DATA_WIDTH_VIEWPORT_FRACTION);
+  return Math.max(minWidth, Math.min(DEFAULT_DATA_WIDTH_CAP_PX, viewportCap));
+}
+
+function defaultColumnValue<T>(row: T, colDef: DataGridColumnDef): unknown {
+  if (!colDef.field) {
+    return '';
+  }
+  return (colDef.field as string)
+    .split('.')
+    .reduce<unknown>((value, key) => {
+      if (value == null || typeof value !== 'object') {
+        return undefined;
+      }
+      return (value as Record<string, unknown>)[key];
+    }, row);
+}
+
+/** Auto-size strategy for prepared column defs; undefined when flex layout or infinite mode applies. */
+export function resolveAutoSizeStrategy(
+  rowModelMode: 'infinite' | 'clientSide',
+  preparedColumnDefs: DataGridColumnDef[]
+): {type: 'fitCellContents'} | undefined {
+  if (rowModelMode === 'infinite') {
+    return undefined;
+  }
+  return usesContentBasedColumnSizing(rowModelMode, preparedColumnDefs)
+    ? {type: 'fitCellContents'}
+    : undefined;
 }

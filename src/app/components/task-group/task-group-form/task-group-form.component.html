@@ -33,7 +33,7 @@
             </mat-hint>
             <mat-icon matSuffix class="iconTranslate"
                       (click)="onTranslated('name')"
-                      onKeyDown="onTranslated('name')">translate</mat-icon>
+                      (keydown)="onTranslated('name')">translate</mat-icon>
           </mat-form-field>
         </mat-card-content>
       </mat-card>
@@ -42,25 +42,11 @@
   <mat-tab label="{{ 'entity.taskGroup.tasks.header' | translate }}">
     <mat-card class="sitmun-mat-card-margin" appearance="outlined">
       <mat-card-content>
-        <app-data-grid [allNewElements]="isNewOrDuplicated()"
-                       [columnDefs]='tasksTable.relationsColumnsDefs'
-                       [getAll]='tasksTable.relationsFetchFn'
-                       [eventAddItemsSubscription]='tasksTable.addCommandEvent$.asObservable()'
-                       [eventGetAllRowsSubscription]='tasksTable.saveCommandEvent$.asObservable()'
-                       [eventRefreshSubscription]='tasksTable.refreshCommandEvent$.asObservable()'
-                       [actionButton]=true
-                       [discardChangesButton]=true
-                       [redoButton]=true
-                       [undoButton]=true
-                       [deleteButton]=false
-                       [addButton]=true
-                       [hideReplaceButton]=true
-                       [defaultColumnSorting]='tasksTable.defaultRelationsSorting()'
-                       [hideDuplicateButton]=true
-                       (getAllRows)="tasksTable.handleSaveRelations($event)"
-                       (add)="tasksTable.openDialog($event)"
-                       *ngIf="dataLoaded"
-        ></app-data-grid>
+        <app-relation-grid
+          *ngIf="dataLoaded"
+          [table]="tasksTable"
+          [allNewElements]="isNewOrDuplicated()"
+        ></app-relation-grid>
       </mat-card-content>
     </mat-card>
   </mat-tab>

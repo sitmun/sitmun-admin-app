@@ -31,13 +31,10 @@
           <mat-form-field appearance="outline" class="full">
             <mat-label>{{ 'entity.tree.name' | translate }} ({{ defaultLang }})</mat-label>
             <input matInput type="text" formControlName="name" [maxlength]="50" required>
-            <mat-hint align="end" [class.text-warning]="entityForm.get('name')?.value?.length > 50">
-              {{ entityForm.get('name') | characterCount }}
-              <mat-icon *ngIf="entityForm.get('name')?.value?.length > 50" fontIcon="warning" class="warning-icon"></mat-icon>
-            </mat-hint>
+            <mat-hint align="end">{{ entityForm.get('name') | characterCount }}</mat-hint>
             <mat-icon matSuffix class="iconTranslate"
                       (click)="onTranslated('name')"
-                      onKeyDown="onTranslated('name')">translate</mat-icon>
+                      (keydown)="onTranslated('name')">translate</mat-icon>
           </mat-form-field>
           <mat-form-field appearance="outline" class="full">
             <mat-label>{{ 'entity.tree.description' | translate }} ({{ defaultLang }})</mat-label>
@@ -45,7 +42,7 @@
             <mat-hint align="end">{{ entityForm.get('description') | characterCount }}</mat-hint>
             <mat-icon matSuffix class="iconTranslate"
                       (click)="onTranslated('description')"
-                      onKeyDown="onTranslated('description')">translate</mat-icon>
+                      (keydown)="onTranslated('description')">translate</mat-icon>
           </mat-form-field>
           <mat-form-field appearance="outline" class="quarter add-gap">
             <mat-label>{{ 'entity.tree.type' | translate }}</mat-label>
@@ -111,56 +108,26 @@
       </app-tree-nodes>
     </ng-template>
   </mat-tab>
-  <mat-tab label="{{ 'entity.permissionGroup.applications.header' | translate }}">
+  <mat-tab label="{{ 'entity.tree.applications.header' | translate }}">
     <mat-card class="sitmun-mat-card-margin" appearance="outlined">
       <mat-card-content>
-        <app-data-grid
+        <app-relation-grid
           #applicationsGrid
-          [changeHeightButton]="true"
+          *ngIf="dataLoaded"
+          [table]="applicationsTable"
           [allNewElements]="isNewOrDuplicated()"
-          [columnDefs]="applicationsTable.relationsColumnsDefs"
-          [getAll]="applicationsTable.relationsFetchFn"
-          [eventAddItemsSubscription]="applicationsTable.addCommandEvent$.asObservable()"
-          [eventGetAllRowsSubscription]="applicationsTable.saveCommandEvent$.asObservable()"
-          [eventRefreshSubscription]="applicationsTable.refreshCommandEvent$.asObservable()"
-          [actionButton]="true"
-          [discardChangesButton]="true"
-          [redoButton]="true"
-          [undoButton]="true"
-          [deleteButton]="true"
-          [addButton]="true"
-          [hideDuplicateButton]="true"
-          [defaultColumnSorting]="applicationsTable.defaultRelationsSorting()"
-          (getAllRows)="applicationsTable.handleSaveRelations($event)"
-          (add)="applicationsTable.openDialog($event)"
-          *ngIf="dataLoaded">
-        </app-data-grid>
+        ></app-relation-grid>
       </mat-card-content>
     </mat-card>
   </mat-tab>
   <mat-tab label="{{ 'entity.tree.roles' | translate }}">
     <mat-card class="sitmun-mat-card-margin" appearance="outlined">
       <mat-card-content>
-        <app-data-grid
-          [changeHeightButton]="true"
+        <app-relation-grid
+          *ngIf="dataLoaded"
+          [table]="rolesTable"
           [allNewElements]="isNewOrDuplicated()"
-          [columnDefs]="rolesTable.relationsColumnsDefs"
-          [getAll]="rolesTable.relationsFetchFn"
-          [eventAddItemsSubscription]="rolesTable.addCommandEvent$.asObservable()"
-          [eventGetAllRowsSubscription]="rolesTable.saveCommandEvent$.asObservable()"
-          [eventRefreshSubscription]="rolesTable.refreshCommandEvent$.asObservable()"
-          [actionButton]="true"
-          [discardChangesButton]="true"
-          [redoButton]="true"
-          [undoButton]="true"
-          [deleteButton]="true"
-          [addButton]="true"
-          [hideDuplicateButton]="true"
-          [defaultColumnSorting]="rolesTable.defaultRelationsSorting()"
-          (getAllRows)="rolesTable.handleSaveRelations($event)"
-          (add)="rolesTable.openDialog($event)"
-          *ngIf="dataLoaded">
-        </app-data-grid>
+        ></app-relation-grid>
       </mat-card-content>
     </mat-card>
   </mat-tab>

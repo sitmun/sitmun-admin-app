@@ -4,9 +4,9 @@ import {constants} from "@environments/constants";
 import {ApplicationBackground} from './application-background.model';
 import {ApplicationParameter} from './application-parameter.model';
 import {ApplicationTerritory} from "./application-territory.model";
+import {ApplicationTree} from './application-tree.model';
 import {CartographyGroup} from '../../cartography/models/cartography-group.model';
 import {Role} from '../../role/models/role.model';
-import {Tree} from '../../tree/models/tree.model';
 import {User} from '../../user/models/user.model';
 
 /**
@@ -54,7 +54,7 @@ export class Application extends Resource {
 
   public availableRoles: Role[];
 
-  public trees: Tree[];
+  public trees: ApplicationTree[];
 
   public backgrounds: ApplicationBackground[];
 
@@ -66,7 +66,11 @@ export class Application extends Resource {
 
   public creator? : User;
 
+  public responsibleInstitutionName?: string;
+
   public isUnavailable : boolean;
+
+  public warnings?: string[];
 
   public static readonly allProperties: string [] = [
     // Resource properties
@@ -77,7 +81,8 @@ export class Application extends Resource {
     'accessParentTerritory', 'accessChildrenTerritory',
     'situationMap', 'createdDate', 'parameters', 'availableRoles',
     'trees', 'backgrounds', 'territories', 'maintenanceInformation',
-    'lastUpdate', 'creator', 'isUnavailable', 'appPrivate'
+    'lastUpdate', 'creator', 'responsibleInstitutionName', 'isUnavailable',
+    'appPrivate', 'warnings'
   ];
 
   /**
@@ -114,7 +119,8 @@ export class Application extends Resource {
     'id',  'name', 'description', 'logo', 'type',
     'createdDate', 'parameters', 'availableRoles',
     'trees', 'backgrounds', 'territories', 'maintenanceInformation',
-    'lastUpdate', 'creator', 'isUnavailable', 'headerParams',
+    'lastUpdate', 'creator', 'responsibleInstitutionName', 'isUnavailable',
+    'headerParams', 'warnings',
     // Specific application properties
     'jspTemplate', 'appPrivate'
   ]
@@ -126,7 +132,8 @@ export class Application extends Resource {
     'id',  'name', 'description', 'logo', 'type',
     'createdDate', 'parameters', 'availableRoles',
     'trees', 'backgrounds', 'territories', 'maintenanceInformation',
-    'lastUpdate', 'creator', 'isUnavailable',
+    'lastUpdate', 'creator', 'responsibleInstitutionName', 'isUnavailable',
+    'warnings',
     // Specific application properties
     'title', 'theme', 'scales', 'srs', 'treeAutoRefresh',
     'accessParentTerritory', 'accessChildrenTerritory',
@@ -140,7 +147,8 @@ export class Application extends Resource {
     'id',  'name', 'description', 'logo', 'type',
     'createdDate', 'parameters', 'availableRoles',
     'trees', 'backgrounds', 'territories', 'maintenanceInformation',
-    'lastUpdate', 'creator', 'isUnavailable', 'appPrivate', 'headerParams'
+    'lastUpdate', 'creator', 'responsibleInstitutionName', 'isUnavailable',
+    'appPrivate', 'headerParams', 'warnings'
   ]
 
   public appPrivate: boolean;
@@ -165,6 +173,7 @@ export class ApplicationProjection extends Resource {
   maintenanceInformation : string;
   lastUpdate : Date;
   creatorId : string;
+  responsibleInstitutionName?: string;
   isUnavailable : boolean;
 
   appPrivate: boolean;
@@ -187,8 +196,8 @@ export class ApplicationProjection extends Resource {
       'id', 'name', 'type', 'title', 'theme', 'scales', 'srs', 'jspTemplate',
       'treeAutoRefresh', 'accessParentTerritory', 'accessChildrenTerritory',
       'situationMapId', 'createdDate', 'logo', 'description',
-      'maintenanceInformation', 'lastUpdate', 'creatorId', 'isUnavailable',
-      'appPrivate', 'warnings'
+      'maintenanceInformation', 'lastUpdate', 'creatorId',
+      'responsibleInstitutionName', 'isUnavailable', 'appPrivate', 'warnings'
     ];
     propertiesToCopy.forEach(prop => {
       if (source[prop] !== undefined) {

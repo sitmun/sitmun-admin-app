@@ -10,6 +10,7 @@ import { firstValueFrom, map, of} from "rxjs";
 
 import {BaseFormComponent} from "@app/components/base-form.component";
 import {DataTableDefinition, TemplateDialog} from "@app/components/data-tables.util";
+import {RelationGridComponent} from "@app/components/shared/relation-grid/relation-grid.component";
 import {Configuration} from "@app/core/config/configuration";
 import {MessagesInterceptorStateService} from "@app/core/interceptors/messages.interceptor";
 import {
@@ -75,6 +76,8 @@ import {environment} from "@environments/environment";
     standalone: false
 })
 export class TaskQueryFormComponent extends BaseFormComponent<TaskProjection> {
+  private static readonly COMMAND_PLACEHOLDER_PATTERN = /([#$]?)\{([A-Za-z_][A-Za-z0-9_]*)\}/g;
+
   readonly config = Configuration.TASK_QUERY;
 
   /**
@@ -121,6 +124,9 @@ export class TaskQueryFormComponent extends BaseFormComponent<TaskProjection> {
    */
   @ViewChild('newParameterDialog', {static: true})
   private readonly newParameterDialog: TemplateRef<any>;
+
+  @ViewChild('parametersGrid')
+  private readonly parametersGrid?: RelationGridComponent;
 
   /**
    * The TaskParameterType enum exposed to the template
@@ -485,7 +491,9 @@ export class TaskQueryFormComponent extends BaseFormComponent<TaskProjection> {
       mainFormValues,
       {
         id: id,
-        properties: TaskPropertiesBuilder.from(this.entityToEdit.properties)
+        properties: {
+          ...(this.entityToEdit?.properties || {}),
+          ...TaskPropertiesBuilder.from(this.entityToEdit.properties)
           .withScope(scope)
           .withCommand(command)
           .withMimeType(mimeType || null)
@@ -496,7 +504,8 @@ export class TaskQueryFormComponent extends BaseFormComponent<TaskProjection> {
           .withApiKeyType(apiKeyType || null)
           .withHeaders(headers)
           .withQueryParams(queryParams)
-          .build()
+          .build(),
+        }
       }
     );
     return Task.fromObject(safeToEdit);
@@ -526,19 +535,7 @@ export class TaskQueryFormComponent extends BaseFormComponent<TaskProjection> {
     // Sweep and reset provided flags when changing to non-proxied scopes
     const isDirectScope = value === scope?.webApiQueryNoProxy || value === scope?.urlQuery;
     if (isDirectScope) {
-      const parameters = this.entityForm.get('properties')?.get('parameters')?.value;
-      if (parameters && Array.isArray(parameters)) {
-        let hadProvidedParams = false;
-        parameters.forEach((param: any) => {
-          if (param.provided === true) {
-            param.provided = false;
-            hadProvidedParams = true;
-          }
-        });
-        if (hadProvidedParams) {
-          console.warn(`Scope changed to ${value}. All provided parameters have been reset to false (direct-execution scopes do not support backend variables).`);
-        }
-      }
+      this.clearProvidedParametersForDirectScope(value);
     }
     if (value === scope?.sqlQuery) {
       this.entityForm.get('command').enable({ emitEvent: false });
@@ -719,6 +716,25 @@ export class TaskQueryFormComponent extends BaseFormComponent<TaskProjection> {
     }
   }
 
+  override canSave(): boolean {
+    return super.canSave() && this.getMissingCommandParameterNames().length === 0;
+  }
+
+  override get canSaveEntity(): boolean {
+    return super.canSaveEntity && this.getMissingCommandParameterNames().length === 0;
+  }
+
+  protected get customWarningMessage(): string {
+    const missingParameters = this.getMissingCommandParameterNames();
+    if (missingParameters.length === 0) {
+      return '';
+    }
+
+    return this.translateService.instant('entity.task.query.missingDeclaredParameters', {
+      parameters: missingParameters.join(', '),
+    });
+  }
+
   /**
    * Defines the data table configuration for managing roles.
    * Sets up columns, data fetching, updating logic, and target selection.
@@ -757,6 +773,7 @@ export class TaskQueryFormComponent extends BaseFormComponent<TaskProjection> {
       ])
       .withTargetsOrder('name')
       .withTargetsFetcher(() => this.roleService.fetchAllItems())
+      .withTargetToRelation((items) => items)
       .withTargetsTitle('entity.task.roles.title')
       .build();
   }
@@ -906,5 +923,62 @@ export class TaskQueryFormComponent extends BaseFormComponent<TaskProjection> {
     return scope === scopeValues?.sqlQuery
       || scope === scopeValues?.webApiQuery
       || scope === scopeValues?.cartographyQuery;
+  }
+
+  private getMissingCommandParameterNames(): string[] {
+    const declaredParameters = new Set(this.getCurrentParameters()
+      .map((parameter) => this.parameterName(parameter))
+      .filter((parameterName) => parameterName.length > 0));
+
+    return Array.from(this.extractCommandPlaceholders())
+      .filter((parameterName) => !declaredParameters.has(parameterName))
+      .sort((left, right) => left.localeCompare(right));
+  }
+
+  private extractCommandPlaceholders(): Set<string> {
+    const command = String(this.entityForm?.get('command')?.value || '');
+    const placeholders = new Set<string>();
+
+    for (const match of command.matchAll(TaskQueryFormComponent.COMMAND_PLACEHOLDER_PATTERN)) {
+      const prefix = match[1];
+      const parameterName = match[2]?.trim();
+      if (prefix === '#' || !parameterName) {
+        continue;
+      }
+      placeholders.add(parameterName);
+    }
+
+    return placeholders;
+  }
+
+  private getCurrentParameters(): Record<string, unknown>[] {
+    const gridRows = this.parametersGrid?.getAllCurrentData?.() ?? this.parametersGrid?.rowData;
+    if (Array.isArray(gridRows)) {
+      return gridRows.filter((parameter) => parameter?.status !== 'pendingDelete');
+    }
+
+    return TaskPropertiesContract.getParameters(this.entityToEdit?.properties);
+  }
+
+  private clearProvidedParametersForDirectScope(scope: string): void {
+    const parameters = this.getCurrentParameters();
+    let hadProvidedParams = false;
+
+    parameters.forEach((parameter) => {
+      if (parameter['provided'] === true) {
+        parameter['provided'] = false;
+        hadProvidedParams = true;
+      }
+    });
+
+    if (hadProvidedParams) {
+      this.entityToEdit.properties = TaskPropertiesContract.withParameters(this.entityToEdit.properties, parameters);
+      console.warn(`Scope changed to ${scope}. All provided parameters have been reset to false (direct-execution scopes do not support backend variables).`);
+    }
+  }
+
+  private parameterName(parameter: Record<string, unknown>): string {
+    const value = parameter['name'] ?? parameter['variable'] ?? parameter['label'];
+    return typeof value === 'string' ? value.trim() : '';
   }
 }

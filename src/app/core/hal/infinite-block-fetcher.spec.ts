@@ -109,6 +109,38 @@ describe('createPagedInfiniteFetcher', () => {
     });
   });
 
+  it('resolves params from a function at request time', (done) => {
+    const mockPage: HalPage<MockEntity> = {
+      rows: [],
+      pageNumber: 0,
+      pageSize: 100,
+      totalElements: 0,
+      totalPages: 0,
+    };
+    mockService.fetchPage.mockReturnValue(of(mockPage));
+
+    let lang = 'ca';
+    const fetcher = createPagedInfiniteFetcher(mockService, {
+      params: () => [{key: 'lang', value: lang}],
+    });
+    const request: InfiniteBlockRequest = {
+      page: 0,
+      size: 100,
+      sort: [],
+    };
+
+    lang = 'es';
+    fetcher(request).subscribe(() => {
+      expect(mockService.fetchPage).toHaveBeenCalledWith({
+        page: 0,
+        size: 100,
+        sort: [],
+        params: [{key: 'lang', value: 'es'}],
+      });
+      done();
+    });
+  });
+
   it('merges static params with searchTextPage', (done) => {
     const mockPage: HalPage<MockEntity> = {
       rows: [],

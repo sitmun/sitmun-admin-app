@@ -111,18 +111,7 @@ export class LayersPermitsFormComponent extends BaseFormComponent<CartographyGro
       .register(this.rolesTable)
       .register(this.membersTable);
     await this.initCodeLists(['cartographyPermission.type']);
-    this.permissionGroupTypes = this.codeList(
-      'cartographyPermission.type'
-    ).filter(
-      (item) =>
-        item.value === constants.codeValue.cartographyPermissionType.report ||
-        item.value ===
-          constants.codeValue.cartographyPermissionType.cartographyGroup ||
-        item.value === constants.codeValue.cartographyPermissionType.locationMap
-    );
-    this.permissionGroupTypes.sort((a, b) =>
-      a.description.localeCompare(b.description)
-    );
+    this.refreshPermissionGroupTypes();
   }
 
   /**
@@ -162,9 +151,8 @@ export class LayersPermitsFormComponent extends BaseFormComponent<CartographyGro
    * @returns New empty CartographyGroupProjection instance
    */
   override empty(): CartographyGroupProjection {
-    const defaultType = this.defaultValueOrNull('cartographyPermission.type');
     return Object.assign(new CartographyGroupProjection(), {
-      type: defaultType?.value || null
+      type: this.defaultLayersPermitType()?.value || null
     });
   }
 
@@ -178,6 +166,7 @@ export class LayersPermitsFormComponent extends BaseFormComponent<CartographyGro
       throw new Error('Cannot initialize form: entity is undefined');
     }
 
+    this.refreshPermissionGroupTypes(this.entityToEdit.type);
     this.entityForm = new UntypedFormGroup({
       name: new UntypedFormControl(this.entityToEdit.name, [
         Validators.required,
@@ -186,6 +175,30 @@ export class LayersPermitsFormComponent extends BaseFormComponent<CartographyGro
         Validators.required,
       ]),
     });
+  }
+
+  private refreshPermissionGroupTypes(includeType?: string | null): void {
+    const allowed = new Set<string>([
+      constants.codeValue.cartographyPermissionType.report,
+      constants.codeValue.cartographyPermissionType.cartographyGroup,
+      constants.codeValue.cartographyPermissionType.locationMap,
+    ]);
+    if (includeType) {
+      allowed.add(includeType);
+    }
+
+    this.permissionGroupTypes = this.codeList('cartographyPermission.type')
+      .filter((item) => allowed.has(item.value))
+      .sort((a, b) => a.description.localeCompare(b.description));
+  }
+
+  private defaultLayersPermitType(): CodeList | null {
+    const allowed = this.codeList('cartographyPermission.type').filter((item) =>
+      item.value === constants.codeValue.cartographyPermissionType.report ||
+      item.value === constants.codeValue.cartographyPermissionType.cartographyGroup ||
+      item.value === constants.codeValue.cartographyPermissionType.locationMap
+    );
+    return allowed.find((item) => item.defaultCode) || allowed[0] || null;
   }
 
   /**
@@ -269,7 +282,11 @@ export class LayersPermitsFormComponent extends BaseFormComponent<CartographyGro
       ])
       .withTargetsOrder('name')
       .withTargetsFetcher(() => this.roleService.fetchAllItems())
+      .withTargetInclude((relations) => (target) =>
+        !relations.some((relation) => relation.id === target.id)
+      )
       .withTargetsTitle('entity.permissionGroup.roles.title')
+      .withTargetToRelation((items) => items)
       .build();
   }
 
@@ -371,6 +388,7 @@ export class LayersPermitsFormComponent extends BaseFormComponent<CartographyGro
           }
       )
       .withTargetsTitle('entity.permissionGroup.layers.title')
+      .withTargetToRelation((items) => items)
       .build();
   }
 

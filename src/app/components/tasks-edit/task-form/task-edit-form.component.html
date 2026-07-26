@@ -2,7 +2,7 @@
   (back)="utils.navigateBack()"
   (save)="onSaveButtonClicked()"
   [additionalText]="taskTypeNameTranslated"
-  [isNew]="isNew()"
+  [isNew]="isNewOrDuplicated()"
   [itemName]="entityForm?.get('name')?.value"
   [canSave]="canSaveEntity"
   [dataLoaded]="dataLoaded"
@@ -30,14 +30,10 @@
           <mat-form-field appearance="outline" class="full">
             <mat-label>{{ 'common.form.name' | translate }} ({{ defaultLang }})</mat-label>
             <input [maxlength]="512" formControlName="name" matInput required type="text">
-            <mat-hint [class.text-warning]="entityForm.get('name')?.value?.length > 512" align="end">
-              {{ entityForm.get('name') | characterCount }}
-              <mat-icon *ngIf="entityForm.get('name')?.value?.length > 512" class="warning-icon"
-                        fontIcon="warning"></mat-icon>
-            </mat-hint>
+            <mat-hint align="end">{{ entityForm.get('name') | characterCount }}</mat-hint>
             <mat-icon (click)="onTranslated('name')" class="iconTranslate"
                       matSuffix
-                      onKeyDown="onTranslated('name')">translate</mat-icon>
+                      (keydown)="onTranslated('name')">translate</mat-icon>
           </mat-form-field>
           <mat-form-field appearance="outline" class="half add-gap" *ngIf="isNew()">
             <mat-label>{{ 'common.form.type' | translate }}</mat-label>
@@ -57,19 +53,24 @@
             <mat-select class="form-control" formControlName="taskGroupId">
               <mat-select-trigger>
                 <ng-container *ngIf="entityForm.get('taskGroupId')?.value as taskGroupId">
-                  <a [routerLink]="['/taskGroup', taskGroupId, 'taskGroupForm']"
-                     class="router-link">
-                    {{ getTaskGroupName(taskGroupId) }}
-                  </a>
+                  {{ getTaskGroupName(taskGroupId) }}
                 </ng-container>
               </mat-select-trigger>
               <mat-option *ngFor="let taskGroup of taskGroupList" [value]="taskGroup.id">
-                <a [routerLink]="['/taskGroup', taskGroup.id, 'taskGroupForm']"
-                   class="router-link">
-                  {{ taskGroup.name }}
-                </a>
+                {{ taskGroup.name }}
               </mat-option>
             </mat-select>
+            <a *ngIf="entityForm.get('taskGroupId')?.value as taskGroupId"
+               mat-icon-button
+               matSuffix
+               class="related-entity-open-link"
+               [routerLink]="['/taskGroup', taskGroupId, 'taskGroupForm']"
+               target="_blank"
+               rel="noopener"
+               [matTooltip]="'common.relation.openNewTab' | translate"
+               [attr.aria-label]="'common.relation.openNewTab' | translate">
+              <mat-icon class="related-entity-link-icon">open_in_new</mat-icon>
+            </a>
           </mat-form-field>
         </mat-card-content>
       </mat-card>
@@ -81,10 +82,7 @@
             <mat-select formControlName="connectionId" class="form-control">
               <mat-select-trigger>
                 <ng-container *ngIf="entityForm.get('connectionId')?.value as connectionId">
-                  <a [routerLink]="['/connection', connectionId, 'connectionForm']"
-                     class="router-link">
-                    {{ getConnectionName(connectionId) }}
-                  </a>
+                  {{ getConnectionName(connectionId) }}
                 </ng-container>
                 <span *ngIf="!entityForm.get('connectionId')?.value">
                   {{ 'common.form.none' | translate }}
@@ -92,14 +90,20 @@
               </mat-select-trigger>
               <mat-option [value]="null">{{ 'common.form.none' | translate }}</mat-option>
               <mat-option [value]="connection.id" *ngFor="let connection of connections">
-                <div>
-                  <a [routerLink]="['/connections', connection.id, 'connectionForm']"
-                     (click)="$event.stopPropagation()" class="router-link">
-                    <span>{{ connection.name }}</span>
-                  </a>
-                </div>
+                {{ connection.name }}
               </mat-option>
             </mat-select>
+            <a *ngIf="entityForm.get('connectionId')?.value as connectionId"
+               mat-icon-button
+               matSuffix
+               class="related-entity-open-link"
+               [routerLink]="['/connection', connectionId, 'connectionForm']"
+               target="_blank"
+               rel="noopener"
+               [matTooltip]="'common.relation.openNewTab' | translate"
+               [attr.aria-label]="'common.relation.openNewTab' | translate">
+              <mat-icon class="related-entity-link-icon">open_in_new</mat-icon>
+            </a>
           </mat-form-field>
         </mat-card-content>
       </mat-card>
@@ -111,10 +115,7 @@
             <mat-select formControlName="cartographyId" class="form-control">
               <mat-select-trigger>
                 <ng-container *ngIf="entityForm.get('cartographyId')?.value as cartographyId">
-                  <a [routerLink]="['/layers', cartographyId, 'layerForm']"
-                     class="router-link">
-                    {{ getCartographyName(cartographyId) }}
-                  </a>
+                  {{ getCartographyName(cartographyId) }}
                 </ng-container>
                 <span *ngIf="!entityForm.get('cartographyId')?.value">
                   {{ 'common.form.none' | translate }}
@@ -122,14 +123,20 @@
               </mat-select-trigger>
               <mat-option [value]="null">{{ 'common.form.none' | translate }}</mat-option>
               <mat-option [value]="layer.id" *ngFor="let layer of cartographies">
-                <div>
-                  <a [routerLink]="['/layers', layer.id, 'layersForm']"
-                     (click)="$event.stopPropagation()" class="router-link">
-                    <span>{{ layer.name }}</span>
-                  </a>
-                </div>
+                {{ layer.name }}
               </mat-option>
             </mat-select>
+            <a *ngIf="entityForm.get('cartographyId')?.value as cartographyId"
+               mat-icon-button
+               matSuffix
+               class="related-entity-open-link"
+               [routerLink]="['/layers', cartographyId, 'layersForm']"
+               target="_blank"
+               rel="noopener"
+               [matTooltip]="'common.relation.openNewTab' | translate"
+               [attr.aria-label]="'common.relation.openNewTab' | translate">
+              <mat-icon class="related-entity-link-icon">open_in_new</mat-icon>
+            </a>
           </mat-form-field>
         </mat-card-content>
       </mat-card>
@@ -138,103 +145,47 @@
   <mat-tab label="{{ 'entity.task.parameters.header' | translate }}">
     <mat-card appearance="outlined" class="sitmun-mat-card-margin">
       <mat-card-content>
-        <app-data-grid (duplicate)='parametersTable.duplicateRelations($event)'
-                       (getAllRows)="parametersTable.handleSaveRelations($event)"
-                       (new)="parametersTable.openTemplateDialog('newParameterDialog')"
-                       *ngIf="dataLoaded"
-                       [actionButton]=true
-                       [allNewElements]="isNewOrDuplicated()"
-                       [changeHeightButton]="true"
-                       [columnDefs]='parametersTable.relationsColumnsDefs'
-                       [defaultColumnSorting]="parametersTable.defaultRelationsSorting()"
-                       [deleteButton]=true
-                       [discardChangesButton]=true
-                       [eventAddItemsSubscription]='parametersTable.addCommandEvent$.asObservable()'
-                       [eventGetAllRowsSubscription]='parametersTable.saveCommandEvent$.asObservable()'
-                       [eventRefreshSubscription]='parametersTable.refreshCommandEvent$.asObservable()'
-                       [getAll]='parametersTable.relationsFetchFn'
-                       [newButton]=true
-                       [redoButton]=true
-                       [undoButton]=true
-        ></app-data-grid>
+        <app-relation-grid
+          *ngIf="dataLoaded"
+          [table]="parametersTable"
+          [allNewElements]="isNewOrDuplicated()"
+          templateDialogName="newParameterDialog"
+        ></app-relation-grid>
       </mat-card-content>
     </mat-card>
   </mat-tab>
   <mat-tab label="{{ 'entity.task.roles.header' | translate }}">
     <mat-card appearance="outlined" class="sitmun-mat-card-margin">
       <mat-card-content>
-        <app-data-grid (add)="rolesTable.openDialog($event)"
-                       (getAllRows)="rolesTable.handleSaveRelations($event)"
-                       *ngIf="dataLoaded"
-                       [actionButton]=true
-                       [addButton]=true
-                       [allNewElements]="isNewOrDuplicated()"
-                       [changeHeightButton]="true"
-                       [columnDefs]='rolesTable.relationsColumnsDefs'
-                       [defaultColumnSorting]='rolesTable.defaultRelationsSorting()'
-                       [deleteButton]=true
-                       [discardChangesButton]=true
-                       [eventAddItemsSubscription]='rolesTable.addCommandEvent$.asObservable()'
-                       [eventGetAllRowsSubscription]='rolesTable.saveCommandEvent$.asObservable()'
-                       [eventRefreshSubscription]='rolesTable.refreshCommandEvent$.asObservable()'
-                       [getAll]='rolesTable.relationsFetchFn'
-                       [hideDuplicateButton]=true
-                       [redoButton]=true
-                       [undoButton]=true
-        ></app-data-grid>
+        <app-relation-grid
+          *ngIf="dataLoaded"
+          [table]="rolesTable"
+          [allNewElements]="isNewOrDuplicated()">
+        </app-relation-grid>
       </mat-card-content>
     </mat-card>
   </mat-tab>
   <mat-tab label="{{ 'entity.task.territories.header' | translate }}">
     <mat-card appearance="outlined" class="sitmun-mat-card-margin">
       <mat-card-content>
-        <app-data-grid (add)="availabilitiesTable.openDialog($event)"
-                       (getAllRows)="availabilitiesTable.handleSaveRelations($event)"
-                       *ngIf="dataLoaded"
-                       [actionButton]=true
-                       [addButton]=true
-                       [allNewElements]="isNewOrDuplicated()"
-                       [changeHeightButton]="true"
-                       [columnDefs]='availabilitiesTable.relationsColumnsDefs'
-                       [defaultColumnSorting]='availabilitiesTable.defaultRelationsSorting()'
-                       [deleteButton]=true
-                       [discardChangesButton]=true
-                       [eventAddItemsSubscription]='availabilitiesTable.addCommandEvent$.asObservable()'
-                       [eventGetAllRowsSubscription]='availabilitiesTable.saveCommandEvent$.asObservable()'
-                       [eventRefreshSubscription]='availabilitiesTable.refreshCommandEvent$.asObservable()'
-                       [getAll]='availabilitiesTable.relationsFetchFn'
-                       [hideDuplicateButton]=true
-                       [hideReplaceButton]=true
-                       [redoButton]=true
-                       [undoButton]=true
-        ></app-data-grid>
+        <app-relation-grid
+          *ngIf="dataLoaded"
+          [table]="availabilitiesTable"
+          [allNewElements]="isNewOrDuplicated()">
+        </app-relation-grid>
       </mat-card-content>
     </mat-card>
   </mat-tab>
   <mat-tab label="{{ 'entity.task.edition.fields' | translate }}">
     <mat-card appearance="outlined">
       <mat-card-content>
-        <app-data-grid [changeHeightButton]="true"
-                      [allNewElements]="isNewOrDuplicated()"
-                      [columnDefs]="fieldsTable.relationsColumnsDefs"
-                      [getAll]='fieldsTable.relationsFetchFn'
-                      [eventAddItemsSubscription]='fieldsTable.addCommandEvent$.asObservable()'
-                      [eventGetAllRowsSubscription]='fieldsTable.saveCommandEvent$.asObservable()'
-                      [eventRefreshSubscription]='fieldsTable.refreshCommandEvent$.asObservable()'
-                      [discardChangesButton]=true
-                      [redoButton]=true
-                      [undoButton]=true
-                      [deleteButton]=true
-                      [addButton]=true
-                      [hideDuplicateButton]=true
-                      [hideReplaceButton]=true
-                      [defaultColumnSorting]='fieldsTable.defaultRelationsSorting()'
-                      (getAllRows)="fieldsTable.handleSaveRelations($event)"
-                      [actionButton]=true
-                      (add)="fieldsTable.openTemplateDialog('newFieldDialog')"
-                      *ngIf="dataLoaded"
-        >
-        </app-data-grid>
+        <app-relation-grid
+          *ngIf="dataLoaded"
+          [table]="fieldsTable"
+          [allNewElements]="isNewOrDuplicated()"
+          [duplicateButton]="false"
+          templateDialogName="newFieldDialog"
+        ></app-relation-grid>
         <br/>
         <form [formGroup]='entityForm' *ngIf="dataLoaded && !isDBEditionScope()">
           <mat-form-field appearance="outline" class="half">
@@ -242,10 +193,7 @@
             <mat-select formControlName="connectionId" class="form-control">
               <mat-select-trigger>
                 <ng-container *ngIf="entityForm.get('connectionId')?.value as connectionId">
-                  <a [routerLink]="['/connection', connectionId, 'connectionForm']"
-                     class="router-link">
-                    {{ getConnectionName(connectionId) }}
-                  </a>
+                  {{ getConnectionName(connectionId) }}
                 </ng-container>
                 <span *ngIf="!entityForm.get('connectionId')?.value">
                   {{ 'common.form.none' | translate }}
@@ -253,14 +201,20 @@
               </mat-select-trigger>
               <mat-option [value]="null">{{ 'common.form.none' | translate }}</mat-option>
               <mat-option [value]="connection.id" *ngFor="let connection of connections">
-                <div>
-                  <a [routerLink]="['/connections', connection.id, 'connectionForm']"
-                     (click)="$event.stopPropagation()" class="router-link">
-                    <span>{{ connection.name }}</span>
-                  </a>
-                </div>
+                {{ connection.name }}
               </mat-option>
             </mat-select>
+            <a *ngIf="entityForm.get('connectionId')?.value as connectionId"
+               mat-icon-button
+               matSuffix
+               class="related-entity-open-link"
+               [routerLink]="['/connection', connectionId, 'connectionForm']"
+               target="_blank"
+               rel="noopener"
+               [matTooltip]="'common.relation.openNewTab' | translate"
+               [attr.aria-label]="'common.relation.openNewTab' | translate">
+              <mat-icon class="related-entity-link-icon">open_in_new</mat-icon>
+            </a>
           </mat-form-field>
         </form>
       </mat-card-content>

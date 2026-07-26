@@ -5,7 +5,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 
 import { TranslateService } from '@ngx-translate/core';
-import { map } from 'rxjs/operators';
+import { finalize, map } from 'rxjs/operators';
 
 import { AboutDialogComponent, AboutDialogData } from '@app/components/shared/about-dialog/about-dialog.component';
 import { LoginService } from '@app/core/auth/login.service';
@@ -200,8 +200,12 @@ export class SystemInfoMenuComponent implements OnInit {
   }
 
   logout(): void {
-    this.loginService.logout();
-    void this.router.navigate(['/login']);
+    this.loginService.logout().pipe(
+      finalize(() => {
+        void this.router.navigate(['/login']);
+      }),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe();
   }
 
   getUserFullName(): string {

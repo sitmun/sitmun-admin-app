@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 
-import {firstValueFrom, Observable} from 'rxjs';
+import {firstValueFrom, Observable, of} from 'rxjs';
+import {catchError, map} from 'rxjs/operators';
 
 import {LoginMethod} from "@app/components/login/login.component";
 import {environment} from "@environments/environment";
@@ -28,9 +29,8 @@ export class LoginService {
 
     try {
       const data = await firstValueFrom(this.authServerProvider.login(credentials));
-      await this.principal.identity(true);
-      // After the login the language will be changed to
-      // the language selected by the user during his registration
+      // Identity is resolved by the route guard on the subsequent navigation,
+      // so we avoid a duplicate /api/account request right after login.
       cb();
       return data;
     } catch (err) {
@@ -40,15 +40,26 @@ export class LoginService {
     }
   }
 
-  /** logout operation */
-  logout() {
-    // First clear the authentication state
+  /** Clears local state and requests backend cookie removal. */
+  logout(): Observable<void> {
     this.principal.authenticate(null);
 
-    // Then call the auth service to clear tokens
-    this.authServerProvider.logout().subscribe(() => {
-      // Additional cleanup if needed
-    });
+    return this.authServerProvider.logout().pipe(
+      map(() => undefined),
+      catchError(() => of(undefined))
+    );
+  }
+
+  /**
+   * Clear only the local authentication state without contacting the backend.
+   *
+   * Used when a request is rejected as unauthenticated (401): the shared
+   * `access_token` cookie must not be deleted, since it may still be valid for
+   * other tabs and destroying it turns a single stray 401 into a cross-tab
+   * logout cascade. Explicit user logout still uses {@link logout}.
+   */
+  clearSession() {
+    this.principal.authenticate(null);
   }
 
   getEnabledAuthMethods(): Observable<LoginMethod[]> {

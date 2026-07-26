@@ -1,4 +1,7 @@
 
+import { readFileSync } from 'fs';
+import { join } from 'path';
+
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -34,13 +37,16 @@ import {
   TerritoryTypeService,
   TranslationService,
   TreeNodeService
-} from '@app/domain';
+, CartographyGroupProjection } from '@app/domain';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
 import { MaterialModule } from '@app/material-module';
 import {LoggerService} from '@app/services/logger.service';
 import {configureLoggerForTests, provideErrorHandlerForTests} from '@app/testing/test-helpers';
+import {constants} from '@environments/constants';
 
 import { LayersFormComponent } from './layers-form.component';
+
+const layersFormTemplate = readFileSync(join(__dirname, 'layers-form.component.html'), 'utf8');
 
 describe('LayersFormComponent', () => {
   let component: LayersFormComponent;
@@ -418,412 +424,155 @@ describe('LayersFormComponent', () => {
     expect(component.createObject().blocked).toBe(true);
   });
 
-  it('Load button disabled', () => {
-    // Initialize form if not already initialized
-    if (!component.entityForm) {
-      component.entityToEdit = component.empty();
+  describe('createObject layer mapping', () => {
+    const patchValidBasics = () => {
+      component.entityForm.patchValue({
+        name: 'name',
+        serviceId: 1,
+        joinedLayers: ' layer1 , layer2 ',
+        joinedQueryableLayers: ' layer1 ',
+        joinedSelectableLayers: ' layer2 ',
+        spatialSelectionServiceId: 42,
+      });
+    };
+
+    beforeEach(() => {
+      component.entityID = 100;
+      component.entityToEdit = Object.assign(new CartographyProjection(), {
+        name: 'layer',
+        layers: ['layer1'],
+        serviceId: 1,
+      });
       component.postFetchData();
-    }
-    
-    component.entityForm.patchValue({
-      selectableFeatureEnabled: false,
-      spatialSelectionServiceId: 1,
-      joinedSelectableLayers: 'layer test'
-    })
+    });
 
-    fixture.detectChanges();
+    it('maps joined form fields to trimmed layer arrays', () => {
+      patchValidBasics();
+      const created = component.createObject(100);
+      expect(created.layers).toEqual(['layer1', 'layer2']);
+      expect(created.queryableLayers).toEqual(['layer1']);
+      expect(created.selectableLayers).toEqual(['layer2']);
+    });
 
-    // TODO: loadButtonDisabled method no longer exists in component
-    // component.loadButtonDisabled();
+    it('preserves spatialSelectionServiceId as spatialSelectionService proxy', () => {
+      patchValidBasics();
+      const created = component.createObject(100);
+      expect(created.spatialSelectionService?.id).toBe(42);
+    });
+  });
 
-    expect(component.disableLoadButton).toBe(true);
-  })
-
-  it('Load button enabled', () => {
-    // Initialize form if not already initialized
-    if (!component.entityForm) {
-      component.entityToEdit = component.empty();
+  describe('postFetchData load preservation', () => {
+    it('does not clear joinedSelectableLayers when queryableFeatureEnabled is false', () => {
+      component.entityID = 4393;
+      component.entityToEdit = Object.assign(new CartographyProjection(), {
+        name: 'layer',
+        layers: ['x'],
+        serviceId: 1,
+        queryableFeatureEnabled: false,
+        selectableLayers: ['a'],
+      });
       component.postFetchData();
-    }
-    
-    component.entityForm.patchValue({
-      selectableFeatureEnabled: true,
-      spatialSelectionServiceId: 1,
-      joinedSelectableLayers: 'layer test'
-    })
+      expect(component.entityForm.get('joinedSelectableLayers')?.value).toBe('a');
+    });
+  });
 
-    fixture.detectChanges();
+  describe('queryable layer revalidation', () => {
+    beforeEach(() => {
+      component.entityID = 100;
+      component.entityToEdit = Object.assign(new CartographyProjection(), {
+        name: 'layer',
+        layers: ['layer1', 'layer2'],
+        serviceId: 1,
+      });
+      component.postFetchData();
+      component.entityForm.patchValue({
+        name: 'layer',
+        serviceId: 1,
+        joinedLayers: 'layer1,layer2',
+        joinedQueryableLayers: 'layer1',
+      });
+    });
 
-    // TODO: loadButtonDisabled method no longer exists in component
-    // Since the method doesn't exist, disableLoadButton remains at its initial value (true)
-    // This test may need to be updated if the component logic changes
-    expect(component.disableLoadButton).toBe(true); // Currently stays true as method was removed
-  })
+    it('revalidates joinedQueryableLayers when joinedLayers changes', () => {
+      expect(component.entityForm.get('joinedQueryableLayers')?.valid).toBe(true);
+      component.entityForm.patchValue({ joinedLayers: 'layer2' });
+      expect(component.entityForm.get('joinedQueryableLayers')?.errors?.['invalidLayers']).toEqual(['layer1']);
+    });
+  });
 
-  it('getFeature valid', () => {
-    const _requestResult =
-    {
-      "xsd:schema": {
-        "elementFormDefault": "qualified",
-        "xmlns:patrimoni": "patrimoni",
-        "xmlns:produccio_energia": "produccio_energia",
-        "xmlns:arbrat": "http://www.diputaciolleida.cat/arbrat",
-        "xsd:complexType": {
-          "name": "ADRECESVIA_VWType",
-          "xsd:complexContent": {
-            "xsd:extension": {
-              "xsd:sequence": {
-                "xsd:element": [{
-                  "minOccurs": 1,
-                  "name": "FID",
-                  "maxOccurs": 1,
-                  "type": "xsd:decimal",
-                  "nillable": false
-                }, {
-                  "minOccurs": 1,
-                  "name": "ID",
-                  "maxOccurs": 1,
-                  "type": "xsd:decimal",
-                  "nillable": false
-                }, {
-                  "minOccurs": 1,
-                  "name": "COD_MUNI",
-                  "maxOccurs": 1,
-                  "type": "xsd:string",
-                  "nillable": false
-                }, {
-                  "minOccurs": 1,
-                  "name": "COD_VIA",
-                  "maxOccurs": 1,
-                  "type": "xsd:string",
-                  "nillable": false
-                }, {
-                  "minOccurs": 0,
-                  "name": "GEOM",
-                  "maxOccurs": 1,
-                  "type": "gml:GeometryPropertyType",
-                  "nillable": true
-                }, {
-                  "minOccurs": 0,
-                  "name": "COD_VIA_INE",
-                  "maxOccurs": 1,
-                  "type": "xsd:string",
-                  "nillable": true
-                }, {
-                  "minOccurs": 0,
-                  "name": "NOM_VIA",
-                  "maxOccurs": 1,
-                  "type": "xsd:string",
-                  "nillable": true
-                }, {
-                  "minOccurs": 0,
-                  "name": "NOM_VIA_COMPOSAT",
-                  "maxOccurs": 1,
-                  "type": "xsd:string",
-                  "nillable": true
-                }, {
-                  "minOccurs": 0,
-                  "name": "NUM_INI",
-                  "maxOccurs": 1,
-                  "type": "xsd:decimal",
-                  "nillable": true
-                }, {
-                  "minOccurs": 0,
-                  "name": "NUM_FI",
-                  "maxOccurs": 1,
-                  "type": "xsd:decimal",
-                  "nillable": true
-                }, {
-                  "minOccurs": 0,
-                  "name": "COM_INI",
-                  "maxOccurs": 1,
-                  "type": "xsd:string",
-                  "nillable": true
-                }, {
-                  "minOccurs": 0,
-                  "name": "COM_FI",
-                  "maxOccurs": 1,
-                  "type": "xsd:string",
-                  "nillable": true
-                }, {
-                  "minOccurs": 0,
-                  "name": "COD_POSTAL",
-                  "maxOccurs": 1,
-                  "type": "xsd:string",
-                  "nillable": true
-                }, {
-                  "minOccurs": 0,
-                  "name": "REF_CAD",
-                  "maxOccurs": 1,
-                  "type": "xsd:string",
-                  "nillable": true
-                }, {
-                  "minOccurs": 0,
-                  "name": "PQ",
-                  "maxOccurs": 1,
-                  "type": "xsd:decimal",
-                  "nillable": true
-                }, {
-                  "minOccurs": 0,
-                  "name": "DATA_CREA",
-                  "maxOccurs": 1,
-                  "type": "xsd:dateTime",
-                  "nillable": true
-                }, {
-                  "minOccurs": 0,
-                  "name": "DATA_MODIF",
-                  "maxOccurs": 1,
-                  "type": "xsd:dateTime",
-                  "nillable": true
-                }, {
-                  "minOccurs": 0,
-                  "name": "COD_UP",
-                  "maxOccurs": 1,
-                  "type": "xsd:string",
-                  "nillable": true
-                }, {
-                  "minOccurs": 0,
-                  "name": "NOM_UP",
-                  "maxOccurs": 1,
-                  "type": "xsd:string",
-                  "nillable": true
-                }, {
-                  "minOccurs": 0,
-                  "name": "COD_UNIT_P",
-                  "maxOccurs": 1,
-                  "type": "xsd:string",
-                  "nillable": true
-                }, {
-                  "minOccurs": 1,
-                  "name": "COD_ADR_VIA",
-                  "maxOccurs": 1,
-                  "type": "xsd:string",
-                  "nillable": false
-                }]
-              },
-              "base": "gml:AbstractFeatureType"
-            }
-          }
-        },
-        "xmlns:xsd": "http://www.w3.org/2001/XMLSchema",
-        "xmlns:gml": "http://www.opengis.net/gml/3.2",
-        "xmlns:se": "http://www.diputaciolleida.cat/se",
-        "xmlns:carrerer": "http://www.diputaciolleida.cat/carrerer",
-        "xmlns:duprocim": "http://www.diputaciolleida.cat/duprocim",
-        "targetNamespace": "http://www.diputaciolleida.cat/carrerer",
-        "xmlns:vespa": "http://www.diputaciolleida.cat/vespa",
-        "xmlns:wfs": "http://www.opengis.net/wfs/2.0",
-        "xsd:import": {
-          "schemaLocation": "https://oden.diputaciolleida.cat/geoserver/schemas/gml/3.2.1/gml.xsd",
-          "namespace": "http://www.opengis.net/gml/3.2"
-        },
-        "xsd:element": {
-          "name": "ADRECESVIA_VW",
-          "substitutionGroup": "gml:AbstractFeature",
-          "type": "carrerer:ADRECESVIA_VWType"
-        },
-        "xmlns:Oracle": "http://www.opengeospatial.net/",
-        "xmlns:xa": "http://www.diputaciolleida.cat",
-        "xmlns:mobiliari": "http://www.diputaciolleida.cat/mobiliari",
-        "xmlns:topo1m": "http://www.diputaciolleida.cat/topo1m",
-        "xmlns:xc": "http://www.diputaciolleida.cat/xc",
-        "xmlns:exp_ramaderes": "exp_ramaderes",
-        "xmlns:geoparc": "http://www.diputaciolleida.cat/geoparc",
-        "xmlns:pc": "http://www.diputaciolleida.cat/pc",
-        "xmlns:parceles": "http://www.diputaciolleida.cat/parceles",
-        "xmlns:fibraoptica": "sitmun/fibraoptica",
-        "xmlns:planejament": "http://www.diputaciolleida.cat/planejament",
-        "xmlns:xarxa_camins_public": "https://oden.diputaciolleoda.cat/xarxa_camins_public"
-      }
-    }
+  describe('style dialog mapping', () => {
+    it('maps flat dialog values to nested legendURL', () => {
+      const mapped = (component as any).toCartographyStyle({
+        name: 'style-a',
+        title: 'Style A',
+        url: 'https://example.com/legend.png',
+        format: 'image/png',
+        width: 20,
+        height: 20,
+      });
+      expect(mapped.legendURL).toEqual({
+        format: 'image/png',
+        width: 20,
+        height: 20,
+        onlineResource: 'https://example.com/legend.png',
+      });
+    });
 
-    // TODO: manageGetInfoResults method no longer exists in component
-    // expect(component.manageGetInfoResults(requestResult,true).length).toEqual(22);
-    expect(true).toBeTruthy(); // Placeholder assertion
+    it('uses header i18n key for style add dialog title', () => {
+      expect(component['stylesTable'].templateDialog('newStyleDialog').title)
+        .toBe('entity.cartography.styles.parameters.header');
+    });
 
-  })
+    it('resets style dialog form on preOpen', () => {
+      const dialog = component['stylesTable'].templateDialog('newStyleDialog');
+      dialog.form.patchValue({
+        name: 'old',
+        title: 'Old',
+        description: 'desc',
+        format: 'png',
+        width: 10,
+        height: 10,
+        url: 'http://example.com',
+        defaultStyle: true,
+      });
+      dialog.preOpenFn(dialog.form);
+      expect(dialog.form.value).toEqual({
+        name: null,
+        title: null,
+        description: null,
+        format: null,
+        width: null,
+        height: null,
+        url: null,
+        defaultStyle: false,
+      });
+    });
+  });
 
-  it('getFeature with non valid format', () => {
-    const _requestResult =
-    {
-      "INCORRECT_FORMAT": {
-        "elementFormDefault": "qualified",
-        "xmlns:patrimoni": "patrimoni",
-        "xmlns:produccio_energia": "produccio_energia",
-        "xmlns:arbrat": "http://www.diputaciolleida.cat/arbrat",
-        "xsd:complexType": {
-          "name": "ADRECESVIA_VWType",
-          "xsd:complexContent": {
-            "xsd:extension": {
-              "xsd:sequence": {
-                "xsd:element": [{
-                  "minOccurs": 1,
-                  "name": "FID",
-                  "maxOccurs": 1,
-                  "type": "xsd:decimal",
-                  "nillable": false
-                }, {
-                  "minOccurs": 1,
-                  "name": "ID",
-                  "maxOccurs": 1,
-                  "type": "xsd:decimal",
-                  "nillable": false
-                }, {
-                  "minOccurs": 1,
-                  "name": "COD_MUNI",
-                  "maxOccurs": 1,
-                  "type": "xsd:string",
-                  "nillable": false
-                }, {
-                  "minOccurs": 1,
-                  "name": "COD_VIA",
-                  "maxOccurs": 1,
-                  "type": "xsd:string",
-                  "nillable": false
-                }, {
-                  "minOccurs": 0,
-                  "name": "GEOM",
-                  "maxOccurs": 1,
-                  "type": "gml:GeometryPropertyType",
-                  "nillable": true
-                }, {
-                  "minOccurs": 0,
-                  "name": "COD_VIA_INE",
-                  "maxOccurs": 1,
-                  "type": "xsd:string",
-                  "nillable": true
-                }, {
-                  "minOccurs": 0,
-                  "name": "NOM_VIA",
-                  "maxOccurs": 1,
-                  "type": "xsd:string",
-                  "nillable": true
-                }, {
-                  "minOccurs": 0,
-                  "name": "NOM_VIA_COMPOSAT",
-                  "maxOccurs": 1,
-                  "type": "xsd:string",
-                  "nillable": true
-                }, {
-                  "minOccurs": 0,
-                  "name": "NUM_INI",
-                  "maxOccurs": 1,
-                  "type": "xsd:decimal",
-                  "nillable": true
-                }, {
-                  "minOccurs": 0,
-                  "name": "NUM_FI",
-                  "maxOccurs": 1,
-                  "type": "xsd:decimal",
-                  "nillable": true
-                }, {
-                  "minOccurs": 0,
-                  "name": "COM_INI",
-                  "maxOccurs": 1,
-                  "type": "xsd:string",
-                  "nillable": true
-                }, {
-                  "minOccurs": 0,
-                  "name": "COM_FI",
-                  "maxOccurs": 1,
-                  "type": "xsd:string",
-                  "nillable": true
-                }, {
-                  "minOccurs": 0,
-                  "name": "COD_POSTAL",
-                  "maxOccurs": 1,
-                  "type": "xsd:string",
-                  "nillable": true
-                }, {
-                  "minOccurs": 0,
-                  "name": "REF_CAD",
-                  "maxOccurs": 1,
-                  "type": "xsd:string",
-                  "nillable": true
-                }, {
-                  "minOccurs": 0,
-                  "name": "PQ",
-                  "maxOccurs": 1,
-                  "type": "xsd:decimal",
-                  "nillable": true
-                }, {
-                  "minOccurs": 0,
-                  "name": "DATA_CREA",
-                  "maxOccurs": 1,
-                  "type": "xsd:dateTime",
-                  "nillable": true
-                }, {
-                  "minOccurs": 0,
-                  "name": "DATA_MODIF",
-                  "maxOccurs": 1,
-                  "type": "xsd:dateTime",
-                  "nillable": true
-                }, {
-                  "minOccurs": 0,
-                  "name": "COD_UP",
-                  "maxOccurs": 1,
-                  "type": "xsd:string",
-                  "nillable": true
-                }, {
-                  "minOccurs": 0,
-                  "name": "NOM_UP",
-                  "maxOccurs": 1,
-                  "type": "xsd:string",
-                  "nillable": true
-                }, {
-                  "minOccurs": 0,
-                  "name": "COD_UNIT_P",
-                  "maxOccurs": 1,
-                  "type": "xsd:string",
-                  "nillable": true
-                }, {
-                  "minOccurs": 1,
-                  "name": "COD_ADR_VIA",
-                  "maxOccurs": 1,
-                  "type": "xsd:string",
-                  "nillable": false
-                }]
-              },
-              "base": "gml:AbstractFeatureType"
-            }
-          }
-        },
-        "xmlns:xsd": "http://www.w3.org/2001/XMLSchema",
-        "xmlns:gml": "http://www.opengis.net/gml/3.2",
-        "xmlns:se": "http://www.diputaciolleida.cat/se",
-        "xmlns:carrerer": "http://www.diputaciolleida.cat/carrerer",
-        "xmlns:duprocim": "http://www.diputaciolleida.cat/duprocim",
-        "targetNamespace": "http://www.diputaciolleida.cat/carrerer",
-        "xmlns:vespa": "http://www.diputaciolleida.cat/vespa",
-        "xmlns:wfs": "http://www.opengis.net/wfs/2.0",
-        "xsd:import": {
-          "schemaLocation": "https://oden.diputaciolleida.cat/geoserver/schemas/gml/3.2.1/gml.xsd",
-          "namespace": "http://www.opengis.net/gml/3.2"
-        },
-        "xsd:element": {
-          "name": "ADRECESVIA_VW",
-          "substitutionGroup": "gml:AbstractFeature",
-          "type": "carrerer:ADRECESVIA_VWType"
-        },
-        "xmlns:Oracle": "http://www.opengeospatial.net/",
-        "xmlns:xa": "http://www.diputaciolleida.cat",
-        "xmlns:mobiliari": "http://www.diputaciolleida.cat/mobiliari",
-        "xmlns:topo1m": "http://www.diputaciolleida.cat/topo1m",
-        "xmlns:xc": "http://www.diputaciolleida.cat/xc",
-        "xmlns:exp_ramaderes": "exp_ramaderes",
-        "xmlns:geoparc": "http://www.diputaciolleida.cat/geoparc",
-        "xmlns:pc": "http://www.diputaciolleida.cat/pc",
-        "xmlns:parceles": "http://www.diputaciolleida.cat/parceles",
-        "xmlns:fibraoptica": "sitmun/fibraoptica",
-        "xmlns:planejament": "http://www.diputaciolleida.cat/planejament",
-        "xmlns:xarxa_camins_public": "https://oden.diputaciolleoda.cat/xarxa_camins_public"
-      }
-    }
+  describe('permissions relation updater', () => {
+    it('uses cartography proxy from entityID when linking permission groups', async () => {
+      component.entityID = 4393;
+      component.entityToEdit = Object.assign(new CartographyProjection(), { id: -1, name: 'stale' });
 
-    // TODO: manageGetInfoResults method no longer exists in component
-    // expect(component.manageGetInfoResults(requestResult,true).length).toEqual(0);
-    expect(true).toBeTruthy(); // Placeholder assertion
+      const cartographyProxy = { id: 4393 };
+      jest.spyOn(cartographyService, 'createProxy').mockReturnValue(cartographyProxy as any);
 
+      const group = Object.assign(new CartographyGroupProjection(), {
+        id: 1,
+        name: 'perm-group',
+        status: constants.entityStatus.pendingCreation,
+        addRelationEx: jest.fn().mockReturnValue(of(null)),
+        deleteRelationById: jest.fn().mockReturnValue(of(null)),
+      });
+
+      await component['cartographyPermissionsTable'].handleSaveRelations({
+        event: 'save',
+        data: [group as any],
+      });
+
+      expect(cartographyService.createProxy).toHaveBeenCalledWith(4393);
+      expect(group.addRelationEx).toHaveBeenCalledWith('members', cartographyProxy);
+    });
   });
 
   describe('scale validators', () => {
@@ -944,6 +693,125 @@ describe('LayersFormComponent', () => {
       component.entityForm.patchValue({ minimumScale: 100 });
       expect(component.entityForm.errors?.['scaleRange']).toBeFalsy();
       expect(component.entityForm.valid).toBeTruthy();
+    });
+  });
+
+  describe('grid type classification for wrapper migration', () => {
+    it('should have simple editable relation grids (territoryAvailabilitiesTable)', () => {
+      expect(component['territoryAvailabilitiesTable']).toBeDefined();
+      expect(component['territoryAvailabilitiesTable'].hasPickerAdd()).toBe(true);
+      expect(component['territoryAvailabilitiesTable'].hasRelationsUpdater()).toBe(true);
+      expect(component['territoryAvailabilitiesTable'].hasStatusColumn()).toBe(true);
+      expect(component['territoryAvailabilitiesTable'].hasTemplateDialogs()).toBe(false);
+    });
+
+    it('should have simple editable relation grids (cartographyPermissionsTable)', () => {
+      expect(component['cartographyPermissionsTable']).toBeDefined();
+      expect(component['cartographyPermissionsTable'].hasPickerAdd()).toBe(true);
+      expect(component['cartographyPermissionsTable'].hasRelationsUpdater()).toBe(true);
+      expect(component['cartographyPermissionsTable'].hasStatusColumn()).toBe(true);
+      expect(component['cartographyPermissionsTable'].hasTemplateDialogs()).toBe(false);
+    });
+
+    it('should have read-only grid (treesNodesTable)', () => {
+      const table = component['treesNodesTable'];
+      expect(table).toBeDefined();
+      expect(table.hasPickerAdd()).toBe(false);
+      expect(table.hasRelationsUpdater()).toBe(false);
+      expect(table.hasStatusColumn()).toBe(false);
+      expect(table.hasTemplateDialogs()).toBe(false);
+      expect(table.supportsDuplicate()).toBe(false);
+      expect(table.relationsColumnsDefs.some((col: { checkboxSelection?: boolean }) => col.checkboxSelection))
+        .toBe(true);
+    });
+
+    it('parametersTable should have template-dialog, updater, and status capabilities', () => {
+      const table = component['parametersTable'];
+      expect(table.hasTemplateDialogs()).toBe(true);
+      expect(table.hasRelationsUpdater()).toBe(true);
+      expect(table.hasStatusColumn()).toBe(true);
+      expect(table.supportsDuplicate()).toBe(false);
+      expect(table.hasPickerAdd()).toBe(false);
+    });
+
+    it('territorialFiltersTable should have template-dialog, updater, and status capabilities', () => {
+      const table = component['territorialFiltersTable'];
+      expect(table.hasTemplateDialogs()).toBe(true);
+      expect(table.hasRelationsUpdater()).toBe(true);
+      expect(table.hasStatusColumn()).toBe(true);
+      expect(table.supportsDuplicate()).toBe(false);
+      expect(table.hasPickerAdd()).toBe(false);
+    });
+
+    it('stylesTable should have template-dialog, updater, and status capabilities', () => {
+      const table = component['stylesTable'];
+      expect(table.hasTemplateDialogs()).toBe(true);
+      expect(table.hasRelationsUpdater()).toBe(true);
+      expect(table.hasStatusColumn()).toBe(true);
+      expect(table.supportsDuplicate()).toBe(false);
+      expect(table.hasPickerAdd()).toBe(false);
+    });
+  });
+
+  describe('template markup', () => {
+    it('does not use the undefined and-gap utility class', () => {
+      expect(layersFormTemplate).not.toContain('and-gap');
+      expect(layersFormTemplate).toContain('add-gap');
+    });
+
+    it('uses primary slide toggles in modal dialogs instead of checkboxes', () => {
+      const styleDialog = layersFormTemplate.match(/#newStyleDialog[\s\S]*?<\/ng-template>/)?.[0] ?? '';
+      const filterDialog = layersFormTemplate.match(/#newTerritorialFilterDialog[\s\S]*?<\/ng-template>/)?.[0] ?? '';
+
+      expect(styleDialog).toContain('mat-slide-toggle color="primary" formControlName="defaultStyle"');
+      expect(styleDialog).not.toContain('mat-checkbox formControlName="defaultStyle"');
+      expect(filterDialog).toContain('mat-slide-toggle color="primary" formControlName="required"');
+      expect(filterDialog).not.toContain('mat-checkbox formControlName="required"');
+    });
+
+    it('scopes the Details entity form and keeps Territories on app-relation-grid', () => {
+      const detailsTab = layersFormTemplate.match(
+        /label="\{\{ 'common\.form\.details' \| translate \}\}"[\s\S]*?(?=<mat-tab label="\{\{ 'entity\.cartography\.territories)/,
+      )?.[0] ?? '';
+      const territoriesTab = layersFormTemplate.match(
+        /entity\.cartography\.territories\.header[\s\S]*?<\/mat-tab>/,
+      )?.[0] ?? '';
+
+      expect(detailsTab).toContain('<form');
+      expect(detailsTab).toContain('sitmun-cartography-form-entity');
+      expect(detailsTab).toContain('related-entity-open-link');
+      expect(detailsTab).toContain("['/service', serviceId, 'serviceForm']");
+      expect(territoriesTab).toContain('app-relation-grid');
+      expect(territoriesTab).not.toContain('sitmun-cartography-form-entity');
+    });
+  });
+
+  describe('grid boolean column sizing', () => {
+    it('constrains the filters required column width', () => {
+      const requiredColumn = component['territorialFiltersTable'].relationsColumnsDefs
+        .find(col => col.field === 'required');
+
+      expect(requiredColumn.flex).toBe(0);
+      expect(requiredColumn.minWidth).toBe(100);
+      expect(requiredColumn.maxWidth).toBe(120);
+    });
+
+    it('constrains the styles defaultStyle column width', () => {
+      const defaultStyleColumn = component['stylesTable'].relationsColumnsDefs
+        .find(col => col.field === 'defaultStyle');
+
+      expect(defaultStyleColumn.flex).toBe(0);
+      expect(defaultStyleColumn.minWidth).toBe(100);
+      expect(defaultStyleColumn.maxWidth).toBe(120);
+    });
+
+    it('keeps style legend URL editable with the editable external URL renderer mode', () => {
+      const urlColumn = component['stylesTable'].relationsColumnsDefs
+        .find(col => col.field === 'legendURL.onlineResource');
+
+      expect(urlColumn.editable).toBe(true);
+      expect(urlColumn.cellRenderer).toBe('externalUrlRenderer');
+      expect(urlColumn.cellRendererParams).toEqual({ editable: true });
     });
   });
 

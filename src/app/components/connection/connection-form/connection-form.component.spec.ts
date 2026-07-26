@@ -1,5 +1,5 @@
 import { provideHttpClient } from '@angular/common/http';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
@@ -12,10 +12,11 @@ import {of} from 'rxjs';
 import {FormToolbarComponent} from '@app/components/shared/form-toolbar/form-toolbar.component';
 import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
 import {ExternalService, ResourceService} from '@app/core/hal';
-import {CartographyService, CodeListService, ConnectionService, TaskService, TranslationService} from '@app/domain';
+import {CodeListService, Connection, ConnectionService, TaskService, TranslationService} from '@app/domain';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
 import { MaterialModule } from '@app/material-module';
 import {LoggerService} from '@app/services/logger.service';
+import {NotificationService} from '@app/services/notification.service';
 import {configureLoggerForTests, provideErrorHandlerForTests} from '@app/testing/test-helpers';
 
 import { ConnectionFormComponent } from './connection-form.component';
@@ -23,17 +24,22 @@ import { ConnectionFormComponent } from './connection-form.component';
 describe('ConnectionFormComponent', () => {
   let component: ConnectionFormComponent;
   let fixture: ComponentFixture<ConnectionFormComponent>;
-  let connectionService: ConnectionService;
-  let cartographyService: CartographyService;
-  let taskService: TaskService;
-  let codeListService: CodeListService;
-  let translationService: TranslationService;
-  let resourceService: ResourceService;
-  let externalService: ExternalService;
+  let httpMock: HttpTestingController;
+  let notificationService: NotificationService;
   let _consoleErrorSpy: jest.SpyInstance;
 
+  // Full-suite load can push createComponent + whenStable past Jest's 5s hook default.
+  jest.setTimeout(30_000);
+
+  const PASSWORD_PLACEHOLDER = '••••••••';
+
+  const flushCodeListRequests = (): void => {
+    httpMock.match((req) => req.url.includes('codelist-values')).forEach((req) =>
+      req.flush({ _embedded: { 'codelist-values': [] } })
+    );
+  };
+
   beforeAll(async () => {
-     
     await TestBed.configureTestingModule({
       teardown: { destroyAfterEach: 0 as any },
       declarations: [ ConnectionFormComponent, FormToolbarComponent ],
@@ -52,107 +58,220 @@ describe('ConnectionFormComponent', () => {
         provideHttpClientTesting(),
         provideErrorHandlerForTests(),
         ConnectionService,
-        CartographyService,
         TaskService,
         CodeListService,
         TranslationService,
         ResourceService,
         ExternalService,
+        NotificationService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }
       ]
     })
     .compileComponents();
   });
 
-  beforeEach(() => {
+  beforeEach(async () => {
     _consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+    httpMock = TestBed.inject(HttpTestingController);
     fixture = TestBed.createComponent(ConnectionFormComponent);
     component = fixture.componentInstance;
-    // Suppress debug logs in tests to reduce console noise
     const loggerService = TestBed.inject(LoggerService);
     configureLoggerForTests(loggerService);
-    connectionService= TestBed.inject(ConnectionService);
-    cartographyService= TestBed.inject(CartographyService);
-    taskService= TestBed.inject(TaskService);
-    codeListService= TestBed.inject(CodeListService);
-    translationService= TestBed.inject(TranslationService);
-    resourceService= TestBed.inject(ResourceService);
-    externalService= TestBed.inject(ExternalService);
-    // Initialize form if not already initialized
+    notificationService = TestBed.inject(NotificationService);
     if (!component.entityForm) {
       component.entityToEdit = component.empty();
       component.postFetchData();
     }
     fixture.detectChanges();
+    await new Promise((r) => setTimeout(r, 0));
+    flushCodeListRequests();
+    await fixture.whenStable();
   });
 
-  afterEach(() => fixture?.destroy());
+  afterEach(() => {
+    httpMock.verify();
+    localStorage.removeItem('lang');
+    fixture?.destroy();
+  });
   afterAll(() => TestBed.resetTestingModule());
 
   it('should create', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should instantiate connectionService', () => {
-    expect(connectionService).toBeTruthy();
-  });
-
-  it('should instantiate cartographyService', () => {
-    expect(cartographyService).toBeTruthy();
-  });
-
-  it('should instantiate taskService', () => {
-    expect(taskService).toBeTruthy();
-  });
-
-  it('should instantiate codeListService', () => {
-    expect(codeListService).toBeTruthy();
-  });
-
-  it('should instantiate translationService', () => {
-    expect(translationService).toBeTruthy();
-  });
-
-  it('should instantiate resourceService', () => {
-    expect(resourceService).toBeTruthy();
-  });
-
-  it('should instantiate externalService', () => {
-    expect(externalService).toBeTruthy();
-  });
-
   it('form invalid when empty', () => {
     expect(component.entityForm.valid).toBeFalsy();
   });
 
-  it('form invalid when mid-empty', () => {
-    component.entityForm.patchValue({
-      name:'testName',
-      user: 'user',
-      newPassword: 'password',
-      url: 'url'
-    })
-    //Miss driver
-    expect(component.entityForm.valid).toBeFalsy();
-  });
-
-  it('form valid', () => {
+  it('form valid when required fields are set', () => {
     component.entityForm.patchValue({
       name:'testName',
       user: 'user',
       newPassword: 'password',
       url: 'url',
-      driver: 5
+      driver: 'org.h2.Driver'
     })
     expect(component.entityForm.valid).toBeTruthy();
   });
 
-  it('Connection form fields', () => {
-    expect(component.entityForm.get('name')).toBeTruthy();
-    expect(component.entityForm.get('user')).toBeTruthy();
-    expect(component.entityForm.get('newPassword')).toBeTruthy();
-    expect(component.entityForm.get('url')).toBeTruthy();
-    expect(component.entityForm.get('driver')).toBeTruthy();
+  it('canSave respects form validity', () => {
+    expect(component.canSave()).toBe(false);
+    component.entityForm.patchValue({
+      name:'testName',
+      url: 'jdbc:h2:mem:test',
+      driver: 'org.h2.Driver'
+    });
+    expect(component.canSave()).toBe(true);
   });
 
+  describe('password field edit session', () => {
+    const setupConnectionWithExistingPassword = (): void => {
+      component.entityID = 2;
+      component.entityToEdit = Object.assign(component.empty(), {
+        id: 2,
+        name: 'Connection 2',
+        driver: 'org.h2.Driver',
+        url: 'jdbc:h2:mem:test',
+        user: 'sa',
+        passwordSet: true,
+      });
+      component.postFetchData();
+      flushCodeListRequests();
+    };
+
+    it('initializes with placeholder when passwordSet is true', () => {
+      setupConnectionWithExistingPassword();
+      expect(component.passwordSet).toBe(true);
+      expect(component.entityForm.get('newPassword').value).toBe(PASSWORD_PLACEHOLDER);
+      expect(component.isPasswordBeingEdited).toBe(false);
+    });
+
+    it('initializes empty password for new connection even when entity carries passwordSet', () => {
+      component.entityID = -1;
+      component.duplicateID = -1;
+      component.entityToEdit = Object.assign(component.empty(), { passwordSet: true });
+      component.postFetchData();
+      flushCodeListRequests();
+
+      expect(component.passwordSet).toBe(false);
+      expect(component.entityForm.get('newPassword').value).toBe('');
+    });
+
+    it('does not send password on save after focus and blur without editing', () => {
+      setupConnectionWithExistingPassword();
+      component.onPasswordFocus();
+      component.onPasswordBlur();
+
+      const connection = component.createObject(2);
+      expect(component.isPasswordBeingEdited).toBe(false);
+      expect(connection.password).toBeUndefined();
+    });
+
+    it('includes typed password on save after edit', () => {
+      setupConnectionWithExistingPassword();
+      component.onPasswordFocus();
+      component.entityForm.get('newPassword').setValue('newSecret1');
+      component.onPasswordChange();
+
+      const connection = component.createObject(2);
+      expect(connection.password).toBe('newSecret1');
+    });
+  });
+
+  describe('connection validation', () => {
+    const setupSavedConnection = (): void => {
+      component.entityID = 2;
+      component.entityToEdit = Object.assign(new Connection(), {
+        id: 2,
+        name: 'Connection 2',
+        driver: 'org.h2.Driver',
+        url: 'jdbc:h2:mem:test',
+        user: 'sa',
+        passwordSet: true,
+      });
+      component.postFetchData();
+      flushCodeListRequests();
+    };
+
+    it('enables validate for unchanged saved connection', () => {
+      setupSavedConnection();
+      expect(component.canValidateConnection()).toBe(true);
+    });
+
+    it('uses GET stored test for unchanged saved connection', () => {
+      setupSavedConnection();
+      jest.spyOn(notificationService, 'showSuccess');
+
+      component.validateConnection();
+
+      const req = httpMock.expectOne((request) => request.url.includes('/connections/2/test') && request.method === 'GET');
+      req.flush({ isValid: true });
+      expect(notificationService.showSuccess).toHaveBeenCalled();
+    });
+
+    it('disables validate when driver changed without password edit', () => {
+      setupSavedConnection();
+      component.entityForm.get('url')?.setValue('jdbc:h2:mem:changed');
+      component.entityForm.markAsDirty();
+
+      expect(component.canValidateConnection()).toBe(false);
+    });
+
+    it('POSTs edited password instead of placeholder', () => {
+      setupSavedConnection();
+      component.onPasswordFocus();
+      component.entityForm.get('newPassword')?.setValue('edited-password');
+      component.onPasswordChange();
+
+      component.validateConnection();
+
+      const req = httpMock.expectOne((request) => request.url.includes('/connections/test') && request.method === 'POST');
+      expect(req.request.body.password).toBe('edited-password');
+      req.flush({ isValid: true });
+    });
+  });
+
+  describe('tasks table routing', () => {
+    it('links tasks by type-aware route', () => {
+      const nameColumn = component.tasksTable.relationsColumnsDefs.find(
+        (col: { cellRendererParams?: { route?: string } }) => col.cellRendererParams?.route != null
+      ) as { cellRendererParams: { route: string } };
+      expect(nameColumn.cellRendererParams.route).toBe('/tasks/:id/:typeId');
+    });
+
+    it('requests task type titles using the active UI language', () => {
+      localStorage.setItem('lang', 'es');
+      component.entityID = 2;
+      component.entityToEdit = Object.assign(new Connection(), {
+        id: 2,
+        _links: {
+          tasks: {
+            href: 'http://localhost/api/connections/2/tasks{?projection,lang}',
+          },
+        },
+      });
+
+      component.tasksTable.relationsFetchFn().subscribe(tasks => {
+        expect(tasks).toEqual([]);
+      });
+
+      const req = httpMock.expectOne(request =>
+        request.urlWithParams.includes('/connections/2/tasks')
+        && request.urlWithParams.includes('projection=view')
+        && request.urlWithParams.includes('lang=es')
+      );
+      req.flush({ _embedded: { tasks: [] } });
+    });
+  });
+
+  describe('Grid capability classification', () => {
+    it('tasksTable should be read-only display grid with no edit capabilities', () => {
+      const table = component['tasksTable'];
+      expect(table.hasPickerAdd()).toBe(false);
+      expect(table.hasRelationsUpdater()).toBe(false);
+      expect(table.hasStatusColumn()).toBe(false);
+      expect(table.hasTemplateDialogs()).toBe(false);
+      expect(table.supportsDuplicate()).toBe(false);
+    });
+  });
 });

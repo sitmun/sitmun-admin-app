@@ -31,7 +31,9 @@ export class ApplicationComponent extends BaseListComponent<Application> {
     dataFetchFn: () => of([]),
     rowModelMode: 'infinite',
     pageSize: INFINITE_PAGE_SIZE_DEFAULT,
-    infiniteBlockFetcher: createPagedInfiniteFetcher(this.applicationService),
+    infiniteBlockFetcher: createPagedInfiniteFetcher(this.applicationService, {
+      mapRow: Application.fromObject,
+    }),
     progressiveLocalFilter: false,
     backendSearch: true,
     defaultColumnSorting: ['name'],
@@ -106,11 +108,46 @@ export class ApplicationComponent extends BaseListComponent<Application> {
 
     this.entityListConfig.columnDefs = [
       this.utils.getRowCheckboxColumnDef(),
+      this.warningColumnDef(),
       nameCol,
       typeCol,
       themeCol,
       dateCol
     ];
+  }
+
+  private warningColumnDef() {
+    const header = this.translateService.instant('common.warnings.title');
+    return {
+      headerName: '',
+      headerTooltip: header,
+      field: 'warnings',
+      sortable: false,
+      filter: false,
+      floatingFilter: false,
+      editable: false,
+      width: 48,
+      minWidth: 48,
+      maxWidth: 48,
+      flex: 0,
+      cellStyle: {display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0'},
+      cellRenderer: (params: { data?: Application }) => {
+        const warnings = params.data?.warnings;
+        if (!warnings?.length) {
+          return '';
+        }
+        const messages = warnings
+          .map(key => this.translateService.instant(key))
+          .join('\n');
+        const icon = document.createElement('span');
+        icon.className = 'material-icons warning-icon';
+        icon.textContent = 'warning_amber';
+        icon.title = messages;
+        icon.setAttribute('aria-label', messages);
+        icon.style.fontSize = '20px';
+        return icon;
+      },
+    };
   }
 
   override async newData() {

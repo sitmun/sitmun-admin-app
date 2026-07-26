@@ -11,6 +11,22 @@
       </div>
     </div>
     <span class="toolbar-spacer"></span>
+    <button
+      mat-button
+      [matMenuTriggerFor]="languageMenu"
+      [attr.aria-label]="'entity.login.language' | translate"
+      class="language-toolbar-button">
+      <mat-icon>language</mat-icon>
+      <span>{{ isoCode(currentShortname) }}</span>
+    </button>
+    <mat-menu #languageMenu="matMenu">
+      <button
+        mat-menu-item
+        *ngFor="let lang of languages"
+        (click)="changeLanguage(lang.shortname)">
+        {{ lang.name }}
+      </button>
+    </mat-menu>
     <app-system-info-menu></app-system-info-menu>
   </mat-toolbar-row>
 </mat-toolbar>

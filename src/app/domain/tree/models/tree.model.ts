@@ -1,7 +1,7 @@
 import {Resource} from '@app/core/hal/resource/resource.model';
 
 import {TreeNode} from './tree-node.model';
-import {Application} from '../../application/models/application.model';
+import {ApplicationTree} from '../../application/models/application-tree.model';
 import {Role} from '../../role/models/role.model';
 
 /**
@@ -25,7 +25,7 @@ export class Tree extends Resource {
   /** available roles */
   public availableRoles : Role[];
   /** available applications */
-  public availableApplications: Application[];
+  public availableApplications: ApplicationTree[];
 
   /**
    * Creates a new Tree instance copying only the properties declared in Tree and Resource classes

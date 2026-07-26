@@ -1,0 +1,47 @@
+<h2 mat-dialog-title>{{ titleKey | translate }}</h2>
+
+<mat-dialog-content [formGroup]="form" class="dialog-content">
+  <p class="description">{{ descriptionKey | translate }}</p>
+
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>{{ 'entity.literalTranslation.targetLanguage' | translate }}</mat-label>
+    <mat-select [formControl]="targetLanguageControl">
+      <mat-option *ngFor="let language of data.languages" [value]="language.shortname">
+        {{ language.name }} ({{ language.shortname }})
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <div *ngIf="isImport" class="file-block">
+    <label class="file-label" for="literal-translation-csv-file">{{ 'entity.literalTranslation.csv.file' | translate }}</label>
+    <div class="file-picker">
+      <input id="literal-translation-csv-file" #fileInput hidden type="file" accept=".csv,text/csv" (change)="onFileSelected($event)">
+      <button mat-stroked-button type="button" (click)="fileInput.click()">
+        {{ 'entity.literalTranslation.csv.chooseFile' | translate }}
+      </button>
+      <span class="file-name">{{ selectedFile?.name || ('entity.literalTranslation.csv.noFileSelected' | translate) }}</span>
+      <button *ngIf="selectedFile" mat-button type="button" (click)="clearFile()">
+        {{ 'common.button.remove' | translate }}
+      </button>
+    </div>
+    <div class="hint-panel">
+      {{ importHintKey | translate }}
+    </div>
+  </div>
+
+  <mat-form-field *ngIf="isExport" appearance="outline" class="full-width">
+    <mat-label>{{ 'entity.literalTranslation.csv.fileName' | translate }}</mat-label>
+    <input matInput [formControl]="fileNameControl">
+  </mat-form-field>
+
+  <div *ngIf="isExport" class="hint-panel">
+    {{ selectionInfoKey | translate:{ count: data.literalIds?.length || 0 } }}
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button type="button" (click)="close()">{{ 'common.button.cancel' | translate }}</button>
+  <button mat-flat-button color="primary" type="button" [disabled]="isImport && !selectedFile" (click)="save()">
+    {{ actionKey | translate }}
+  </button>
+</mat-dialog-actions>

@@ -16,6 +16,7 @@
   entityLabelPrefix="entity.application"
   [fieldLabelKeys]="validationFieldLabelKeys"
   [warnings]="entityToEdit?.warnings"
+  [infoMessageKeys]="pointOfContactInfoMessageKeys"
   [customAlertMessage]="applicationTreeValidationWarningMessage">
 </app-entity-form-alerts>
 
@@ -42,13 +43,10 @@
             <mat-label>{{ 'common.form.name' | translate }} ({{ defaultLang }})</mat-label>
             <input matInput type="text" formControlName="name" [maxlength]="50" required>
             <mat-hint align="start">{{ 'entity.application.hint.name' | translate }}</mat-hint>
-            <mat-hint align="end" [class.text-warning]="entityForm.get('name')?.value?.length > 50">
-              {{entityForm.get('name') | characterCount}}
-              <mat-icon *ngIf="entityForm.get('name')?.value?.length > 50" fontIcon="warning" class="warning-icon"></mat-icon>
-            </mat-hint>
-          <mat-icon matSuffix class="iconTranslate"
+            <mat-hint align="end">{{entityForm.get('name') | characterCount}}</mat-hint>
+            <mat-icon matSuffix class="iconTranslate"
                       (click)="onTranslated('name')"
-                      onKeyDown="onTranslated('name')">translate</mat-icon>
+                      (keydown)="onTranslated('name')">translate</mat-icon>
           </mat-form-field>
           <mat-form-field appearance="outline" class="full sitmun-cartography-rich-hint-field" subscriptSizing="dynamic">
             <mat-label>{{ 'common.form.description' | translate }} ({{ defaultLang }})</mat-label>
@@ -57,7 +55,7 @@
               <mat-hint align="end">{{entityForm.get('description') | characterCount}}</mat-hint>
               <mat-icon matSuffix class="iconTranslate"
                       (click)="onTranslated('description')"
-                      onKeyDown="onTranslated('description')">translate</mat-icon>
+                      (keydown)="onTranslated('description')">translate</mat-icon>
           </mat-form-field>
           <div class="application-form-field-row application-form-field-row--two-col">
             <mat-form-field appearance="outline" class="half add-gap" subscriptSizing="dynamic">
@@ -70,36 +68,58 @@
               </mat-select>
               <mat-hint align="start">{{ 'entity.application.hint.type' | translate }}</mat-hint>
             </mat-form-field>
-            <mat-form-field appearance="outline" class="half" subscriptSizing="dynamic">
+            <mat-form-field appearance="outline" class="half"
+                            subscriptSizing="dynamic">
               <mat-label>{{ 'entity.application.creator' | translate }}</mat-label>
               <mat-select formControlName="creatorId" class="form-control">
                 <mat-select-trigger>
                   <ng-container *ngIf="entityForm.get('creatorId')?.value as creatorId">
-                    <a [routerLink]="['/user', creatorId, 'userForm']"
-                       class="router-link">
-                      {{ getUsername(creatorId) }}
-                    </a>
+                    {{ getUsername(creatorId) }}
                   </ng-container>
                   <span *ngIf="!entityForm.get('creatorId')?.value">
                     {{ 'common.form.none' | translate }}
                   </span>
                 </mat-select-trigger>
                 <mat-option [value]="null">{{ 'common.form.none' | translate }}</mat-option>
-                <mat-option [value]="user.id" *ngFor="let user of usersList">
-                  <div>
-                    <a [routerLink]="['/user', user.id, 'userForm']"
-                       (click)="$event.stopPropagation()" class="router-link">
-                      <span>{{ user.username }}</span>
-                    </a>
-                  </div>
+                <mat-option *ngIf="currentIneligibleCreator as ineligible"
+                            [value]="ineligible.id"
+                            disabled>
+                  {{ ineligible.username }}
+                </mat-option>
+                <mat-option [value]="user.id" *ngFor="let user of eligibleUsersList">
+                  {{ user.username }}
                 </mat-option>
               </mat-select>
+              <a *ngIf="entityForm.get('creatorId')?.value as creatorId"
+                 mat-icon-button
+                 matSuffix
+                 class="related-entity-open-link"
+                 [routerLink]="['/user', creatorId, 'userForm']"
+                 target="_blank"
+                 rel="noopener"
+                 [matTooltip]="'common.relation.openNewTab' | translate"
+                 [attr.aria-label]="'common.relation.openNewTab' | translate">
+                <mat-icon class="related-entity-link-icon">open_in_new</mat-icon>
+              </a>
               <mat-hint align="start">{{ 'entity.application.hint.creatorId' | translate }}</mat-hint>
             </mat-form-field>
           </div>
           <mat-form-field appearance="outline" class="full sitmun-cartography-rich-hint-field" subscriptSizing="dynamic">
+            <mat-label>{{ 'entity.application.responsibleInstitutionName' | translate }}</mat-label>
+            <input matInput type="text" formControlName="responsibleInstitutionName" [maxlength]="250">
+            <mat-hint align="start">{{ 'entity.application.hint.responsibleInstitutionName' | translate }}</mat-hint>
+            <mat-hint align="end">{{entityForm.get('responsibleInstitutionName') | characterCount:250}}</mat-hint>
+            <mat-error *ngIf="entityForm.get('responsibleInstitutionName')?.hasError('maxlength')">
+              {{ 'entity.territory.error.maxlength' | translate:{ requiredLength: 250 } }}
+            </mat-error>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="full sitmun-cartography-rich-hint-field" subscriptSizing="dynamic">
             <mat-label>{{ 'entity.application.logo' | translate }}</mat-label>
             <input matInput type="text" formControlName="logo" [maxlength]="4000">
+            <app-external-url-link
+              matSuffix
+              [url]="entityForm.get('logo')?.value">
+            </app-external-url-link>
             <mat-hint align="start">{{ 'entity.application.hint.logo' | translate }}</mat-hint>
             <mat-hint align="end">{{entityForm.get('logo') | characterCount}}</mat-hint>
             <mat-error *ngIf="entityForm.get('logo')?.hasError('optionalHttpUrl')">
@@ -123,7 +143,7 @@
             <textarea matInput type="text" formControlName="maintenanceInformation" [maxlength]="4000"></textarea>
             <mat-icon matSuffix class="iconTranslate"
                       (click)="onTranslated('maintenanceInformation')"
-                      onKeyDown="onTranslated('maintenanceInformation')">translate</mat-icon>
+                      (keydown)="onTranslated('maintenanceInformation')">translate</mat-icon>
             <mat-hint align="start">{{ 'entity.application.hint.maintenanceInformation' | translate }}</mat-hint>
             <mat-hint align="end">{{entityForm.get('maintenanceInformation') | characterCount}}</mat-hint>
           </mat-form-field>
@@ -135,6 +155,10 @@
           <mat-form-field appearance="outline" class="full sitmun-cartography-rich-hint-field" subscriptSizing="dynamic">
             <mat-label>{{ 'entity.application.type.external.url' | translate }}</mat-label>
             <input matInput type="text" formControlName="jspTemplate" [maxlength]="250">
+            <app-external-url-link
+              matSuffix
+              [url]="entityForm.get('jspTemplate')?.value">
+            </app-external-url-link>
             <mat-hint align="start">{{ 'entity.application.hint.jspTemplate' | translate }}</mat-hint>
             <mat-hint align="end">{{entityForm.get('jspTemplate') | characterCount}}</mat-hint>
             <mat-error *ngIf="entityForm.get('jspTemplate')?.hasError('required')">
@@ -153,7 +177,7 @@
             <input matInput type="text" formControlName="title" [maxlength]="250">
             <mat-icon matSuffix class="iconTranslate"
                       (click)="onTranslated('title')"
-                      onKeyDown="onTranslated('title')"
+                      (keydown)="onTranslated('title')"
                       >translate</mat-icon>
             <mat-hint align="start">{{ 'entity.application.hint.title' | translate }}</mat-hint>
             <mat-hint align="end">{{entityForm.get('title') | characterCount}}</mat-hint>
@@ -171,14 +195,13 @@
               <mat-hint align="start">{{ 'entity.application.hint.srs' | translate }}</mat-hint>
               <mat-hint align="end">{{entityForm.get('srs') | characterCount}}</mat-hint>
             </mat-form-field>
-            <mat-form-field appearance="outline" class="half sitmun-cartography-rich-hint-field" subscriptSizing="dynamic">
+            <mat-form-field appearance="outline" class="half sitmun-cartography-rich-hint-field"
+                            subscriptSizing="dynamic">
               <mat-label>{{ 'entity.application.type.generic.situationmap' | translate }}</mat-label>
               <mat-select formControlName="situationMapId" class="form-control">
                 <mat-select-trigger>
                   <ng-container *ngIf="entityForm.get('situationMapId')?.value as selectedId">
-                    <a [routerLink]="['/layersPermits', selectedId, 'layersPermitsForm']" class="router-link">
-                      {{ getSituationMapName(selectedId) }}
-                    </a>
+                    {{ getSituationMapName(selectedId) }}
                   </ng-container>
                   <span *ngIf="!entityForm.get('situationMapId')?.value">
                     {{ 'common.form.none' | translate }}
@@ -186,14 +209,20 @@
                 </mat-select-trigger>
                 <mat-option [value]="null">{{ 'common.form.none' | translate }}</mat-option>
                 <mat-option [value]="situationMapObj.id" *ngFor="let situationMapObj of situationMapList">
-                  <div>
-                    <a [routerLink]="['/layersPermits', situationMapObj.id, 'layersPermitsForm']"
-                       (click)="$event.stopPropagation()" class="router-link">
-                      <span>{{ situationMapObj.name }}</span>
-                    </a>
-                  </div>
+                  {{ situationMapObj.name }}
                 </mat-option>
               </mat-select>
+              <a *ngIf="entityForm.get('situationMapId')?.value as selectedId"
+                 mat-icon-button
+                 matSuffix
+                 class="related-entity-open-link"
+                 [routerLink]="['/layersPermits', selectedId, 'layersPermitsForm']"
+                 target="_blank"
+                 rel="noopener"
+                 [matTooltip]="'common.relation.openNewTab' | translate"
+                 [attr.aria-label]="'common.relation.openNewTab' | translate">
+                <mat-icon class="related-entity-link-icon">open_in_new</mat-icon>
+              </a>
               <mat-hint align="start">{{ 'entity.application.hint.situationMap' | translate }}</mat-hint>
             </mat-form-field>
           </div>
@@ -271,50 +300,24 @@
             </div>
           </mat-card>
         </form>
-        <app-data-grid (getAllRows)="headerParamsTable.handleSaveRelations($event)"
-                       (new)="headerParamsTable.openTemplateDialog('newHeaderParamDialog')"
-                       *ngIf="dataLoaded"
-                       [actionButton]=true
-                       [allNewElements]="isNewOrDuplicated()"
-                       [changeHeightButton]="true"
-                       [columnDefs]="headerParamsTable.relationsColumnsDefs"
-                       [defaultColumnSorting]='headerParamsTable.defaultRelationsSorting()'
-                       [deleteButton]=true
-                       [discardChangesButton]=true
-                       [eventAddItemsSubscription]='headerParamsTable.addCommandEvent$.asObservable()'
-                       [eventGetAllRowsSubscription]='headerParamsTable.saveCommandEvent$.asObservable()'
-                       [eventRefreshSubscription]='headerParamsTable.refreshCommandEvent$.asObservable()'
-                       [getAll]='headerParamsTable.relationsFetchFn'
-                       [hideDuplicateButton]=true
-                       [newButton]=true
-                       [redoButton]=true
-                       [undoButton]=true
-        ></app-data-grid>
+        <app-relation-grid
+          *ngIf="dataLoaded"
+          [table]="headerParamsTable"
+          [allNewElements]="isNewOrDuplicated()"
+          templateDialogName="newHeaderParamDialog"
+        ></app-relation-grid>
       </mat-card-content>
     </mat-card>
   </mat-tab>
   <mat-tab label="{{ 'entity.application.parameters.header' | translate }}">
     <mat-card class="sitmun-mat-card-margin" appearance="outlined">
       <mat-card-content>
-        <app-data-grid [changeHeightButton]="true"
-        [allNewElements]="isNewOrDuplicated()"
-        [columnDefs]="parametersTable.relationsColumnsDefs"
-        [getAll]='parametersTable.relationsFetchFn'
-        [eventAddItemsSubscription]='parametersTable.addCommandEvent$.asObservable()'
-        [eventGetAllRowsSubscription]='parametersTable.saveCommandEvent$.asObservable()'
-        [eventRefreshSubscription]='parametersTable.refreshCommandEvent$.asObservable()'
-        [actionButton]=true
-        [discardChangesButton]=true
-        [redoButton]=true
-        [undoButton]=true
-        [deleteButton]=true
-        [newButton]=true
-        [defaultColumnSorting]='parametersTable.defaultRelationsSorting()'
-        [hideDuplicateButton]=true
-        (getAllRows)="parametersTable.handleSaveRelations($event)"
-        (new)="parametersTable.openTemplateDialog('newParameterDialog')"
-        *ngIf="dataLoaded"
-       ></app-data-grid>
+        <app-relation-grid
+          *ngIf="dataLoaded"
+          [table]="parametersTable"
+          [allNewElements]="isNewOrDuplicated()"
+          templateDialogName="newParameterDialog"
+        ></app-relation-grid>
       </mat-card-content>
     </mat-card>
   </mat-tab>
@@ -331,76 +334,34 @@
     </ng-template>
     <mat-card class="sitmun-mat-card-margin" appearance="outlined">
       <mat-card-content>
-        <app-data-grid [changeHeightButton]="true"
-        [allNewElements]="isNewOrDuplicated()"
-        [columnDefs]="rolesTable.relationsColumnsDefs"
-        [getAll]='rolesTable.relationsFetchFn'
-        [eventAddItemsSubscription]='rolesTable.addCommandEvent$.asObservable()'
-        [eventGetAllRowsSubscription]='rolesTable.saveCommandEvent$.asObservable()'
-        [eventRefreshSubscription]='rolesTable.refreshCommandEvent$.asObservable()'
-        [actionButton]=true
-        [discardChangesButton]=true
-        [redoButton]=true
-        [undoButton]=true
-        [deleteButton]=true
-        [addButton]=true
-        [defaultColumnSorting]='rolesTable.defaultRelationsSorting()'
-        [hideDuplicateButton]=true
-        (getAllRows)="rolesTable.handleSaveRelations($event)"
-        (add)="rolesTable.openDialog($event)"
-        *ngIf="dataLoaded"
-      ></app-data-grid>
+        <app-relation-grid
+          *ngIf="dataLoaded"
+          [table]="rolesTable"
+          [allNewElements]="isNewOrDuplicated()"
+        ></app-relation-grid>
       </mat-card-content>
     </mat-card>
   </mat-tab>
   <mat-tab label="{{ 'entity.application.background.header' | translate }}">
     <mat-card class="sitmun-mat-card-margin" appearance="outlined">
       <mat-card-content>
-        <app-data-grid [changeHeightButton]="true"
-        [allNewElements]="isNewOrDuplicated()"
-        [columnDefs]="applicationBackgroundsTable.relationsColumnsDefs"
-        [getAll]='applicationBackgroundsTable.relationsFetchFn'
-        [eventAddItemsSubscription]='applicationBackgroundsTable.addCommandEvent$.asObservable()'
-        [eventGetAllRowsSubscription]='applicationBackgroundsTable.saveCommandEvent$.asObservable()'
-        [eventRefreshSubscription]='applicationBackgroundsTable.refreshCommandEvent$.asObservable()'
-        [actionButton]=true
-        [discardChangesButton]=true
-        [redoButton]=true
-        [undoButton]=true
-        [deleteButton]=true
-        [addButton]=true
-        [defaultColumnSorting]='applicationBackgroundsTable.defaultRelationsSorting()'
-        [hideDuplicateButton]=true
-        (getAllRows)="applicationBackgroundsTable.handleSaveRelations($event)"
-        (add)="applicationBackgroundsTable.openDialog($event)"
-        *ngIf="dataLoaded"
-      ></app-data-grid>
+        <app-relation-grid
+          *ngIf="dataLoaded"
+          [table]="applicationBackgroundsTable"
+          [allNewElements]="isNewOrDuplicated()"
+        ></app-relation-grid>
       </mat-card-content>
     </mat-card>
   </mat-tab>
   <mat-tab label="{{ 'entity.application.trees.header' | translate }}">
     <mat-card class="sitmun-mat-card-margin" appearance="outlined">
       <mat-card-content>
-        <app-data-grid #treesDataGrid
-                      [changeHeightButton]="true"
-                      [allNewElements]="isNewOrDuplicated()"
-                      [columnDefs]="treesTable.relationsColumnsDefs"
-                      [getAll]='treesTable.relationsFetchFn'
-                      [eventAddItemsSubscription]='treesTable.addCommandEvent$.asObservable()'
-                      [eventGetAllRowsSubscription]='treesTable.saveCommandEvent$.asObservable()'
-                      [eventRefreshSubscription]='treesTable.refreshCommandEvent$.asObservable()'
-                      [actionButton]=true
-                      [discardChangesButton]=true
-                      [redoButton]=true
-                      [undoButton]=true
-                      [deleteButton]=true
-                      [addButton]=true
-                      [defaultColumnSorting]='treesTable.defaultRelationsSorting()'
-                      [hideDuplicateButton]=true
-                      (getAllRows)="treesTable.handleSaveRelations($event)"
-                      (add)="treesTable.openDialog($event)"
-                      *ngIf="dataLoaded"
-        ></app-data-grid>
+        <app-relation-grid
+          #treesDataGrid
+          *ngIf="dataLoaded"
+          [table]="treesTable"
+          [allNewElements]="isNewOrDuplicated()"
+        ></app-relation-grid>
       </mat-card-content>
     </mat-card>
   </mat-tab>
@@ -446,6 +407,10 @@
         <mat-form-field appearance="outline" class="full">
           <mat-label>{{ 'entity.permissionGroup.serviceURL' | translate }}</mat-label>
           <input [maxlength]="500" formControlName="url" matInput required type="text">
+          <app-external-url-link
+            matSuffix
+            [url]="headerParamsTable.templateDialog('newHeaderParamDialog').form.get('url')?.value">
+          </app-external-url-link>
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="full">

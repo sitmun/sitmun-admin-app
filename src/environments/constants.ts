@@ -57,6 +57,11 @@ const entityStatus = {
   modified: 'Modified'
 };
 
+const taskRelationType = {
+  templateTask: 'template-task',
+  templateNested: 'template-nested',
+} as const;
+
 export const constants = {
   codeValue,
   entityStatus,
@@ -68,13 +73,22 @@ export const constants = {
     cartography: 'cartography',
     task: 'task'
   },
+  taskRelationType,
   extraImg: []
 };
+
+/** Relation types that link a Plantilla to child query/template tasks. */
+export const TEMPLATE_TASK_RELATION_TYPES: readonly string[] = [
+  taskRelationType.templateTask,
+  taskRelationType.templateNested,
+];
 
 export const magic = {
   taskEditTypeId: 0,
   taskBasicTypeId: 1,
   taskLocatorTypeId: 4,
   taskQueryTypeId: 5,
-  taskMoreInfoTypeId: 6
+  taskMoreInfoTypeId: 6,
+  taskTemplateTypeId: 15,
+  taskMoreInfoAdvancedTypeId: 16
 }

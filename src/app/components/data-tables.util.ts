@@ -33,7 +33,7 @@ import {LoggerService} from "@app/services/logger.service";
  * @template RELATION - The type of entity displayed in the main relationship table
  * @template TARGET - The type of entity available for selection in target dialogs
  */
-export class DataTableDefinition<RELATION, TARGET> implements DataTableSpec {
+export class DataTableDefinition<RELATION, TARGET> implements RelationGridTable<RELATION> {
   /**
    * The delay in milliseconds before refreshing data after a save operation.
    * Helps prevent stale data when backend processing is delayed.
@@ -83,6 +83,7 @@ export class DataTableDefinition<RELATION, TARGET> implements DataTableSpec {
    * @param errorHandler - Service for handling and displaying errors
    * @param fieldRestriction
    * @param loadingService
+   * @param capabilities - Capabilities configured by the builder
    */
   constructor(
     public readonly relationsColumnsDefs: any[],
@@ -100,7 +101,8 @@ export class DataTableDefinition<RELATION, TARGET> implements DataTableSpec {
     private readonly templateDialogs: Map<string, () => TemplateDialog>,
     private readonly errorHandler: ErrorHandlerService,
     private readonly fieldRestriction: string[],
-    private readonly loadingService: LoadingOverlayService
+    private readonly loadingService: LoadingOverlayService,
+    private readonly capabilities: RelationGridCapabilities
   ) {
 
   }
@@ -122,6 +124,12 @@ export class DataTableDefinition<RELATION, TARGET> implements DataTableSpec {
     loadingService: LoadingOverlayService
   ): DataTableDefinitionBuilder<RELATION, TARGET> {
     return new DataTableDefinitionBuilder<RELATION, TARGET>(dialog, errorHandler, loadingService);
+  }
+
+  get addFieldRestriction(): string | string[] | undefined {
+    if (!this.fieldRestriction || this.fieldRestriction.length === 0) return undefined;
+    if (this.fieldRestriction.length === 1) return this.fieldRestriction[0];
+    return this.fieldRestriction;
   }
 
   /**
@@ -246,6 +254,9 @@ export class DataTableDefinition<RELATION, TARGET> implements DataTableSpec {
     dialog.preOpenFn(dialog.form);
     const dialogRef = this.targetsDialog.open<DialogFormComponent, DialogFormData, DialogFormResult>(
       DialogFormComponent, {
+        panelClass: 'formDialogs',
+        width: '640px',
+        maxWidth: '90vw',
         data: {
           HTMLReceived: dialog.reference,
           title: dialog.title,
@@ -306,6 +317,46 @@ export class DataTableDefinition<RELATION, TARGET> implements DataTableSpec {
     }
   }
 
+  /**
+   * Returns whether this table has picker add capability configured.
+   * Picker add requires columns, fetcher, and converter to be explicitly configured.
+   */
+  hasPickerAdd(): boolean {
+    return this.capabilities.pickerAdd;
+  }
+
+  /**
+   * Returns whether this table has a relations updater configured.
+   * This determines if save operations should be wired.
+   */
+  hasRelationsUpdater(): boolean {
+    return this.capabilities.relationsUpdater;
+  }
+
+  /**
+   * Returns whether this table has a status column in its relations columns.
+   * This determines if delete operations should be available.
+   */
+  hasStatusColumn(): boolean {
+    return this.capabilities.statusColumn;
+  }
+
+  /**
+   * Returns whether this table has template dialogs configured.
+   * This determines if template-based add operations are available.
+   */
+  hasTemplateDialogs(): boolean {
+    return this.capabilities.templateDialogs;
+  }
+
+  /**
+   * Returns whether this table has duplicate capability configured.
+   * This determines if duplicate operations should be available.
+   */
+  supportsDuplicate(): boolean {
+    return this.capabilities.duplicate;
+  }
+
 }
 
 /**
@@ -323,9 +374,9 @@ export class DataTableDefinition<RELATION, TARGET> implements DataTableSpec {
  * @template TARGET_LEFT - The type of entity available for selection in the left target dialog
  * @template TARGET_RIGHT - The type of entity available for selection in the right target dialog
  */
-export class DataTable2Definition<RELATION, TARGET_LEFT, TARGET_RIGHT> implements DataTableSpec {
+export class DataTable2Definition<RELATION, TARGET_LEFT, TARGET_RIGHT> implements RelationGridTable<RELATION> {
   /**
-   * The delay in milliseconds before refreshing data after a save operation.
+   * The delay in milliseconds after refreshing data after a save operation.
    * Helps prevent stale data when backend processing is delayed.
    */
   private readonly DELAY = 500;
@@ -376,6 +427,7 @@ export class DataTable2Definition<RELATION, TARGET_LEFT, TARGET_RIGHT> implement
    * @param targetToRelationFn - Function to convert selected targets to relations
    * @param errorHandler - Service for handling and displaying errors
    * @param loadingService
+   * @param capabilities - Capabilities configured by the builder
    */
   constructor(
     public readonly relationsColumnsDefs: any[],
@@ -396,7 +448,9 @@ export class DataTable2Definition<RELATION, TARGET_LEFT, TARGET_RIGHT> implement
     public readonly targetsOrder: string[],
     private readonly targetToRelationFn: (left: TARGET_LEFT[], right: TARGET_RIGHT[]) => RELATION[],
     private readonly errorHandler: ErrorHandlerService,
-    private readonly loadingService: LoadingOverlayService
+    private readonly loadingService: LoadingOverlayService,
+    private readonly capabilities: RelationGridCapabilities,
+    private readonly fieldRestriction: string[] = []
   ) {
 
   }
@@ -419,6 +473,12 @@ export class DataTable2Definition<RELATION, TARGET_LEFT, TARGET_RIGHT> implement
     loadingService: LoadingOverlayService
   ): DataTable2DefinitionBuilder<RELATION, TARGET_LEFT, TARGET_RIGHT> {
     return new DataTable2DefinitionBuilder<RELATION, TARGET_LEFT, TARGET_RIGHT>(dialog, errorHandler, loadingService);
+  }
+
+  get addFieldRestriction(): string | string[] | undefined {
+    if (!this.fieldRestriction || this.fieldRestriction.length === 0) return undefined;
+    if (this.fieldRestriction.length === 1) return this.fieldRestriction[0];
+    return this.fieldRestriction;
   }
 
   /**
@@ -552,6 +612,70 @@ export class DataTable2Definition<RELATION, TARGET_LEFT, TARGET_RIGHT> implement
     }
   }
 
+  /**
+   * Not supported on dual-target tables; template dialogs use {@link DataTableDefinition}.
+   */
+  openTemplateDialog(_name: string): void {
+    throw new Error('DataTable2Definition does not support template dialogs');
+  }
+
+  /**
+   * Returns whether this table has picker add capability configured.
+   * Dual-target picker add requires both left and right columns, fetchers, and converter to be explicitly configured.
+   */
+  hasPickerAdd(): boolean {
+    return this.capabilities.pickerAdd;
+  }
+
+  /**
+   * Returns whether this table has a relations updater configured.
+   * This determines if save operations should be wired.
+   */
+  hasRelationsUpdater(): boolean {
+    return this.capabilities.relationsUpdater;
+  }
+
+  /**
+   * Returns whether this table has a status column in its relations columns.
+   * This determines if delete operations should be available.
+   */
+  hasStatusColumn(): boolean {
+    return this.capabilities.statusColumn;
+  }
+
+  /**
+   * Returns whether this table has template dialogs configured.
+   * DataTable2Definition does not support template dialogs in PR 2a.
+   */
+  hasTemplateDialogs(): boolean {
+    return this.capabilities.templateDialogs;
+  }
+
+  /**
+   * Returns whether this table has duplicate capability configured.
+   * This determines if duplicate operations should be available.
+   */
+  supportsDuplicate(): boolean {
+    return this.capabilities.duplicate;
+  }
+
+}
+
+/**
+ * Capabilities that can be configured for a relation grid table.
+ * Used to determine which toolbar actions and wiring should be enabled.
+ */
+export interface RelationGridCapabilities {
+  /** Whether the table has a configured picker add dialog */
+  readonly pickerAdd: boolean;
+  /** Whether the table has a configured relations updater function */
+  readonly relationsUpdater: boolean;
+  /** Whether the table's relation columns include a status column */
+  readonly statusColumn: boolean;
+  /** Whether the table has configured template dialogs */
+  readonly templateDialogs: boolean;
+  /** Whether the table has a configured duplicate function */
+  readonly duplicate: boolean;
 }
 
 /**
@@ -567,6 +691,31 @@ export interface DataTableSpec {
 
   /** Completes all subjects to prevent memory leaks */
   complete(): void;
+}
+
+/**
+ * Interface for relation grid tables that can be used with RelationGridComponent.
+ * Extends DataTableSpec with grid-specific properties and capability queries.
+ */
+export interface RelationGridTable<RELATION = unknown> extends DataTableSpec {
+  readonly relationsColumnsDefs: any[];
+  readonly relationsFetchFn: () => Observable<RELATION[]>;
+  readonly addCommandEvent$: Subject<RELATION[]>;
+  readonly saveCommandEvent$: Subject<GridEventType>;
+  readonly refreshCommandEvent$: ReplaySubject<boolean>;
+  readonly addFieldRestriction?: string | string[] | undefined;
+
+  defaultRelationsSorting(): string[];
+  openDialog(relations: RELATION[]): void;
+  openTemplateDialog(name: string): void;
+  handleSaveRelations(event: GridEvent<RELATION & Status>): Promise<void>;
+  duplicateRelations(relations: RELATION[]): Promise<void>;
+
+  hasPickerAdd(): boolean;
+  hasRelationsUpdater(): boolean;
+  hasStatusColumn(): boolean;
+  hasTemplateDialogs(): boolean;
+  supportsDuplicate(): boolean;
 }
 
 /**
@@ -743,6 +892,15 @@ class DataTableDefinitionBuilder<RELATION, TARGET> {
   private fieldRestriction: string[] = [];
 
   /**
+   * Capability tracking flags set by explicit builder method calls.
+   */
+  private hasExplicitTargetsFetcher = false;
+  private hasExplicitTargetToRelation = false;
+  private hasExplicitRelationsUpdater = false;
+  private hasExplicitRelationsDuplicate = false;
+  private hasExplicitTargetsColumns = false;
+
+  /**
    * Creates a new DataTableDefinitionBuilder.
    *
    * @param targetsDialog - Dialog service for opening target selection dialogs
@@ -775,6 +933,7 @@ class DataTableDefinitionBuilder<RELATION, TARGET> {
    */
   withTargetsColumns(columns: any[]): this {
     this.targetColumnsDefs = columns;
+    this.hasExplicitTargetsColumns = true;
     return this;
   }
 
@@ -807,6 +966,7 @@ class DataTableDefinitionBuilder<RELATION, TARGET> {
    */
   withTargetsFetcher(fn: () => Observable<TARGET[]>): this {
     this.targetsFetchFn = fn;
+    this.hasExplicitTargetsFetcher = true;
     return this;
   }
 
@@ -818,6 +978,7 @@ class DataTableDefinitionBuilder<RELATION, TARGET> {
    */
   withRelationsDuplicate(fn: (relation: RELATION) => RELATION): this {
     this.relationsDuplicateFn = fn;
+    this.hasExplicitRelationsDuplicate = true;
     return this
   }
 
@@ -829,6 +990,7 @@ class DataTableDefinitionBuilder<RELATION, TARGET> {
    */
   withRelationsUpdater(fn: (relations: (RELATION & Status)[]) => Promise<void>): this {
     this.relationsUpdateFn = fn;
+    this.hasExplicitRelationsUpdater = true;
     return this;
   }
 
@@ -873,6 +1035,7 @@ class DataTableDefinitionBuilder<RELATION, TARGET> {
    */
   withTargetToRelation(fn: (items: TARGET[]) => RELATION[]): this {
     this.targetToRelationFn = fn;
+    this.hasExplicitTargetToRelation = true;
     return this;
   }
 
@@ -905,6 +1068,15 @@ class DataTableDefinitionBuilder<RELATION, TARGET> {
    * @returns A new DataTableDefinition instance
    */
   build(): DataTableDefinition<RELATION, TARGET> {
+    // Compute capabilities based on explicit builder calls
+    const capabilities: RelationGridCapabilities = {
+      pickerAdd: this.hasExplicitTargetsColumns && this.hasExplicitTargetsFetcher && this.hasExplicitTargetToRelation,
+      relationsUpdater: this.hasExplicitRelationsUpdater,
+      statusColumn: this.relationsColumnsDefs.some(col => col?.field === 'status'),
+      templateDialogs: this.templateDialogs.size > 0,
+      duplicate: this.hasExplicitRelationsDuplicate
+    };
+
     return new DataTableDefinition<RELATION, TARGET>(
       this.relationsColumnsDefs,
       this.relationsFetchFn,
@@ -921,7 +1093,8 @@ class DataTableDefinitionBuilder<RELATION, TARGET> {
       this.templateDialogs,
       this.errorHandler,
       this.fieldRestriction,
-      this.loadingService
+      this.loadingService,
+      capabilities
     );
   }
 
@@ -1011,6 +1184,17 @@ class DataTable2DefinitionBuilder<RELATION, TARGET_LEFT, TARGET_RIGHT> {
   private fieldRestriction: string[] = [];
 
   /**
+   * Capability tracking flags set by explicit builder method calls.
+   */
+  private hasExplicitTargetsLeftFetcher = false;
+  private hasExplicitTargetsRightFetcher = false;
+  private hasExplicitTargetToRelation = false;
+  private hasExplicitRelationsUpdater = false;
+  private hasExplicitRelationsDuplicate = false;
+  private hasExplicitTargetsLeftColumns = false;
+  private hasExplicitTargetsRightColumns = false;
+
+  /**
    * Creates a new DataTable2DefinitionBuilder.
    *
    * @param targetsDialog - Dialog service for opening target selection dialogs
@@ -1043,11 +1227,13 @@ class DataTable2DefinitionBuilder<RELATION, TARGET_LEFT, TARGET_RIGHT> {
    */
   withTargetsLeftColumns(columns: any[]): this {
     this.targetLeftColumnsDefs = columns;
+    this.hasExplicitTargetsLeftColumns = true;
     return this;
   }
 
   withTargetsRightColumns(columns: any[]): this {
     this.targetRightColumnsDefs = columns;
+    this.hasExplicitTargetsRightColumns = true;
     return this;
   }
 
@@ -1080,11 +1266,13 @@ class DataTable2DefinitionBuilder<RELATION, TARGET_LEFT, TARGET_RIGHT> {
    */
   withTargetsLeftFetcher(fn: () => Observable<TARGET_LEFT[]>): this {
     this.targetsLeftFetchFn = fn;
+    this.hasExplicitTargetsLeftFetcher = true;
     return this;
   }
 
   withTargetsRightFetcher(fn: () => Observable<TARGET_RIGHT[]>): this {
     this.targetsRightFetchFn = fn;
+    this.hasExplicitTargetsRightFetcher = true;
     return this;
   }
 
@@ -1096,6 +1284,7 @@ class DataTable2DefinitionBuilder<RELATION, TARGET_LEFT, TARGET_RIGHT> {
    */
   withRelationsDuplicate(fn: (relation: RELATION) => RELATION): this {
     this.relationsDuplicateFn = fn;
+    this.hasExplicitRelationsDuplicate = true;
     return this
   }
 
@@ -1107,6 +1296,7 @@ class DataTable2DefinitionBuilder<RELATION, TARGET_LEFT, TARGET_RIGHT> {
    */
   withRelationsUpdater(fn: (relations: (RELATION & Status)[]) => Promise<void>): this {
     this.relationsUpdateFn = fn;
+    this.hasExplicitRelationsUpdater = true;
     return this;
   }
 
@@ -1161,6 +1351,7 @@ class DataTable2DefinitionBuilder<RELATION, TARGET_LEFT, TARGET_RIGHT> {
    */
   withTargetToRelation(fn: (left: TARGET_LEFT[], right: TARGET_RIGHT[]) => RELATION[]): this {
     this.targetToRelationFn = fn;
+    this.hasExplicitTargetToRelation = true;
     return this;
   }
 
@@ -1192,6 +1383,17 @@ class DataTable2DefinitionBuilder<RELATION, TARGET_LEFT, TARGET_RIGHT> {
    * @returns A new DataTableDefinition instance
    */
   build(): DataTable2Definition<RELATION, TARGET_LEFT, TARGET_RIGHT> {
+    // Compute capabilities based on explicit builder calls
+    const capabilities: RelationGridCapabilities = {
+      pickerAdd: this.hasExplicitTargetsLeftColumns && this.hasExplicitTargetsRightColumns &&
+                 this.hasExplicitTargetsLeftFetcher && this.hasExplicitTargetsRightFetcher &&
+                 this.hasExplicitTargetToRelation,
+      relationsUpdater: this.hasExplicitRelationsUpdater,
+      statusColumn: this.relationsColumnsDefs.some(col => col?.field === 'status'),
+      templateDialogs: false, // DataTable2Definition does not support template dialogs in PR 2a
+      duplicate: this.hasExplicitRelationsDuplicate
+    };
+
     return new DataTable2Definition<RELATION, TARGET_LEFT, TARGET_RIGHT>(
       this.relationsColumnsDefs,
       this.relationsFetchFn,
@@ -1211,7 +1413,9 @@ class DataTable2DefinitionBuilder<RELATION, TARGET_LEFT, TARGET_RIGHT> {
       this.targetsOrder,
       this.targetToRelationFn,
       this.errorHandler,
-      this.loadingService
+      this.loadingService,
+      capabilities,
+      this.fieldRestriction
     );
   }
   /**

@@ -60,6 +60,7 @@ export { BackgroundService } from './cartography/services/background.service';
 export { ApplicationService } from './application/services/application.service';
 export { ApplicationParameterService } from './application/services/application-parameter.service';
 export { ApplicationBackgroundService } from './application/services/application-background.service';
+export { ApplicationTreeService } from './application/services/application-tree.service';
 
 // Role
 export { RoleService } from './role/services/role.service';

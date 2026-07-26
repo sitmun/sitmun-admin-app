@@ -108,8 +108,15 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
 
   readonly config = Configuration.SERVICE;
 
+  private static readonly AUTHENTICATION_MODE_NONE = 'None';
+
   get serviceAuthenticationModes() {
     return this.codeList('service.authenticationMode').filter(m => m.value !== 'API key');
+  }
+
+  /** Whether the SITMUN proxy toggle is enabled; authentication is only relevant when true. */
+  isProxyEnabled(): boolean {
+    return Boolean(this.entityForm?.get('isProxied')?.value);
   }
 
   /**
@@ -324,8 +331,44 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
       isProxied: new UntypedFormControl(this.entityToEdit.isProxied, []),
     });
 
+    this.initProxyAuthenticationSync();
+
     const currentType = this.findInCodeList('service.type', this.entityToEdit.type);
     this.tableLoadButtonDisabled = currentType ? currentType.value !== config.capabilitiesRequest.WMSIdentificator : false;
+  }
+
+  /** Keeps authentication fields aligned with proxy usage at runtime. */
+  private initProxyAuthenticationSync(): void {
+    this.applyProxyAuthenticationState(this.isProxyEnabled());
+
+    this.entityForm.get('isProxied')!.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(isProxied => this.applyProxyAuthenticationState(Boolean(isProxied)));
+  }
+
+  private applyProxyAuthenticationState(proxyEnabled: boolean): void {
+    const authenticationModeControl = this.entityForm.get('authenticationMode')!;
+    const userControl = this.entityForm.get('user')!;
+    const passwordControl = this.entityForm.get('password')!;
+
+    if (proxyEnabled) {
+      authenticationModeControl.setValidators([Validators.required]);
+      authenticationModeControl.enable({emitEvent: false});
+      userControl.enable({emitEvent: false});
+      passwordControl.enable({emitEvent: false});
+    } else {
+      authenticationModeControl.clearValidators();
+      this.entityForm.patchValue({
+        authenticationMode: ServiceFormComponent.AUTHENTICATION_MODE_NONE,
+        user: null,
+        password: null,
+      }, {emitEvent: false});
+      authenticationModeControl.disable({emitEvent: false});
+      userControl.disable({emitEvent: false});
+      passwordControl.disable({emitEvent: false});
+    }
+
+    authenticationModeControl.updateValueAndValidity({emitEvent: false});
   }
 
   /**
@@ -444,20 +487,6 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
   }
 
   /**
-   * Creates a duplicate of the selected parameters with modified names.
-   * Each duplicated parameter will have:
-   * - A new ID (undefined)
-   * - No links (_links: undefined)
-   * - A name prefixed with the translation of 'copy_'
-   *
-   * @param {ServiceParameter[]} parameters - Array of parameters to duplicate
-   * @throws Error as this method is not yet implemented
-   */
-  duplicateParameters(_parameters: ServiceParameter[]) {
-    throw new Error("Not implemented")
-  }
-
-  /**
    * Updates service metadata from WMS capabilities.
    * Opens a confirmation dialog before retrieving metadata.
    * Updates name, description, and supported projections after confirmation.
@@ -476,6 +505,8 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
                 description: capabilities.abstract?.substring(0, 4000),
                 supportedSRS: capabilities.supportedSRS
               });
+              this.applyCapabilitiesTranslations('name', capabilities.titleTranslations, 60);
+              this.applyCapabilitiesTranslations('description', capabilities.abstractTranslations, 4000);
               // patchValue does not mark the form dirty; save is gated on dirty in canSaveEntity.
               this.entityForm.markAsDirty();
             })
@@ -483,6 +514,37 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
         }
       }
     });
+  }
+
+  /**
+   * Prefills translation rows from WMS capabilities alternate-language texts.
+   *
+   * @param property - Translatable entity property (`name` or `description`)
+   * @param translations - Map of language shortname to capability text
+   * @param maxLength - Maximum allowed length for the target field
+   */
+  private applyCapabilitiesTranslations(
+    property: 'description' | 'name',
+    translations: Map<string, string>,
+    maxLength: number,
+  ): void {
+    const propertyTranslations = this.propertyTranslations.get(property);
+    if (!propertyTranslations || translations.size === 0) {
+      return;
+    }
+
+    let updated = false;
+    translations.forEach((text, lang) => {
+      const translationRow = propertyTranslations.map.get(lang);
+      if (translationRow) {
+        translationRow.translation = text.substring(0, maxLength);
+        updated = true;
+      }
+    });
+
+    if (updated) {
+      propertyTranslations.modified = true;
+    }
   }
 
   /**
@@ -518,9 +580,20 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
     return DataTableDefinition.builder<CartographyProjection, CartographyProjection>(this.dialog, this.errorHandler, this.loadingService)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
-        this.utils.getEditableColumnDef('entity.service.layer.title', 'name', 150, 300),
-        this.utils.getNonEditableColumnDef('entity.service.layer.name', 'layers', 150, 300),
-        this.utils.getEditableColumnDef('entity.service.layer.abstract', 'description', 150, 450),
+        {
+          ...this.utils.getRouterLinkColumnDef(
+            'entity.service.layer.title',
+            'name',
+            '/layers/:id/layersForm',
+            { id: 'id' },
+            150
+          ),
+          flex: 2,
+          minWidth: 150,
+          editable: (params) => !params.data?.id,
+        },
+        Object.assign(this.utils.getNonEditableColumnDef('entity.service.layer.name', 'layers', 150), {flex: 3, minWidth: 180}),
+        Object.assign(this.utils.getEditableColumnDef('entity.service.layer.abstract', 'description', 150), {flex: 2, minWidth: 150}),
         this.utils.getStatusColumnDef()
       ])
       .withRelationsOrder('name')
@@ -674,9 +747,9 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
     return DataTableDefinition.builder<ServiceParameter, ServiceParameter>(this.dialog, this.errorHandler, this.loadingService)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
-        this.utils.getEditableColumnDef('common.form.name', 'name', 150, 300),
-        this.utils.getEditableColumnDef('common.form.value', 'value', 150, 300),
-        this.utils.getNonEditableColumnDef('common.form.type', 'typeDescription', 150, 300),
+        Object.assign(this.utils.getEditableColumnDef('common.form.name', 'name', 150), {flex: 1, minWidth: 140}),
+        Object.assign(this.utils.getEditableColumnDef('common.form.value', 'value', 150), {flex: 2, minWidth: 160}),
+        Object.assign(this.utils.getNonEditableColumnDef('common.form.type', 'typeDescription', 150), {flex: 0, minWidth: 120}),
         this.utils.getStatusColumnDef()
       ])
       .withRelationsOrder('name')

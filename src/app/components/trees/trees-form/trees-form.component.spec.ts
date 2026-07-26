@@ -1,3 +1,5 @@
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
@@ -12,6 +14,7 @@ import { ExternalConfigurationService } from '@app/core/config/external-configur
 import {ExternalService, ResourceService} from '@app/core/hal';
 import {
   ApplicationService,
+  ApplicationTreeService,
   CapabilitiesService,
   CartographyService,
   CodeListService,
@@ -57,7 +60,7 @@ describe('TreesFormComponent', () => {
             })
           }
         })],
-      providers: [provideErrorHandlerForTests(), TreeService, TreeNodeService, ApplicationService, ServiceService, CapabilitiesService, CartographyService, CodeListService, TranslationService, ResourceService, ExternalService, TaskService, RoleService,
+      providers: [provideHttpClient(), provideHttpClientTesting(), provideErrorHandlerForTests(), TreeService, TreeNodeService, ApplicationService, ApplicationTreeService, ServiceService, CapabilitiesService, CartographyService, CodeListService, TranslationService, ResourceService, ExternalService, TaskService, RoleService,
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService },
         {
           provide: AdminRuntimeConfigurationService,
@@ -836,7 +839,7 @@ describe('TreesFormComponent', () => {
 
   describe('Tree duplication save behavior (issue #392)', () => {
     describe('canSaveEntity in duplicate mode', () => {
-      it('does not enable save when duplicate tree is loaded but nothing changed', () => {
+      it('enables save when duplicate tree is loaded even if nothing else changed (#384)', () => {
         component.entityID = -1;
         component.duplicateID = 42;
         component.eagerLoadTreeStructure = true;
@@ -849,7 +852,7 @@ describe('TreesFormComponent', () => {
           getNodesForValidation: jest.fn(() => [createTouristicRootNode()] as any),
         });
 
-        expect(component.canSaveEntity).toBe(false);
+        expect(component.canSaveEntity).toBe(true);
       });
 
       it('enables save when duplicate tree has unsaved node changes', () => {
@@ -898,7 +901,9 @@ describe('TreesFormComponent', () => {
     });
 
     describe('canSave matches canSaveEntity', () => {
-      it('returns false when duplicate tree is ready but nothing changed', () => {
+      it('returns true when duplicate tree is ready even if nothing else changed (#384)', () => {
+        component.entityID = -1;
+        component.duplicateID = 42;
         component.eagerLoadTreeStructure = true;
         component.entityForm.patchValue({ name: 'Test Tree', type: 'touristic' });
         component.entityForm.markAsPristine();
@@ -907,11 +912,13 @@ describe('TreesFormComponent', () => {
           getNodesForValidation: jest.fn(() => [createTouristicRootNode()] as any),
         });
 
-        expect(component.canSave()).toBe(false);
+        expect(component.canSave()).toBe(true);
         expect(component.canSave()).toBe(component.canSaveEntity);
       });
 
       it('returns false when duplicate tree data is not loaded', () => {
+        component.entityID = -1;
+        component.duplicateID = 42;
         component.eagerLoadTreeStructure = true;
         component.entityForm.patchValue({ name: 'Test Tree', type: 'touristic' });
 
@@ -1063,6 +1070,82 @@ describe('TreesFormComponent', () => {
 
       expect(await (component as any).validateUniqueName()).toBe(false);
       expect(handleErrorSpy).toHaveBeenCalledWith(null, 'entity.tree.error.duplicateName');
+    });
+  });
+
+  describe('Grid capability classification', () => {
+    it('rolesTable should have picker-add, updater, status column, no template dialogs', () => {
+      expect(component['rolesTable'].hasPickerAdd()).toBe(true);
+      expect(component['rolesTable'].hasRelationsUpdater()).toBe(true);
+      expect(component['rolesTable'].hasStatusColumn()).toBe(true);
+      expect(component['rolesTable'].hasTemplateDialogs()).toBe(false);
+    });
+
+    it('rolesTable name links to the role form and omits the id column', () => {
+      const columns = component['rolesTable'].relationsColumnsDefs;
+      const nameColumn = columns.find((column: { field?: string }) => column.field === 'name');
+
+      expect(columns.some((column: { field?: string }) => column.field === 'id')).toBe(false);
+      expect(nameColumn?.cellRenderer).toBe('routerLinkRenderer');
+      expect(nameColumn?.cellRendererParams).toEqual({
+        route: '/role/:id/roleForm',
+        paramFields: { id: 'id' },
+      });
+    });
+
+    it('applicationsTable should have picker-add, updater, status column, no template dialogs', () => {
+      expect(component['applicationsTable'].hasPickerAdd()).toBe(true);
+      expect(component['applicationsTable'].hasRelationsUpdater()).toBe(true);
+      expect(component['applicationsTable'].hasStatusColumn()).toBe(true);
+      expect(component['applicationsTable'].hasTemplateDialogs()).toBe(false);
+    });
+
+    it('applicationsTable name links to the application form and omits the id column', () => {
+      const columns = component['applicationsTable'].relationsColumnsDefs;
+      const nameColumn = columns.find((column: { field?: string }) => column.field === 'applicationName');
+
+      expect(columns.some((column: { field?: string }) => column.field === 'id')).toBe(false);
+      expect(nameColumn?.cellRenderer).toBe('routerLinkRenderer');
+      expect(nameColumn?.cellRendererParams).toEqual({
+        route: '/application/:id/applicationForm',
+        paramFields: { id: 'applicationId' },
+      });
+    });
+
+    it('applicationsTable should sort relations by order', () => {
+      expect(component['applicationsTable'].defaultRelationsSorting()).toEqual(['order']);
+    });
+
+    describe('Picker deduplication', () => {
+      it('rolesTable excludes already-added roles from the picker', () => {
+        const relations = [{ id: 10 }, { id: 20 }] as any;
+        const predicate = (component['rolesTable'] as any).targetIncludeFn(relations);
+        expect(predicate({ id: 10 })).toBe(false);
+        expect(predicate({ id: 30 })).toBe(true);
+      });
+
+      it('applicationsTable excludes already-added applications by id from the picker', () => {
+        const relations = [{ applicationId: 1 }, { applicationId: 2 }] as any;
+        const predicate = (component['applicationsTable'] as any).targetIncludeFn(relations);
+        expect(predicate({ id: 1 })).toBe(false);
+        expect(predicate({ id: 3 })).toBe(true);
+      });
+    });
+
+    it('validateTreeTypeChange reads current application rows from applicationsGrid', async () => {
+      component.entityToEdit = Object.assign(component.empty(), { id: 10, type: 'cartography' });
+      component.entityID = 10;
+      component.entityForm.patchValue({ type: 'touristic' });
+      (component as any).applicationsGrid = {
+        getAllCurrentData: () => [
+          { id: 100, applicationId: 1, status: 'statusOK' },
+          { id: 101, applicationId: 2, status: 'pendingDelete' },
+        ],
+      };
+      const validateSpy = jest.spyOn(TestBed.inject(TreeService), 'validateTypeChange').mockReturnValue(of(undefined));
+
+      await expect((component as any).validateTreeTypeChange()).resolves.toBe(true);
+      expect(validateSpy).toHaveBeenCalledWith(10, 'touristic', [1]);
     });
   });
 

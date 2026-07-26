@@ -34,6 +34,7 @@ import {ErrorHandlerService} from "@app/services/error-handler.service";
 import {LoadingOverlayService} from "@app/services/loading-overlay.service";
 import {LoggerService} from "@app/services/logger.service";
 import {UtilsService} from '@app/services/utils.service';
+import {optionalHttpOrHttpsUrlValidator} from '@app/validators/optional-http-url.validator';
 import {constants} from "@environments/constants";
 
 /**
@@ -235,7 +236,10 @@ export class BackgroundLayersFormComponent extends BaseFormComponent<BackgroundP
     this.entityForm = new UntypedFormGroup({
       name: new UntypedFormControl(this.entityToEdit.name, [Validators.required]),
       description: new UntypedFormControl(this.entityToEdit.description),
-      image: new UntypedFormControl(this.entityToEdit.image),
+      image: new UntypedFormControl(this.entityToEdit.image, [
+        Validators.maxLength(4000),
+        optionalHttpOrHttpsUrlValidator,
+      ]),
       active: new UntypedFormControl(this.entityToEdit.active),
     });
   }
@@ -317,7 +321,11 @@ export class BackgroundLayersFormComponent extends BaseFormComponent<BackgroundP
       ])
       .withTargetsOrder('name')
       .withTargetsFetcher(() => this.roleService.fetchAllItems())
-      .withTargetsTitle('entity.permissionGroup.roles.title')
+      .withTargetInclude((relations) => (target) =>
+        !relations.some((relation) => relation.id === target.id)
+      )
+      .withTargetsTitle('entity.background.roles.title')
+      .withTargetToRelation((items) => items)
       .build();
   }
 
@@ -337,7 +345,7 @@ export class BackgroundLayersFormComponent extends BaseFormComponent<BackgroundP
         this.utils.getEditableColumnDef('common.form.order', 'order'),
         this.utils.getStatusColumnDef()
       ])
-      .withRelationsOrder('applicationName')
+      .withRelationsOrder('order')
       .withRelationsFetcher(() => {
         if (this.isNew()) {
           return of([]);
@@ -349,8 +357,13 @@ export class BackgroundLayersFormComponent extends BaseFormComponent<BackgroundP
           .map(item => ApplicationBackground.of(this.applicationService.createProxy(item.applicationId), this.backgroundService.createProxy(this.entityToEdit.id), item.order))
           .forEach(item => this.applicationBackgroundService.create(item));
         await onUpdate(applicationBackgrounds)
-          .map(item => ApplicationBackground.of(this.applicationService.createProxy(item.applicationId), this.backgroundService.createProxy(this.entityToEdit.id), item.order))
-          .forEach(item => this.applicationBackgroundService.update(item));
+          .forEach(item => {
+            const entity = this.applicationBackgroundService.createProxy(item.id)!;
+            entity.application = this.applicationService.createProxy(item.applicationId)!;
+            entity.background = this.backgroundService.createProxy(this.entityToEdit.id)!;
+            entity.order = item.order;
+            return this.applicationBackgroundService.update(entity);
+          });
         await onDelete(applicationBackgrounds)
           .map(item => this.applicationBackgroundService.createProxy(item.id))
           .forEach(item => this.applicationBackgroundService.delete(item));
@@ -366,7 +379,7 @@ export class BackgroundLayersFormComponent extends BaseFormComponent<BackgroundP
       .withTargetInclude((applicationBackgrounds: (ApplicationBackgroundProjection)[]) =>
         (item: ApplicationProjection) => !applicationBackgrounds.some((applicationBackground) => applicationBackground.applicationId === item.id))
       .withTargetToRelation((items: ApplicationProjection[]) => items.map(item => ApplicationBackgroundProjection.of(item, this.entityToEdit, 0)))
-      .withTargetsTitle('entity.permissionGroup.applications.title')
+      .withTargetsTitle('entity.background.applications.title')
       .withTargetsOrder('name')
       .build();
   }
@@ -413,7 +426,8 @@ export class BackgroundLayersFormComponent extends BaseFormComponent<BackgroundP
       .withTargetInclude((cartographies: (CartographyProjection & Status)[]) => (item: CartographyProjection) => {
         return !cartographies.some((cartography) => cartography.id === item.id);
       })
-      .withTargetsTitle('entity.permissionGroup.layers.title')
+      .withTargetsTitle('entity.background.layers.title')
+      .withTargetToRelation((items) => items)
       .build();
   }
 

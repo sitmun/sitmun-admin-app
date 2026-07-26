@@ -14,7 +14,7 @@ import {MatDialog} from '@angular/material/dialog';
 import {ActivatedRoute, Router} from '@angular/router';
 
 import {TranslateService} from '@ngx-translate/core';
-import { firstValueFrom, of} from 'rxjs';
+import { firstValueFrom, of, Subscription} from 'rxjs';
 import {map} from 'rxjs/operators';
 
 import {BaseFormComponent} from '@app/components/base-form.component';
@@ -52,6 +52,12 @@ import {LoggerService} from '@app/services/logger.service';
 import {UtilsService} from '@app/services/utils.service';
 import {constants} from '@environments/constants';
 
+type StyleDialogValue = CartographyStyle & {
+  url?: string | null;
+  format?: string | null;
+  width?: number | null;
+  height?: number | null;
+};
 
 @Component({
     selector: 'app-layers-form',
@@ -69,11 +75,11 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
   protected readonly territorialFiltersTable: DataTableDefinition<CartographyFilterProjection, CartographyFilterProjection>;
   protected readonly parametersTable: DataTableDefinition<CartographyParameter, CartographyParameter>;
 
-  disableLoadButton = true;
-
   services: any[] = [];
 
   territorialTypes: any[] = [];
+
+  private joinedLayersValidationSub?: Subscription;
 
   @ViewChild('newParameterDialog', {
     static: true
@@ -116,6 +122,7 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
     this.stylesTable = this.defineStylesTable();
     this.territorialFiltersTable = this.defineTerritorialFiltersTable();
     this.parametersTable = this.defineParametersTable();
+    this.destroyRef.onDestroy(() => this.joinedLayersValidationSub?.unsubscribe());
   }
 
   /**
@@ -123,7 +130,7 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
    * Sets up data tables, translations, and situation map list.
    */
   override async preFetchData() {
-    this.dataTables.register(this.treesNodesTable).register(this.cartographyPermissionsTable)
+    this.dataTables.register(this.cartographyPermissionsTable)
       .register(this.territoryAvailabilitiesTable).register(this.stylesTable)
       .register(this.territorialFiltersTable).register(this.parametersTable);
     this.initTranslations('Cartography', ['name', 'description'])
@@ -223,8 +230,8 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
     const queryableLayersValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
       if (!control.value) return null;
 
-      const queryableLayers = control.value.split(',').map((layer: string) => layer.trim());
-      const joinedLayers = this.entityForm?.get('joinedLayers')?.value?.split(',').map((layer: string) => layer.trim()) ?? [];
+      const queryableLayers = this.parseLayerList(control.value);
+      const joinedLayers = this.parseLayerList(this.entityForm?.get('joinedLayers')?.value);
 
       // Only validate if there are actual entries
       if (queryableLayers.length === 0) return null;
@@ -289,9 +296,12 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
       this.entityForm.get('joinedSelectableLayers').disable();
       this.entityForm.get('joinedQueryableLayers').setValue(null);
       this.entityForm.get('joinedQueryableLayers').disable();
-    } else if (!this.entityToEdit.queryableFeatureEnabled) {
-      this.entityForm.get('joinedSelectableLayers').setValue(null);
     }
+
+    this.joinedLayersValidationSub?.unsubscribe();
+    this.joinedLayersValidationSub = this.entityForm.get('joinedLayers')?.valueChanges.subscribe(() => {
+      this.entityForm.get('joinedQueryableLayers')?.updateValueAndValidity({ emitEvent: false });
+    });
   }
 
   /**
@@ -307,10 +317,11 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
     safeToEdit = Object.assign(safeToEdit, formValuesWithoutAvail, {
       id: id,
       blocked: availableForClients !== true,
-      layers: formValues.joinedLayers ? formValues.joinedLayers.split(',') : [],
-      queryableLayers: formValues.queryableLayers ? formValues.queryableLayers.split(',') : [],
-      selectableLayers: formValues.selectableLayers ? formValues.selectableLayers.split(',') : [],
+      layers: this.parseLayerList(formValues.joinedLayers),
+      queryableLayers: this.parseLayerList(formValues.joinedQueryableLayers),
+      selectableLayers: this.parseLayerList(formValues.joinedSelectableLayers),
       service: this.serviceService.createProxy(formValues.serviceId),
+      spatialSelectionService: this.serviceService.createProxy(formValues.spatialSelectionServiceId),
     });
     return Cartography.fromObject(safeToEdit);
   }
@@ -365,15 +376,15 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
     return DataTableDefinition.builder<CartographyParameter, CartographyParameter>(this.dialog, this.errorHandler, this.loadingService)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
-        this.utils.getEditableColumnDef('entity.cartography.parameters.name', 'name'),
-        this.utils.getNonEditableColumnWithProviderDef('entity.cartography.parameters.type', 'type', (x) => {
+        {...this.utils.getEditableColumnDef('entity.cartography.parameters.name', 'name', 120), flex: 0},
+        {...this.utils.getNonEditableColumnWithProviderDef('entity.cartography.parameters.type', 'type', (x) => {
           return this.codeList('cartographyParameter.type').find(item => item.value === x)?.description || '';
-        }),
-        this.utils.getEditableColumnDef('entity.cartography.parameters.value', 'value'),
-        this.utils.getNonEditableColumnWithProviderDef('entity.cartography.parameters.format', 'format', (x) => {
+        }), flex: 0, minWidth: 120},
+        {...this.utils.getEditableColumnDef('entity.cartography.parameters.value', 'value', 150), flex: 1, minWidth: 150},
+        {...this.utils.getNonEditableColumnWithProviderDef('entity.cartography.parameters.format', 'format', (x) => {
           return this.codeList('cartographyParameter.format').find(item => item.value === x)?.description || '';
-        }),
-        this.utils.getEditableColumnDef('entity.cartography.parameters.order', 'order'),
+        }), flex: 0, minWidth: 100},
+        {...this.utils.getEditableColumnDef('entity.cartography.parameters.order', 'order', 80), flex: 0},
         this.utils.getStatusColumnDef()
       ])
       .withRelationsFetcher(() => {
@@ -422,20 +433,21 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
     return DataTableDefinition.builder<CartographyFilterProjection, CartographyFilterProjection>(this.dialog, this.errorHandler, this.loadingService)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
-        this.utils.getEditableColumnDef('entity.cartography.filters.parameters.name', 'name'),
-        this.utils.getNonEditableColumnWithProviderDef('entity.cartography.filters.parameters.type', 'type', (x) => {
+        {...this.utils.getEditableColumnDef('entity.cartography.filters.parameters.name', 'name', 130), flex: 0},
+        {...this.utils.getNonEditableColumnWithProviderDef('entity.cartography.filters.parameters.type', 'type', (x) => {
           return this.codeList('cartographyFilter.type').find(item => item.value === x)?.description || '';
-        }),
-        this.utils.getEditableColumnDef('entity.cartography.filters.parameters.column', 'column'),
-        this.utils.getEditableColumnDef('entity.cartography.filters.parameters.values', 'values'),
-        this.utils.getNonEditableColumnWithProviderDef('entity.cartography.filters.parameters.valueType', 'valueType',(x) => {
+        }), flex: 0, minWidth: 120},
+        {...this.utils.getEditableColumnDef('entity.cartography.filters.parameters.column', 'column', 120), flex: 0},
+        {...this.utils.getEditableColumnDef('entity.cartography.filters.parameters.values', 'values', 160), flex: 1, minWidth: 160},
+        {...this.utils.getNonEditableColumnWithProviderDef('entity.cartography.filters.parameters.valueType', 'valueType',(x) => {
           return this.codeList('cartographyFilter.valueType').find(item => item.value === x)?.description || '';
-        }),
-        this.utils.getNonEditableColumnWithProviderDef('entity.cartography.filters.parameters.territorialLevel', 'territorialLevelId', (x) => {
+        }), flex: 0, minWidth: 120},
+        {...this.utils.getNonEditableColumnWithProviderDef('entity.cartography.filters.parameters.territorialLevel', 'territorialLevelId', (x) => {
           this.loggerService.debug('territorialLevelId', x);
           return this.territorialTypes.find(item => item.id === x)?.name ?? '';
-        }),
-        this.utils.getBooleanColumnDef('entity.cartography.filters.parameters.required', 'required', true),
+        }), flex: 0, minWidth: 130},
+        {...this.utils.getBooleanColumnDef('entity.cartography.filters.parameters.required', 'required', true),
+          flex: 0, minWidth: 100, maxWidth: 120},
         this.utils.getStatusColumnDef()
       ])
       .withRelationsFetcher(() => {
@@ -496,14 +508,15 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
     return DataTableDefinition.builder<CartographyStyle, CartographyStyle>(this.dialog, this.errorHandler, this.loadingService)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
-        this.utils.getEditableColumnDef('entity.cartography.styles.parameters.name', 'name'),
-        this.utils.getBooleanColumnDef('entity.cartography.styles.parameters.defaultStyle', 'defaultStyle', true, null, null, true),
-        this.utils.getEditableColumnDef('entity.cartography.styles.parameters.title', 'title'),
-        this.utils.getEditableColumnDef('entity.cartography.styles.parameters.description', 'description'),
-        this.utils.getEditableColumnWithLinkDef('entity.cartography.styles.parameters.url', 'legendURL.onlineResource'),
-        this.utils.getEditableColumnDef('entity.cartography.styles.parameters.format', 'legendURL.format'),
-        this.utils.getEditableColumnDef('entity.cartography.styles.parameters.width', 'legendURL.width'),
-        this.utils.getEditableColumnDef('entity.cartography.styles.parameters.height', 'legendURL.height'),
+        {...this.utils.getEditableColumnDef('entity.cartography.styles.parameters.name', 'name', 120), flex: 0},
+        {...this.utils.getBooleanColumnDef('entity.cartography.styles.parameters.defaultStyle', 'defaultStyle', true, null, null, true),
+          flex: 0, minWidth: 100, maxWidth: 120},
+        {...this.utils.getEditableColumnDef('entity.cartography.styles.parameters.title', 'title', 120), flex: 1, minWidth: 120},
+        {...this.utils.getEditableColumnDef('entity.cartography.styles.parameters.description', 'description', 140), flex: 2, minWidth: 140},
+        {...this.utils.getEditableColumnWithLinkDef('entity.cartography.styles.parameters.url', 'legendURL.onlineResource', 200), flex: 2, minWidth: 200},
+        {...this.utils.getEditableColumnDef('entity.cartography.styles.parameters.format', 'legendURL.format', 100), flex: 0},
+        {...this.utils.getEditableColumnDef('entity.cartography.styles.parameters.width', 'legendURL.width', 70), flex: 0},
+        {...this.utils.getEditableColumnDef('entity.cartography.styles.parameters.height', 'legendURL.height', 70), flex: 0},
         this.utils.getStatusColumnDef()
       ])
       .withRelationsFetcher(() => {
@@ -523,7 +536,7 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
       })
       .withTemplateDialog('newStyleDialog', () => TemplateDialog.builder()
         .withReference(this.newStyleDialog)
-        .withTitle('entity.cartography.styles.parameters.title')
+        .withTitle('entity.cartography.styles.parameters.header')
         .withForm(new FormGroup({
           name: new FormControl(null, [Validators.required]),
           title: new FormControl(null, [Validators.required]),
@@ -533,7 +546,19 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
           height: new FormControl(null, []),
           url: new FormControl(null, []),
           defaultStyle: new FormControl(false, []),
-        })).build())
+        })).withPreOpenFunction((form: FormGroup) => {
+          form.reset({
+            name: null,
+            title: null,
+            description: null,
+            format: null,
+            width: null,
+            height: null,
+            url: null,
+            defaultStyle: false,
+          });
+        }).build())
+      .withTargetToRelation((items) => items.map(item => this.toCartographyStyle(item as StyleDialogValue)))
       .build()
   }
 
@@ -542,9 +567,9 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
     return DataTableDefinition.builder<CartographyAvailabilityProjection, TerritoryProjection>(this.dialog, this.errorHandler, this.loadingService)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
-        this.utils.getRouterLinkColumnDef('entity.cartography.territories.parameters.name', 'territoryName', '/territory/:id/territoryForm', {id: 'territoryId'}),
-        this.utils.getNonEditableColumnDef('entity.cartography.territories.parameters.type', 'territoryType'),
-        this.utils.getNonEditableColumnDef('entity.cartography.territories.parameters.code', 'territoryCode'),
+        {...this.utils.getRouterLinkColumnDef('entity.cartography.territories.parameters.name', 'territoryName', '/territory/:id/territoryForm', {id: 'territoryId'}), flex: 1, minWidth: 150},
+        {...this.utils.getNonEditableColumnDef('entity.cartography.territories.parameters.type', 'territoryType', 120), flex: 0},
+        {...this.utils.getNonEditableColumnDef('entity.cartography.territories.parameters.code', 'territoryCode', 100), flex: 0},
         this.utils.getStatusColumnDef()
         ])
         .withRelationsFetcher(() => {
@@ -568,9 +593,9 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
         })
         .withTargetsColumns([
           this.utils.getSelCheckboxColumnDef(),
-          this.utils.getNonEditableColumnDef('entity.cartography.territories.parameters.name', 'name'),
-          this.utils.getNonEditableColumnDef('entity.cartography.territories.parameters.type', 'typeName'),
-          this.utils.getNonEditableColumnDef('entity.cartography.territories.parameters.code', 'code'),
+          {...this.utils.getNonEditableColumnDef('entity.cartography.territories.parameters.name', 'name'), flex: 1, minWidth: 200},
+          {...this.utils.getNonEditableColumnDef('entity.cartography.territories.parameters.type', 'typeName'), flex: 0, minWidth: 120},
+          {...this.utils.getNonEditableColumnDef('entity.cartography.territories.parameters.code', 'code'), flex: 0, minWidth: 120},
         ])
         .withTargetsFetcher(() => {
           return this.territoryService.fetchProjectionItems(TerritoryProjection)
@@ -599,8 +624,8 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
     return DataTableDefinition.builder<CartographyGroupProjection, CartographyGroupProjection>(this.dialog, this.errorHandler, this.loadingService)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
-        this.utils.getRouterLinkColumnDef('entity.cartography.permissions.parameters.name', 'name', '/layersPermits/:id/layersPermitsForm', {id: 'id'}),
-        {...this.utils.getNonEditableColumnDef('entity.cartography.permissions.parameters.roles', 'roleNames'), ...this.utils.getArrayValueParser()},
+        {...this.utils.getRouterLinkColumnDef('entity.cartography.permissions.parameters.name', 'name', '/layersPermits/:id/layersPermitsForm', {id: 'id'}), flex: 0, minWidth: 150},
+        {...this.utils.getNonEditableColumnDef('entity.cartography.permissions.parameters.roles', 'roleNames'), ...this.utils.getArrayValueParser(), flex: 1, minWidth: 150},
         this.utils.getStatusColumnDef()
       ])
       .withRelationsFetcher(() => {
@@ -611,17 +636,18 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
       })
       .withRelationsOrder('name')
       .withRelationsUpdater(async (cartographyGroups: (CartographyGroupProjection & Status)[]) => {
+        const cartography = this.cartographyService.createProxy(this.entityID);
         await onCreate(cartographyGroups).forEach(item => {
-          return item.addRelationEx("members", this.entityToEdit);
+          return item.addRelationEx("members", cartography);
         });
         await onDelete(cartographyGroups).forEach(item => {
-          return item.deleteRelationById("members", this.entityToEdit.id);
+          return item.deleteRelationById("members", this.entityID);
         });
       })
       .withTargetsColumns([
         this.utils.getSelCheckboxColumnDef(),
-        this.utils.getNonEditableColumnDef('entity.cartography.permissions.parameters.name', 'name'),
-        {...this.utils.getNonEditableColumnDef('entity.cartography.permissions.parameters.roles', 'roleNames'), ...this.utils.getArrayValueParser()},
+        {...this.utils.getNonEditableColumnDef('entity.cartography.permissions.parameters.name', 'name'), flex: 0, minWidth: 200},
+        {...this.utils.getNonEditableColumnDef('entity.cartography.permissions.parameters.roles', 'roleNames'), ...this.utils.getArrayValueParser(), flex: 1, minWidth: 200},
       ])
       .withTargetsOrder('name')
       .withTargetsFetcher(() => {
@@ -648,8 +674,9 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
   private defineTreesNodesTable(): DataTableDefinition<TreeNodeProjection, TreeNodeProjection> {
     return DataTableDefinition.builder<TreeNodeProjection, TreeNodeProjection>(this.dialog, this.errorHandler, this.loadingService)
       .withRelationsColumns([
-        this.utils.getRouterLinkColumnDef('entity.cartography.trees.name', 'treeName', '/trees/:id/treesForm', {id: 'treeId'}),
-        this.utils.getNonEditableColumnDef('entity.cartography.trees.node', 'name')
+        this.utils.getSelCheckboxColumnDef(),
+        {...this.utils.getRouterLinkColumnDef('entity.cartography.trees.name', 'treeName', '/trees/:id/treesForm', {id: 'treeId'}), flex: 0, minWidth: 150},
+        {...this.utils.getNonEditableColumnDef('entity.cartography.trees.node', 'name', 120), flex: 1, minWidth: 120}
       ])
       .withRelationsFetcher(() =>  {
         if (this.isNew()) {
@@ -662,8 +689,8 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
   }
 
   getAvailableLayers(): string {
-    const joinedLayers = this.entityForm?.get('joinedLayers')?.value?.split(',').map(layer => layer.trim()) ?? [];
-    const queryableLayers = this.entityForm?.get('joinedQueryableLayers')?.value?.split(',').map(layer => layer.trim()) ?? [];
+    const joinedLayers = this.parseLayerList(this.entityForm?.get('joinedLayers')?.value);
+    const queryableLayers = this.parseLayerList(this.entityForm?.get('joinedQueryableLayers')?.value);
 
     const availableLayers = joinedLayers.filter(layer => !queryableLayers.includes(layer));
     return availableLayers.join(', ');
@@ -672,5 +699,23 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
   getServiceName(serviceId: number): string {
     const service = this.services.find(s => s.id === serviceId);
     return service ? service.name : '';
+  }
+
+  private parseLayerList(raw: string | null | undefined): string[] {
+    if (raw == null || raw === '') {
+      return [];
+    }
+    return raw.split(',').map(value => value.trim()).filter(Boolean);
+  }
+
+  private toCartographyStyle(item: StyleDialogValue): CartographyStyle {
+    const style = Object.assign(new CartographyStyle(), item);
+    style.legendURL = {
+      format: item.format ?? null,
+      width: item.width ?? null,
+      height: item.height ?? null,
+      onlineResource: item.url ?? item.legendURL?.onlineResource ?? null,
+    };
+    return style;
   }
 }

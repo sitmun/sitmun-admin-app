@@ -124,6 +124,51 @@ describe('MessagesInterceptor', () => {
     });
   });
 
+  describe('401 error handling', () => {
+    let notificationService: NotificationService;
+
+    beforeEach(() => {
+      stateService = TestBed.inject(MessagesInterceptorStateService);
+      stateService.enable();
+      notificationService = TestBed.inject(NotificationService);
+    });
+
+    it('should propagate 401 without showing an error notification', (done) => {
+      const showErrorSpy = jest.spyOn(notificationService, 'showError');
+      const url = '/api/backgrounds/8?projection=view';
+
+      httpClient.get(url).subscribe({
+        error: (error) => {
+          expect(error.status).toBe(401);
+          expect(showErrorSpy).not.toHaveBeenCalled();
+          done();
+        },
+      });
+
+      const req = httpMock.expectOne(url);
+      req.flush('Unauthorized', { status: 401, statusText: 'Unauthorized' });
+    });
+  });
+
+  describe('403 error handling', () => {
+    it('should preserve the response and show exactly one error notification', (done) => {
+      const notificationService = TestBed.inject(NotificationService);
+      const showErrorSpy = jest.spyOn(notificationService, 'showError');
+      const url = '/api/backgrounds/8?projection=view';
+
+      httpClient.get(url).subscribe({
+        error: (error) => {
+          expect(error.status).toBe(403);
+          expect(showErrorSpy).toHaveBeenCalledTimes(1);
+          done();
+        },
+      });
+
+      const req = httpMock.expectOne(url);
+      req.flush({message: 'backend.error.forbidden'}, {status: 403, statusText: 'Forbidden'});
+    });
+  });
+
   describe('validation error handling', () => {
     let notificationService: NotificationService;
 

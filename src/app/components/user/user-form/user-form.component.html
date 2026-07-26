@@ -17,7 +17,8 @@
   [fieldLabelKeys]="validationFieldLabelKeys"
   [warnings]="getUserDisplayWarnings()"
   [infoMessageKeys]="getBuiltInInfoWarningKeys()"
-  [infoStyle]="useInfoWarningsCardStyle() && !hasRequiredFieldAlerts()">
+  [infoStyle]="useInfoWarningsCardStyle() && !hasRequiredFieldAlerts()"
+  [customAlertMessage]="getPointOfContactImpactMessage()">
 </app-entity-form-alerts>
 
 <mat-tab-group
@@ -102,9 +103,6 @@
                 <mat-error *ngIf="entityForm?.get('email')?.hasError('email')">
                   {{ 'common.error.invalidEmail' | translate }}
                 </mat-error>
-                <mat-error *ngIf="entityForm?.get('email')?.hasError('pattern')">
-                  {{ 'common.error.invalidEmailFormat' | translate }}
-                </mat-error>
               </mat-form-field>
             </mat-card-content>
           </mat-card>
@@ -126,27 +124,11 @@
         <app-card-lead viewerKey="entity.user.card.rolesLead.viewer"></app-card-lead>
       </mat-card-header>
       <mat-card-content>
-        <app-data-grid [changeHeightButton]="true"
-                      [allNewElements]="isNewOrDuplicated()"
-                      [columnDefs]="userConfigurationsTable.relationsColumnsDefs"
-                      [getAll]='userConfigurationsTable.relationsFetchFn'
-                      [eventAddItemsSubscription]='userConfigurationsTable.addCommandEvent$.asObservable()'
-                      [eventGetAllRowsSubscription]='userConfigurationsTable.saveCommandEvent$.asObservable()'
-                      [eventRefreshSubscription]='userConfigurationsTable.refreshCommandEvent$.asObservable()'
-                      [actionButton]=true
-                      [discardChangesButton]=true
-                      [redoButton]=true
-                      [undoButton]=true
-                      [deleteButton]=true
-                      [addButton]=true
-                      [globalSearch]=true
-                      [defaultColumnSorting]='userConfigurationsTable.defaultRelationsSorting()'
-                      [hideDuplicateButton]=true
-                      [hideReplaceButton]=true
-                      (getAllRows)="userConfigurationsTable.handleSaveRelations($event)"
-                      (add)="userConfigurationsTable.openDialog($event)"
-                      *ngIf="dataLoaded"
-        ></app-data-grid>
+        <app-relation-grid
+          *ngIf="dataLoaded"
+          [table]="userConfigurationsTable"
+          [allNewElements]="isNewOrDuplicated()">
+        </app-relation-grid>
       </mat-card-content>
     </mat-card>
   </mat-tab>
@@ -166,54 +148,28 @@
         <app-card-lead viewerKey="entity.user.card.positionsLead.viewer"></app-card-lead>
       </mat-card-header>
       <mat-card-content>
-        <app-data-grid [changeHeightButton]="true"
-                       [allNewElements]="isNewOrDuplicated()"
-                       (duplicate)='userPositionsTable.duplicateRelations($event)'
-                       (getAllRows)="userPositionsTable.handleSaveRelations($event)"
-                       [actionButton]=true
-                       [columnDefs]="userPositionsTable.relationsColumnsDefs"
-                       [defaultColumnSorting]='userPositionsTable.defaultRelationsSorting()'
-                       [deleteButton]=true
-                       [discardChangesButton]=true
-                       [redoButton]=true
-                       [undoButton]=true
-                       [eventAddItemsSubscription]='userPositionsTable.addCommandEvent$.asObservable()'
-                       [eventGetAllRowsSubscription]='userPositionsTable.saveCommandEvent$.asObservable()'
-                       [eventRefreshSubscription]='userPositionsTable.refreshCommandEvent$.asObservable()'
-                       [getAll]='userPositionsTable.relationsFetchFn'
-                       [hideReplaceButton]=true
-                       [addButton]=true
-                       [globalSearch]=true
-                       (add)="userPositionsTable.openDialog($event)"
-                       *ngIf="dataLoaded"
-        >
-        </app-data-grid>
+        <app-relation-grid
+          *ngIf="dataLoaded"
+          [table]="userPositionsTable"
+          [allNewElements]="isNewOrDuplicated()">
+        </app-relation-grid>
       </mat-card-content>
     </mat-card>
   </mat-tab>
-  <mat-tab label="{{ 'entity.user.applicationsAsContact.header' | translate }}" *ngIf="isEdition()">
+  <mat-tab
+    label="{{ 'entity.user.applicationsAsContact.header' | translate }}"
+    *ngIf="canShowApplicationsAsPointOfContact()"
+    data-testid="applications-as-point-of-contact-tab">
     <mat-card class="sitmun-mat-card-margin" appearance="outlined">
       <mat-card-header>
         <app-card-lead viewerKey="entity.user.card.applicationsAsContactLead.viewer"></app-card-lead>
       </mat-card-header>
       <mat-card-content>
-        <app-data-grid
-          [allNewElements]="false"
-          [columnDefs]="applicationsAsContactColumnDefs"
-          [getAll]="applicationsAsContactFetchFn"
-          [eventRefreshSubscription]="applicationsAsContactRefresh"
-          [actionButton]="false"
-          [discardChangesButton]="false"
-          [redoButton]="false"
-          [undoButton]="false"
-          [deleteButton]="false"
-          [addButton]="false"
-          [globalSearch]="true"
-          [hideDuplicateButton]="true"
-          [hideReplaceButton]="true"
-          [changeHeightButton]="true"
+        <app-relation-grid
           *ngIf="dataLoaded"
-        ></app-data-grid>
+          [table]="applicationsAsContactTable"
+          [readOnly]="true"
+        ></app-relation-grid>
       </mat-card-content>
     </mat-card>
   </mat-tab>

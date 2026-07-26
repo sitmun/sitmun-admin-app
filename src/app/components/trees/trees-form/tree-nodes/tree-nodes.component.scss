@@ -11,11 +11,23 @@
   flex-wrap: wrap;
 }
 
-.visible-hints {
+.display-options-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.display-option-group {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  margin-top: 8px;
+}
+
+.display-option-hints {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-inline-start: 8px;
 }
 
 .flex-column-gap-16 {
@@ -614,36 +626,4 @@
 
 .related-entity-link-icon {
   margin-right: 4px;
-}
-
-.entity-autocomplete-field.entity-field-link-mode {
-  ::ng-deep .mat-mdc-form-field-infix {
-    position: relative;
-  }
-
-  input {
-    color: transparent;
-    caret-color: transparent;
-    cursor: pointer;
-  }
-
-  .entity-field-link-overlay {
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    pointer-events: none;
-    z-index: 1;
-
-    a.router-link {
-      pointer-events: auto;
-      display: inline-block;
-      max-width: 100%;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      vertical-align: bottom;
-    }
-  }
 }

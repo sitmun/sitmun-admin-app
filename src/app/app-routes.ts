@@ -23,6 +23,7 @@ import {
   LayersPermitsFormComponent
 } from '@app/components/layers-permits/layers-permits-form/layers-permits-form.component';
 import {LayersPermitsComponent} from '@app/components/layers-permits/layers-permits.component';
+import {LiteralTranslationsComponent} from '@app/components/literal-translations/literal-translations/literal-translations.component';
 import {LoginComponent} from '@app/components/login/login.component';
 import {RoleFormComponent} from '@app/components/role/role-form/role-form.component';
 import {RoleComponent} from '@app/components/role/role.component';
@@ -31,6 +32,8 @@ import {ServiceComponent} from '@app/components/service/service.component';
 import {AuthenticatedLayoutComponent} from '@app/components/shared/authenticated-layout/authenticated-layout.component';
 import {TaskGroupFormComponent} from '@app/components/task-group/task-group-form/task-group-form.component';
 import {TaskGroupComponent} from '@app/components/task-group/task-group.component';
+import {TaskTypeFormComponent} from '@app/components/task-type/task-type-form/task-type-form.component';
+import {TaskTypeComponent} from '@app/components/task-type/task-type.component';
 import {TaskUIFormComponent} from '@app/components/task-ui/task-ui-form/task-ui-form.component';
 import {TaskUIComponent} from '@app/components/task-ui/task-ui.component';
 import {TaskBasicFormComponent} from "@app/components/tasks-basic/task-form/task-basic-form.component";
@@ -41,8 +44,12 @@ import {TaskLocatorFormComponent} from '@app/components/tasks-locator/task-form/
 import {TasksLocatorComponent} from '@app/components/tasks-locator/tasks-locator.component';
 import {TaskMoreInfoFormComponent} from '@app/components/tasks-more-info/task-form/task-more-info-form.component';
 import {TasksMoreInfoComponent} from '@app/components/tasks-more-info/tasks-more-info.component';
+import {TaskMoreInfoAdvancedFormComponent} from '@app/components/tasks-more-info-advanced/task-form/task-more-info-advanced-form.component';
+import {TasksMoreInfoAdvancedComponent} from '@app/components/tasks-more-info-advanced/tasks-more-info-advanced.component';
 import {TaskQueryFormComponent} from '@app/components/tasks-query/task-form/task-query-form.component';
 import {TasksQueryComponent} from '@app/components/tasks-query/tasks-query.component';
+import { TaskTemplateFormComponent } from '@app/components/tasks-template/task-form/task-template-form.component';
+import { TasksTemplateComponent } from '@app/components/tasks-template/tasks-template.component';
 import {TerritoryFormComponent} from '@app/components/territory/territory-form/territory-form.component';
 import {TerritoryComponent} from '@app/components/territory/territory.component';
 import {TerritoryTypeFormComponent} from '@app/components/territory-type/territory-type-form/territory-type-form.component';
@@ -66,71 +73,84 @@ export const APP_ROUTES: Routes = [
     children: [
       {path: 'dashboard', component: DashboardComponent},
       {path: 'connection', component: ConnectionComponent, canDeactivate: [CanDeactivateGuard]},
-      {path: 'connection/:id/connectionForm', component: ConnectionFormComponent},
-      {path: 'connection/:id/connectionForm/:idDuplicate', component: ConnectionFormComponent},
+      {path: 'connection/:id/connectionForm', component: ConnectionFormComponent, canDeactivate: [CanDeactivateGuard]},
+      {path: 'connection/:id/connectionForm/:idDuplicate', component: ConnectionFormComponent, canDeactivate: [CanDeactivateGuard]},
       {path: 'service', component: ServiceComponent, canDeactivate: [CanDeactivateGuard]},
-      {path: 'service/:id/serviceForm', component: ServiceFormComponent},
-      {path: 'service/:id/serviceForm/:idDuplicate', component: ServiceFormComponent},
+      {path: 'service/:id/serviceForm', component: ServiceFormComponent, canDeactivate: [CanDeactivateGuard]},
+      {path: 'service/:id/serviceForm/:idDuplicate', component: ServiceFormComponent, canDeactivate: [CanDeactivateGuard]},
       {path: 'layers', component: LayersComponent, canDeactivate: [CanDeactivateGuard]},
-      {path: 'layers/:id/layersForm', component: LayersFormComponent},
-      {path: 'layers/:id/layersForm/:idDuplicate', component: LayersFormComponent},
+      {path: 'layers/:id/layersForm', component: LayersFormComponent, canDeactivate: [CanDeactivateGuard]},
+      {path: 'layers/:id/layersForm/:idDuplicate', component: LayersFormComponent, canDeactivate: [CanDeactivateGuard]},
       {path: 'trees', component: TreesComponent, canDeactivate: [CanDeactivateGuard]},
-      {path: 'trees/:id/treesForm', component: TreesFormComponent},
-      {path: 'trees/:id/treesForm/:idDuplicate', component: TreesFormComponent},
+      {path: 'trees/:id/treesForm', component: TreesFormComponent, canDeactivate: [CanDeactivateGuard]},
+      {path: 'trees/:id/treesForm/:idDuplicate', component: TreesFormComponent, canDeactivate: [CanDeactivateGuard]},
       {path: 'backgroundLayers', component: BackgroundLayersComponent, canDeactivate: [CanDeactivateGuard]},
-      {path: 'backgroundLayers/:id/backgroundLayersForm', component: BackgroundLayersFormComponent},
-      {path: 'backgroundLayers/:id/backgroundLayersForm/:idDuplicate', component: BackgroundLayersFormComponent},
+      {path: 'backgroundLayers/:id/backgroundLayersForm', component: BackgroundLayersFormComponent, canDeactivate: [CanDeactivateGuard]},
+      {path: 'backgroundLayers/:id/backgroundLayersForm/:idDuplicate', component: BackgroundLayersFormComponent, canDeactivate: [CanDeactivateGuard]},
       {path: 'layersPermits', component: LayersPermitsComponent, canDeactivate: [CanDeactivateGuard]},
-      {path: 'layersPermits/:id/layersPermitsForm', component: LayersPermitsFormComponent},
-      {path: 'layersPermits/:id/layersPermitsForm/:idDuplicate', component: LayersPermitsFormComponent},
-      {path: `tasks/:id/${magic.taskEditTypeId}`, component: TaskEditFormComponent},
-      {path: `tasks/:id/${magic.taskBasicTypeId}`, component: TaskBasicFormComponent},
-      {path: `tasks/:id/${magic.taskQueryTypeId}`, component: TaskQueryFormComponent},
+      {path: 'layersPermits/:id/layersPermitsForm', component: LayersPermitsFormComponent, canDeactivate: [CanDeactivateGuard]},
+      {path: 'layersPermits/:id/layersPermitsForm/:idDuplicate', component: LayersPermitsFormComponent, canDeactivate: [CanDeactivateGuard]},
+      {path: `tasks/:id/${magic.taskEditTypeId}`, component: TaskEditFormComponent, canDeactivate: [CanDeactivateGuard]},
+      {path: `tasks/:id/${magic.taskBasicTypeId}`, component: TaskBasicFormComponent, canDeactivate: [CanDeactivateGuard]},
+      {path: `tasks/:id/${magic.taskLocatorTypeId}`, component: TaskLocatorFormComponent, canDeactivate: [CanDeactivateGuard]},
+      {path: `tasks/:id/${magic.taskQueryTypeId}`, component: TaskQueryFormComponent, canDeactivate: [CanDeactivateGuard]},
+      {path: `tasks/:id/${magic.taskMoreInfoTypeId}`, component: TaskMoreInfoFormComponent, canDeactivate: [CanDeactivateGuard]},
+      {path: `tasks/:id/${magic.taskTemplateTypeId}`, component: TaskTemplateFormComponent, canDeactivate: [CanDeactivateGuard]},
+      {path: `tasks/:id/${magic.taskMoreInfoAdvancedTypeId}`, component: TaskMoreInfoAdvancedFormComponent, canDeactivate: [CanDeactivateGuard]},
       {path: 'tasksEdit', component: TasksEditComponent},
-      {path: 'taskEdit/:id/:type', component: TaskEditFormComponent},
-      {path: 'taskEdit/:id/:type/:idDuplicate', component: TaskEditFormComponent},
+      {path: 'taskEdit/:id/:type', component: TaskEditFormComponent, canDeactivate: [CanDeactivateGuard]},
+      {path: 'taskEdit/:id/:type/:idDuplicate', component: TaskEditFormComponent, canDeactivate: [CanDeactivateGuard]},
       {path: 'tasksBasic', component: TasksBasicComponent, canDeactivate: [CanDeactivateGuard]},
-      {path: 'taskBasic/:id/:type', component: TaskBasicFormComponent},
-      {path: 'taskBasic/:id/:type/:idDuplicate', component: TaskBasicFormComponent},
+      {path: 'taskBasic/:id/:type', component: TaskBasicFormComponent, canDeactivate: [CanDeactivateGuard]},
+      {path: 'taskBasic/:id/:type/:idDuplicate', component: TaskBasicFormComponent, canDeactivate: [CanDeactivateGuard]},
       {path: 'taskGroup', component: TaskGroupComponent, canDeactivate: [CanDeactivateGuard]},
-      {path: 'taskGroup/:id/taskGroupForm', component: TaskGroupFormComponent},
-      {path: 'taskGroup/:id/taskGroupForm/:idDuplicate', component: TaskGroupFormComponent},
+      {path: 'taskGroup/:id/taskGroupForm', component: TaskGroupFormComponent, canDeactivate: [CanDeactivateGuard]},
+      {path: 'taskGroup/:id/taskGroupForm/:idDuplicate', component: TaskGroupFormComponent, canDeactivate: [CanDeactivateGuard]},
       {path: 'task-ui', component: TaskUIComponent, canDeactivate: [CanDeactivateGuard]},
-      {path: 'task-ui/:id/taskUIForm', component: TaskUIFormComponent},
-      {path: 'task-ui/:id/taskUIForm/:idDuplicate', component: TaskUIFormComponent},
+      {path: 'task-ui/:id/taskUIForm', component: TaskUIFormComponent, canDeactivate: [CanDeactivateGuard]},
+      {path: 'task-ui/:id/taskUIForm/:idDuplicate', component: TaskUIFormComponent, canDeactivate: [CanDeactivateGuard]},
       {path: 'tasksQuery', component: TasksQueryComponent, canDeactivate: [CanDeactivateGuard]},
-      {path: 'taskQuery/:id/:type', component: TaskQueryFormComponent},
-      {path: 'taskQuery/:id/:type/:idDuplicate', component: TaskQueryFormComponent},
+      {path: 'taskQuery/:id/:type', component: TaskQueryFormComponent, canDeactivate: [CanDeactivateGuard]},
+      {path: 'taskQuery/:id/:type/:idDuplicate', component: TaskQueryFormComponent, canDeactivate: [CanDeactivateGuard]},
+      {path: 'tasksTemplate', component: TasksTemplateComponent, canDeactivate: [CanDeactivateGuard]},
+      {path: 'taskTemplate/:id/:type', component: TaskTemplateFormComponent, canDeactivate: [CanDeactivateGuard]},
+      {path: 'taskTemplate/:id/:type/:idDuplicate', component: TaskTemplateFormComponent, canDeactivate: [CanDeactivateGuard]},
       {path: 'tasksLocator', component: TasksLocatorComponent, canDeactivate: [CanDeactivateGuard]},
-      {path: 'tasksLocator/:id/:type', component: TaskLocatorFormComponent},
-      {path: 'tasksLocator/:id/:type/:idDuplicate', component: TaskLocatorFormComponent},
+      {path: 'tasksLocator/:id/:type', component: TaskLocatorFormComponent, canDeactivate: [CanDeactivateGuard]},
+      {path: 'tasksLocator/:id/:type/:idDuplicate', component: TaskLocatorFormComponent, canDeactivate: [CanDeactivateGuard]},
       {path: 'tasksMoreInfo', component: TasksMoreInfoComponent, canDeactivate: [CanDeactivateGuard]},
-      {path: 'tasksMoreInfo/:id/:type', component: TaskMoreInfoFormComponent},
-      {path: 'tasksMoreInfo/:id/:type/:idDuplicate', component: TaskMoreInfoFormComponent},
+      {path: 'tasksMoreInfo/:id/:type', component: TaskMoreInfoFormComponent, canDeactivate: [CanDeactivateGuard]},
+      {path: 'tasksMoreInfo/:id/:type/:idDuplicate', component: TaskMoreInfoFormComponent, canDeactivate: [CanDeactivateGuard]},
+      {path: 'tasksMoreInfoAdvanced', component: TasksMoreInfoAdvancedComponent, canDeactivate: [CanDeactivateGuard]},
+      {path: 'tasksMoreInfoAdvanced/:id/:type', component: TaskMoreInfoAdvancedFormComponent, canDeactivate: [CanDeactivateGuard]},
+      {path: 'tasksMoreInfoAdvanced/:id/:type/:idDuplicate', component: TaskMoreInfoAdvancedFormComponent, canDeactivate: [CanDeactivateGuard]},
       {path: 'territory', component: TerritoryComponent, canDeactivate: [CanDeactivateGuard]},
-      {path: 'territory/:id/territoryForm', component: TerritoryFormComponent},
-      {path: 'territory/:id/territoryForm/:idDuplicate', component: TerritoryFormComponent},
+      {path: 'territory/:id/territoryForm', component: TerritoryFormComponent, canDeactivate: [CanDeactivateGuard]},
+      {path: 'territory/:id/territoryForm/:idDuplicate', component: TerritoryFormComponent, canDeactivate: [CanDeactivateGuard]},
       {path: 'role', component: RoleComponent, canDeactivate: [CanDeactivateGuard]},
-      {path: 'role/:id/roleForm', component: RoleFormComponent},
-      {path: 'role/:id/roleForm/:idDuplicate', component: RoleFormComponent},
+      {path: 'role/:id/roleForm', component: RoleFormComponent, canDeactivate: [CanDeactivateGuard]},
+      {path: 'role/:id/roleForm/:idDuplicate', component: RoleFormComponent, canDeactivate: [CanDeactivateGuard]},
       {path: 'user', component: UserComponent, canDeactivate: [CanDeactivateGuard]},
-      {path: 'user/:id/userForm', component: UserFormComponent},
-      {path: 'user/:id/userForm/:idDuplicate', component: UserFormComponent},
+      {path: 'user/:id/userForm', component: UserFormComponent, canDeactivate: [CanDeactivateGuard]},
+      {path: 'user/:id/userForm/:idDuplicate', component: UserFormComponent, canDeactivate: [CanDeactivateGuard]},
       {path: 'application', component: ApplicationComponent},
-      {path: 'application/:id/applicationForm', component: ApplicationFormComponent},
-      {path: 'application/:id/applicationForm/:idDuplicate', component: ApplicationFormComponent},
+      {path: 'application/:id/applicationForm', component: ApplicationFormComponent, canDeactivate: [CanDeactivateGuard]},
+      {path: 'application/:id/applicationForm/:idDuplicate', component: ApplicationFormComponent, canDeactivate: [CanDeactivateGuard]},
       {path: 'language', component: LanguageComponent, canDeactivate: [CanDeactivateGuard]},
-      {path: 'language/:id/languageForm', component: LanguageFormComponent},
-      {path: 'language/:id/languageForm/:idDuplicate', component: LanguageFormComponent},
+      {path: 'language/:id/languageForm', component: LanguageFormComponent, canDeactivate: [CanDeactivateGuard]},
+      {path: 'language/:id/languageForm/:idDuplicate', component: LanguageFormComponent, canDeactivate: [CanDeactivateGuard]},
+      {path: 'literalTranslations', component: LiteralTranslationsComponent, canDeactivate: [CanDeactivateGuard]},
       {path: 'territoryType', component: TerritoryTypeComponent, canDeactivate: [CanDeactivateGuard]},
-      {path: 'territoryType/:id/territoryTypeForm', component: TerritoryTypeFormComponent},
-      {path: 'territoryType/:id/territoryTypeForm/:idDuplicate', component: TerritoryTypeFormComponent},
+      {path: 'territoryType/:id/territoryTypeForm', component: TerritoryTypeFormComponent, canDeactivate: [CanDeactivateGuard]},
+      {path: 'territoryType/:id/territoryTypeForm/:idDuplicate', component: TerritoryTypeFormComponent, canDeactivate: [CanDeactivateGuard]},
+      {path: 'taskType', component: TaskTypeComponent, canDeactivate: [CanDeactivateGuard]},
+      {path: 'taskType/:id/taskTypeForm', component: TaskTypeFormComponent, canDeactivate: [CanDeactivateGuard]},
       {path: 'codelistValue', component: CodelistValueComponent, canDeactivate: [CanDeactivateGuard]},
-      {path: 'codelistValue/:id/codelistValueForm', component: CodelistValueFormComponent},
-      {path: 'codelistValue/:id/codelistValueForm/:idDuplicate', component: CodelistValueFormComponent},
+      {path: 'codelistValue/:id/codelistValueForm', component: CodelistValueFormComponent, canDeactivate: [CanDeactivateGuard]},
+      {path: 'codelistValue/:id/codelistValueForm/:idDuplicate', component: CodelistValueFormComponent, canDeactivate: [CanDeactivateGuard]},
       {path: 'configurationParameter', component: ConfigurationParameterComponent, canDeactivate: [CanDeactivateGuard]},
-      {path: 'configurationParameter/:id/configurationParameterForm', component: ConfigurationParameterFormComponent},
-      {path: 'configurationParameter/:id/configurationParameterForm/:idDuplicate', component: ConfigurationParameterFormComponent},
+      {path: 'configurationParameter/:id/configurationParameterForm', component: ConfigurationParameterFormComponent, canDeactivate: [CanDeactivateGuard]},
+      {path: 'configurationParameter/:id/configurationParameterForm/:idDuplicate', component: ConfigurationParameterFormComponent, canDeactivate: [CanDeactivateGuard]},
       {path: '', pathMatch: 'full', redirectTo: 'dashboard'},
     ]
   },

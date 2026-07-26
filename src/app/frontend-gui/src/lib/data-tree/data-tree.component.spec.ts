@@ -63,8 +63,8 @@ describe('DataTreeComponent', () => {
   }
 
   function inactiveParentWithActiveChild(): { parent: any; child: any } {
-    const parent = makeMenuParent(1, { active: false });
-    const child = makeTaskChild(1, { id: 2, active: true });
+    const parent = makeMenuParent(1, { visible: false });
+    const child = makeTaskChild(1, { id: 2, visible: true });
     return { parent, child };
   }
 
@@ -664,13 +664,13 @@ describe('DataTreeComponent', () => {
       expect(component.getAdjustedPadding(nestedGrandchild)).toBe('35px');
     });
 
-    it('checks inactive ancestors for nested nodes', () => {
+    it('checks invisible ancestors for nested nodes', () => {
       const { parent, child } = inactiveParentWithActiveChild();
       component.dataSource.data = [parent, child];
 
-      expect(component.isNodeOrAncestorInactive(child)).toBe(true);
-      parent.active = true;
-      expect(component.isNodeOrAncestorInactive(child)).toBe(false);
+      expect(component.isNodeOrAncestorHidden(child)).toBe(true);
+      parent.visible = true;
+      expect(component.isNodeOrAncestorHidden(child)).toBe(false);
     });
   });
 
@@ -688,22 +688,38 @@ describe('DataTreeComponent', () => {
       translate.use('en');
     });
 
-    it('treats null and undefined active as visible', () => {
-      const nodeNull: any = { id: 1, name: 'A', active: null, children: [], parent: null };
+    it('treats null and undefined visible as visible', () => {
+      const nodeNull: any = { id: 1, name: 'A', visible: null, children: [], parent: null };
       const nodeUndef: any = { id: 2, name: 'B', children: [], parent: null };
       component.dataSource.data = [nodeNull, nodeUndef];
 
-      expect(component.isNodeActive(nodeNull)).toBe(true);
-      expect(component.isNodeActive(nodeUndef)).toBe(true);
+      expect(component.isNodeVisible(nodeNull)).toBe(true);
+      expect(component.isNodeVisible(nodeUndef)).toBe(true);
       expect(component.isHiddenInViewerProfile(nodeNull)).toBe(false);
     });
 
+    it('does not treat active=false as hidden when visible=true', () => {
+      const node: any = {
+        id: 3,
+        name: 'Inactive but visible',
+        visible: true,
+        active: false,
+        children: [],
+        parent: null,
+      };
+      component.dataSource.data = [node];
+
+      expect(component.isNodeVisible(node)).toBe(true);
+      expect(component.isHiddenInViewerProfile(node)).toBe(false);
+      expect(component.isNodeOrAncestorHidden(node)).toBe(false);
+    });
+
     it('detects node hidden by itself', () => {
-      const node: any = { id: 1, name: 'Hidden', active: false, children: [], parent: null };
+      const node: any = { id: 1, name: 'Hidden', visible: false, children: [], parent: null };
       component.dataSource.data = [node];
 
       expect(component.isHiddenInViewerProfile(node)).toBe(true);
-      expect(component.findInactiveAncestor(node)?.id).toBe(1);
+      expect(component.findInvisibleAncestor(node)?.id).toBe(1);
     });
 
     it('detects node hidden by ancestor', () => {
@@ -711,11 +727,11 @@ describe('DataTreeComponent', () => {
       component.dataSource.data = [parent, child];
 
       expect(component.isHiddenInViewerProfile(child)).toBe(true);
-      expect(component.findInactiveAncestor(child)?.id).toBe(1);
+      expect(component.findInvisibleAncestor(child)?.id).toBe(1);
     });
 
     it('builds self-hidden tooltip', () => {
-      const node: any = { id: 1, name: 'Hidden', active: false, children: [], parent: null };
+      const node: any = { id: 1, name: 'Hidden', visible: false, children: [], parent: null };
       component.dataSource.data = [node];
 
       expect(component.hiddenInViewerTooltip(node)).toContain('Hidden in viewer');
@@ -1197,6 +1213,215 @@ describe('DataTreeComponent', () => {
       expect((component as any).expandedNodeIdsState.has('2')).toBe(false);
       expect((component as any).expandedNodeIdsState.has('11')).toBe(false);
       expect(syncSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe('radio parent structure guards', () => {
+    beforeEach(() => {
+      component.currentTreeType = 'cartography';
+    });
+
+    it('blocks adding a task child under a radio parent', () => {
+      const radioParent = makeNode({
+        id: 1,
+        name: 'Radio',
+        nodeType: 'folder',
+        radio: true,
+        children: [],
+      });
+      component.dataSource.data = [{
+        name: '', isRoot: true, id: null, order: 0, children: [radioParent], type: 'folder',
+      } as any];
+      const emitSpy = jest.spyOn(component.addNode, 'emit');
+
+      component.onAddChildNode(radioParent, 'task');
+
+      expect(emitSpy).not.toHaveBeenCalled();
+    });
+
+    it('blocks adding a folder child under a radio parent', () => {
+      const radioParent = makeNode({
+        id: 1,
+        name: 'Radio',
+        nodeType: 'folder',
+        radio: true,
+        children: [],
+      });
+      component.dataSource.data = [{
+        name: '', isRoot: true, id: null, order: 0, children: [radioParent], type: 'folder',
+      } as any];
+      const emitSpy = jest.spyOn(component.addNode, 'emit');
+
+      component.onAddChildNode(radioParent, 'folder');
+
+      expect(emitSpy).not.toHaveBeenCalled();
+    });
+
+    it('allows adding a cartography child under a radio parent', () => {
+      const radioParent = makeNode({
+        id: 1,
+        name: 'Radio',
+        nodeType: 'folder',
+        radio: true,
+        children: [],
+      });
+      component.dataSource.data = [{
+        name: '', isRoot: true, id: null, order: 0, children: [radioParent], type: 'folder',
+      } as any];
+      const emitSpy = jest.spyOn(component.addNode, 'emit');
+
+      component.onAddChildNode(radioParent, 'cartography');
+
+      expect(emitSpy).toHaveBeenCalledWith({ parent: radioParent, nodeType: 'cartography' });
+    });
+
+    it('rejects center drop of folder into radio parent', () => {
+      const folderDrag = makeNode({ id: 20, nodeType: 'folder', children: [] });
+      const radioParent = makeNode({
+        id: 10,
+        name: 'Radio',
+        nodeType: 'folder',
+        radio: true,
+        children: [],
+      });
+      component.dataSource.data = [{
+        name: '',
+        isRoot: true,
+        id: null,
+        order: 0,
+        children: [radioParent, folderDrag],
+        type: 'folder',
+      } as any];
+      (component as any).isDragging = true;
+      (component as any).dragNodeId = 20;
+      (component as any).dragNodeStatus = 'modified';
+      (component as any).dragNodeExpandOverArea = 'center';
+
+      expect((component as any).canProcessDrop('10', radioParent)).toBe(false);
+    });
+  });
+
+  describe('display profile indicators', () => {
+    let translate: TranslateService;
+
+    beforeEach(() => {
+      component.currentTreeType = 'cartography';
+      translate = TestBed.inject(TranslateService);
+      translate.setTranslation('en', {
+        'entity.tree.treeIndicator.radioFolder': 'Single selection folder (radio group)',
+        'entity.tree.treeIndicator.loadDataFolder':
+          'Folder shows a load control in the viewer catalog',
+        'entity.tree.treeIndicator.loadByDefault': 'Loads in working layers when the map opens',
+        'entity.tree.treeIndicator.queryableActive':
+          'Queryable (GetFeatureInfo) in the viewer catalog',
+      }, true);
+      translate.use('en');
+    });
+
+    function makeCartographyFolder(overrides: Record<string, unknown> = {}): any {
+      return makeNode({ nodeType: 'folder', children: [], ...overrides });
+    }
+
+    function makeCartographyLeaf(overrides: Record<string, unknown> = {}): any {
+      return makeNode({ nodeType: 'cartography', cartographyId: 42, taskId: null, visible: true, active: false, children: [], ...overrides });
+    }
+
+    it('showRadioFolderIndicator is true for a radio folder', () => {
+      const node = makeCartographyFolder({ radio: true });
+      component.dataSource.data = [{ name: '', isRoot: true, id: null, order: 0, children: [node], type: 'folder' } as any];
+      expect(component.showRadioFolderIndicator(node)).toBe(true);
+    });
+
+    it('showRadioFolderIndicator is false for a non-radio folder', () => {
+      const node = makeCartographyFolder({ radio: false });
+      component.dataSource.data = [{ name: '', isRoot: true, id: null, order: 0, children: [node], type: 'folder' } as any];
+      expect(component.showRadioFolderIndicator(node)).toBe(false);
+    });
+
+    it('showRadioFolderIndicator is false for a cartography leaf with radio true', () => {
+      const node = makeCartographyLeaf({ radio: true });
+      component.dataSource.data = [{ name: '', isRoot: true, id: null, order: 0, children: [node], type: 'folder' } as any];
+      expect(component.showRadioFolderIndicator(node)).toBe(false);
+    });
+
+    it('showLoadByDefaultIndicator is true for a visible active cartography leaf', () => {
+      const node = makeCartographyLeaf({ visible: true, active: true });
+      component.dataSource.data = [{ name: '', isRoot: true, id: null, order: 0, children: [node], type: 'folder' } as any];
+      expect(component.showLoadByDefaultIndicator(node)).toBe(true);
+    });
+
+    it('showLoadByDefaultIndicator is false when visible is false', () => {
+      const node = makeCartographyLeaf({ visible: false, active: true });
+      component.dataSource.data = [{ name: '', isRoot: true, id: null, order: 0, children: [node], type: 'folder' } as any];
+      expect(component.showLoadByDefaultIndicator(node)).toBe(false);
+    });
+
+    it('showLoadByDefaultIndicator is false when active is false', () => {
+      const node = makeCartographyLeaf({ visible: true, active: false });
+      component.dataSource.data = [{ name: '', isRoot: true, id: null, order: 0, children: [node], type: 'folder' } as any];
+      expect(component.showLoadByDefaultIndicator(node)).toBe(false);
+    });
+
+    it('showLoadByDefaultIndicator is false for a task leaf', () => {
+      const node = makeCartographyLeaf({ visible: true, active: true, taskId: 99 });
+      component.dataSource.data = [{ name: '', isRoot: true, id: null, order: 0, children: [node], type: 'folder' } as any];
+      expect(component.showLoadByDefaultIndicator(node)).toBe(false);
+    });
+
+    it('showLoadDataFolderIndicator is true for a loadData folder', () => {
+      const node = makeCartographyFolder({ loadData: true });
+      component.dataSource.data = [{ name: '', isRoot: true, id: null, order: 0, children: [node], type: 'folder' } as any];
+      expect(component.showLoadDataFolderIndicator(node)).toBe(true);
+    });
+
+    it('showLoadDataFolderIndicator is false for a folder without loadData', () => {
+      const node = makeCartographyFolder({ loadData: false });
+      component.dataSource.data = [{ name: '', isRoot: true, id: null, order: 0, children: [node], type: 'folder' } as any];
+      expect(component.showLoadDataFolderIndicator(node)).toBe(false);
+    });
+
+    it('showLoadDataFolderIndicator is false for a cartography leaf with loadData true', () => {
+      const node = makeCartographyLeaf({ loadData: true });
+      component.dataSource.data = [{ name: '', isRoot: true, id: null, order: 0, children: [node], type: 'folder' } as any];
+      expect(component.showLoadDataFolderIndicator(node)).toBe(false);
+    });
+
+    it('radioFolderIndicatorTooltip returns the localized string', () => {
+      expect(component.radioFolderIndicatorTooltip()).toBe('Single selection folder (radio group)');
+    });
+
+    it('loadDataFolderIndicatorTooltip returns the localized string', () => {
+      expect(component.loadDataFolderIndicatorTooltip()).toBe(
+        'Folder shows a load control in the viewer catalog'
+      );
+    });
+
+    it('loadByDefaultIndicatorTooltip returns the localized string', () => {
+      expect(component.loadByDefaultIndicatorTooltip()).toBe('Loads in working layers when the map opens');
+    });
+
+    it('showQueryableActiveIndicator is true for a queryable cartography leaf', () => {
+      const node = makeCartographyLeaf({ queryableActive: true });
+      component.dataSource.data = [{ name: '', isRoot: true, id: null, order: 0, children: [node], type: 'folder' } as any];
+      expect(component.showQueryableActiveIndicator(node)).toBe(true);
+    });
+
+    it('showQueryableActiveIndicator is false when queryableActive is false', () => {
+      const node = makeCartographyLeaf({ queryableActive: false });
+      component.dataSource.data = [{ name: '', isRoot: true, id: null, order: 0, children: [node], type: 'folder' } as any];
+      expect(component.showQueryableActiveIndicator(node)).toBe(false);
+    });
+
+    it('showQueryableActiveIndicator is false for folders', () => {
+      const node = makeCartographyFolder({ queryableActive: true });
+      component.dataSource.data = [{ name: '', isRoot: true, id: null, order: 0, children: [node], type: 'folder' } as any];
+      expect(component.showQueryableActiveIndicator(node)).toBe(false);
+    });
+
+    it('queryableActiveIndicatorTooltip returns the localized string', () => {
+      expect(component.queryableActiveIndicatorTooltip()).toBe(
+        'Queryable (GetFeatureInfo) in the viewer catalog'
+      );
     });
   });
 

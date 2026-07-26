@@ -1,5 +1,5 @@
 import { provideHttpClient } from '@angular/common/http';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed, inject } from '@angular/core/testing';
 
 import { AuthService } from './auth.service';
@@ -9,6 +9,8 @@ import { ExternalConfigurationService } from '../config/external-configuration.s
 import { ExternalService , HalModule , ResourceService } from '../hal';
 
 describe('AuthService', () => {
+  let httpMock: HttpTestingController;
+
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [
@@ -25,9 +27,51 @@ describe('AuthService', () => {
         { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }
       ]
     });
+
+    httpMock = TestBed.inject(HttpTestingController);
+  });
+
+  afterEach(() => {
+    httpMock.verify();
   });
 
   it('should be created', inject([AuthService], (service: AuthService) => {
     expect(service).toBeTruthy();
+  }));
+
+  it('should POST to authenticate/admin on login', inject([AuthService], (service: AuthService) => {
+    let completed = false;
+
+    service.login({ username: 'admin', password: 'admin' }).subscribe({
+      next: (ok) => {
+        expect(ok).toBe(true);
+        completed = true;
+      },
+    });
+
+    const req = httpMock.expectOne((request) => request.url.endsWith('/authenticate/admin'));
+    expect(req.request.method).toBe('POST');
+    expect(req.request.withCredentials).toBe(true);
+    req.flush(null, { status: 200, statusText: 'OK' });
+
+    expect(completed).toBe(true);
+  }));
+
+  it('should POST logout to authenticate/logout with credentials', inject([AuthService], (service: AuthService) => {
+    let completed = false;
+
+    service.logout().subscribe({
+      next: (response) => {
+        expect(response.status).toBe(200);
+        completed = true;
+      },
+    });
+
+    const req = httpMock.expectOne((request) => request.url.endsWith('/authenticate/logout'));
+    expect(req.request.method).toBe('POST');
+    expect(req.request.withCredentials).toBe(true);
+    req.flush(null, { status: 200, statusText: 'OK' });
+
+    expect(completed).toBe(true);
   }));
 });

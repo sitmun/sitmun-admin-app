@@ -23,6 +23,7 @@ export const config = {
     'query': 5,
     'moreInfo': 6,
     'report': 7,
+    'template': 15,
     'editionWFS': 8,
     'thematic': 9,
     'extraction': 10,
@@ -30,22 +31,6 @@ export const config = {
     'RELEdition': 12,
     'VISEdition': 13,
     'HIDDENEdition': 14
-  },
-  tasksTypesNames:{
-    'basic': "Basic",
-    'download': "Download",
-    'document': "Document",
-    'locator': "Locator",
-    'query': "Query",
-    'moreInfo': "More info task",
-    'report': "Report",
-    'editionWFS': "Cartography table (WFS)",
-    'thematic': "Thematic",
-    'extraction': "Extraction (FME)",
-    'NUMEdition': "Data table",
-    'RELEdition': "Relation table",
-    'VISEdition': "Location view",
-    'HIDDENEdition': "edicionHIDDEN"
   },
   taskSelectorFieldsForm:{
     "groupId": "group",
@@ -353,6 +338,10 @@ export const config = {
       nodeTypes: {
         folder: {
           allowedChildren: ['cartography', 'folder'],
+          capabilities: {
+            radio: true,
+            loadData: true
+          },
           icon: 'folder',
           showDescriptionPanel: true,
           showMetadataFieldsInDescriptionPanel: true,

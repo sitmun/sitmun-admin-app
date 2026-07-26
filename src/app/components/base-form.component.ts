@@ -1,22 +1,25 @@
-import {AfterViewInit, Component, OnDestroy, OnInit, QueryList, ViewChildren, DestroyRef, inject} from "@angular/core";
+import {AfterViewInit, ChangeDetectorRef, Component, OnDestroy, OnInit, QueryList, ViewChildren, DestroyRef, inject} from "@angular/core";
 import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 import {FormControl, UntypedFormGroup} from "@angular/forms";
 import {MatDialog} from "@angular/material/dialog";
-import {ActivatedRoute, Router} from "@angular/router";
+import {ActivatedRoute, Params, Router} from "@angular/router";
 
 import {TranslateService} from "@ngx-translate/core";
-import {firstValueFrom, Observable} from "rxjs";
-import { tap} from "rxjs/operators";
+import {concatMap, filter, firstValueFrom, from, map, Observable, of, tap} from "rxjs";
 
 import {DataTablesRegistry} from "@app/components/data-tables.util";
+import {RelationGridComponent} from "@app/components/shared/relation-grid/relation-grid.component";
 import {HalOptions, HalParam, Resource} from "@app/core";
+import {CanComponentDeactivate} from '@app/core/guards/can-deactivate-guard.service';
 import {MessagesInterceptorStateService} from "@app/core/interceptors/messages.interceptor";
-import {CodeList, CodeListService, Language, Translation, TranslationService} from "@app/domain";
+import {CodeList, CodeListService, Language, LanguageService, Translation, TranslationService} from "@app/domain";
 import {DataGridComponent} from "@app/frontend-gui/src/lib/data-grid/data-grid.component";
 import {DialogTranslationComponent} from "@app/frontend-gui/src/lib/dialog-translation/dialog-translation.component";
+import {DIALOG_EVENTS, DialogMessageComponent} from '@app/frontend-gui/src/lib/public_api';
 import {ErrorHandlerService} from "@app/services/error-handler.service";
 import {LoadingOverlayService} from "@app/services/loading-overlay.service";
 import {LoggerService} from "@app/services/logger.service";
+import {filterEnabledLanguages} from "@app/services/ui-language.resolver";
 import {explainFormValidity} from "@app/utils/form.utils";
 import {config} from "@config";
 import {constants} from "@environments/constants";
@@ -40,13 +43,24 @@ import {constants} from "@environments/constants";
     template: '',
     standalone: false
 })
-export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewInit, OnDestroy {
+export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewInit, OnDestroy, CanComponentDeactivate {
 
   /**
    * Query list of all data-grid components in the template.
    * Automatically populated by Angular after view initialization.
    */
   @ViewChildren(DataGridComponent) dataGrids!: QueryList<DataGridComponent>;
+
+  /**
+   * Query list of all relation-grid wrapper components in the template.
+   * Automatically populated by Angular after view initialization.
+   */
+  @ViewChildren(RelationGridComponent) relationGrids!: QueryList<RelationGridComponent>;
+
+  /**
+   * Tracks registered DataGridComponent instances to prevent duplicate subscriptions.
+   */
+  private registeredGrids = new WeakSet<DataGridComponent>();
 
   /**
    * Tracks the ID of the entity currently being edited.
@@ -100,6 +114,12 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
   dataLoaded = false;
 
   /**
+   * Monotonic epoch for in-flight {@link fetchData} calls.
+   * Route-param re-emissions can overlap; only the latest epoch may commit form state.
+   */
+  private fetchDataEpoch = 0;
+
+  /**
    * The main form group for the entity.
    * Handles form validation and provides access to form controls.
    * Child classes should initialize this with appropriate form controls.
@@ -121,7 +141,19 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
   /** Default language code for i18n fields (from config) */
   defaultLang = config.defaultLang;
 
+  /**
+   * UI language for HAL requests that need backend `@I18n` resolution (`lang` query param).
+   */
+  protected requestLang(): string {
+    if (localStorage.lang) {
+      return localStorage.lang;
+    }
+    return this.translateService.currentLang || config.defaultLang;
+  }
+
   protected destroyRef = inject(DestroyRef);
+
+  private readonly changeDetectorRef = inject(ChangeDetectorRef);
 
   /**
    * Creates an instance of SitmunBaseComponent.
@@ -139,6 +171,8 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
    * @param loadingService
    * @param messagesInterceptorState
    */
+  protected readonly languageService = inject(LanguageService);
+
   constructor(
     protected dialog: MatDialog,
     protected translateService: TranslateService,
@@ -219,13 +253,19 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
    * @returns {void}
    */
   ngOnInit(): void {
-    this.fetchData()
-      .then(() => {
-        this.afterFetch();
-      })
-      .catch((reason) => {
-        this.errorHandler.handleError(reason, 'common.error.initialization');
-      });
+    this.activatedRoute.params.pipe(
+      map(params => ({params, epoch: ++this.fetchDataEpoch})),
+      tap(() => {
+        this.dataLoaded = false;
+      }),
+      concatMap(({params, epoch}) =>
+        epoch === this.fetchDataEpoch
+          ? from(this.fetchData(params, epoch))
+          : of(false)
+      ),
+      filter(committed => committed),
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe(() => this.afterFetch());
   }
 
   /**
@@ -242,18 +282,48 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
 
   /**
    * Angular lifecycle hook called after view and child views are initialized.
-   * Automatically registers all data-grid components for change tracking.
+   * Automatically registers all data-grid components for change tracking,
+   * including those wrapped by RelationGridComponent.
    */
   ngAfterViewInit(): void {
-    if (this.dataGrids) {
-      this.dataGrids.forEach(grid => this.registerDataGrid(grid));
+    this.registerCurrentDataGrids();
 
-      // Re-register if grids are added dynamically
+    // Re-register if grids are added dynamically
+    if (this.dataGrids) {
       this.dataGrids.changes
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe(() => {
-          this.dataGrids.forEach(grid => this.registerDataGrid(grid));
+          this.registerCurrentDataGrids();
         });
+    }
+
+    if (this.relationGrids) {
+      this.relationGrids.changes
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(() => {
+          this.registerCurrentDataGrids();
+        });
+    }
+  }
+
+  /**
+   * Registers all current data grids for change tracking.
+   * Includes both direct DataGridComponent instances and those wrapped by RelationGridComponent.
+   * @private
+   */
+  private registerCurrentDataGrids(): void {
+    // Register direct data grids
+    if (this.dataGrids) {
+      this.dataGrids.forEach(grid => this.registerDataGrid(grid));
+    }
+
+    // Register data grids wrapped by RelationGridComponent
+    if (this.relationGrids) {
+      this.relationGrids.forEach(relationGrid => {
+        if (relationGrid.dataGrid) {
+          this.registerDataGrid(relationGrid.dataGrid);
+        }
+      });
     }
   }
 
@@ -280,25 +350,55 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
    * 4. Fetch related data if needed
    * 5. Set up the form and complete initialization
    *
-   * @returns {Promise<void>} Promise that resolves when all data is loaded
+   * @param params - Route params for this load cycle
+   * @param epoch - Fetch epoch from {@link ngOnInit}; stale epochs abort before mutating form state
+   * @returns {Promise<boolean>} true when this epoch committed form state, false when superseded
    */
-  async fetchData(): Promise<void> {
+  async fetchData(
+    params: Params = this.activatedRoute.snapshot.params,
+    epoch = ++this.fetchDataEpoch,
+  ): Promise<boolean> {
     try {
-      await this.processRouteParams();
+      await this.processRouteParams(params);
+      if (epoch !== this.fetchDataEpoch) {
+        return false;
+      }
       await this.preFetchData();
+      if (epoch !== this.fetchDataEpoch) {
+        return false;
+      }
       if (!this.isNewOrDuplicated()) {
-        this.entityToEdit = await this.fetchOriginal();
-        await this.fetchRelatedData()
+        const entity = await this.fetchOriginal();
+        if (epoch !== this.fetchDataEpoch) {
+          return false;
+        }
+        this.entityToEdit = entity;
+        await this.fetchRelatedData();
+        if (epoch !== this.fetchDataEpoch) {
+          return false;
+        }
       } else if (this.isDuplicated()) {
-        this.entityToEdit = await this.fetchCopy();
-        await this.fetchRelatedData()
+        const entity = await this.fetchCopy();
+        if (epoch !== this.fetchDataEpoch) {
+          return false;
+        }
+        this.entityToEdit = entity;
+        await this.fetchRelatedData();
+        if (epoch !== this.fetchDataEpoch) {
+          return false;
+        }
       } else {
         this.entityToEdit = this.empty();
       }
+      if (epoch !== this.fetchDataEpoch) {
+        return false;
+      }
       this.postFetchData();
       this.dataLoaded = true;
+      return true;
     } catch (error) {
       this.errorHandler.handleError(error, 'common.error.loadingFailed');
+      return false;
     }
   }
 
@@ -307,11 +407,11 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
    * Sets the entityID and duplicateID properties based on the current route.
    * Redirects to dashboard if route params are invalid (non-numeric).
    *
+   * @param params - Route params for this load cycle (defaults to the current snapshot)
    * @returns {Promise<void>} Promise that resolves when parameters are processed
    * @throws {Error} Throws an error if route params are invalid to abort fetchData
    */
-  async processRouteParams(): Promise<void> {
-    const params = await firstValueFrom(this.activatedRoute.params);
+  async processRouteParams(params: Params = this.activatedRoute.snapshot.params): Promise<void> {
     this.entityID = params.id != null ? Number(params.id) : -1;
     this.duplicateID = params.idDuplicate != null ? Number(params.idDuplicate) : -1;
 
@@ -398,6 +498,39 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
   }
 
   /**
+   * Whether the form, grids, or translations have unsaved changes.
+   * Duplicate mode counts as pending create even when the form is still pristine.
+   */
+  protected hasPendingChanges(): boolean {
+    return this.isDuplicated()
+      || (this.entityForm?.dirty ?? false)
+      || this.dataTablesHaveChanges
+      || this.hasTranslationChanges();
+  }
+
+  /**
+   * Prompts before leaving when there are unsaved changes.
+   */
+  async canDeactivate(): Promise<boolean> {
+    if (!this.hasPendingChanges()) {
+      return true;
+    }
+
+    const dialogRef = this.dialog.open(DialogMessageComponent, {
+      width: '400px',
+      data: {
+        title: 'common.unsavedChanges.title',
+        message: 'common.unsavedChanges.message',
+        acceptLabel: 'common.unsavedChanges.discard',
+        cancelLabel: 'common.unsavedChanges.keepEditing',
+        destructive: true,
+      },
+    });
+    const result = await firstValueFrom(dialogRef.afterClosed());
+    return result?.event === DIALOG_EVENTS.ACCEPT;
+  }
+
+  /**
    * Handles the save button click event.
    * Validates the form, saves the entity, updates related data, and navigates as needed.
    *
@@ -405,7 +538,7 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
    */
   async onSaveButtonClicked(): Promise<boolean> {
     this.loggerService.info('onSaveButtonClicked', this.explainFormValidity());
-    if (this.canSave()) {
+    if (this.canSaveEntity) {
       const duplicated = this.isDuplicated();
       try {
         await this.saveEntity();
@@ -449,6 +582,7 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
    * Returns true when the form is valid AND there are unsaved changes.
    *
    * Checks for changes in:
+   * - Duplicate mode (pending create with suggested copy values)
    * - Form fields (dirty state)
    * - Data tables (via dataTablesHaveChanges flag)
    * - Translations (modified flags)
@@ -462,7 +596,12 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
     const hasFormChanges = this.entityForm?.dirty ?? false;
     const hasTranslationChanges = this.hasTranslationChanges();
 
-    return isFormValid && (hasFormChanges || this.dataTablesHaveChanges || hasTranslationChanges);
+    return isFormValid && (
+      this.isDuplicated()
+      || hasFormChanges
+      || this.dataTablesHaveChanges
+      || hasTranslationChanges
+    );
   }
 
   /**
@@ -497,19 +636,21 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
    * @returns {boolean} true if any property has modified translations, false otherwise
    * @private
    */
-  private hasTranslationChanges(): boolean {
+  protected hasTranslationChanges(): boolean {
     return Array.from(this.propertyTranslations.values()).some(pt => pt.modified);
   }
 
   /**
    * Registers a data-grid component with change tracking.
    * Subscribes to the grid's modification events to enable/disable the save button.
+   * Prevents duplicate subscriptions using a WeakSet.
    *
    * @param {DataGridComponent} grid - The data grid component to register
    * @private
    */
   private registerDataGrid(grid: DataGridComponent): void {
-    if (grid && grid.gridModified) {
+    if (grid && grid.gridModified && !this.registeredGrids.has(grid)) {
+      this.registeredGrids.add(grid);
       grid.gridModified
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe((_hasChanges: boolean) => {
@@ -522,12 +663,16 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
   /**
    * Updates the dataTablesHaveChanges flag by checking all registered grids.
    * Sets to true if ANY grid has unsaved changes.
+   * Checks both direct DataGridComponent instances and those wrapped by RelationGridComponent.
    *
    * @private
    */
   private updateDataTablesChangeFlag(): void {
+    let hasChanges = false;
+
+    // Check direct data grids
     if (this.dataGrids) {
-      this.dataTablesHaveChanges = this.dataGrids.some(grid =>
+      hasChanges = this.dataGrids.some(grid =>
         grid && (
           grid.changeCounter > 0 ||
           grid.someStatusHasChanged === true ||
@@ -535,6 +680,20 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
         )
       );
     }
+
+    // Check wrapped data grids
+    if (!hasChanges && this.relationGrids) {
+      hasChanges = this.relationGrids.some(relationGrid => {
+        const grid = relationGrid.dataGrid;
+        return grid && (
+          grid.changeCounter > 0 ||
+          grid.someStatusHasChanged === true ||
+          grid.someStatusHasChangedToDelete === true
+        );
+      });
+    }
+
+    this.dataTablesHaveChanges = hasChanges;
   }
 
   /**
@@ -676,6 +835,7 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
           .pipe(takeUntilDestroyed(this.destroyRef))
           .subscribe(() => {
             this.checkControlModified(form, key);
+            this.changeDetectorRef.markForCheck();
           });
       }
     });
@@ -788,9 +948,19 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
     // Extract maxLength and useTextarea from the form control
     const maxLength = this.getMaxLengthForProperty(property);
     const useTextarea = this.getUseTextareaForProperty(property);
+    const before = new Map<string, string | null>();
+    propertyTranslation.map.forEach((translation, shortname) => {
+      before.set(shortname, translation?.translation ?? null);
+    });
     const dialogResult = await this.openTranslationDialog(propertyTranslation.map, defaultLanguageValue, maxLength, useTextarea);
     if (dialogResult && dialogResult.event == 'Accept') {
-      propertyTranslation.modified = true;
+      const changed = Array.from(propertyTranslation.map.entries()).some(([shortname, translation]) =>
+        (translation?.translation ?? null) !== (before.get(shortname) ?? null)
+      ) || Array.from(before.keys()).some((shortname) => !propertyTranslation.map.has(shortname));
+      if (changed) {
+        propertyTranslation.modified = true;
+        this.changeDetectorRef.markForCheck();
+      }
     }
   }
 
@@ -904,6 +1074,7 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
       }
     }
 
+    languagesToUse = filterEnabledLanguages(languagesToUse ?? []);
     if (!languagesToUse || languagesToUse.length === 0) {
       this.loggerService.warn('No languages configured for translations');
       return translationsList;
@@ -1040,12 +1211,13 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
    * @private
    */
   private async openTranslationDialog(translationsMap: Map<string, Translation>, defaultLanguageValue: string, maxLength: number, useTextarea: boolean): Promise<any> {
+    const languagesAvailables = await firstValueFrom(this.languageService.refreshLanguagesToUse());
     const dialogRef = this.dialog.open(DialogTranslationComponent, {
       panelClass: 'translateDialogs',
     });
     dialogRef.componentInstance.translationsMap = translationsMap;
     dialogRef.componentInstance.languageByDefault = config.defaultLang;
-    dialogRef.componentInstance.languagesAvailables = config.languagesToUse;
+    dialogRef.componentInstance.languagesAvailables = languagesAvailables;
     dialogRef.componentInstance.defaultLanguageValue = defaultLanguageValue;
     dialogRef.componentInstance.maxLength = maxLength;
     dialogRef.componentInstance.useTextarea = useTextarea;

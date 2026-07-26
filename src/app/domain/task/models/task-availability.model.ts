@@ -36,7 +36,9 @@ export class TaskAvailabilityProjection extends Resource{
 
   taskName: string;
 
+  taskTypeId: number;
   taskTypeName: string;
+  taskTypeTitle: string;
   taskGroupName: string;
   static of(task: TaskProjection, territory: TerritoryProjection): TaskAvailabilityProjection {
     const item = new TaskAvailabilityProjection();
@@ -46,7 +48,9 @@ export class TaskAvailabilityProjection extends Resource{
     item.territoryTypeName = territory.typeName;
     item.taskId = task.id;
     item.taskName = task.name;
+    item.taskTypeId = task.typeId;
     item.taskTypeName = task.typeName;
+    item.taskTypeTitle = task.typeTitle || task.typeName;
     item.taskGroupName = task.groupName;
     return item;
   }

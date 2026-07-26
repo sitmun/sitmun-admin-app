@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
 import {firstValueFrom, Observable, Subject} from 'rxjs';
@@ -23,75 +24,9 @@ export class Principal {
     this.authenticationState.next(this.userIdentity);
   }
 
-  /** check whether current user has any of the given authorities */
-  hasAnyAuthority(authorities: string[]): Promise<boolean> {
-    return Promise.resolve(this.hasAnyAuthorityDirect(authorities));
-  }
-
-  /** check whether current user has any of the given authorities on the given territory */
-  hasAnyAuthorityOnTerritory(authorities: string[],territory: string ): Promise<boolean> {
-    return Promise.resolve(this.hasAnyAuthorityDirectOnTerritory(authorities,territory));
-  }
-
-  /** check whether current user has any of the given authorities without resolving promises*/
-  hasAnyAuthorityDirect(authorities: string[]): boolean {
-    if (!this.authenticated || !this.userIdentity || !this.userIdentity.authorities) {
-      return false;
-    }
-
-    for (let i = 0; i < authorities.length; i++) {
-      if (this.userIdentity.authorities.includes(authorities[i])) {
-        return true;
-      }
-    }
-
-    return false;
-  }
-
-  /** check whether current user has any of the given authorities on the given territory without resolving promises */
-  hasAnyAuthorityDirectOnTerritory(authorities: string[],territory: string): boolean {
-    if (!this.authenticated || !this.userIdentity || !this.userIdentity.authorities) {
-      return false;
-    }
-
-    for (let i = 0; i < authorities.length; i++) {
-
-      if (this.userIdentity.authoritiesPerTerritory[territory] && this.userIdentity.authoritiesPerTerritory[territory].includes(authorities[i])) {
-        return true;
-      }
-    }
-
-    return false;
-  }
-
-  /** check whether current user has the given authority */
-  hasAuthority(authority: string): Promise<boolean> {
-    if (!this.authenticated) {
-      return Promise.resolve(false);
-    }
-
-    return this.identity().then((id) => {
-      return Promise.resolve(id.authorities && id.authorities.includes(authority));
-    }, () => {
-      return Promise.resolve(false);
-    });
-  }
-
-  /** check whether current user has the given authority on the given territory*/
-  hasAuthorityOnTerritory(authority: string,territory: string): Promise<boolean> {
-    if (!this.authenticated) {
-      return Promise.resolve(false);
-    }
-
-    return this.identity().then((id) => {
-      return Promise.resolve(id.authoritiesPerTerritory && id.authoritiesPerTerritory[territory] && id.authoritiesPerTerritory[territory].includes(authority));
-    }, () => {
-      return Promise.resolve(false);
-    });
-  }
-
   /** check user identity*/
   identity(force?: boolean): Promise<any> {
+    const cachedIdentity = this.userIdentity;
     if (force === true) {
       this.userIdentity = undefined;
     }
@@ -114,11 +49,16 @@ export class Principal {
       }
       this.authenticationState.next(this.userIdentity);
       return this.userIdentity;
-    }).catch((_err) => {
-      this.userIdentity = null;
-      this.authenticated = false;
-      this.authenticationState.next(this.userIdentity);
-      return null;
+    }).catch((err) => {
+      const isUnauthorized = err instanceof HttpErrorResponse && err.status === 401;
+      if (isUnauthorized) {
+        this.userIdentity = null;
+        this.authenticated = false;
+        this.authenticationState.next(this.userIdentity);
+        return null;
+      }
+      this.userIdentity = cachedIdentity;
+      return cachedIdentity ?? null;
     });
   }
 

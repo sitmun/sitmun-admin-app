@@ -9,6 +9,7 @@
       <mat-card-content>
         <app-data-grid
           (getSelectedRows)='joinRowsReceived($event)'
+          (selectionChanged)='onSelectionChanged(i, $event)'
           [addFieldRestriction]='getAddFieldRestriction(i)'
           [changeHeightButton]='changeHeightButton'
           [columnDefs]="columnDefsTable[i]"
@@ -20,6 +21,7 @@
           [getAll]='getAll'
           [globalSearch]=true
           [hideDuplicateButton]=true
+          [hideExportButton]=true
           [hideReplaceButton]=true
           [nonEditable]='nonEditable'
           [singleSelection]="singleSelectionTable[i]"
@@ -29,7 +31,7 @@
       </mat-card-content>
     </div>
   </mat-card>
-  <mat-tab-group *ngIf="getAllsTable.length>1">
+  <mat-tab-group *ngIf="getAllsTable.length>1" preserveContent="true">
     <mat-tab
       *ngFor="let getAll of getAllsTable; let i = index"
       [label]="(titlesTable[i] | translate) || ''">
@@ -50,8 +52,10 @@
             [currentData]='getCurrentData(i)'
             [hideReplaceButton]=true
             [hideDuplicateButton]=true
+            [hideExportButton]=true
             [fieldRestrictionWithDifferentName]='getFieldRestrictionWithDifferentName(i)'
             (getSelectedRows)='joinRowsReceived($event)'
+            (selectionChanged)='onSelectionChanged(i, $event)'
           >
           </app-data-grid>
         </mat-card-content>
@@ -62,18 +66,19 @@
 </mat-dialog-content>
 <mat-dialog-actions align="end">
   <button
+    [attr.aria-label]="'common.button.return' | translate"
     matTooltip="{{ 'common.button.return' | translate }}"
-    mat-dialog-close
     mat-mini-fab
     color="primary"
     (click)="closeDialog()">
     <mat-icon fontSet="material-icons-round">arrow_back</mat-icon>
   </button>
   <button
+    [attr.aria-label]="'common.button.add' | translate"
     matTooltip="{{ 'common.button.add' | translate }}"
-    [mat-dialog-close]="true"
     mat-mini-fab class="add-half-gap"
     color="primary"
+    [disabled]="!canAdd"
     (click)="getAllSelectedRows()">
     <mat-icon fontSet="material-icons-round">add_circle_outline</mat-icon>
   </button>

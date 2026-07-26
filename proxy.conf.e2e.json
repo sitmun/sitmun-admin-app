@@ -1,0 +1,15 @@
+{
+  "/backend": {
+    "target": "http://localhost:18080",
+    "secure": false,
+    "changeOrigin": true,
+    "pathRewrite": {
+      "^/backend": ""
+    },
+    "headers": {
+      "X-Forwarded-Host": "localhost:4300",
+      "X-Forwarded-Proto": "http",
+      "X-Forwarded-Prefix": "/backend"
+    }
+  }
+}

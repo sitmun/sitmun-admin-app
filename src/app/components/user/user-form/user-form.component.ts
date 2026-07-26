@@ -4,7 +4,7 @@ import {MatDialog} from '@angular/material/dialog';
 import {ActivatedRoute, Router} from '@angular/router';
 
 import {TranslateService} from "@ngx-translate/core";
-import { firstValueFrom, map, of, ReplaySubject} from 'rxjs';
+import { firstValueFrom, map, of } from 'rxjs';
 
 import {BaseFormComponent} from "@app/components/base-form.component";
 import {DataTable2Definition, DataTableDefinition} from "@app/components/data-tables.util";
@@ -68,8 +68,13 @@ export class UserFormComponent extends BaseFormComponent<UserProjection> {
 
   protected readonly userPositionsTable: DataTableDefinition<UserPositionProjection, TerritoryProjection>
 
+  protected readonly applicationsAsContactTable: DataTableDefinition<Application, Application>
+
   /** Flag indicating if the password is set */
   passwordSet = false;
+
+  /** True when the loaded entity already had a stored password (server truth). */
+  private persistedPasswordSet = false;
 
   /** Flag indicating if the password is being edited */
   isPasswordBeingEdited = false;
@@ -92,17 +97,8 @@ export class UserFormComponent extends BaseFormComponent<UserProjection> {
   /** Flag indicating if this is the built-in public user */
   isBuiltInPublic = false;
 
-  /** Applications where this user is the point of contact */
-  applicationsAsContact: Application[] = [];
-
-  private readonly applicationsAsContactRefresh$ = new ReplaySubject<boolean>(1);
-
-  readonly applicationsAsContactFetchFn = () => of(this.applicationsAsContact);
-
-  readonly applicationsAsContactRefresh = this.applicationsAsContactRefresh$.asObservable();
-
-  readonly applicationsAsContactColumnDefs: any[] = [];
-
+  /** Cached applications where this user is the point of contact. */
+  applicationsAsPointOfContact: Application[] = [];
 
   constructor(
     dialog: MatDialog,
@@ -126,11 +122,7 @@ export class UserFormComponent extends BaseFormComponent<UserProjection> {
     super(dialog, translateService, translationService, codeListService, loggerService, errorHandler, activatedRoute, router, loadingService, messagesInterceptorState);
     this.userConfigurationsTable = this.defineUserConfigurationsTable();
     this.userPositionsTable = this.defineUserPositionsTable();
-    (this.applicationsAsContactColumnDefs as any[]).push(
-      Object.assign(this.utils.getRouterLinkColumnDef('common.form.name', 'name', '/application/:id/applicationForm', {id: 'id'}), {flex: 3, minWidth: 160, tooltipField: 'name'}),
-      Object.assign(this.utils.getNonEditableColumnDef('entity.application.type.generic.title', 'title'), {flex: 3, minWidth: 160, tooltipField: 'title'}),
-      Object.assign(this.utils.getNonEditableColumnDef('common.form.type', 'type'), {flex: 1, minWidth: 80}),
-    );
+    this.applicationsAsContactTable = this.defineApplicationsAsContactTable();
   }
 
   override async preFetchData(): Promise<void> {
@@ -158,16 +150,34 @@ export class UserFormComponent extends BaseFormComponent<UserProjection> {
     return user;
   }
 
+  override async fetchRelatedData(): Promise<void> {
+    this.applicationsAsPointOfContact = [];
+    if (!this.isEdition()) {
+      return;
+    }
+    const username = this.entityToEdit?.username;
+    if (username === 'public' || username === 'admin') {
+      return;
+    }
+    this.applicationsAsPointOfContact = await firstValueFrom(
+      this.applicationService.findByCreatorId(this.entityID)
+    );
+  }
+
   override postFetchData(): void {
     if (!this.entityToEdit) {
       throw new Error('Cannot initialize form: entity is undefined');
     }
-    if (this.isDuplicated()) {
+    if (this.isNew() || this.isDuplicated()) {
+      this.persistedPasswordSet = false;
       this.passwordSet = false;
     } else {
-      this.passwordSet = this.entityToEdit.passwordSet ?? false;
+      this.persistedPasswordSet = this.entityToEdit.passwordSet ?? false;
+      this.passwordSet = this.persistedPasswordSet;
     }
     this.isPasswordBeingEdited = false;
+    this.passwordModified = false;
+    this.actualPassword = null;
     this.passwordDirtyInSession = false;
     this.hadPasswordBeforeFocusSession = false;
 
@@ -196,17 +206,6 @@ export class UserFormComponent extends BaseFormComponent<UserProjection> {
       ),
     });
 
-    if (this.isEdition()) {
-      firstValueFrom(this.applicationService.findByCreatorId(this.entityID))
-        .then(apps => {
-          this.applicationsAsContact = apps;
-          this.applicationsAsContactRefresh$.next(true);
-        })
-        .catch(() => {
-          this.applicationsAsContact = [];
-          this.applicationsAsContactRefresh$.next(true);
-        });
-    }
   }
 
   /**
@@ -225,8 +224,15 @@ export class UserFormComponent extends BaseFormComponent<UserProjection> {
         id: id,
       }
     );
-    if (this.isPasswordBeingEdited) {
-      safeToEdit.password = formValues.newPassword;
+    const pendingPassword =
+      this.actualPassword ??
+      (typeof formValues.newPassword === 'string' ? formValues.newPassword : null);
+    const shouldSendPassword =
+      (this.isPasswordBeingEdited || (this.passwordModified && this.actualPassword != null)) &&
+      !!pendingPassword &&
+      pendingPassword !== UserFormComponent.PASSWORD_PLACEHOLDER;
+    if (shouldSendPassword) {
+      safeToEdit.password = pendingPassword;
     }
     return User.fromObject(safeToEdit);
   }
@@ -244,8 +250,12 @@ export class UserFormComponent extends BaseFormComponent<UserProjection> {
 
   onPasswordFocus(): void {
     this.passwordDirtyInSession = false;
-    this.hadPasswordBeforeFocusSession = this.passwordSet;
-    this.clearPasswordPlaceholder();
+    this.hadPasswordBeforeFocusSession = this.persistedPasswordSet && !this.passwordModified;
+    if (this.passwordModified && this.actualPassword != null) {
+      this.entityForm.get('newPassword')?.setValue(this.actualPassword);
+    } else {
+      this.clearPasswordPlaceholder();
+    }
   }
 
   onPasswordBlur(): void {
@@ -275,7 +285,7 @@ export class UserFormComponent extends BaseFormComponent<UserProjection> {
   }
 
   private shouldRestorePasswordPlaceholder(): boolean {
-    if (!this.hadPasswordBeforeFocusSession) {
+    if (!this.hadPasswordBeforeFocusSession || this.passwordModified) {
       return false;
     }
     const value = this.entityForm?.get('newPassword')?.value ?? '';
@@ -329,7 +339,7 @@ export class UserFormComponent extends BaseFormComponent<UserProjection> {
         }
         return this.entityToEdit.getRelationArrayEx(UserConfigurationProjection, 'permissions', {projection: 'view'})
       })
-      .withFieldRestrictions(['roleId', 'territoryId'])
+      .withFieldRestrictions(['roleId', 'territoryId', 'appliesToChildrenTerritories'])
       .withRelationsUpdater(async (userConfigurations: (UserConfigurationProjection & Status)[]) => {
         await onCreate(userConfigurations).forEach(item => {
           const newItem = UserConfiguration.fromObject(item);
@@ -390,7 +400,7 @@ export class UserFormComponent extends BaseFormComponent<UserProjection> {
     return DataTableDefinition.builder<UserPositionProjection, TerritoryProjection>(this.dialog, this.errorHandler, this.loadingService)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
-        Object.assign(this.utils.getNonEditableColumnDef('entity.territory.label', 'territoryName'), {flex: 2, minWidth: 140, tooltipField: 'territoryName'}),
+        Object.assign(this.utils.getRouterLinkColumnDef('entity.territory.label', 'territoryName', '/territory/:id/territoryForm', {id: 'territoryId'}), {flex: 2, minWidth: 140, tooltipField: 'territoryName'}),
         Object.assign(this.utils.getEditableColumnDef('entity.user.position.name', 'name'), {flex: 2, minWidth: 120, tooltipField: 'name'}),
         Object.assign(this.utils.getEditableColumnDef('entity.user.position.organization', 'organization'), {flex: 2, minWidth: 120, tooltipField: 'organization'}),
         Object.assign(this.utils.getEditableColumnDef('common.form.email', 'email'), {flex: 2, minWidth: 160, tooltipField: 'email'}),
@@ -452,6 +462,57 @@ export class UserFormComponent extends BaseFormComponent<UserProjection> {
         });
       })
       .build();
+  }
+
+  private defineApplicationsAsContactTable(): DataTableDefinition<Application, Application> {
+    return DataTableDefinition.builder<Application, Application>(this.dialog, this.errorHandler, this.loadingService)
+      .withRelationsColumns([
+        Object.assign(
+          this.utils.getRouterLinkColumnDef('common.form.name', 'name', '/application/:id/applicationForm', { id: 'id' }),
+          { flex: 3, minWidth: 160, tooltipField: 'name' }
+        ),
+        Object.assign(
+          this.utils.getNonEditableColumnDef('entity.application.type.generic.title', 'title'),
+          { flex: 3, minWidth: 160, tooltipField: 'title' }
+        ),
+        Object.assign(
+          this.utils.getNonEditableColumnDef('common.form.type', 'type'),
+          { flex: 1, minWidth: 80 }
+        ),
+      ])
+      .withRelationsOrder('name')
+      .withRelationsFetcher(() => {
+        if (!this.canShowApplicationsAsPointOfContact()) {
+          return of([]);
+        }
+        return of(this.applicationsAsPointOfContact);
+      })
+      .build();
+  }
+
+  canShowApplicationsAsPointOfContact(): boolean {
+    return this.isEdition() && !this.isBuiltInAdmin && !this.isBuiltInPublic;
+  }
+
+  getPointOfContactImpactMessage(): string | null {
+    if (!this.entityForm || this.applicationsAsPointOfContact.length === 0) {
+      return null;
+    }
+    const count = this.applicationsAsPointOfContact.length;
+    if (this.entityForm.get('blocked')?.value === true) {
+      return this.translateService.instant(
+        'entity.user.warning.point-of-contact-blocked-impact',
+        { count }
+      );
+    }
+    const email = String(this.entityForm.get('email')?.value ?? '').trim();
+    if (!email) {
+      return this.translateService.instant(
+        'entity.user.warning.point-of-contact-email-missing-impact',
+        { count }
+      );
+    }
+    return null;
   }
 
   isUsernamePublic(): boolean {

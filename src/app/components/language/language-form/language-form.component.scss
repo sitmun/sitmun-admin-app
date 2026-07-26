@@ -1,0 +1,16 @@
+// Details tab: even vertical rhythm using flex gap (avoids margin-collapse between mat-form-field,
+// toggles, and groups).
+:host form mat-card-content.sitmun-language-form-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1.125rem;
+}
+
+:host form mat-card-content.sitmun-language-form-stack mat-form-field {
+  margin-bottom: 0;
+}
+
+:host form mat-card-content.sitmun-language-form-stack mat-slide-toggle {
+  margin-top: 0;
+  margin-bottom: 0;
+}

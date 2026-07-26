@@ -1,5 +1,4 @@
 import {Location} from '@angular/common';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
 import {Component, Injectable, Injector, NgZone} from '@angular/core';
 import {MatDialog} from '@angular/material/dialog';
 
@@ -17,10 +16,11 @@ import {firstValueFrom, Subject} from 'rxjs';
 import {map} from 'rxjs/operators';
 
 import {HalOptions, HalParam} from '@app/core/hal/rest/rest.service';
-import {CodeList, CodeListService, Language, Translation, TranslationService} from '@app/domain';
+import {CodeList, CodeListService, Language, LanguageService, Translation, TranslationService} from '@app/domain';
 import {BtnCheckboxFilterComponent} from '@app/frontend-gui/src/lib/btn-checkbox-filter/btn-checkbox-filter.component';
 import {DialogMessageComponent, DialogTranslationComponent} from '@app/frontend-gui/src/lib/public_api';
 import {LoggerService} from '@app/services/logger.service';
+import {filterEnabledLanguages} from '@app/services/ui-language.resolver';
 import {config} from '@config';
 
 
@@ -46,10 +46,11 @@ export class UtilsService {
 
   private codeListService: CodeListService;
 
+  private languageService: LanguageService;
+
   constructor(
     private readonly translate: TranslateService,
     public dialog: MatDialog,
-    private readonly http: HttpClient,
     private readonly location: Location,
     private readonly injector: Injector,
     private loggerService: LoggerService,
@@ -63,6 +64,7 @@ export class UtilsService {
           try {
             this.translationService = this.injector.get(TranslationService);
             this.codeListService = this.injector.get(CodeListService);
+            this.languageService = this.injector.get(LanguageService);
           } catch {
             // Injector may be destroyed (e.g. in tests after fixture destroy)
           }
@@ -154,33 +156,6 @@ export class UtilsService {
   }
 
   /**
-   * Creates duplicates of elements in an array with modified parameters.
-   * @param data - Array of elements to duplicate.
-   * @param parameterToModify - Parameter to modify in the duplicated elements.
-   * @param ignoreId - Optional flag to keep original IDs.
-   * @param ignoreLinks - Optional flag to keep original links.
-   * @returns Array of duplicated elements.
-   */
-  duplicateParameter(data, parameterToModify, ignoreId?, ignoreLinks?) {
-    const elementsToDuplicate = [];
-    data.forEach((element) => {
-      const newElement = {...element};
-      newElement[parameterToModify] = this.getTranslate('common.copyPrefix').concat(
-        newElement[parameterToModify]
-      );
-      if (!ignoreId) {
-        newElement.id = null;
-      }
-      if (!ignoreLinks) {
-        newElement._links = null;
-      }
-      elementsToDuplicate.push(newElement);
-    });
-
-    return elementsToDuplicate;
-  }
-
-  /**
    * Gets date filter parameters for AG Grid date columns.
    * @returns Object containing date filter configuration.
    */
@@ -210,35 +185,6 @@ export class UtilsService {
       browserDatePicker: true,
       minValidYear: 2000,
     };
-  }
-
-  /**
-   * Updates a list of URIs on the server using a PUT request.
-   * @param requestURI - The endpoint URL where the URI list will be updated.
-   * @param data - Array of URI strings to be sent to the server.
-   * @param eventRefresh - Optional Subject to notify when the update is complete.
-   */
-  updateUriList(requestURI: string, data: string[], eventRefresh?: Subject<boolean>) {
-    const body = data.join('\n');
-
-    this.http
-      .put(requestURI, body, {
-        headers: new HttpHeaders({
-          'Content-Type': 'text/uri-list',
-          Charset: 'UTF-8',
-        }),
-      })
-      .subscribe({
-        next: () => {
-          if (eventRefresh) {
-            eventRefresh.next(true);
-          }
-        },
-        error: (error) => {
-          this.loggerService.error('Error updating URI list', error);
-          throw error;
-        },
-      });
   }
 
   /**
@@ -332,7 +278,7 @@ export class UtilsService {
       filter: false,
       floatingFilter: false,
       editable: false,
-      headerClass: 'sitmun-centered-header',
+      headerClass: 'sitmun-selection-header',
       cellClass: 'sitmun-centered-cell',
       cellStyle: {padding: '0', display: 'flex', alignItems: 'center', justifyContent: 'center'},
       lockPosition: true,
@@ -356,7 +302,7 @@ export class UtilsService {
       field: '__loadingSelection',
       valueGetter: () => '',
       checkboxSelection: (params) => !!params.data,
-      headerClass: 'sitmun-centered-header',
+      headerClass: 'sitmun-selection-header',
       cellClass: (params) => params.data ? 'sitmun-centered-cell' : 'sitmun-centered-cell sitmun-loading-checkbox-cell',
       filter: false,
       floatingFilter: false,
@@ -438,7 +384,6 @@ export class UtilsService {
       unregisteredLayer: '#ffe100',
       pendingDelete: '#bf0000',
       notAvailable: '#bf0000',
-      statusOK: '#68A225',
     };
     return {
       maxWidth: 60,
@@ -451,11 +396,14 @@ export class UtilsService {
       cellStyle: {display: 'flex', alignItems: 'center', justifyContent: 'center'},
       cellRenderer: (params) => {
         const key = params.value ?? 'statusOK';
+        if (key === 'statusOK') {
+          return '';
+        }
         const span = document.createElement('span');
         span.className = 'sitmun-status-dot';
         span.title = this.getTranslate('common.status.' + key);
         span.setAttribute('aria-label', span.title);
-        span.style.backgroundColor = statusColors[key] ?? statusColors.statusOK;
+        span.style.backgroundColor = statusColors[key] ?? statusColors.pendingModify;
         return span;
       },
     };
@@ -606,32 +554,24 @@ export class UtilsService {
 
 
   /**
-   * Generates a column definition object for an editable column that renders as a link.
+   * Generates a column definition object for an editable column that renders as an external URL.
    * The link is clickable but the text can also be edited.
    *
    * @param alias - The alias used to get the translated header name.
    * @param field - The field name in the data object that this column represents.
    * @param minWidth - Optional minimum width for the column.
    * @param maxWidth - Optional maximum width for the column.
-   * @param openInNewTab - Optional flag to control if links open in new tab. Defaults to true.
    * @returns An object representing the column definition.
    */
-  getEditableColumnWithLinkDef(alias, field, minWidth: number = null, maxWidth: number = null, openInNewTab = true) {
+  getEditableColumnWithLinkDef(alias, field, minWidth: number = null, maxWidth: number = null) {
 
     const options = {
       headerName: this.getTranslate(alias),
       field: field,
       editable: true,
-      cellRenderer: (params) => {
-        const value = this.getValueFromPropertyPath(params.data, field);
-        if (!value) return '';
-
-        if (this.isUrl(value)) {
-          const target = openInNewTab ? '_blank' : '_self';
-          const icon = openInNewTab ? '<span class="external-link-icon">↗</span>' : '';
-          return `<a href="${value}" target="${target}" class="url-link">${value} ${icon}</a>`;
-        }
-        return value;
+      cellRenderer: 'externalUrlRenderer',
+      cellRendererParams: {
+        editable: true,
       },
       valueGetter: (params) => {
         const value = this.getValueFromPropertyPath(params.data, field);
@@ -749,27 +689,16 @@ export class UtilsService {
    * @param field - The field name for the column, which can be a property path.
    * @param minWidth - Optional minimum width for the column.
    * @param maxWidth - Optional maximum width for the column.
-   * @param openInNewTab - Optional flag to control if links open in new tab. Defaults to true.
    * @returns An object representing the column definition.
    */
-  getNonEditableColumnWithLinkDef(alias, field, minWidth: number = null, maxWidth: number = null, openInNewTab = true) {
+  getNonEditableColumnWithLinkDef(alias, field, minWidth: number = null, maxWidth: number = null) {
 
     const options = {
       headerName: this.getTranslate(alias),
       field: field,
       editable: false,
       cellClass: 'read-only-cell',
-      cellRenderer: (params) => {
-        const value = this.getValueFromPropertyPath(params.data, field);
-        if (!value) return '';
-
-        if (this.isUrl(value)) {
-          const target = openInNewTab ? '_blank' : '_self';
-          const icon = openInNewTab ? '<span class="external-link-icon">↗</span>' : '';
-          return `<a href="${value}" target="${target}" class="url-link">${value} ${icon}</a>`;
-        }
-        return value;
-      },
+      cellRenderer: 'externalUrlRenderer',
       valueGetter: (params) => {
         const value = this.getValueFromPropertyPath(params.data, field);
         return Array.isArray(value) ? value.join(',') : value;
@@ -791,7 +720,6 @@ export class UtilsService {
       headerName: this.getTranslate(alias),
       field: field,
       editable: editable,
-      headerClass: 'sitmun-centered-header',
       cellClass: 'sitmun-centered-cell',
       cellRenderer: 'btnCheckboxRendererComponent',
       filter: 'agTextColumnFilter',
@@ -941,16 +869,16 @@ export class UtilsService {
       Translation
     >();
 
-    const languagesToUse = config.languagesToUse ?? JSON.parse(localStorage.getItem('languages'));
-    if (languagesToUse) {
-      languagesToUse.forEach((language: Language) => {
-        const currentTranslation: Translation = new Translation();
-        currentTranslation.translation = null;
-        currentTranslation.column = columnName;
-        currentTranslation.language = language;
-        translationsList.set(language.shortname, currentTranslation);
-      });
-    }
+    const languagesToUse = filterEnabledLanguages(
+      config.languagesToUse ?? JSON.parse(localStorage.getItem('languages') || '[]')
+    );
+    languagesToUse.forEach((language: Language) => {
+      const currentTranslation: Translation = new Translation();
+      currentTranslation.translation = null;
+      currentTranslation.column = columnName;
+      currentTranslation.language = language;
+      translationsList.set(language.shortname, currentTranslation);
+    });
     return translationsList;
   }
 
@@ -964,12 +892,16 @@ export class UtilsService {
    * @returns Promise that resolves with updated translations or null if cancelled.
    */
   async openTranslationDialog(translationsMap: Map<string, Translation>, defaultLanguageValue?: string, maxLength?: number, useTextarea?: boolean) {
+    if (!this.languageService) {
+      this.languageService = this.injector.get(LanguageService);
+    }
+    const languagesAvailables = await firstValueFrom(this.languageService.refreshLanguagesToUse());
     const dialogRef = this.dialog.open(DialogTranslationComponent, {
       panelClass: 'translateDialogs',
     });
     dialogRef.componentInstance.translationsMap = translationsMap;
     dialogRef.componentInstance.languageByDefault = config.defaultLang;
-    dialogRef.componentInstance.languagesAvailables = config.languagesToUse;
+    dialogRef.componentInstance.languagesAvailables = languagesAvailables;
 
     // Get default language value from parameter or from translationsMap
     let defaultValue = defaultLanguageValue;

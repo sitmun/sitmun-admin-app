@@ -1,4 +1,3 @@
-import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import {ModuleWithProviders, NgModule} from '@angular/core';
 
 import {ExternalService} from './config/external.service';
@@ -30,8 +29,7 @@ export {createPagedInfiniteFetcher, InfiniteBlockFetcherOptions} from './infinit
       provide: ResourceService,
       useClass: ResourceService,
       deps: [ExternalService]
-    },
-    provideHttpClient(withInterceptorsFromDi())
+    }
   ]
 })
 export class HalModule {

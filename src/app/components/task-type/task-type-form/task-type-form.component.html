@@ -1,0 +1,45 @@
+<app-form-toolbar
+  entityType="{{ config.labelSingular }}"
+  font="{{ config.font }}"
+  icon="{{ config.icon }}"
+  [itemName]="itemName('')"
+  [isNew]="isNewOrDuplicated()"
+  [canSave]="canSaveEntity"
+  [dataLoaded]="dataLoaded"
+  (save)="onSaveButtonClicked()"
+  (back)="utils.navigateBack()">
+</app-form-toolbar>
+
+<app-entity-form-alerts
+  *ngIf="dataLoaded"
+  [form]="entityForm"
+  entityLabelPrefix="entity.taskType">
+</app-entity-form-alerts>
+
+<mat-tab-group
+  mat-stretch-tabs="false"
+  mat-align-tabs="end"
+  [dynamicHeight]="true"
+  preserveContent="true"
+>
+  <mat-tab label="{{ 'common.form.details' | translate }}">
+    <form [formGroup]="entityForm" *ngIf="dataLoaded">
+      <mat-card class="sitmun-mat-card-margin" appearance="outlined">
+        <mat-card-content>
+          <mat-form-field appearance="outline" class="full">
+            <mat-label>{{ 'entity.taskType.title' | translate }} ({{ defaultLang }})</mat-label>
+            <input matInput type="text" formControlName="title" [maxlength]="250" required>
+            <mat-hint align="start">{{ 'entity.taskType.labelsReadOnly' | translate }}</mat-hint>
+            <mat-hint align="end">{{entityForm.get('title') | characterCount}}</mat-hint>
+            <mat-icon matSuffix class="iconTranslate"
+                      (click)="onTranslated('title')"
+                      (keydown)="onTranslated('title')">translate</mat-icon>
+            <mat-error *ngIf="entityForm.get('title')?.hasError('required') && entityForm.get('title')?.touched">
+              {{ 'common.error.required' | translate }}
+            </mat-error>
+          </mat-form-field>
+        </mat-card-content>
+      </mat-card>
+    </form>
+  </mat-tab>
+</mat-tab-group>

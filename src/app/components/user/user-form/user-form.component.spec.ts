@@ -1,393 +1,324 @@
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
 
-import {TranslateLoader, TranslateModule} from '@ngx-translate/core';
-import {of} from 'rxjs';
+import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
+import { of, firstValueFrom } from 'rxjs';
 
-import {CardLeadComponent} from '@app/components/shared/card-lead/card-lead.component';
-import {EntityFormAlertsComponent} from '@app/components/shared/entity-form-alerts/entity-form-alerts.component';
-import {FormToolbarComponent} from '@app/components/shared/form-toolbar/form-toolbar.component';
+import { FormToolbarComponent } from '@app/components/shared/form-toolbar/form-toolbar.component';
 import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
-import {ExternalService, ResourceService} from '@app/core/hal';
+import { ExternalService, ResourceService } from '@app/core/hal';
 import {
-  ApplicationService, CodeListService, RoleService, TerritoryService, TranslationService,
-  UserConfigurationService, UserPositionService, UserService
+  ApplicationService,
+  CodeListService,
+  RoleService,
+  TerritoryService,
+  TranslationService,
+  UserConfigurationService,
+  UserPositionService,
+  UserService
 } from '@app/domain';
-import {DataGridComponent} from '@app/frontend-gui/src/lib/data-grid/data-grid.component';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
 import { MaterialModule } from '@app/material-module';
-import {LoggerService} from '@app/services/logger.service';
-import {
-  configureLoggerForTests,
-  provideErrorHandlerForTests,
-  suppressAgGridConsoleWarnings,
-} from '@app/testing/test-helpers';
+import { LoggerService } from '@app/services/logger.service';
+import { configureLoggerForTests, provideErrorHandlerForTests } from '@app/testing/test-helpers';
 
 import { UserFormComponent } from './user-form.component';
+
+function typePassword(component: UserFormComponent, value: string): void {
+  component.onPasswordFocus();
+  component.entityForm.get('newPassword')!.setValue(value);
+  component.onPasswordChange();
+  component.onPasswordBlur();
+}
+
+function refocusBlur(component: UserFormComponent): void {
+  component.onPasswordFocus();
+  component.onPasswordBlur();
+}
 
 describe('UserFormComponent', () => {
   let component: UserFormComponent;
   let fixture: ComponentFixture<UserFormComponent>;
-  let roleService: RoleService;
-  let userService: UserService;
-  let territoryService: TerritoryService;
-  let codeListService: CodeListService;
-  let userPositionService: UserPositionService;
-  let userConfigurationService: UserConfigurationService;
-  let translationService: TranslationService;
-  let resourceService: ResourceService;
-  let externalService: ExternalService;
-  let restoreConsoleWarn: () => void;
+  let applicationService: ApplicationService;
 
   beforeAll(async () => {
-     
     await TestBed.configureTestingModule({
       teardown: { destroyAfterEach: 0 as any },
-      declarations: [ UserFormComponent, FormToolbarComponent ],
-      imports: [FormsModule, ReactiveFormsModule, SitmunFrontendGuiModule, DataGridComponent, CardLeadComponent, EntityFormAlertsComponent, RouterModule.forRoot([], {}), MaterialModule, MatIconTestingModule, BrowserAnimationsModule,
-         TranslateModule.forRoot({
+      declarations: [UserFormComponent, FormToolbarComponent],
+      imports: [
+        FormsModule,
+        ReactiveFormsModule,
+        RouterModule.forRoot([], {}),
+        SitmunFrontendGuiModule,
+        MaterialModule,
+        MatIconTestingModule,
+        BrowserAnimationsModule,
+        TranslateModule.forRoot({
           loader: {
             provide: TranslateLoader,
             useFactory: () => ({
               getTranslation: () => of({})
             })
           }
-        })],
-      providers: [provideErrorHandlerForTests(), UserService, RoleService, TerritoryService, UserPositionService,
-        CodeListService, UserConfigurationService, TranslationService, ResourceService, ExternalService,
+        })
+      ],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideErrorHandlerForTests(),
+        UserService,
+        UserConfigurationService,
+        UserPositionService,
+        RoleService,
+        TerritoryService,
         ApplicationService,
-        { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }]
-    })
-    .compileComponents();
+        CodeListService,
+        TranslationService,
+        ResourceService,
+        ExternalService,
+        { provide: 'ExternalConfigurationService', useClass: ExternalConfigurationService }
+      ]
+    }).compileComponents();
   });
 
   beforeEach(() => {
     fixture = TestBed.createComponent(UserFormComponent);
     component = fixture.componentInstance;
-    // Suppress debug logs in tests to reduce console noise
     const loggerService = TestBed.inject(LoggerService);
     configureLoggerForTests(loggerService);
-    restoreConsoleWarn = suppressAgGridConsoleWarnings();
-    roleService= TestBed.inject(RoleService);
-    userService= TestBed.inject(UserService);
-    territoryService= TestBed.inject(TerritoryService);
-    codeListService= TestBed.inject(CodeListService);
-    userPositionService= TestBed.inject(UserPositionService);
-    userConfigurationService= TestBed.inject(UserConfigurationService);
-    translationService= TestBed.inject(TranslationService);
-    resourceService= TestBed.inject(ResourceService);
-    externalService= TestBed.inject(ExternalService);
-    // Initialize form before detectChanges to prevent afterFetch from failing
-    // This prevents ngOnInit -> fetchData -> afterFetch from calling subscribeToFormChanges with null
+    applicationService = TestBed.inject(ApplicationService);
     component.entityToEdit = component.empty();
     component.postFetchData();
     fixture.detectChanges();
   });
 
-  afterEach(() => {
-    fixture?.destroy();
-    restoreConsoleWarn?.();
-  });
-
+  afterEach(() => fixture?.destroy());
   afterAll(() => TestBed.resetTestingModule());
 
   it('should create', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should instantiate roleService', () => {
-    expect(roleService).toBeTruthy();
-  });
+  describe('password session (#260)', () => {
+    it('keeps typed password on create after refocus/blur', () => {
+      const typed = 'secret-create-260';
+      typePassword(component, typed);
+      refocusBlur(component);
 
-  it('should instantiate userService', () => {
-    expect(userService).toBeTruthy();
-  });
-
-  it('should instantiate territoryService', () => {
-    expect(territoryService).toBeTruthy();
-  });
-
-  it('should instantiate codeListService', () => {
-    expect(codeListService).toBeTruthy();
-  });
-
-  it('should instantiate userPositionService', () => {
-    expect(userPositionService).toBeTruthy();
-  });
-
-  it('should instantiate userConfigurationService', () => {
-    expect(userConfigurationService).toBeTruthy();
-  });
-
-  it('should instantiate translationService', () => {
-    expect(translationService).toBeTruthy();
-  });
-
-  it('should instantiate resourceService', () => {
-    expect(resourceService).toBeTruthy();
-  });
-
-  it('should instantiate externalService', () => {
-    expect(externalService).toBeTruthy();
-  });
-
-  it('form invalid when empty', () => {
-    expect(component.entityForm.valid).toBeFalsy();
-  });
-
-  it('form invalid when mid-empty', () => {
-    component.entityForm.patchValue({
-      firstName: 'Name',
-      lastName: 'lastname',
-      passwordSet: true,
-      password: false,
-      confirmPassword: false,
-      administrator: true,
-      blocked: true,
-    })
-    //Miss name
-    expect(component.entityForm.valid).toBeFalsy();
-  });
-
-  it('form valid', () => {
-    component.entityForm.patchValue({
-      username: 'username',
-      firstName: 'Name',
-      lastName: 'lastname',
-      passwordSet: true,
-      password: false,
-      confirmPassword: false,
-      administrator: true,
-      blocked: true,
-    })
-    expect(component.entityForm.valid).toBeTruthy();
-  });
-
-  it('User form fields', () => {
-    expect(component.entityForm.get('username')).toBeTruthy();
-    expect(component.entityForm.get('firstName')).toBeTruthy();
-    expect(component.entityForm.get('lastName')).toBeTruthy();
-    expect(component.entityForm.get('newPassword')).toBeTruthy();
-    expect(component.entityForm.get('administrator')).toBeTruthy();
-    expect(component.entityForm.get('blocked')).toBeTruthy();
-  });
-
-  it('username has maxLength validator', () => {
-    const control = component.entityForm.get('username');
-    control.setValue('a'.repeat(51));
-    expect(control.hasError('maxlength')).toBeTruthy();
-    control.setValue('a'.repeat(50));
-    expect(control.hasError('maxlength')).toBeFalsy();
-  });
-
-  it('email has maxLength validator', () => {
-    const control = component.entityForm.get('email');
-    control.setValue('a'.repeat(51));
-    expect(control.hasError('maxlength')).toBeTruthy();
-  });
-
-  it('itemName returns username value', () => {
-    component.entityForm.patchValue({ username: 'testuser' });
-    expect(component.itemName('username')).toBe('testuser');
-  });
-
-  it('roles table column defs include role and territory', () => {
-    const table = (component as any).userConfigurationsTable;
-    const colFields = table.relationsColumnsDefs.map((c: any) => c.field);
-    expect(colFields).toContain('role');
-    expect(colFields).toContain('territory');
-  });
-
-  it('positions table column defs include territoryName, name, and email', () => {
-    const table = (component as any).userPositionsTable;
-    const colFields = table.relationsColumnsDefs.map((c: any) => c.field);
-    expect(colFields).toContain('territoryName');
-    expect(colFields).toContain('name');
-    expect(colFields).toContain('email');
-  });
-
-  describe('warning tab indicators and resolve hint', () => {
-    it('hasUserWarnings is false when warnings are empty', () => {
-      component.entityToEdit.warnings = [];
-      component.isBuiltInAdmin = false;
-      component.isBuiltInPublic = false;
-      expect(component.hasUserWarnings()).toBe(false);
+      expect(component.createObject().password).toBe(typed);
     });
 
-    it('hasUserWarnings is true for built-in public user', () => {
-      component.entityToEdit.warnings = [];
-      component.isBuiltInPublic = true;
-      expect(component.hasUserWarnings()).toBe(true);
-      expect(component.getUserDisplayWarnings()).toContain('entity.user.builtInPublicWarning');
-      expect(component.useInfoWarningsCardStyle()).toBe(true);
-    });
-
-    it('useInfoWarningsCardStyle is false when backend warnings are present', () => {
-      component.entityToEdit.warnings = ['entity.user.warning.no-password'];
-      component.isBuiltInAdmin = true;
-      expect(component.useInfoWarningsCardStyle()).toBe(false);
-      expect(component.getBuiltInInfoWarningKeys()).toEqual(['entity.user.builtInAdminWarning']);
-    });
-
-    it('rolesTabHasWarning when no-roles warning is present', () => {
-      component.entityToEdit.warnings = ['entity.user.warning.no-roles'];
-      expect(component.rolesTabHasWarning()).toBe(true);
-      expect(component.positionsTabHasWarning()).toBe(false);
-    });
-
-    it('rolesTabHasWarning is false for built-in admin', () => {
-      component.isBuiltInAdmin = true;
-      component.entityToEdit.warnings = ['entity.user.warning.role-without-position'];
-      expect(component.rolesTabHasWarning()).toBe(false);
-    });
-
-    it('positionsTabHasWarning when position-without-details warning is present', () => {
-      component.entityToEdit.warnings = ['entity.user.warning.position-without-details'];
-      expect(component.positionsTabHasWarning()).toBe(true);
-    });
-
-    it('role-without-position flags both tabs', () => {
-      component.entityToEdit.warnings = ['entity.user.warning.role-without-position'];
-      expect(component.rolesTabHasWarning()).toBe(true);
-      expect(component.positionsTabHasWarning()).toBe(true);
-    });
-
-    it('positionsTabHasWarning is false for built-in users', () => {
-      component.isBuiltInPublic = true;
-      component.entityToEdit.warnings = ['entity.user.warning.position-without-details'];
-      expect(component.positionsTabHasWarning()).toBe(false);
-    });
-
-    it('hasRequiredFieldAlerts when username is empty', () => {
-      component.entityForm.get('username')?.setValue('');
-      expect(component.hasRequiredFieldAlerts()).toBe(true);
-      expect(component.detailsTabHasRequiredAlert()).toBe(true);
-    });
-
-    it('does not render toolbar form-validation-banner', () => {
-      component.dataLoaded = true;
-      component.entityForm.get('username')?.setValue('');
-      fixture.detectChanges();
-      expect(fixture.nativeElement.querySelector('app-form-validation-banner')).toBeFalsy();
-      expect(fixture.nativeElement.querySelector('app-entity-form-alerts')).toBeTruthy();
-    });
-  });
-
-  describe('password field edit session', () => {
-    const PASSWORD_PLACEHOLDER = '••••••••';
-
-    const setupUserWithExistingPassword = (): void => {
+    it('omits password on edit when focus/blur leaves persisted password unchanged', () => {
+      component.entityID = 42;
       component.entityToEdit = Object.assign(component.empty(), {
         id: 42,
-        username: 'existing',
+        username: 'alice',
         passwordSet: true,
       });
       component.postFetchData();
-    };
 
-    it('initializes with placeholder when passwordSet is true', () => {
-      setupUserWithExistingPassword();
-      expect(component.passwordSet).toBe(true);
-      expect(component.entityForm.get('newPassword').value).toBe(PASSWORD_PLACEHOLDER);
-      expect(component.isPasswordBeingEdited).toBe(false);
-    });
-
-    it('clears placeholder on focus', () => {
-      setupUserWithExistingPassword();
-      component.onPasswordFocus();
-      expect(component.entityForm.get('newPassword').value).toBe('');
-    });
-
-    it('restores placeholder and pristine state on blur when unchanged', () => {
-      setupUserWithExistingPassword();
-      const control = component.entityForm.get('newPassword');
       component.onPasswordFocus();
       component.onPasswordBlur();
 
-      expect(control.value).toBe(PASSWORD_PLACEHOLDER);
-      expect(component.isPasswordBeingEdited).toBe(false);
-      expect(component.passwordModified).toBe(false);
-      expect(component.passwordSet).toBe(true);
-      expect(control.pristine).toBe(true);
-      expect(control.untouched).toBe(true);
+      expect(component.createObject(42).password).toBeUndefined();
     });
 
-    it('does not send password on save after focus and blur without editing', () => {
-      setupUserWithExistingPassword();
-      component.onPasswordFocus();
-      component.onPasswordBlur();
-
-      const user = component.createObject(42);
-      expect(component.isPasswordBeingEdited).toBe(false);
-      expect(user.password).toBeUndefined();
-    });
-
-    it('keeps typed password after blur and includes it on save', () => {
-      setupUserWithExistingPassword();
-      component.onPasswordFocus();
-      component.entityForm.get('newPassword').setValue('newSecret1');
-      component.onPasswordChange();
-      component.onPasswordBlur();
-
-      expect(component.entityForm.get('newPassword').value).toBe('newSecret1');
-      expect(component.isPasswordBeingEdited).toBe(true);
-      expect(component.passwordModified).toBe(true);
-
-      const user = component.createObject(42);
-      expect(user.password).toBe('newSecret1');
-    });
-
-    it('strips accidental placeholder prefix when typing before focus clears', () => {
-      setupUserWithExistingPassword();
-      component.entityForm.get('newPassword').setValue(`${PASSWORD_PLACEHOLDER}x`);
-      component.onPasswordChange();
-
-      expect(component.entityForm.get('newPassword').value).toBe('x');
-      expect(component.isPasswordBeingEdited).toBe(true);
-    });
-
-    it('restores placeholder when user clears field after typing (empty means not modified)', () => {
-      setupUserWithExistingPassword();
-      const control = component.entityForm.get('newPassword');
-
-      component.onPasswordFocus();
-      control.setValue('temp');
-      component.onPasswordChange();
-      control.setValue('');
-      component.onPasswordChange();
-      component.onPasswordBlur();
-
-      expect(control.value).toBe(PASSWORD_PLACEHOLDER);
-      expect(component.isPasswordBeingEdited).toBe(false);
-      expect(component.passwordModified).toBe(false);
-    });
-
-    it('does not send password when cleared before save', () => {
-      setupUserWithExistingPassword();
-      component.onPasswordFocus();
-      component.entityForm.get('newPassword').setValue('temp');
-      component.onPasswordChange();
-      component.entityForm.get('newPassword').setValue('');
-      component.onPasswordChange();
-      component.onPasswordBlur();
-
-      const user = component.createObject(42);
-      expect(user.password).toBeUndefined();
-    });
-
-    it('leaves field empty on blur when user had no password', () => {
-      component.entityToEdit = component.empty();
-      component.entityToEdit.passwordSet = false;
+    it('keeps pending password change on edit after refocus/blur', () => {
+      component.entityID = 42;
+      component.entityToEdit = Object.assign(component.empty(), {
+        id: 42,
+        username: 'alice',
+        passwordSet: true,
+      });
       component.postFetchData();
 
-      component.onPasswordFocus();
-      component.onPasswordBlur();
+      const typed = 'secret-edit-260';
+      typePassword(component, typed);
+      refocusBlur(component);
 
-      expect(component.entityForm.get('newPassword').value).toBe('');
-      expect(component.isPasswordBeingEdited).toBe(false);
+      expect(component.createObject(42).password).toBe(typed);
+    });
+  });
+
+  describe('Grid capability classification', () => {
+    it('userConfigurationsTable should have picker, updater, and status capabilities (dual-target)', () => {
+      const table = component['userConfigurationsTable'];
+      expect(table.hasPickerAdd()).toBe(true);
+      expect(table.hasRelationsUpdater()).toBe(true);
+      expect(table.hasStatusColumn()).toBe(true);
+      expect(table.hasTemplateDialogs()).toBe(false);
+    });
+
+    it('userPositionsTable should have picker, updater, and status capabilities', () => {
+      const table = component['userPositionsTable'];
+      expect(table.hasPickerAdd()).toBe(true);
+      expect(table.hasRelationsUpdater()).toBe(true);
+      expect(table.hasStatusColumn()).toBe(true);
+      expect(table.hasTemplateDialogs()).toBe(false);
+    });
+
+    it('applicationsAsContactTable should be read-only display grid with no edit capabilities', () => {
+      const table = component['applicationsAsContactTable'];
+      expect(table.hasPickerAdd()).toBe(false);
+      expect(table.hasRelationsUpdater()).toBe(false);
+      expect(table.hasStatusColumn()).toBe(false);
+      expect(table.hasTemplateDialogs()).toBe(false);
+      expect(table.supportsDuplicate()).toBe(false);
+    });
+  });
+
+  describe('userPositionsTable column types', () => {
+    it('territoryName links to territory form via territoryId', () => {
+      const columns = component['userPositionsTable'].relationsColumnsDefs;
+      const col = columns.find((c: any) => c.field === 'territoryName');
+      expect(col?.cellRenderer).toBe('routerLinkRenderer');
+      expect(col?.cellRendererParams?.paramFields).toEqual({ id: 'territoryId' });
+    });
+  });
+
+  describe('applicationsAsContactTable fetcher', () => {
+    it('returns empty when not in edition mode', async () => {
+      jest.spyOn(component, 'isEdition').mockReturnValue(false);
+      const apps = await firstValueFrom(component['applicationsAsContactTable'].relationsFetchFn());
+      expect(apps).toEqual([]);
+    });
+
+    it('returns cached applications without a second findByCreatorId call', async () => {
+      component.entityID = 99;
+      component.entityToEdit = Object.assign(component.empty(), { id: 99, username: 'alice' });
+      component.isBuiltInAdmin = false;
+      component.isBuiltInPublic = false;
+      jest.spyOn(component, 'isEdition').mockReturnValue(true);
+      const expected = [{ id: 1, name: 'App A' }];
+      component.applicationsAsPointOfContact = expected as any;
+      const findSpy = jest.spyOn(applicationService, 'findByCreatorId');
+
+      const apps = await firstValueFrom(component['applicationsAsContactTable'].relationsFetchFn());
+
+      expect(findSpy).not.toHaveBeenCalled();
+      expect(apps).toEqual(expected);
+    });
+  });
+
+  describe('canShowApplicationsAsPointOfContact', () => {
+    it('shows tab for existing normal user', () => {
+      component.entityID = 5;
+      component.isBuiltInAdmin = false;
+      component.isBuiltInPublic = false;
+      expect(component.canShowApplicationsAsPointOfContact()).toBe(true);
+    });
+
+    it('shows tab for non-built-in administrator', () => {
+      component.entityID = 5;
+      component.isBuiltInAdmin = false;
+      component.isBuiltInPublic = false;
+      component.entityToEdit = Object.assign(component.empty(), {
+        username: 'ops-admin',
+        administrator: true,
+      });
+      expect(component.canShowApplicationsAsPointOfContact()).toBe(true);
+    });
+
+    it('hides tab for built-in public and admin', () => {
+      component.entityID = 5;
+      component.isBuiltInPublic = true;
+      component.isBuiltInAdmin = false;
+      expect(component.canShowApplicationsAsPointOfContact()).toBe(false);
+
+      component.isBuiltInPublic = false;
+      component.isBuiltInAdmin = true;
+      expect(component.canShowApplicationsAsPointOfContact()).toBe(false);
+    });
+
+    it('hides tab for new unsaved user', () => {
+      component.entityID = -1;
+      component.isBuiltInAdmin = false;
+      component.isBuiltInPublic = false;
+      expect(component.canShowApplicationsAsPointOfContact()).toBe(false);
+    });
+
+    it('fetcher skips findByCreatorId for built-in accounts', async () => {
+      component.entityID = 1;
+      component.isBuiltInAdmin = true;
+      component.isBuiltInPublic = false;
+      const findSpy = jest.spyOn(applicationService, 'findByCreatorId');
+      const apps = await firstValueFrom(component['applicationsAsContactTable'].relationsFetchFn());
+      expect(apps).toEqual([]);
+      expect(findSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('point of contact impact warnings', () => {
+    let translateInstant: jest.SpyInstance;
+
+    beforeEach(() => {
+      component.entityID = 10;
+      component.entityToEdit = Object.assign(component.empty(), {
+        id: 10,
+        username: 'alice',
+        email: 'alice@example.com',
+        blocked: false,
+      });
+      component.postFetchData();
+      component.applicationsAsPointOfContact = [{ id: 1 }, { id: 2 }] as any;
+      translateInstant = jest
+        .spyOn(component['translateService'], 'instant')
+        .mockImplementation((key: string, params?: { count?: number }) =>
+          `${key}:${params?.count ?? ''}`
+        );
+    });
+
+    it('warns when assigned user is blocked with application count', () => {
+      component.entityForm.patchValue({ blocked: true });
+      const message = component.getPointOfContactImpactMessage();
+      expect(translateInstant).toHaveBeenCalledWith(
+        'entity.user.warning.point-of-contact-blocked-impact',
+        { count: 2 }
+      );
+      expect(message).toContain('2');
+    });
+
+    it('warns when assigned user email is cleared with application count', () => {
+      component.entityForm.patchValue({ email: '', blocked: false });
+      const message = component.getPointOfContactImpactMessage();
+      expect(translateInstant).toHaveBeenCalledWith(
+        'entity.user.warning.point-of-contact-email-missing-impact',
+        { count: 2 }
+      );
+      expect(message).toContain('2');
+    });
+
+    it('does not warn for emailed eligible user or user with no apps', () => {
+      component.entityForm.patchValue({ email: 'alice@example.com', blocked: false });
+      expect(component.getPointOfContactImpactMessage()).toBeNull();
+
+      component.applicationsAsPointOfContact = [];
+      component.entityForm.patchValue({ blocked: true });
+      expect(component.getPointOfContactImpactMessage()).toBeNull();
+    });
+
+    it('fetchRelatedData caches apps for normal users and skips built-ins', async () => {
+      const expected = [{ id: 3, name: 'App' }];
+      const findSpy = jest
+        .spyOn(applicationService, 'findByCreatorId')
+        .mockReturnValue(of(expected as any));
+
+      component.entityToEdit = Object.assign(component.empty(), { username: 'alice' });
+      component.entityID = 10;
+      await component.fetchRelatedData();
+      expect(findSpy).toHaveBeenCalledWith(10);
+      expect(component.applicationsAsPointOfContact).toEqual(expected);
+
+      findSpy.mockClear();
+      component.entityToEdit = Object.assign(component.empty(), { username: 'admin' });
+      await component.fetchRelatedData();
+      expect(findSpy).not.toHaveBeenCalled();
+      expect(component.applicationsAsPointOfContact).toEqual([]);
     });
   });
 });

@@ -134,7 +134,11 @@
     color: #FF9300;
   }
 
-  .type-icon {
+  .type-icon,
+  .radio-folder-indicator-icon,
+  .load-data-folder-indicator-icon,
+  .load-by-default-indicator-icon,
+  .queryable-active-indicator {
     color: #FF9300;
   }
 }
@@ -145,7 +149,11 @@
     color: #FF9300;
   }
 
-  .type-icon {
+  .type-icon,
+  .radio-folder-indicator-icon,
+  .load-data-folder-indicator-icon,
+  .load-by-default-indicator-icon,
+  .queryable-active-indicator {
     color: #FF9300;
   }
 }
@@ -153,7 +161,11 @@
 // Hidden in viewer profile (TNO_ACTIVE / admin Visible)
 .hidden-in-viewer-node {
   .node-name,
-  .type-icon {
+  .type-icon,
+  .radio-folder-indicator-icon,
+  .load-data-folder-indicator-icon,
+  .load-by-default-indicator-icon,
+  .queryable-active-indicator {
     opacity: 0.55;
     color: rgba(0, 0, 0, 0.45);
   }
@@ -199,6 +211,41 @@
   line-height: 18px;
   color: rgba(0, 0, 0, 0.54);
   vertical-align: middle;
+}
+
+.radio-folder-indicator-icon,
+.load-data-folder-indicator-icon {
+  margin-right: 4px;
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  line-height: 18px;
+  color: rgba(0, 0, 0, 0.87);
+  vertical-align: middle;
+}
+
+.load-by-default-indicator-icon {
+  margin-right: 4px;
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  line-height: 18px;
+  color: rgba(0, 0, 0, 0.87);
+  vertical-align: middle;
+}
+
+.queryable-active-indicator {
+  display: inline-block;
+  margin-right: 4px;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 18px;
+  width: 14px;
+  text-align: center;
+  color: rgba(0, 0, 0, 0.87);
+  vertical-align: middle;
+  user-select: none;
 }
 
 // Hide root node completely while preserving tree structure

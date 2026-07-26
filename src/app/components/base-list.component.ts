@@ -44,6 +44,16 @@ export abstract class BaseListComponent<T extends Resource>
   private readonly codelists: Map<string, CodeList[]> = new Map();
 
   /**
+   * UI language for HAL requests that need backend `@I18n` resolution (`lang` query param).
+   */
+  protected requestLang(): string {
+    if (localStorage.lang) {
+      return localStorage.lang;
+    }
+    return this.translateService.currentLang || config.defaultLang;
+  }
+
+  /**
    * Creates an instance of SitmunBaseComponent.
    *
    * @param {MatDialog} dialog - Angular Material dialog service for opening modal dialogs

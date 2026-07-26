@@ -5,7 +5,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 
 import {TranslateService} from '@ngx-translate/core';
 import {firstValueFrom} from 'rxjs';
-import {map} from 'rxjs/operators';
+import {map, take} from 'rxjs/operators';
 
 import {BaseFormComponent} from '@app/components/base-form.component';
 import {Configuration} from "@app/core/config/configuration";
@@ -24,6 +24,9 @@ import {UtilsService} from '@app/services/utils.service';
 })
 export class ConfigurationParameterFormComponent extends BaseFormComponent<ConfigurationParameter> {
   readonly config = Configuration.CONFIGURATION_PARAMETER;
+  isProtectedParameter = false;
+  /** Info keys from the last create/update response (not reloaded by GET). */
+  saveInfoKeys: string[] = [];
 
   constructor(
     dialog: MatDialog,
@@ -65,9 +68,26 @@ export class ConfigurationParameterFormComponent extends BaseFormComponent<Confi
     if (!this.entityToEdit) {
       throw new Error('Cannot initialize form: entity is undefined');
     }
+
+    // Check if this is the protected language.default parameter
+    this.isProtectedParameter = this.entityToEdit.name === 'language.default';
+
     this.entityForm = new UntypedFormGroup({
       name: new UntypedFormControl(this.entityToEdit.name, [Validators.required]),
       value: new UntypedFormControl(this.entityToEdit.value, []),
+    });
+
+    // Disable form fields for protected parameters
+    if (this.isProtectedParameter) {
+      this.entityForm.disable();
+    }
+  }
+
+  override afterSave() {
+    this.syncFormFromEntity();
+    super.afterSave();
+    this.entityForm?.valueChanges.pipe(take(1)).subscribe(() => {
+      this.saveInfoKeys = [];
     });
   }
 
@@ -83,14 +103,51 @@ export class ConfigurationParameterFormComponent extends BaseFormComponent<Confi
     return ConfigurationParameter.fromObject(safeToEdit);
   }
 
+  override get canSaveEntity(): boolean {
+    // Cannot save protected parameters
+    if (this.isProtectedParameter) {
+      return false;
+    }
+    return super.canSaveEntity;
+  }
+
   override async createEntity(): Promise<number> {
+    if (this.isProtectedParameter) {
+      const message = this.translateService.instant('entity.configurationParameter.languageDefaultProtection');
+      throw new Error(message);
+    }
     const entityToCreate = this.createObject();
     const response = await firstValueFrom(this.configurationParametersService.create(entityToCreate));
+    this.captureSaveInfos(response);
     return response.id;
   }
 
   override async updateEntity(): Promise<void> {
+    if (this.isProtectedParameter) {
+      const message = this.translateService.instant('entity.configurationParameter.languageDefaultProtection');
+      throw new Error(message);
+    }
     const entityToUpdate = this.createObject(this.entityID);
-    await firstValueFrom(this.configurationParametersService.update(entityToUpdate));
+    const response = await firstValueFrom(this.configurationParametersService.update(entityToUpdate));
+    this.captureSaveInfos(response);
+  }
+
+  private captureSaveInfos(response: ConfigurationParameter): void {
+    this.saveInfoKeys = [...(response.warnings ?? [])];
+    if (this.entityToEdit) {
+      this.entityToEdit.name = response.name ?? this.entityToEdit.name;
+      this.entityToEdit.value = response.value;
+    }
+    this.syncFormFromEntity(response);
+  }
+
+  private syncFormFromEntity(source: ConfigurationParameter = this.entityToEdit): void {
+    if (!this.entityForm || !source) {
+      return;
+    }
+    this.entityForm.patchValue(
+      { name: source.name, value: source.value },
+      { emitEvent: false },
+    );
   }
 }

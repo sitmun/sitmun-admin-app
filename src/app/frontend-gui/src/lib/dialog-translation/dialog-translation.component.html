@@ -4,17 +4,8 @@
   <mat-dialog-content>
     <!-- Default Language (Read-only Reference) -->
     <mat-form-field appearance="outline" class="full" *ngIf="defaultLanguageValue">
-      <mat-label>
-        <span class="label-with-flag">
-          <mat-icon class="flag-icon-in-label"
-                    [svgIcon]="getLanguageIconName(languageByDefault)"
-                    *ngIf="hasLanguageIcon(languageByDefault)">
-          </mat-icon>
-          {{ getDefaultLanguageName() }}
-        </span>
-      </mat-label>
+      <mat-label>{{ getDefaultLanguageName() }}</mat-label>
       
-      <!-- Use textarea if useTextarea is true -->
       <textarea *ngIf="useTextarea"
                 matInput 
                 [value]="defaultLanguageValue"
@@ -25,7 +16,6 @@
                 rows="3">
       </textarea>
       
-      <!-- Use input if useTextarea is false -->
       <input *ngIf="!useTextarea"
              matInput 
              type="text"
@@ -37,17 +27,8 @@
 
     <!-- Translation Fields (Editable) -->
     <mat-form-field appearance="outline" class="full" *ngFor="let lang of availableLanguages">
-      <mat-label>
-        <span class="label-with-flag">
-          <mat-icon class="flag-icon-in-label"
-                    [svgIcon]="getLanguageIconName(lang.shortname)"
-                    *ngIf="hasLanguageIcon(lang.shortname)">
-          </mat-icon>
-          {{ lang.name }}
-        </span>
-      </mat-label>
+      <mat-label>{{ languageLabel(lang.shortname) }}</mat-label>
       
-      <!-- Use textarea if useTextarea is true -->
       <textarea *ngIf="useTextarea"
                 matInput 
                 [formControlName]="getFormControlName(lang.shortname)" 
@@ -58,7 +39,6 @@
                 rows="3">
       </textarea>
       
-      <!-- Use input if useTextarea is false -->
       <input *ngIf="!useTextarea"
              matInput 
              type="text"
@@ -76,18 +56,18 @@
       mat-mini-fab
       color="primary"
       type="button"
-      (click)="closeDialog()">
+      (click)="closeDialog()"
+      cdkFocusInitial>
       <mat-icon fontSet="material-icons-round">cancel</mat-icon>
     </button>
     <button
       matTooltip="{{ 'common.button.accept' | translate }}"
-      [mat-dialog-close]="true"
       mat-mini-fab
       color="primary"
       class="add-half-gap"
       type="submit"
-      (click)="doAccept()"
-      cdkFocusInitial>
+      [disabled]="!canAccept"
+      (click)="doAccept()">
       <mat-icon fontSet="material-icons-round">check</mat-icon>
     </button>
   </mat-dialog-actions>

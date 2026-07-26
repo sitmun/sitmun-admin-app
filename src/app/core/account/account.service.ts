@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpContext } from '@angular/common/http';
 import { Injectable, Injector } from '@angular/core';
 
 import { Observable } from 'rxjs';
@@ -25,20 +25,24 @@ export class AccountService extends RestService<User> {
   }
 
   /** get logged in user account*/
-  override get(): Observable<User> {
-    return this.http.get<User>(this.resourceService.getResourceUrl(this.ACCOUNT_API));
+  override get(context = new HttpContext()): Observable<User> {
+    return this.http.get<User>(
+      this.resourceService.getResourceUrl(this.ACCOUNT_API),
+      {context, withCredentials: true}
+    );
   }
 
   /** save account*/
   save(item: Partial<User>): Observable<User> {
-    return this.http.post<User>(this.resourceService.getResourceUrl(this.ACCOUNT_API), item);
+    return this.http.post<User>(this.resourceService.getResourceUrl(this.ACCOUNT_API), item, { withCredentials: true });
   }
 
   /** change logged in user account password */
   changePassword(passwordData: { currentPassword: string; newPassword: string }): Observable<void> {
     return this.http.post<void>(
       this.resourceService.getResourceUrl(this.ACCOUNT_API + "/change-password"),
-      passwordData
+      passwordData,
+      { withCredentials: true }
     );
   }
 }

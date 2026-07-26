@@ -7,6 +7,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.8] - 2026-07-25
+
+### Added
+
+- **Templates** / **More Info Advanced**: TipTap HTML editor, ADMIN preview, linked-child execute-child dry-run (coords not required); typeId 16 MIA task configuration UI (runtime map render remains in the viewer).
+- **Literal translations**: Admin CRUD, CSV import/export, and completion indicators.
+- **Task types**: List and title-only form (`/taskType`, `/taskType/:id/taskTypeForm`) with side-menu entry (duplicate hidden); i18n strings in all five locales.
+- **Languages** / **Language chrome**: `enabled`/`order` on language form/list (disabled excluded from menus/dialogs; default language cannot be disabled); toolbar/login show closed BCP-47 ISO and open API endonyms; UI language from `localStorage.lang` → `language.default` → static; guarded set-default workflow with missing-translation preview; `language.default` protected in configuration parameters.
+- **Trees** / **Application trees**: `loadData` and `queryableActive` cartography toggles with admin-tree badges; application↔tree links via `/api/application-trees` with editable `order` ([sitmun-viewer-app#45](https://github.com/sitmun/sitmun-viewer-app/issues/45)).
+- **Application**: Optional responsible institution, eligible PoC selector (built-in/blocked excluded), list warning indicator, and user-form impact warnings ([#316](https://github.com/sitmun/sitmun-admin-app/issues/316)).
+- **Tests**: Jest coverage for WMS metadata parsing, service-form translation prefill, auth/session validation, admin guard feedback, HAL credentials, dialog/grid/URL/relation-selector regressions.
+
+### Changed
+
+- **Literal translations** / **Forms** / **Query tasks**: CSV import surfaces `literal_too_long` / `translation_too_long` over 4000 chars; remove unreachable character-limit warning icons; query-task save blocked when `#{param}` placeholders are undeclared.
+- **Trees** / **Task types**: `visible`/`active` semantics aligned with backend; radio folder toggle limited to cartography trees; relation grids and tree-node pickers show localized `typeTitle` and request `lang`.
+- **Connections**: Field hints, Tasks tab intro/quick search, and raised primary JDBC test button aligned with service/layer patterns.
+- **Data grid**: `app-relation-grid` wrapper with capability flags and dirty tracking rolled out across admin form relation grids; auto discard/undo/redo when grids own pending changes; direct `app-data-grid` remains for entity lists, pickers, and the wrapper delegate.
+- **Layers** / **Dialogs**: Relation-tab column widths tuned; template modals use shared `formDialogs` width (640px); picker modals hide export and size from column `minWidth`.
+- **Auth** / **HAL**: Credentialed `authGuard` identity reload with admin-rights warning; coalesced `AuthExpiredInterceptor` `/api/account` probe after 401; Observable logout waits for cookie removal; HAL `Resource`/`AccountService` send `withCredentials: true`.
+
+### Fixed
+
+- **Forms**: Restored modified-field highlight and translate-icon `(keydown)`; `CanDeactivateGuard` unsaved-changes ([#374](https://github.com/sitmun/sitmun-admin-app/issues/374)); route-id reload and save toolbar gated on loaded data; duplicate Save without extra edit ([#384](https://github.com/sitmun/sitmun-admin-app/issues/384)); plain-text URL/relation selects with `open_in_new` suffix ([#376](https://github.com/sitmun/sitmun-admin-app/issues/376)).
+- **Trees**: Field-config booleans and Label default Extra info across dialog close ([#432](https://github.com/sitmun/sitmun-admin-app/issues/432)); radio/`loadByDefault` persistence and child validation; Applications/Roles relation grids link names (no id column).
+- **Languages**: Translation dialog Accept gated on real edits; chrome menus refresh via `languagesToUse$`; list columns endonym / UI-locale name / Active / Order; endonym rows persist in `STM_TRANSLATION` for `Language.name`.
+- **Services** / **Connections** / **Configuration Parameters**: Multilingual WMS Title/Abstract prefill into translation rows ([#46](https://github.com/sitmun/sitmun-application-stack/issues/46)); proxy+auth card with credentials disabled until proxy enabled; saved connection `GET …/test` without re-password ([#424](https://github.com/sitmun/sitmun-admin-app/issues/424)); proxy save shows normalization/default warnings ([#431](https://github.com/sitmun/sitmun-admin-app/issues/431)).
+- **Layers** / **Territory** / **Background layers** / **Layers permits**: CSV mapping for `layers`/`queryableLayers`/`selectableLayers`; style dialog legend nesting; Trees tab keeps selection checkbox; Cartography/Permissions/Tasks dual navigation; Image URL open action; Type select keeps out-of-filter values.
+- **Application** / **Task groups** / **Data grid** / **Dialogs** / **Navigation**: Parameters updater binds service update/delete; backgrounds order persists via HAL resources ([#428](https://github.com/sitmun/sitmun-admin-app/issues/428)); task-group add/remove persistence; `autoSizeStrategy`/status-dot fixes; dialog Add waits for validation; connection/task deep links corrected.
+- **Auth** / **Messages** / **UX**: Backend URL matching hardened; `/api/account` 401 treated as anonymous; 401 toasts skipped for auth-expired flow; forbidden responses keep session with one notification; primary boolean accents; experimental tab icons `aria-hidden`.
+
+### Removed
+
+- **Auth** / **User**: Unused authority directives and `Principal` helpers; built-in `public`/`admin` forms no longer show the applications-as-point-of-contact tab ([#316](https://github.com/sitmun/sitmun-admin-app/issues/316)).
+
+### Security
+
+- **Templates**: ADMIN preview uses trusted HTML (`bypassSecurityTrustHtml`); editor validator is not a sanitizer — persisted HTML must be sanitized at viewer render ([#162](https://github.com/sitmun/sitmun-viewer-app/issues/162) / DOMPurify).
+- **Auth** / **Forms**: Login via `POST /api/authenticate/admin` for `admin_access_token`; `AuthInterceptor` sends `X-SITMUN-Client: admin`; service, task-query, and connection password inputs use `type="password"` (BUG-033).
+
 ## [1.2.7] - 2026-06-05
 
 ### Added
@@ -296,7 +336,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Various bug fixes and improvements from development phase
 
-[Unreleased]: https://github.com/sitmun/sitmun-admin-app/compare/sitmun-admin-app/1.2.7...HEAD
+[Unreleased]: https://github.com/sitmun/sitmun-admin-app/compare/sitmun-admin-app/1.2.8...HEAD
+[1.2.8]: https://github.com/sitmun/sitmun-admin-app/compare/sitmun-admin-app/1.2.7...sitmun-admin-app/1.2.8
 [1.2.7]: https://github.com/sitmun/sitmun-admin-app/compare/sitmun-admin-app/1.2.6...sitmun-admin-app/1.2.7
 [1.2.6]: https://github.com/sitmun/sitmun-admin-app/compare/sitmun-admin-app/1.2.5...sitmun-admin-app/1.2.6
 [1.2.5]: https://github.com/sitmun/sitmun-admin-app/compare/sitmun-admin-app/1.2.4...sitmun-admin-app/1.2.5

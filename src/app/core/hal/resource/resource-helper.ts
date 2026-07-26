@@ -232,6 +232,11 @@ export class ResourceHelper {
         return ResourceHelper.http;
     }
 
+    /** Merge request options with cookie credentials for authenticated API calls. */
+    static authenticatedOptions<T extends object>(options: T): T & { withCredentials: true } {
+        return { ...options, withCredentials: true };
+    }
+
     /** get root URI*/
     static getRootUri() {
         return ResourceHelper.root_uri;

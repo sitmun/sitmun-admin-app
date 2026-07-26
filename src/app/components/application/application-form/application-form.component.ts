@@ -9,6 +9,7 @@ import {map} from 'rxjs/operators';
 
 import {BaseFormComponent} from "@app/components/base-form.component";
 import {DataTableDefinition, TemplateDialog} from '@app/components/data-tables.util';
+import {RelationGridComponent} from '@app/components/shared/relation-grid/relation-grid.component';
 import {Configuration} from "@app/core/config/configuration";
 import {HalOptions} from '@app/core/hal/rest/rest.service';
 import {MessagesInterceptorStateService} from '@app/core/interceptors/messages.interceptor';
@@ -21,6 +22,9 @@ import {
   ApplicationParameterService,
   ApplicationProjection,
   ApplicationService,
+  ApplicationTree,
+  ApplicationTreeProjection,
+  ApplicationTreeService,
   BackgroundProjection,
   BackgroundService,
   CartographyGroup,
@@ -35,7 +39,6 @@ import {
   UserService
 } from '@app/domain';
 import {ApplicationHeaderParameter} from '@app/domain/application/models/application-header-parameter.model';
-import {DataGridComponent} from '@app/frontend-gui/src/lib/data-grid/data-grid.component';
 import {
   isActive,
   onCreate,
@@ -67,7 +70,14 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
   private static readonly WARNING_PRIVATE_APP_PUBLIC_USER =
     'entity.application.warning.private-application-with-public-user';
 
+  private static readonly WARNING_POC_EMAIL_MISSING =
+    'entity.application.warning.point-of-contact-email-missing';
+
   readonly config = Configuration.APPLICATION;
+
+  readonly pointOfContactInfoMessageKeys = [
+    ApplicationFormComponent.WARNING_POC_EMAIL_MISSING,
+  ];
 
   readonly validationFieldLabelKeys: Record<string, string> = {
     name: 'entity.application.name',
@@ -83,10 +93,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
    */
   readonly parametersTable: DataTableDefinition<ApplicationParameter, ApplicationParameter>
 
-  headerParamsSection: Array<any> = [
-    this.utils.getTranslate('entity.application.header.headerLeftSection'),
-    this.utils.getTranslate('entity.application.header.headerRightSection')
-  ];
+  headerParamsSection: string[] = ['headerLeftSection', 'headerRightSection'];
 
   /**
    * Data table configuration for managing application roles.
@@ -136,12 +143,15 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
    */
   protected usersList: User[] = [];
 
+  /** Original creatorId loaded from the projection; used to skip unchanged relation updates. */
+  private originalCreatorId: string | number | null = null;
+
   /**
    * Data table configuration for managing application trees.
    * Handles navigation tree associations with special validation for touristic applications.
-   * Columns: checkbox, ID, name (editable), status
+   * Columns: checkbox, name, type, order (editable), status
    */
-  protected readonly treesTable: DataTableDefinition<Tree, Tree>;
+  protected readonly treesTable: DataTableDefinition<ApplicationTreeProjection, Tree>;
 
   protected readonly headerParamsTable: DataTableDefinition<ApplicationHeaderParameter, ApplicationHeaderParameter>
 
@@ -176,7 +186,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
    * Used to access grid data for tree-specific validation rules.
    */
   @ViewChild('treesDataGrid')
-  private readonly treesDataGrid: DataGridComponent;
+  private readonly treesDataGrid: RelationGridComponent;
 
   /**
    * Creates an instance of ApplicationFormComponent.
@@ -195,6 +205,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
    * @param applicationService - Service for application CRUD operations
    * @param applicationParameterService - Service for parameter operations
    * @param applicationBackgroundService - Service for background relations
+   * @param applicationTreeService - Service for tree relations
    * @param cartographyGroupService - Service for cartography operations
    * @param backgroundService - Service for background management
    * @param roleService - Service for role management
@@ -217,6 +228,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
     protected applicationService: ApplicationService,
     protected applicationParameterService: ApplicationParameterService,
     protected applicationBackgroundService: ApplicationBackgroundService,
+    protected applicationTreeService: ApplicationTreeService,
     protected cartographyGroupService: CartographyGroupService,
     protected backgroundService: BackgroundService,
     protected roleService: RoleService,
@@ -302,6 +314,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
     }
 
     this.currentAppType = this.entityToEdit.type;
+    this.originalCreatorId = this.entityToEdit.creatorId ?? null;
     this.headerBaseLeft = Object.keys(this.headerParams.headerLeftSection);
     this.headerBaseRight = Object.keys(this.headerParams.headerRightSection);
     if (this.entityToEdit.headerParams != null)
@@ -335,6 +348,10 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
         optionalHttpOrHttpsUrlValidator,
       ]),
       maintenanceInformation: new UntypedFormControl(this.entityToEdit.maintenanceInformation,[]),
+      responsibleInstitutionName: new UntypedFormControl(
+        this.entityToEdit.responsibleInstitutionName,
+        [Validators.maxLength(250)]
+      ),
       creatorId: new UntypedFormControl(this.entityToEdit.creatorId,[]),
       isUnavailable: new UntypedFormControl(this.entityToEdit.isUnavailable ?? false,[]),
       appPrivate: new UntypedFormControl(this.entityToEdit.appPrivate, []),
@@ -360,6 +377,12 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
     this.headerParams.headerRightSection.homeMenu.visible = formValues.homeMenu;
     this.headerParams.headerRightSection.switchApplication.visible = formValues.switchApplication;
 
+    const institutionRaw = formValues.responsibleInstitutionName;
+    const responsibleInstitutionName =
+      institutionRaw == null || String(institutionRaw).trim() === ''
+        ? null
+        : String(institutionRaw).trim();
+
     safeToEdit = Object.assign(safeToEdit,
       formValues,
       {
@@ -367,6 +390,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
         scales: formValues.scales ? formValues.scales.toString().split(',') : null,
         situationMap: formValues.situationMapId ? this.cartographyGroupService.createProxy(formValues.situationMapId) : null,
         creator: formValues.creatorId ? this.userService.createProxy(formValues.creatorId) : null,
+        responsibleInstitutionName,
         appPrivate: formValues.appPrivate,
       }
     );
@@ -400,7 +424,12 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
     const entityToUpdate = this.createObject(this.entityID);
     await this.saveTranslations(entityToUpdate);
     await firstValueFrom(entityToUpdate.updateRelationEx("situationMap", entityToUpdate.situationMap));
-    await firstValueFrom(entityToUpdate.updateRelationEx("creator", entityToUpdate.creator));
+    const currentCreatorId = this.entityForm.get('creatorId')?.value ?? null;
+    const original = this.originalCreatorId ?? null;
+    const creatorChanged = String(currentCreatorId ?? '') !== String(original ?? '');
+    if (creatorChanged) {
+      await firstValueFrom(entityToUpdate.updateRelationEx("creator", entityToUpdate.creator));
+    }
   }
 
   override canSave(): boolean {
@@ -457,18 +486,18 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
 
   /**
    * Ensures touristic apps have exactly one touristic tree.
-   * @param trees - Array of trees to validate
+   * @param trees - Array of application-tree associations to validate
    * @returns boolean indicating validation result
    */
-  validTouristicAppTrees(trees: Tree[]): boolean {
+  validTouristicAppTrees(trees: ApplicationTreeProjection[]): boolean {
     if (this.currentAppType === constants.codeValue.applicationType.touristicApp) {
       let valid = trees.length === 0;
       if (!valid){
         if (trees.length === 1) {
-          valid = trees[0].type === constants.codeValue.treeType.touristicTree;
+          valid = trees[0].treeType === constants.codeValue.treeType.touristicTree;
         } else if (trees.length === 2){
-          valid = trees.some(t => t.type === constants.codeValue.treeType.touristicTree)
-            && trees.some(t => t.type === constants.codeValue.treeType.cartography);
+          valid = trees.some(t => t.treeType === constants.codeValue.treeType.touristicTree)
+            && trees.some(t => t.treeType === constants.codeValue.treeType.cartography);
         }
       }
       return valid;
@@ -478,12 +507,12 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
 
   /**
    * Ensures non-touristic apps don't have touristic trees.
-   * @param trees - Array of trees to validate
+   * @param trees - Array of application-tree associations to validate
    * @returns boolean indicating validation result
    */
-  validNoTouristicAppTrees(trees: Tree[]): boolean {
+  validNoTouristicAppTrees(trees: ApplicationTreeProjection[]): boolean {
     if (this.currentAppType !== constants.codeValue.applicationType.touristicApp) {
-      return !trees.some(tree => tree.type === constants.codeValue.treeType.touristicTree);
+      return !trees.some(tree => tree.treeType === constants.codeValue.treeType.touristicTree);
     }
     return true;
   }
@@ -565,9 +594,9 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
     return DataTableDefinition.builder<ApplicationParameter, ApplicationParameter>(this.dialog, this.errorHandler, this.loadingService)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
-        this.utils.getEditableColumnDef('common.form.name', 'name'),
-        this.utils.getEditableColumnDef('common.form.value', 'value'),
-        this.utils.getNonEditableColumnDef('common.form.type', 'typeDescription'),
+        Object.assign(this.utils.getEditableColumnDef('common.form.name', 'name'), {flex: 1, minWidth: 140}),
+        Object.assign(this.utils.getEditableColumnDef('common.form.value', 'value'), {flex: 2, minWidth: 160}),
+        Object.assign(this.utils.getNonEditableColumnDef('common.form.type', 'typeDescription'), {flex: 0, minWidth: 120}),
         this.utils.getStatusColumnDef()
       ])
       .withRelationsOrder('name')
@@ -587,8 +616,8 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
           newItem.application = this.applicationService.createProxy(this.entityID);
           return this.applicationParameterService.create(newItem);
         })
-        await onUpdate(applicationParameters).forEach(this.applicationParameterService.update);
-        await onDelete(applicationParameters).forEach(this.applicationParameterService.delete);
+        await onUpdate(applicationParameters).forEach(item => this.applicationParameterService.update(item));
+        await onDelete(applicationParameters).forEach(item => this.applicationParameterService.delete(item));
       })
       .withTemplateDialog('newParameterDialog', () => TemplateDialog.builder()
         .withReference(this.newParameterDialog)
@@ -618,10 +647,10 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
     return DataTableDefinition.builder<ApplicationHeaderParameter, ApplicationHeaderParameter>(this.dialog, this.errorHandler, this.loadingService)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
-        this.utils.getNonEditableColumnDef('entity.application.header.name', 'name'),
-        this.utils.getEditableColumnDef('entity.application.header.url', 'url'),
-        this.utils.getBooleanColumnDef('entity.application.header.visible', 'visible', true),
-        this.utils.getSelectColumnDef('entity.application.header.section', 'section', true, () => this.headerParamsSection),
+        Object.assign(this.utils.getNonEditableColumnDef('entity.application.header.name', 'name'), {flex: 1, minWidth: 140}),
+        Object.assign(this.utils.getEditableColumnDef('entity.application.header.url', 'url'), {flex: 2, minWidth: 200}),
+        Object.assign(this.utils.getBooleanColumnDef('entity.application.header.visible', 'visible', true), {flex: 0, minWidth: 80, maxWidth: 80}),
+        Object.assign(this.utils.getSelectColumnDef('entity.application.header.section', 'section', true, () => this.headerParamsSection), {flex: 0, minWidth: 160}),
         this.utils.getStatusColumnDef()])
       .withRelationsOrder('name')
       .withRelationsFetcher(() => {
@@ -633,49 +662,36 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
       .withRelationsUpdater(async (applicationParameters: (ApplicationHeaderParameter & Status)[]) => {
         this.entityToEdit.headerParams = this.entityToEdit.headerParams ?? this.headerParams;
 
-        const handleCreate = new Promise(() => {
-          onCreate(applicationParameters).forEach(item => {
-            const object = {
-              url: item.url,
-              visible: item.visible
-            }
-            if (item.section == this.utils.getTranslate('entity.application.header.headerLeftSection'))
-              this.entityToEdit.headerParams.headerLeftSection[item.name] = object;
-            else if (item.section == this.utils.getTranslate('entity.application.header.headerRightSection'))
-              this.entityToEdit.headerParams.headerRightSection[item.name] = object;
-            const newItem = Application.fromObject(this.entityToEdit);
-            return this.applicationService.update(newItem)
-          });
+        await onCreate(applicationParameters).forEach(item => {
+          const object = { url: item.url, visible: item.visible };
+          if (item.section === 'headerLeftSection') {
+            this.entityToEdit.headerParams.headerLeftSection[item.name] = object;
+          } else if (item.section === 'headerRightSection') {
+            this.entityToEdit.headerParams.headerRightSection[item.name] = object;
+          }
+          return of(null);
         });
 
-        const handleUpdate = new Promise(() => {
-          onUpdate(applicationParameters).forEach(item => {
-            const object = {
-              url: item.url,
-              visible: item.visible
-            }
-            if (item.section == this.utils.getTranslate('entity.application.header.headerLeftSection')) {
-              this.entityToEdit.headerParams.headerLeftSection[item.name] = object;
-              delete this.entityToEdit.headerParams.headerRightSection[item.name];
-            } else if (item.section == this.utils.getTranslate('entity.application.header.headerRightSection')) {
-              this.entityToEdit.headerParams.headerRightSection[item.name] = object;
-              delete this.entityToEdit.headerParams.headerLeftSection[item.name];
-            }
-            const newItem = Application.fromObject(this.entityToEdit);
-            return this.applicationService.update(newItem)
-          });
-        });
-
-        const handleDelete = new Promise(() => {
-          onDelete(applicationParameters).forEach(item => {
-            delete this.entityToEdit.headerParams.headerLeftSection[item.name];
+        await onUpdate(applicationParameters).forEach(item => {
+          const object = { url: item.url, visible: item.visible };
+          if (item.section === 'headerLeftSection') {
+            this.entityToEdit.headerParams.headerLeftSection[item.name] = object;
             delete this.entityToEdit.headerParams.headerRightSection[item.name];
-            const newItem = Application.fromObject(this.entityToEdit);
-            return this.applicationService.update(newItem)
-          });
+          } else if (item.section === 'headerRightSection') {
+            this.entityToEdit.headerParams.headerRightSection[item.name] = object;
+            delete this.entityToEdit.headerParams.headerLeftSection[item.name];
+          }
+          return of(null);
         });
 
-        void Promise.allSettled([handleCreate, handleUpdate, handleDelete]);
+        await onDelete(applicationParameters).forEach(item => {
+          delete this.entityToEdit.headerParams.headerLeftSection[item.name];
+          delete this.entityToEdit.headerParams.headerRightSection[item.name];
+          return of(null);
+        });
+
+        const newItem = Application.fromObject(this.entityToEdit);
+        await firstValueFrom(this.applicationService.update(newItem));
         this.headerParams = this.entityToEdit.headerParams;
       })
       .withTemplateDialog('newHeaderParamDialog', () => {
@@ -702,7 +718,8 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
                 nonNullable: true
               })
             })
-          ).build();
+          ).withPreOpenFunction((form) => form.reset({ name: '', url: '', visible: false, section: '' }))
+          .build();
       })
       .withTargetsTitle('entity.application.header.title')
       .withTargetsOrder('name')
@@ -715,32 +732,55 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
    *
    * @returns Configured data table definition for trees
    */
-  private defineTreesTable(): DataTableDefinition<Tree, Tree> {
-    return DataTableDefinition.builder<Tree, Tree>(this.dialog, this.errorHandler, this.loadingService)
+  private defineTreesTable(): DataTableDefinition<ApplicationTreeProjection, Tree> {
+    return DataTableDefinition.builder<ApplicationTreeProjection, Tree>(this.dialog, this.errorHandler, this.loadingService)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
-        this.utils.getRouterLinkColumnDef('common.form.name', 'name', '/trees/:id/treesForm', {id: 'id'}),
-        this.utils.getNonEditableColumnDef('common.form.type', 'description'),
+        Object.assign(this.utils.getRouterLinkColumnDef('common.form.name', 'treeName', '/trees/:id/treesForm', {id: 'treeId'}), {flex: 1, minWidth: 140}),
+        Object.assign(this.utils.getNonEditableColumnDef('common.form.type', 'treeType'), {flex: 1, minWidth: 120}),
+        Object.assign(this.utils.getEditableColumnDef('common.form.order', 'order'), {flex: 0, minWidth: 80, maxWidth: 100}),
         this.utils.getStatusColumnDef(),
       ])
-      .withRelationsOrder('name')
+      .withRelationsOrder('order')
       .withRelationsFetcher(() => {
         if (this.isNew()) {
           return of([]);
         }
-        return this.entityToEdit.getRelationArrayEx(Tree, 'trees')
+        return this.entityToEdit.getRelationArrayEx<ApplicationTreeProjection>(ApplicationTreeProjection, 'trees', {projection: 'view'})
       })
-      .withRelationsUpdater(async (trees: (Tree & Status)[]) => {
-        await onUpdate(trees).forEach(item => this.treeService.update(item));
-        await onUpdatedRelation(trees).forAll(items => this.entityToEdit.substituteAllRelation('trees', items));
+      .withRelationsUpdater(async (applicationTrees: (ApplicationTreeProjection & Status)[]) => {
+        await onCreate(applicationTrees).forEach(item => {
+          const newItem = ApplicationTree.of(
+            this.applicationService.createProxy(this.entityID),
+            this.treeService.createProxy(item.treeId),
+            item.order);
+          return this.applicationTreeService.create(newItem)
+        });
+        await onUpdate(applicationTrees).forEach(item => {
+          const entity = this.applicationTreeService.createProxy(item.id)!;
+          entity.application = this.applicationService.createProxy(this.entityID)!;
+          entity.tree = this.treeService.createProxy(item.treeId)!;
+          entity.order = item.order;
+          return this.applicationTreeService.update(entity);
+        });
+        await onDelete(applicationTrees).forEach(item => {
+          const newItem = this.applicationTreeService.createProxy(item.id);
+          return this.applicationTreeService.delete(newItem)
+        });
       })
       .withTargetsColumns([
         this.utils.getSelCheckboxColumnDef(),
         this.utils.getNonEditableColumnDef('common.form.name', 'name'),
-        this.utils.getNonEditableColumnDef('common.form.type', 'description'),
+        this.utils.getNonEditableColumnDef('common.form.type', 'type'),
       ])
       .withTargetsOrder('name')
       .withTargetsFetcher(() => this.treeService.fetchAllItems())
+      .withTargetInclude((applicationTrees: ApplicationTreeProjection[]) => (item: Tree) => {
+        return !applicationTrees.some((applicationTree) => applicationTree.treeId === item.id);
+      })
+      .withTargetToRelation((items: Tree[]) => {
+        return items.map(item => ApplicationTreeProjection.of(this.entityToEdit, item, 0));
+      })
       .withTargetsTitle('entity.application.trees.title')
       .build();
   }
@@ -755,7 +795,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
     return DataTableDefinition.builder<Role, Role>(this.dialog, this.errorHandler, this.loadingService)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
-        this.utils.getRouterLinkColumnDef('common.form.name', 'name', '/roles/:id/rolesForm', {id: 'id'}),
+        this.utils.getRouterLinkColumnDef('common.form.name', 'name', '/role/:id/roleForm', {id: 'id'}),
         this.utils.getNonEditableColumnDef('common.form.description', 'description'),
         this.utils.getStatusColumnDef()
       ])
@@ -776,6 +816,10 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
       ])
       .withTargetsOrder('name')
       .withTargetsFetcher(() => this.roleService.fetchAllItems())
+      .withTargetInclude((relations) => (target) =>
+        !relations.some((relation) => relation.id === target.id)
+      )
+      .withTargetToRelation((items) => items)
       .withTargetsTitle('entity.application.roles.title')
       .build();
   }
@@ -790,12 +834,12 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
     return DataTableDefinition.builder<ApplicationBackgroundProjection, BackgroundProjection>(this.dialog, this.errorHandler, this.loadingService)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
-        this.utils.getRouterLinkColumnDef('common.form.name', 'backgroundName', '/backgroundLayers/:id/backgroundLayersForm', {id: 'backgroundId'}),
-        this.utils.getNonEditableColumnDef('common.form.description', 'backgroundDescription'),
-        this.utils.getEditableColumnDef('common.form.order', 'order'),
+        Object.assign(this.utils.getRouterLinkColumnDef('common.form.name', 'backgroundName', '/backgroundLayers/:id/backgroundLayersForm', {id: 'backgroundId'}), {flex: 1, minWidth: 140}),
+        Object.assign(this.utils.getNonEditableColumnDef('common.form.description', 'backgroundDescription'), {flex: 2, minWidth: 160}),
+        Object.assign(this.utils.getEditableColumnDef('common.form.order', 'order'), {flex: 0, minWidth: 80, maxWidth: 100}),
         this.utils.getStatusColumnDef()
       ])
-      .withRelationsOrder('backgroundName')
+      .withRelationsOrder('order')
       .withRelationsFetcher(() => {
         if (this.isNew()) {
           return of([]);
@@ -811,12 +855,11 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
           return this.applicationBackgroundService.create(newItem)
         });
         await onUpdate(applicationBackgrounds).forEach(item => {
-          const newItem = ApplicationBackground.of(
-            this.applicationService.createProxy(this.entityID),
-            this.backgroundService.createProxy(item.backgroundId),
-            item.order);
-          newItem.id = item.id;
-          return this.applicationBackgroundService.update(newItem);
+          const entity = this.applicationBackgroundService.createProxy(item.id)!;
+          entity.application = this.applicationService.createProxy(this.entityID)!;
+          entity.background = this.backgroundService.createProxy(item.backgroundId)!;
+          entity.order = item.order;
+          return this.applicationBackgroundService.update(entity);
         });
         await onDelete(applicationBackgrounds).forEach(item => {
           const newItem = this.applicationBackgroundService.createProxy(item.id);
@@ -895,6 +938,34 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
     return this.usersList.find(user => user.id === creatorId)?.username || '';
   }
 
+  get eligibleUsersList(): User[] {
+    return this.usersList.filter(user => this.isEligiblePointOfContact(user));
+  }
+
+  get currentIneligibleCreator(): User | null {
+    const creatorId = this.entityForm?.get('creatorId')?.value ?? this.entityToEdit?.creatorId;
+    if (creatorId == null || creatorId === '') {
+      return null;
+    }
+    const user = this.usersList.find(
+      candidate => candidate.id === creatorId || String(candidate.id) === String(creatorId)
+    );
+    if (!user || this.isEligiblePointOfContact(user)) {
+      return null;
+    }
+    return user;
+  }
+
+  isEligiblePointOfContact(user: User | null | undefined): boolean {
+    if (!user) {
+      return false;
+    }
+    if (user.username === 'public' || user.username === 'admin') {
+      return false;
+    }
+    return user.blocked !== true;
+  }
+
   private readonly getAllHeaderParams = (): Observable<ApplicationHeaderParameter[]> => {
     const result: ApplicationHeaderParameter[] = [];
     const headerLeft = Object.keys(this.headerParams.headerLeftSection)
@@ -916,7 +987,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
       object.url = value.url;
       object.name = key;
       object.visible = value.visible;
-      object.section = this.utils.getTranslate('entity.application.header.headerLeftSection');
+      object.section = 'headerLeftSection';
       result.push(object);
     });
 
@@ -925,7 +996,7 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
       object.url = value.url;
       object.name = key;
       object.visible = value.visible;
-      object.section = this.utils.getTranslate('entity.application.header.headerRightSection');
+      object.section = 'headerRightSection';
       result.push(object);
     });
 

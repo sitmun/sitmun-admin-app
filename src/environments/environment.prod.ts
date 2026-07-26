@@ -7,7 +7,7 @@ export const environment = {
   production: true,
   apiBaseURL: '/backend', // Change this when there is a real production environment
   logLevel: LogLevel.Error,
-  version: '1.2.7',
+  version: '1.2.8',
   buildTimestamp: new Date().toISOString(),
   environmentName: 'production'
 };

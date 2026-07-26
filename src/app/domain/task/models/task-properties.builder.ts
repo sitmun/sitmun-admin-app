@@ -16,6 +16,8 @@ const MANAGED_PROPERTY_KEYS = new Set([
   'filename',
   'headers',
   'queryParams',
+  'templateHtml',
+  'templateEditorState',
 ]);
 
 /** Copies keys not managed by the builder so schemaless properties survive round-trips. */
@@ -63,6 +65,8 @@ export class TaskPropertiesBuilder {
   private _queryParams: Record<string, string> | null = null;
   private _mimeType: string | null = null;
   private _filename: string | null = null;
+  private _templateHtml: string | null = null;
+  private _templateEditorState: unknown = null;
 
   private constructor(extras: TaskProperties = {}) {
     this._extras = extras;
@@ -100,7 +104,9 @@ export class TaskPropertiesBuilder {
       .withHeaders(asHeaders(p.headers))
       .withQueryParams(asHeaders(p.queryParams))
       .withMimeType(TaskPropertiesContract.getMimeType(properties))
-      .withFilename(TaskPropertiesContract.getFilename(properties));
+      .withFilename(TaskPropertiesContract.getFilename(properties))
+      .withTemplateHtml(TaskPropertiesContract.getTemplateHtml(properties))
+      .withTemplateEditorState(TaskPropertiesContract.getTemplateEditorState(properties));
   }
 
   /**
@@ -243,6 +249,16 @@ export class TaskPropertiesBuilder {
     return this;
   }
 
+  public withTemplateHtml(templateHtml: string | null): TaskPropertiesBuilder {
+    this._templateHtml = templateHtml;
+    return this;
+  }
+
+  public withTemplateEditorState(templateEditorState: unknown): TaskPropertiesBuilder {
+    this._templateEditorState = templateEditorState;
+    return this;
+  }
+
   /**
    * Adds a parameter to the parameters array
    * @param parameter The parameter to add
@@ -291,6 +307,14 @@ export class TaskPropertiesBuilder {
 
     if (this._filename) {
       properties.filename = this._filename;
+    }
+
+    if (this._templateHtml !== null) {
+      properties.templateHtml = this._templateHtml;
+    }
+
+    if (this._templateEditorState !== null) {
+      properties.templateEditorState = this._templateEditorState;
     }
 
     if (this._headers && Object.keys(this._headers).length > 0) {

@@ -180,10 +180,10 @@ export class RoleFormComponent extends BaseFormComponent<Role> {
     return DataTable2Definition.builder<UserConfigurationProjection, User, TerritoryProjection>(this.dialog, this.errorHandler, this.loadingService)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
-        this.utils.getRouterLinkColumnDef('entity.role.users.user', 'user', '/user/:id/userForm', {id: 'userId'}),
-        this.utils.getRouterLinkColumnDef('entity.role.users.territory', 'territory', '/territory/:id/territoryForm', {id: 'territoryId'}),
-        this.utils.getNonEditableColumnDef('entity.role.users.appliesToChildrenTerritories', 'appliesToChildrenTerritories'),
-        this.utils.getDateColumnDef('entity.role.users.createdDate', 'createdDate', false),
+        Object.assign(this.utils.getRouterLinkColumnDef('entity.role.users.user', 'user', '/user/:id/userForm', {id: 'userId'}), {flex: 1, minWidth: 140}),
+        Object.assign(this.utils.getRouterLinkColumnDef('entity.role.users.territory', 'territory', '/territory/:id/territoryForm', {id: 'territoryId'}), {flex: 1, minWidth: 140}),
+        Object.assign(this.utils.getBooleanColumnDef('entity.role.users.appliesToChildrenTerritories', 'appliesToChildrenTerritories', true), {flex: 0, minWidth: 60, maxWidth: 220}),
+        Object.assign(this.utils.getDateColumnDef('entity.role.users.createdDate', 'createdDate', false), {flex: 0, minWidth: 120}),
         this.utils.getStatusColumnDef()
       ])
       .withRelationsOrder('name')
@@ -193,7 +193,7 @@ export class RoleFormComponent extends BaseFormComponent<Role> {
         }
         return this.entityToEdit.getRelationArrayEx(UserConfigurationProjection, 'userConfigurations', {projection: 'view'})
       })
-      .withFieldRestrictions(['userId', 'territoryId'])
+      .withFieldRestrictions(['userId', 'territoryId', 'appliesToChildrenTerritories'])
       .withRelationsUpdater(async (userConfigurations: (UserConfigurationProjection & Status)[]) => {
         await onCreate(userConfigurations).forEach(item => {
           const newItem = UserConfiguration.fromObject(item);
@@ -257,11 +257,11 @@ export class RoleFormComponent extends BaseFormComponent<Role> {
     return DataTableDefinition.builder<TaskProjection, TaskProjection>(this.dialog, this.errorHandler, this.loadingService)
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
-        this.utils.getRouterLinkColumnDef('common.form.name', 'name', '/taskQuery/:id/:typeId', {
+        this.utils.getRouterLinkColumnDef('common.form.name', 'name', '/tasks/:id/:typeId', {
           id: 'id',
           typeId: 'typeId'
         }),
-        this.utils.getNonEditableColumnDef('entity.taskType.label', 'typeName'),
+        this.utils.getNonEditableColumnDef('entity.taskType.label', 'typeTitle'),
         this.utils.getStatusColumnDef()
       ])
       .withRelationsOrder('name')
@@ -269,7 +269,10 @@ export class RoleFormComponent extends BaseFormComponent<Role> {
         if (this.isNew()) {
           return of([]);
         }
-        return this.entityToEdit.getRelationArrayEx(TaskProjection, 'tasks', {projection: 'view'})
+        return this.entityToEdit.getRelationArrayEx(TaskProjection, 'tasks', {
+          projection: 'view',
+          lang: this.requestLang(),
+        })
       })
       .withRelationsUpdater(async (tasks: (TaskProjection & Status)[]) => {
         const activeTasks = tasks.filter(task => task.status !== 'pendingDelete');
@@ -279,13 +282,16 @@ export class RoleFormComponent extends BaseFormComponent<Role> {
       .withTargetsColumns([
         this.utils.getSelCheckboxColumnDef(),
         this.utils.getNonEditableColumnDef('common.form.name', 'name'),
-        this.utils.getNonEditableColumnDef('entity.taskType.label', 'typeName', 100, 500),
+        this.utils.getNonEditableColumnDef('entity.taskType.label', 'typeTitle', 100, 500),
       ])
       .withTargetsOrder('name')
-      .withTargetsFetcher(() => this.tasksService.fetchProjectionItems(TaskProjection))
+      .withTargetsFetcher(() => this.tasksService.fetchProjectionItems(TaskProjection, {
+        params: [{key: 'lang', value: this.requestLang()}],
+      }))
       .withTargetInclude((tasks: (TaskProjection)[]) => (item: TaskProjection) => {
         return !tasks.some((task) => task.id === item.id);
       })
+      .withTargetToRelation((items) => items)
       .withTargetsTitle('entity.role.tasks.title')
       .withTargetsOrder('name')
       .build();
@@ -322,6 +328,7 @@ export class RoleFormComponent extends BaseFormComponent<Role> {
       .withTargetInclude((applications: (Application)[]) => (item: Application) => {
         return !applications.some((application) => application.id === item.id);
       })
+      .withTargetToRelation((items) => items)
       .withTargetsTitle('entity.role.applications.title')
       .withTargetsOrder('name')
       .build();

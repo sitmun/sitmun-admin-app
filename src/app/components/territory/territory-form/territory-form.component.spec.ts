@@ -1,3 +1,6 @@
+import {readFileSync} from 'fs';
+import {join} from 'path';
+
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import {ComponentFixture, TestBed} from '@angular/core/testing';
@@ -18,6 +21,7 @@ import {
   CartographyService,
   CodeListService,
   RoleService,
+  TaskAvailabilityProjection,
   TaskAvailabilityService,
   TaskService,
   TerritoryGroupTypeService,
@@ -35,6 +39,11 @@ import {LoggerService} from '@app/services/logger.service';
 import {configureLoggerForTests, provideErrorHandlerForTests} from '@app/testing/test-helpers';
 
 import {TerritoryFormComponent} from './territory-form.component';
+
+const territoryFormTemplate = readFileSync(
+  join(__dirname, 'territory-form.component.html'),
+  'utf8',
+);
 
 describe('TerritoryFormComponent', () => {
   let component: TerritoryFormComponent;
@@ -855,6 +864,38 @@ describe('TerritoryFormComponent', () => {
     });
   });
 
+  describe('Duplicate save enablement (TDD for #384)', () => {
+    it('enables save for a valid pristine duplicate form', () => {
+      component.entityID = -1;
+      component.duplicateID = 123;
+      component.entityForm.patchValue({
+        code: 'T1',
+        name: 'copy_Original Territory',
+        typeId: 1,
+        blocked: true,
+      });
+      component.entityForm.markAsPristine();
+
+      expect(component.entityForm.valid).toBe(true);
+      expect(component.canSaveEntity).toBe(true);
+    });
+
+    it('keeps save disabled for a valid pristine edit form', () => {
+      component.entityID = 123;
+      component.duplicateID = -1;
+      component.entityForm.patchValue({
+        code: 'T1',
+        name: 'Original Territory',
+        typeId: 1,
+        blocked: true,
+      });
+      component.entityForm.markAsPristine();
+
+      expect(component.entityForm.valid).toBe(true);
+      expect(component.canSaveEntity).toBe(false);
+    });
+  });
+
   describe('Duplicate Relation Loading (TDD for #383)', () => {
     beforeEach(() => {
       component.entityID = -1;
@@ -881,7 +922,10 @@ describe('TerritoryFormComponent', () => {
       const fetcher = component['tasksTable'].relationsFetchFn;
       fetcher();
 
-      expect(spy).toHaveBeenCalledWith(expect.anything(), 'taskAvailabilities', {projection: 'view'});
+      expect(spy).toHaveBeenCalledWith(expect.anything(), 'taskAvailabilities', {
+        projection: 'view',
+        lang: expect.any(String),
+      });
     });
 
     it('should call getRelationArrayEx for members when duplicating', () => {
@@ -900,6 +944,162 @@ describe('TerritoryFormComponent', () => {
       fetcher();
 
       expect(spy).toHaveBeenCalledWith(expect.anything(), 'memberOf', {projection: 'view'});
+    });
+  });
+
+  describe('Relation grid dual navigation', () => {
+    it('permitsTable links user and role to their forms', () => {
+      const columns = component['permitsTable'].relationsColumnsDefs;
+      const userColumn = columns.find((column: { field?: string }) => column.field === 'user');
+      const roleColumn = columns.find((column: { field?: string }) => column.field === 'role');
+
+      expect(userColumn?.cellRenderer).toBe('routerLinkRenderer');
+      expect(userColumn?.cellRendererParams).toEqual({
+        route: '/user/:id/userForm',
+        paramFields: { id: 'userId' },
+      });
+      expect(userColumn?.flex).toBe(2);
+      expect(roleColumn?.cellRenderer).toBe('routerLinkRenderer');
+      expect(roleColumn?.cellRendererParams).toEqual({
+        route: '/role/:id/roleForm',
+        paramFields: { id: 'roleId' },
+      });
+      expect(roleColumn?.flex).toBe(3);
+    });
+
+    it('permitsTable applies-to-children boolean keeps a left-aligned bounded header', () => {
+      const columns = component['permitsTable'].relationsColumnsDefs;
+      const appliesColumn = columns.find(
+        (column: { field?: string }) => column.field === 'appliesToChildrenTerritories'
+      );
+
+      expect(appliesColumn?.headerName).toBeTruthy();
+      expect(appliesColumn?.headerClass).toBeUndefined();
+      expect(appliesColumn?.flex).toBe(0);
+      expect(appliesColumn?.minWidth).toBe(180);
+      expect(appliesColumn?.maxWidth).toBe(220);
+    });
+
+    it('cartographiesTable uses name, layers, service with navigable name and service', () => {
+      const columns = component['cartographiesTable'].relationsColumnsDefs;
+      const fields = columns
+        .map((column: { field?: string }) => column.field)
+        .filter((field: string | undefined): field is string => !!field && field !== 'status');
+
+      expect(fields).toEqual(['cartographyName', 'cartographyLayers', 'cartographyServiceName']);
+
+      const cartographyColumn = columns.find((column: { field?: string }) => column.field === 'cartographyName');
+      const serviceColumn = columns.find((column: { field?: string }) => column.field === 'cartographyServiceName');
+
+      expect(cartographyColumn?.cellRenderer).toBe('routerLinkRenderer');
+      expect(cartographyColumn?.cellRendererParams).toEqual({
+        route: '/layers/:id/layersForm',
+        paramFields: { id: 'cartographyId' },
+      });
+      expect(serviceColumn?.cellRenderer).toBe('routerLinkRenderer');
+      expect(serviceColumn?.cellRendererParams).toEqual({
+        route: '/service/:id/serviceForm',
+        paramFields: { id: 'cartographyServiceId' },
+      });
+    });
+
+    it('tasksTable links task name to the typed task form', () => {
+      const columns = component['tasksTable'].relationsColumnsDefs;
+      const nameColumn = columns.find((column: { field?: string }) => column.field === 'taskName');
+
+      expect(nameColumn?.cellRenderer).toBe('routerLinkRenderer');
+      expect(nameColumn?.cellRendererParams).toEqual({
+        route: '/tasks/:id/:typeId',
+        paramFields: { id: 'taskId', typeId: 'taskTypeId' },
+      });
+    });
+
+    it('tasksTable Type column shows the localized task type title', () => {
+      const columns = component['tasksTable'].relationsColumnsDefs;
+      const typeColumn = columns.find((column: { field?: string }) => column.field === 'taskTypeTitle');
+
+      expect(typeColumn).toBeTruthy();
+      expect(typeColumn?.headerName).toBe('entity.taskType.label');
+      expect(columns.some((column: { field?: string }) => column.field === 'taskTypeName')).toBe(false);
+    });
+
+    it('tasksTable requests task types with the UI lang so backend @I18n applies', () => {
+      component.entityID = 6;
+      component.entityToEdit = Object.assign(new TerritoryProjection(), {id: 6});
+      const spy = jest.spyOn(component.entityToEdit, 'getRelationArrayEx').mockReturnValue(of([] as any));
+
+      component['tasksTable'].relationsFetchFn();
+
+      expect(spy).toHaveBeenCalledWith(
+        TaskAvailabilityProjection,
+        'taskAvailabilities',
+        expect.objectContaining({
+          projection: 'view',
+          lang: expect.any(String),
+        })
+      );
+    });
+  });
+
+  describe('permitsTable field restrictions', () => {
+    it('exposes composite restrictions including appliesToChildrenTerritories', () => {
+      expect(component.permitsTable.addFieldRestriction).toEqual(['userId', 'roleId', 'appliesToChildrenTerritories']);
+    });
+  });
+
+  describe('Grid sort', () => {
+    it('cartographiesTable default sort uses cartographyName', () => {
+      const order = (component['cartographiesTable'] as any).relationsOrder;
+      const orderField = Array.isArray(order) ? order[0] : order;
+      expect(orderField).toBe('cartographyName');
+    });
+  });
+
+  describe('Picker deduplication', () => {
+    it('cartographiesTable excludes already-added cartographies from the picker', () => {
+      const relations = [{ cartographyId: 10 }, { cartographyId: 20 }] as any;
+      const predicate = (component['cartographiesTable'] as any).targetIncludeFn(relations);
+      expect(predicate({ id: 10 })).toBe(false);
+      expect(predicate({ id: 20 })).toBe(false);
+      expect(predicate({ id: 30 })).toBe(true);
+    });
+
+    it('tasksTable excludes already-added tasks from the picker', () => {
+      const relations = [{ taskId: 5 }, { taskId: 7 }] as any;
+      const predicate = (component['tasksTable'] as any).targetIncludeFn(relations);
+      expect(predicate({ id: 5 })).toBe(false);
+      expect(predicate({ id: 7 })).toBe(false);
+      expect(predicate({ id: 9 })).toBe(true);
+    });
+
+    it('membersOfTable excludes already-added memberOf territories from the picker', () => {
+      const relations = [{ id: 3 }, { id: 4 }] as any;
+      const predicate = (component['membersOfTable'] as any).targetIncludeFn(relations);
+      expect(predicate({ id: 3 })).toBe(false);
+      expect(predicate({ id: 5 })).toBe(true);
+    });
+
+    it('membersTable excludes already-added member territories from the picker', () => {
+      const relations = [{ id: 6 }, { id: 7 }] as any;
+      const predicate = (component['membersTable'] as any).targetIncludeFn(relations);
+      expect(predicate({ id: 6 })).toBe(false);
+      expect(predicate({ id: 8 })).toBe(true);
+    });
+
+    it('membersOfTable has picker add enabled', () => {
+      expect(component.membersOfTable.hasPickerAdd()).toBe(true);
+    });
+
+    it('membersTable has picker add enabled', () => {
+      expect(component.membersTable.hasPickerAdd()).toBe(true);
+    });
+  });
+
+  describe('template markup', () => {
+    it('exposes open-in-new for territory type', () => {
+      expect(territoryFormTemplate).toContain('related-entity-open-link');
+      expect(territoryFormTemplate).toContain("['/territoryType', typeId, 'territoryTypeForm']");
+      expect(territoryFormTemplate).toContain('target="_blank"');
     });
   });
 });
