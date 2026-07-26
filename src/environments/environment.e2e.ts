@@ -5,7 +5,7 @@ export const environment = {
   production: false,
   apiBaseURL: '/backend',
   logLevel: LogLevel.Error,
-  version: '1.2.8-SNAPSHOT',
+  version: '1.2.8',
   buildTimestamp: new Date().toISOString(),
   environmentName: 'e2e'
 };
