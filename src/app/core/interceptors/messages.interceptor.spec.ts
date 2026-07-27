@@ -1,4 +1,10 @@
-import { HTTP_INTERCEPTORS, HttpClient, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import {
+  HTTP_INTERCEPTORS,
+  HttpClient,
+  HttpContext,
+  provideHttpClient,
+  withInterceptorsFromDi,
+} from '@angular/common/http';
 import {
   provideHttpClientTesting,
   HttpTestingController
@@ -10,6 +16,7 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { TranslateService, TranslateModule } from '@ngx-translate/core';
 import { catchError } from 'rxjs';
 
+import { ENTITY_NAME_KEY, ENTITY_TYPE_KEY } from '@app/core/hal/resource/resource.service';
 import { ErrorTrackingService } from '@app/services/error-tracking.service';
 import { NotificationService } from '@app/services/notification.service';
 import { UtilsService } from '@app/services/utils.service';
@@ -259,6 +266,84 @@ describe('MessagesInterceptor', () => {
 
       const req = httpMock.expectOne(url);
       req.flush(errorBody, { status: 400, statusText: 'Bad Request' });
+    });
+  });
+
+  describe('data-integrity-violation handling', () => {
+    let notificationService: NotificationService;
+    let translateService: TranslateService;
+
+    beforeEach(() => {
+      stateService = TestBed.inject(MessagesInterceptorStateService);
+      stateService.enable();
+      notificationService = TestBed.inject(NotificationService);
+      translateService = TestBed.inject(TranslateService);
+      translateService.setTranslation('en', {
+        'operation.delete': 'delete',
+        'entity.cartography.plural': 'Layers',
+        'entity.tree-node.plural': 'Tree nodes',
+        'backend.error.data-integrity-violation.constraint.full':
+          'Cannot {{operation}} {{entityType}} "{{entityName}}" because it is being used by {{referencingEntityName}}',
+        'backend.error.data-integrity-violation.conflict':
+          'A resource with this value already exists',
+      });
+      translateService.use('en');
+    });
+
+    it('should toast 422 constraint.full when referencing entity is present', (done) => {
+      const showErrorSpy = jest.spyOn(notificationService, 'showError');
+      const url = '/api/cartographies/14';
+      const context = new HttpContext()
+        .set(ENTITY_TYPE_KEY, 'entity.cartography.plural')
+        .set(ENTITY_NAME_KEY, 'e2e-layer');
+      const errorBody = {
+        type: 'https://sitmun.org/problems/data-integrity-violation',
+        status: 422,
+        title: 'Unprocessable Entity',
+        detail: 'Cartography is in use by tree nodes and cannot be deleted',
+        instance: '/api/cartographies/14',
+        properties: {
+          referencingEntityTranslationKey: 'entity.tree-node.plural',
+        },
+      };
+
+      httpClient.delete(url, { context }).subscribe({
+        error: () => {
+          expect(showErrorSpy).toHaveBeenCalled();
+          const message = showErrorSpy.mock.calls[0][1] as string;
+          expect(message).toContain('Cannot delete Layers "e2e-layer"');
+          expect(message).toContain('Tree nodes');
+          done();
+        },
+      });
+
+      const req = httpMock.expectOne(url);
+      req.flush(errorBody, { status: 422, statusText: 'Unprocessable Entity' });
+    });
+
+    it('should toast 409 conflict for data-integrity-violation duplicates', (done) => {
+      const showErrorSpy = jest.spyOn(notificationService, 'showError');
+      const url = '/api/cartographies';
+      const errorBody = {
+        type: 'https://sitmun.org/problems/data-integrity-violation',
+        status: 409,
+        title: 'Conflict',
+        detail: 'Duplicate key',
+        instance: '/api/cartographies',
+        properties: {},
+      };
+
+      httpClient.post(url, {}).subscribe({
+        error: () => {
+          expect(showErrorSpy).toHaveBeenCalled();
+          const message = showErrorSpy.mock.calls[0][1] as string;
+          expect(message).toBe('A resource with this value already exists');
+          done();
+        },
+      });
+
+      const req = httpMock.expectOne(url);
+      req.flush(errorBody, { status: 409, statusText: 'Conflict' });
     });
   });
 });

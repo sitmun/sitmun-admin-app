@@ -30,6 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Layers**: Feature Information character-count hint no longer throws when `CharacterCountPipe` probes validators beside the string-assuming queryable-layers CSV validator; `parseLayerList` tolerates non-string probe values; apply `characterCount:500` on queryable layers.
 - **Forms**: Restored modified-field highlight and translate-icon `(keydown)`; `CanDeactivateGuard` unsaved-changes ([#374](https://github.com/sitmun/sitmun-admin-app/issues/374)); route-id reload and save toolbar gated on loaded data; duplicate Save without extra edit ([#384](https://github.com/sitmun/sitmun-admin-app/issues/384)); plain-text URL/relation selects with `open_in_new` suffix ([#376](https://github.com/sitmun/sitmun-admin-app/issues/376)).
 - **Trees**: Field-config booleans and Label default Extra info across dialog close ([#432](https://github.com/sitmun/sitmun-admin-app/issues/432)); radio/`loadByDefault` persistence and child validation; Applications/Roles relation grids link names (no id column).
 - **Languages**: Translation dialog Accept gated on real edits; chrome menus refresh via `languagesToUse$`; list columns endonym / UI-locale name / Active / Order; endonym rows persist in `STM_TRANSLATION` for `Language.name`.

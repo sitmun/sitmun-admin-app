@@ -5,7 +5,7 @@ import { join } from 'path';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
@@ -497,6 +497,21 @@ describe('LayersFormComponent', () => {
       expect(component.entityForm.get('joinedQueryableLayers')?.valid).toBe(true);
       component.entityForm.patchValue({ joinedLayers: 'layer2' });
       expect(component.entityForm.get('joinedQueryableLayers')?.errors?.['invalidLayers']).toEqual(['layer1']);
+    });
+
+    it('does not throw when queryableLayersValidator receives a non-string probe value', () => {
+      const control = component.entityForm.get('joinedQueryableLayers');
+      expect(control?.validator).toBeTruthy();
+      expect(() => control!.validator!(new FormControl({ length: Infinity }))).not.toThrow();
+    });
+
+    it('parseLayerList tolerates arrays and non-strings', () => {
+      const parseLayerList = (component as unknown as {
+        parseLayerList: (raw: unknown) => string[];
+      }).parseLayerList.bind(component);
+      expect(parseLayerList([' a ', '', 'b'])).toEqual(['a', 'b']);
+      expect(parseLayerList({ length: Infinity })).toEqual([]);
+      expect(parseLayerList(12)).toEqual([]);
     });
   });
 

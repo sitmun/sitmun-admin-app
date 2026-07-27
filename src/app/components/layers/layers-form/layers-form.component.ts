@@ -701,8 +701,14 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
     return service ? service.name : '';
   }
 
-  private parseLayerList(raw: string | null | undefined): string[] {
+  private parseLayerList(raw: unknown): string[] {
     if (raw == null || raw === '') {
+      return [];
+    }
+    if (Array.isArray(raw)) {
+      return raw.map(value => String(value).trim()).filter(Boolean);
+    }
+    if (typeof raw !== 'string') {
       return [];
     }
     return raw.split(',').map(value => value.trim()).filter(Boolean);

@@ -60,14 +60,7 @@ export class CharacterCountPipe implements PipeTransform {
    * @private
    */
   private hasMaxLengthValidator(control: AbstractControl): boolean {
-    const validator = control.validator;
-
-    if (validator === null) {
-      return false;
-    }
-
-    const errors = validator(new FormControl({ length: Infinity })) ?? {};
-    return "maxlength" in errors;
+    return this.probeMaxLength(control) != null;
   }
 
   /**
@@ -79,13 +72,23 @@ export class CharacterCountPipe implements PipeTransform {
    * @private
    */
   private getMaxLengthFromValidator(control: AbstractControl, fallback?: number): number | undefined {
-    const validatorFn = control.validator;
+    return this.probeMaxLength(control) ?? fallback;
+  }
 
-    if (validatorFn === null) {
-      return fallback;
+  /**
+   * Probes validators with a non-string dummy value used by Angular maxLength.
+   * Custom validators that assume strings must not break the character count.
+   */
+  private probeMaxLength(control: AbstractControl): number | undefined {
+    const validator = control.validator;
+    if (validator === null) {
+      return undefined;
     }
-
-    const errors = validatorFn(new FormControl({ length: Infinity }));
-    return errors?.["maxlength"]["requiredLength"] ?? fallback;
+    try {
+      const errors = validator(new FormControl({ length: Infinity })) ?? {};
+      return errors['maxlength']?.['requiredLength'];
+    } catch {
+      return undefined;
+    }
   }
 }
