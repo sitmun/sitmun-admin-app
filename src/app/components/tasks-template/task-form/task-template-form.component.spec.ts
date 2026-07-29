@@ -1,4 +1,4 @@
-import { ChangeDetectorRef } from '@angular/core';
+import { ChangeDetectorRef, NgZone } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -95,6 +95,7 @@ describe('TaskTemplateFormComponent', () => {
       createSpyObj(['navigate']) as any,
       createSpyObj(['show', 'hide']) as any,
       createSpyObj(['enable', 'disable']) as any,
+      TestBed.inject(NgZone),
       createSpyObj(['create', 'update', 'fetchProjectionById']) as any,
       createSpyObj(['fetchAllRawItems']) as any,
       createSpyObj(['fetchAllRawItems', 'createProxy']) as any,

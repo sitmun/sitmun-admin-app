@@ -40,6 +40,8 @@ export class QueryExecutionCardComponent implements OnChanges, OnDestroy {
   @Input() taskTypeLabelResolver: ((task: TaskProjection) => string) | null = null;
   @Input() nestingLevel = 0;
   @Input() templateRootTaskId: number | null = null;
+  /** Root Plantilla Parameter defaults; prefills nested child forms (parent overrides child saved default). */
+  @Input() inheritedParameterDefaults: Record<string, string> = {};
   @Input() language: string | null = null;
   @Input() ancestorTaskIds: number[] = [];
   @Output() executed = new EventEmitter<TemplateTaskExecutionEvent>();
@@ -66,12 +68,14 @@ export class QueryExecutionCardComponent implements OnChanges, OnDestroy {
   ) {}
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['task']?.currentValue) {
+    if (changes['task']?.currentValue || changes['inheritedParameterDefaults']) {
       this.parameterForm = this.createParameterForm();
-      this.status = 'PENDING';
-      this.response = null;
-      this.errorMessage = null;
-      this.trustedRenderedTemplateHtml = '';
+      if (changes['task']?.currentValue) {
+        this.status = 'PENDING';
+        this.response = null;
+        this.errorMessage = null;
+        this.trustedRenderedTemplateHtml = '';
+      }
     }
     this.childAncestorTaskIds = this.getChildAncestorTaskIds();
     this.renderableChildTasks = this.getRenderableChildTasks();
@@ -356,6 +360,11 @@ export class QueryExecutionCardComponent implements OnChanges, OnDestroy {
   }
 
   private parameterInitialValue(parameter: Record<string, unknown>): string {
+    const controlName = this.parameterControlName(parameter);
+    const inherited = controlName ? this.inheritedParameterDefaults[controlName] : undefined;
+    if (typeof inherited === 'string' && inherited.trim()) {
+      return inherited;
+    }
     const value = parameter['value'];
     return typeof value === 'string' ? value : '';
   }

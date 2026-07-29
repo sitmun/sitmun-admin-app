@@ -97,6 +97,21 @@ describe('QueryExecutionCardComponent', () => {
     expect(component.parameterForm.get('param2')?.value).toBe('');
   });
 
+  it('should prefer inherited root Parameter defaults over child task saved defaults', () => {
+    component.inheritedParameterDefaults = { param1: '%sitna%' };
+    component.ngOnChanges({
+      inheritedParameterDefaults: {
+        currentValue: component.inheritedParameterDefaults,
+        previousValue: {},
+        firstChange: false,
+        isFirstChange: () => false,
+      },
+    });
+
+    expect(component.parameterForm.get('param1')?.value).toBe('%sitna%');
+    expect(component.parameterForm.get('param2')?.value).toBe('');
+  });
+
   it('should omit blank parameters when executing the task', async () => {
     component.parameterForm.get('param1')?.setValue('' as never);
     component.parameterForm.get('param2')?.setValue('  ' as never);

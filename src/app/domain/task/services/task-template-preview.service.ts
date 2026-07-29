@@ -63,6 +63,7 @@ export class TaskTemplatePreviewService {
     const requestContext = new HttpContext().set(SKIP_MESSAGES_INTERCEPTOR, true);
     const params = language ? new HttpParams().set('lang', language) : undefined;
 
+    // No appId/terId: Preview uses current user only; known APP_*/TERR_* stay bare when unresolved.
     return this.http.post<TemplatePreviewResponse>(`${environment.apiBaseURL}/api/tasks/template/preview`, {
       templateTaskId: templateTaskId ?? null,
       templateHtml,
