@@ -50,8 +50,8 @@ import {ErrorHandlerService} from "@app/services/error-handler.service";
 import {LoadingOverlayService} from "@app/services/loading-overlay.service";
 import {LoggerService} from '@app/services/logger.service';
 import {UtilsService} from '@app/services/utils.service';
-import {constants} from '@environments/constants';
 import { compareNullableString } from '@app/utils/compare-nullable-string';
+import {constants} from '@environments/constants';
 
 type StyleDialogValue = CartographyStyle & {
   url?: string | null;

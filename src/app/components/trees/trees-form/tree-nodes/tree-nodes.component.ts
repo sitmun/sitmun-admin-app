@@ -46,6 +46,7 @@ import {LoadingOverlayService} from '@app/services/loading-overlay.service';
 import {LoggerService} from '@app/services/logger.service';
 import {NotificationService} from '@app/services/notification.service';
 import {UtilsService} from '@app/services/utils.service';
+import { compareNullableString } from '@app/utils/compare-nullable-string';
 import {
   formatImageAccept,
   getImageUploadErrorKey,
@@ -53,7 +54,6 @@ import {
 } from '@app/utils/image-upload.utils';
 import {config} from '@config';
 import {constants} from '@environments/constants';
-import { compareNullableString } from '@app/utils/compare-nullable-string';
 
 interface TreeNodeTaskInputParameter {
   name: string;

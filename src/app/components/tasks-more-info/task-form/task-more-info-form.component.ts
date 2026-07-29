@@ -49,8 +49,8 @@ import {ErrorHandlerService} from "@app/services/error-handler.service";
 import {LoadingOverlayService} from "@app/services/loading-overlay.service";
 import {LoggerService} from "@app/services/logger.service";
 import {UtilsService} from "@app/services/utils.service";
-import {magic} from "@environments/constants";
 import { compareNullableString } from '@app/utils/compare-nullable-string';
+import {magic} from "@environments/constants";
 
 @Component({
   selector: 'app-task-more-info-form',

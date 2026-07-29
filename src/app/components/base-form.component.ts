@@ -20,10 +20,10 @@ import {ErrorHandlerService} from "@app/services/error-handler.service";
 import {LoadingOverlayService} from "@app/services/loading-overlay.service";
 import {LoggerService} from "@app/services/logger.service";
 import {filterEnabledLanguages} from "@app/services/ui-language.resolver";
+import { compareNullableString } from '@app/utils/compare-nullable-string';
 import {explainFormValidity} from "@app/utils/form.utils";
 import {config} from "@config";
 import {constants} from "@environments/constants";
-import { compareNullableString } from '@app/utils/compare-nullable-string';
 
 /**
  * Base class for SITMUN components that handle resource entities.

@@ -51,9 +51,9 @@ import {ErrorHandlerService} from "@app/services/error-handler.service";
 import {LoadingOverlayService} from "@app/services/loading-overlay.service";
 import {LoggerService} from "@app/services/logger.service";
 import {UtilsService} from "@app/services/utils.service";
+import { compareNullableString } from '@app/utils/compare-nullable-string';
 import {magic} from "@environments/constants";
 import {environment} from "@environments/environment";
-import { compareNullableString } from '@app/utils/compare-nullable-string';
 
 /**
  * Component for managing query tasks in the SITMUN application.

@@ -12,8 +12,8 @@ import {ErrorHandlerService} from '@app/services/error-handler.service';
 import {LoadingOverlayService} from '@app/services/loading-overlay.service';
 import {LoggerService} from '@app/services/logger.service';
 import {UtilsService} from '@app/services/utils.service';
-import {config} from '@config';
 import { compareNullableString } from '@app/utils/compare-nullable-string';
+import {config} from '@config';
 
 @Component({
     template: '',
