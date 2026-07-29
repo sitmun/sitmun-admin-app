@@ -45,6 +45,7 @@ import {UtilsService} from '@app/services/utils.service';
 import {WMSCapabilitiesService, WMSLayersCapabilities} from "@app/services/wms-capabilities.service";
 import {config} from '@config';
 import {constants} from '@environments/constants';
+import { compareNullableString } from '@app/utils/compare-nullable-string';
 
 /**
  * Component for managing service forms in the application.
@@ -706,7 +707,7 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
     filtered: CodeList[],
     selectedServiceType: string | null | undefined,
   ): CodeList[] {
-    const byDescription = (a: CodeList, b: CodeList) => a.description.localeCompare(b.description);
+    const byDescription = (a: CodeList, b: CodeList) => compareNullableString(a.description, b.description);
     if (!selectedServiceType) {
       return [...filtered].sort(byDescription);
     }

@@ -32,6 +32,7 @@ import {
   LiteralTranslationCsvImportResponse,
   LiteralTranslationUpsertPayload,
 } from '@app/services/literal-translations-admin.service';
+import { filterEnabledLanguages } from '@app/services/ui-language.resolver';
 import { config } from '@config';
 
 ModuleRegistry.registerModules([InfiniteRowModelModule]);
@@ -78,7 +79,10 @@ export class LiteralTranslationsComponent implements CanComponentDeactivate, OnI
 
   languages: Language[] = [];
   langCompletionPct: number = 0;
-  readonly defaultLanguage = config.defaultLang;
+
+  get defaultLanguage(): string {
+    return config.defaultLang;
+  }
   readonly columnDefs: ColDef<LiteralTranslationItem>[] = [
     this.selectionColumnDef,
     {
@@ -465,7 +469,7 @@ export class LiteralTranslationsComponent implements CanComponentDeactivate, OnI
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (languages) => {
-          this.languages = [...languages];
+          this.languages = filterEnabledLanguages([...languages]);
           const current = this.languageControl.value;
           const nextLanguage = this.languages.some((language) => language.shortname === current)
             ? current

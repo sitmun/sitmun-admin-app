@@ -13,6 +13,7 @@ import {LoadingOverlayService} from '@app/services/loading-overlay.service';
 import {LoggerService} from '@app/services/logger.service';
 import {UtilsService} from '@app/services/utils.service';
 import {config} from '@config';
+import { compareNullableString } from '@app/utils/compare-nullable-string';
 
 @Component({
     template: '',
@@ -176,7 +177,7 @@ export abstract class BaseListComponent<T extends Resource>
         );
         this.codelists.set(
           code,
-          [...list].sort((a, b) => a.description.localeCompare(b.description))
+          [...list].sort((a, b) => compareNullableString(a.description, b.description))
         );
       })
     );

@@ -53,6 +53,7 @@ import {
 } from '@app/utils/image-upload.utils';
 import {config} from '@config';
 import {constants} from '@environments/constants';
+import { compareNullableString } from '@app/utils/compare-nullable-string';
 
 interface TreeNodeTaskInputParameter {
   name: string;
@@ -196,7 +197,9 @@ export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
 
   filterOptions = [{value: 'UNDEFINED', description: 'common.boolean.undefined'}, {value: true, description: 'common.boolean.yes'}, {value: false, description: 'common.boolean.no'}];
   codeValues = constants.codeValue;
-  defaultLang = config.defaultLang;
+  get defaultLang(): string {
+    return config.defaultLang;
+  }
 
   layersList = [];
   nodeInputsControls: TreeNodeTaskInputParameter[] = [];
@@ -426,7 +429,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
   async initCodeLists(codeList: string[]): Promise<void[]> {
     const result = await Promise.all(codeList.map(async code => {
       const list: CodeList[] = await firstValueFrom(this.getCodeListValues(code));
-      this.codelists.set(code, [...list].sort((a, b) => a.description.localeCompare(b.description)));
+      this.codelists.set(code, [...list].sort((a, b) => compareNullableString(a.description, b.description)));
     }));
     this.codeListsInitialized = true;
     this.rebuildCodeListCaches();
@@ -1748,7 +1751,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
    */
   private mergeQueryAndEditTasks(queryTasks: any[], editTasks: any[]): any[] {
     const byName = (a: any, b: any): number =>
-      String(a?.name ?? '').localeCompare(String(b?.name ?? ''), undefined, { sensitivity: 'base' });
+      compareNullableString(a?.name, b?.name, undefined, { sensitivity: 'base' });
     const q = [...(queryTasks || [])].sort(byName);
     const e = [...(editTasks || [])].sort(byName);
     const seen = new Set<number>();

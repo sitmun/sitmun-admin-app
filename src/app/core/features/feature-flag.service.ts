@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 
 import { BehaviorSubject, Observable } from 'rxjs';
 
+import { compareNullableString } from '@app/utils/compare-nullable-string';
 import { environment } from '@environments/environment';
 
 import {
@@ -147,7 +148,7 @@ export class FeatureFlagService {
     
     // Sort flags within each category by key
     categoriesMap.forEach((flags) => {
-      flags.sort((a, b) => a.config.key.localeCompare(b.config.key));
+      flags.sort((a, b) => compareNullableString(a.config.key, b.config.key));
     });
     
     return categoriesMap;

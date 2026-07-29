@@ -194,7 +194,6 @@ export class LanguageFormComponent extends BaseFormComponent<Language> {
 
         if (newDefaultLanguage) {
           config.defaultLang = newDefaultLanguage;
-          this.defaultLang = newDefaultLanguage;
         }
         if (this.isDefaultLanguage) {
           this.entityForm?.get('enabled')?.setValue(true);

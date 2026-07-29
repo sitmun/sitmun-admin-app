@@ -53,6 +53,7 @@ import {LoggerService} from "@app/services/logger.service";
 import {UtilsService} from '@app/services/utils.service';
 import {optionalHttpOrHttpsUrlValidator} from '@app/validators/optional-http-url.validator';
 import {constants} from '@environments/constants';
+import { compareNullableString } from '@app/utils/compare-nullable-string';
 
 /**
  * Angular component that provides a form interface for managing SITMUN applications.
@@ -257,8 +258,8 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
       firstValueFrom(this.userService.fetchAllItems())
       ]
     )
-    situationMaps.sort((a, b) => a.name.localeCompare(b.name));
-    users.sort((a, b) => a.username.localeCompare(b.username));
+    situationMaps.sort((a, b) => compareNullableString(a.name, b.name));
+    users.sort((a, b) => compareNullableString(a.username, b.username));
     this.situationMapList = situationMaps;
     this.usersList = users;
   }

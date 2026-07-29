@@ -23,6 +23,7 @@ import {filterEnabledLanguages} from "@app/services/ui-language.resolver";
 import {explainFormValidity} from "@app/utils/form.utils";
 import {config} from "@config";
 import {constants} from "@environments/constants";
+import { compareNullableString } from '@app/utils/compare-nullable-string';
 
 /**
  * Base class for SITMUN components that handle resource entities.
@@ -138,8 +139,10 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
   /** Name of the entity being translated */
   private propertyTranslationsEntity: string;
 
-  /** Default language code for i18n fields (from config) */
-  defaultLang = config.defaultLang;
+  /** Default language code for i18n fields (live from config after Set-as-default). */
+  get defaultLang(): string {
+    return config.defaultLang;
+  }
 
   /**
    * UI language for HAL requests that need backend `@I18n` resolution (`lang` query param).
@@ -810,7 +813,7 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
       this.codelists.set(code, [...list].sort((a, b) => {
         if (a.defaultCode && !b.defaultCode) return -1;
         if (!a.defaultCode && b.defaultCode) return 1;
-        return a.description.localeCompare(b.description);
+        return compareNullableString(a.description, b.description);
       }));
     }));
   }

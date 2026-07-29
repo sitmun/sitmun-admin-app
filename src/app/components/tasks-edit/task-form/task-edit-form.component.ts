@@ -48,6 +48,7 @@ import {LoadingOverlayService} from "@app/services/loading-overlay.service";
 import {LoggerService} from "@app/services/logger.service";
 import {UtilsService} from "@app/services/utils.service";
 import {magic} from "@environments/constants";
+import { compareNullableString } from '@app/utils/compare-nullable-string';
 
 /**
  * Component for managing basic tasks in the SITMUN application.
@@ -293,7 +294,7 @@ export class TaskEditFormComponent extends BaseFormComponent<TaskProjection> {
       throw new Error(`Task type ${this.taskTypeName} not found`);
     }
 
-    taskGroups.sort((a, b) => a.name.localeCompare(b.name));
+    taskGroups.sort((a, b) => compareNullableString(a.name, b.name));
     this.taskGroupList = taskGroups;
   }
 

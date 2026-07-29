@@ -43,6 +43,7 @@ import { canKeepOrUpdate, onCreate, onDelete, onUpdatedRelation, Status } from '
 import { ErrorHandlerService } from '@app/services/error-handler.service';
 import { LoadingOverlayService } from '@app/services/loading-overlay.service';
 import { LoggerService } from '@app/services/logger.service';
+import { filterEnabledLanguages } from '@app/services/ui-language.resolver';
 import { NotificationService } from '@app/services/notification.service';
 import { UtilsService } from '@app/services/utils.service';
 import { config } from '@config';
@@ -51,6 +52,7 @@ import { environment } from '@environments/environment';
 
 import { QueryExecutionCardComponent, TemplateChildTaskLink } from '../query-execution-card/query-execution-card.component';
 import { TemplateValidationResult } from '../template-editor/template-html-validator.service';
+import { compareNullableString } from '@app/utils/compare-nullable-string';
 
 interface LinkedTemplateTask {
   relationId: number | null;
@@ -180,6 +182,13 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
     const typeId = magic.taskTemplateTypeId;
     this.initTranslations('Task', ['name']);
     await this.initCodeLists(['taskEntity.jsonParamType']);
+    try {
+      await firstValueFrom(this.languageService.refreshLanguagesToUse());
+    } catch {
+      // Keep constructor snapshot if reload fails.
+    }
+    this.previewLanguages = this.resolvePreviewLanguages();
+    this.initializePreviewLanguage();
     this.dataTables.register(this.rolesTable).register(this.availabilitiesTable).register(this.parametersTable);
 
     try {
@@ -226,7 +235,7 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
     this.linkableTasks = [
       ...validQueryTasks,
       ...nestedTemplates,
-    ].sort((left, right) => left.name.localeCompare(right.name));
+    ].sort((left, right) => compareNullableString(left.name, right.name));
 
     await this.loadTemplateChildTasks(templateTasks);
   }
@@ -535,7 +544,7 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
 
   protected getSystemVariablesHelp(): string {
     return Array.from(this.systemVariables.keys())
-      .sort((left, right) => left.localeCompare(right))
+      .sort((left, right) => compareNullableString(left, right))
       .map((key) => `{{#${key}}}`)
       .join(', ');
   }
@@ -656,10 +665,11 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
 
   private resolvePreviewLanguages(): Language[] {
     const configuredLanguages = Array.isArray(config.languagesToUse) ? config.languagesToUse : [];
-    return configuredLanguages
-      .filter((language): language is Language => !!language?.shortname)
+    return filterEnabledLanguages(
+      configuredLanguages.filter((language): language is Language => !!language?.shortname),
+    )
       .slice()
-      .sort((left, right) => left.name.localeCompare(right.name));
+      .sort((left, right) => compareNullableString(left.name, right.name));
   }
 
   private initializePreviewLanguage(): void {

@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **Templates** / **i18n**: Forms and lists no longer throw `null.localeCompare` after `language.default` change; shared `compareNullableString` for sorts ([#440](https://github.com/sitmun/sitmun-admin-app/issues/440)).
+- **i18n**: `BaseFormComponent` / tree-nodes / Literal translations read live `config.defaultLang` (no stale construction snapshot after Set-as-default).
+
+### Changed
+
+- **Literal translations** / **Templates**: Language selectors and template preview use enabled languages only (template form refreshes languages on load); CSV import may still target/use disabled languages.
+- **Templates**: `<t>` dictionary enrollment happens on backend Task save (no client ensure-after-save); TipTap nested inner HTML is the exact dictionary key.
+
 ## [1.2.8] - 2026-07-25
 
 ### Added

@@ -47,6 +47,7 @@ import {LoadingOverlayService} from '@app/services/loading-overlay.service';
 import {LoggerService} from '@app/services/logger.service';
 import {UtilsService} from '@app/services/utils.service';
 import {TEMPLATE_TASK_RELATION_TYPES, magic, constants} from '@environments/constants';
+import { compareNullableString } from '@app/utils/compare-nullable-string';
 
 /**
  * Properties stored in task.properties for an MIA task.
@@ -232,7 +233,7 @@ export class TaskMoreInfoAdvancedFormComponent extends BaseFormComponent<TaskPro
     }
 
     this.taskTypeNameTranslated = this.translateService.instant('entity.task.moreInfoAdvanced.label');
-    this.taskGroups = (taskGroups || []).sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+    this.taskGroups = (taskGroups || []).sort((a, b) => compareNullableString(a.name, b.name));
     this.cartographies = cartographies;
     this.allCandidateTasks = candidateTasks;
     await this.loadTemplateChildTasks(candidateTasks);

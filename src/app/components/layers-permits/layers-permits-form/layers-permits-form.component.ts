@@ -29,6 +29,7 @@ import {LoadingOverlayService} from "@app/services/loading-overlay.service";
 import {LoggerService} from '@app/services/logger.service';
 import {UtilsService} from '@app/services/utils.service';
 import {constants} from '@environments/constants';
+import { compareNullableString } from '@app/utils/compare-nullable-string';
 
 
 @Component({
@@ -189,7 +190,7 @@ export class LayersPermitsFormComponent extends BaseFormComponent<CartographyGro
 
     this.permissionGroupTypes = this.codeList('cartographyPermission.type')
       .filter((item) => allowed.has(item.value))
-      .sort((a, b) => a.description.localeCompare(b.description));
+      .sort((a, b) => compareNullableString(a.description, b.description));
   }
 
   private defaultLayersPermitType(): CodeList | null {
