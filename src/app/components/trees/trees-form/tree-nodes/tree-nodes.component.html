@@ -217,7 +217,7 @@
                     <div class="flex-row-gap-16">
                       <mat-form-field appearance="outline" class="form-field-flex-1"
                         *ngIf="currentNodeCartography?.applyFilterToGetFeatureInfo">
-                        <mat-label>{{ 'layersEntity.applyFilterToGetMap' | translate }}</mat-label>
+                        <mat-label>{{ 'entity.layer.applyFilterToGetMap' | translate }}</mat-label>
                         <mat-select formControlName="filterGetFeatureInfo">
                           <mat-option [value]="option.value" *ngFor="let option of filterOptions">
                             {{ option.description | translate }}
@@ -226,7 +226,7 @@
                       </mat-form-field>
                       <mat-form-field appearance="outline" class="form-field-flex-1"
                         *ngIf="currentNodeCartography?.applyFilterToGetMap">
-                        <mat-label>{{ 'layersEntity.filterInfoByMunicipality' | translate }}</mat-label>
+                        <mat-label>{{ 'entity.layer.filterInfoByMunicipality' | translate }}</mat-label>
                         <mat-select formControlName="filterGetMap">
                           <mat-option [value]="option.value" *ngFor="let option of filterOptions">
                             {{ option.description | translate }}
@@ -235,7 +235,7 @@
                       </mat-form-field>
                       <mat-form-field appearance="outline" class="form-field-flex-1"
                         *ngIf="currentNodeCartography?.applyFilterToSpatialSelection">
-                        <mat-label>{{ 'layersEntity.filterSpatialSelectionByMunicipality' | translate }}</mat-label>
+                        <mat-label>{{ 'entity.layer.filterSpatialSelectionByMunicipality' | translate }}</mat-label>
                         <mat-select formControlName="filterSelectable">
                           <mat-option [value]="option.value" *ngFor="let option of filterOptions">
                             {{ option.description | translate }}
