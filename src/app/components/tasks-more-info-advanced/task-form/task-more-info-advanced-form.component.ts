@@ -46,6 +46,7 @@ import {ErrorHandlerService} from '@app/services/error-handler.service';
 import {LoadingOverlayService} from '@app/services/loading-overlay.service';
 import {LoggerService} from '@app/services/logger.service';
 import {UtilsService} from '@app/services/utils.service';
+import { compareNullableString } from '@app/utils/compare-nullable-string';
 import {TEMPLATE_TASK_RELATION_TYPES, magic, constants} from '@environments/constants';
 
 /**
@@ -232,7 +233,7 @@ export class TaskMoreInfoAdvancedFormComponent extends BaseFormComponent<TaskPro
     }
 
     this.taskTypeNameTranslated = this.translateService.instant('entity.task.moreInfoAdvanced.label');
-    this.taskGroups = (taskGroups || []).sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+    this.taskGroups = (taskGroups || []).sort((a, b) => compareNullableString(a.name, b.name));
     this.cartographies = cartographies;
     this.allCandidateTasks = candidateTasks;
     await this.loadTemplateChildTasks(candidateTasks);
@@ -281,7 +282,7 @@ export class TaskMoreInfoAdvancedFormComponent extends BaseFormComponent<TaskPro
 
   override fetchCopy(): Promise<TaskProjection> {
     return firstValueFrom(this.taskService.fetchProjectionById(TaskProjection, this.duplicateID).pipe(map((copy: TaskProjection) => {
-      copy.name = this.translateService.instant('copy_') + copy.name;
+      copy.name = this.translateService.instant('common.copyPrefix') + copy.name;
       return copy;
     })));
   }

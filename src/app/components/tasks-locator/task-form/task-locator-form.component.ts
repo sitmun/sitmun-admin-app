@@ -45,6 +45,7 @@ import {ErrorHandlerService} from "@app/services/error-handler.service";
 import {LoadingOverlayService} from "@app/services/loading-overlay.service";
 import {LoggerService} from "@app/services/logger.service";
 import {UtilsService} from "@app/services/utils.service";
+import { compareNullableString } from '@app/utils/compare-nullable-string';
 import {magic} from "@environments/constants";
 
 @Component({
@@ -158,7 +159,7 @@ export class TaskLocatorFormComponent extends BaseFormComponent<TaskProjection> 
     this.taskGroupList = taskGroups;
     this.queryTasks = queryTasks
       .filter(task => task.typeId === magic.taskQueryTypeId)
-      .sort((left, right) => (left.name || '').localeCompare(right.name || ''));
+      .sort((left, right) => compareNullableString(left.name, right.name));
 
     this.locatorUI = uiList.find(ui => ui.name === 'sitmun.locator') ?? null;
     if (!this.locatorUI) {

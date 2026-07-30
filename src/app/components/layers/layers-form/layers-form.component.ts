@@ -50,6 +50,7 @@ import {ErrorHandlerService} from "@app/services/error-handler.service";
 import {LoadingOverlayService} from "@app/services/loading-overlay.service";
 import {LoggerService} from '@app/services/logger.service';
 import {UtilsService} from '@app/services/utils.service';
+import { compareNullableString } from '@app/utils/compare-nullable-string';
 import {constants} from '@environments/constants';
 
 type StyleDialogValue = CartographyStyle & {
@@ -139,9 +140,9 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
       'cartographyFilter.type','cartographyFilter.valueType', 'cartographyParameter.format',
     ]);
     this.territorialTypes = await firstValueFrom(this.territoryTypeService.fetchAllItems())
-    this.territorialTypes.sort((a, b) => a.name.localeCompare(b.name));
+    this.territorialTypes.sort((a, b) => compareNullableString(a.name, b.name));
     this.services = await firstValueFrom(this.serviceService.fetchAllItems());
-    this.services.sort((a, b) => a.name.localeCompare(b.name));
+    this.services.sort((a, b) => compareNullableString(a.name, b.name));
   }
 
   /**

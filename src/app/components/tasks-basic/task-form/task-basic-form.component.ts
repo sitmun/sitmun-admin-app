@@ -43,6 +43,7 @@ import {ErrorHandlerService} from "@app/services/error-handler.service";
 import {LoadingOverlayService} from "@app/services/loading-overlay.service";
 import {LoggerService} from "@app/services/logger.service";
 import {UtilsService} from "@app/services/utils.service";
+import { compareNullableString } from '@app/utils/compare-nullable-string';
 import {magic} from "@environments/constants";
 
 /**
@@ -211,7 +212,7 @@ export class TaskBasicFormComponent extends BaseFormComponent<TaskProjection> {
       throw new Error(`UI tasks ${this.uiList} not retrieved`);
     }
 
-    taskGroups.sort((a, b) => a.name.localeCompare(b.name));
+    taskGroups.sort((a, b) => compareNullableString(a.name, b.name));
     this.taskGroupList = taskGroups;
   }
 

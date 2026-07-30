@@ -1,3 +1,5 @@
+import { compareNullableString } from '@app/utils/compare-nullable-string';
+
 export function resolveUiLanguage(input: {
   stored: string | null | undefined;
   backendDefault: string | null | undefined;
@@ -32,7 +34,7 @@ export function sortByLanguageOrder<T extends { order?: number | null; shortname
     if (ao !== bo) {
       return ao - bo;
     }
-    return a.shortname.localeCompare(b.shortname);
+    return compareNullableString(a.shortname, b.shortname);
   });
 }
 

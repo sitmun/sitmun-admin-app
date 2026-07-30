@@ -67,8 +67,6 @@
   padding: 0.75rem 1rem;
   border-radius: 0.5rem;
   background: #f3f4f6;
-  position: relative;
-  top: 35px;
 }
 
 .info-note-secondary {
@@ -79,34 +77,153 @@
   background: #dbeafe;
 }
 
+.template-workspace-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
 .template-workspace {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 1rem;
+  display: flex;
+  position: relative;
+  gap: 0;
+  width: 100%;
+  min-height: 32rem;
+  align-items: stretch;
+}
+
+.template-workspace--editor {
+  .editor-panel {
+    flex: 1;
+    width: auto !important;
+  }
+}
+
+.template-workspace--preview {
+  .preview-panel-wrap {
+    flex: 1;
+    width: 100%;
+  }
+
+  .workspace-pane-content {
+    height: calc(100vh - 16rem);
+    max-height: calc(100vh - 16rem);
+  }
+}
+
+.template-workspace--resizing {
+  .editor-panel,
+  .preview-panel-wrap {
+    pointer-events: none;
+    user-select: none;
+    contain: layout style;
+  }
+
+  .editor-panel {
+    will-change: width;
+  }
+}
+
+.workspace-sash {
+  width: 4px;
+  flex-shrink: 0;
+  cursor: col-resize;
+  background-color: transparent;
+  transition: background-color 0.2s ease;
+  position: relative;
+  z-index: 10;
+  user-select: none;
+
+  &:hover,
+  &.resizing {
+    background-color: rgba(25, 118, 210, 0.3);
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: -2px;
+    right: -2px;
+    top: 0;
+    bottom: 0;
+    cursor: col-resize;
+  }
 }
 
 .query-section {
   width: 100%;
 }
 
-.editor-section,
-.preview-section {
+.editor-panel {
+  flex-shrink: 0;
   min-width: 0;
-}
-
-.preview-header {
+  min-height: 0;
+  overflow: hidden;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
+  flex-direction: column;
 }
 
-.preview-header h3 {
-  margin-top: 6px;
+.editor-panel--hidden {
+  display: none;
+}
+
+.preview-panel-wrap {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.workspace-pane {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  margin: 0 0.25rem;
+}
+
+.workspace-pane--preview {
+  height: 100%;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 0.5rem;
+  background: #fff;
+  overflow: hidden;
+}
+
+.workspace-pane-toolbar {
+  flex-shrink: 0;
+  min-height: 2.75rem;
+  gap: 0.35rem;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.workspace-pane-toolbar .spacer {
+  flex: 1;
+}
+
+.preview-render-button {
+  min-height: 36px;
+  line-height: 1;
+}
+
+.workspace-pane-content {
+  box-sizing: border-box;
+  // Match TipTap surface height so this box stays fully visible beside the editor
+  // (language controls sit inside, so the HTML pane is slightly shorter and scrolls).
+  height: 428px;
+  max-height: 428px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 0.75rem 1rem 1rem;
 }
 
 .preview-controls {
-  margin: 1rem 0 0.25rem;
+  flex-shrink: 0;
+  margin: 0.25rem 0 0.25rem;
 }
 
 .preview-language-field {
@@ -114,6 +231,7 @@
 }
 
 .preview-error {
+  flex-shrink: 0;
   margin-bottom: 0.5rem;
   padding: 0.75rem 1rem;
   border: 1px solid #fecaca;
@@ -123,11 +241,15 @@
 }
 
 .preview-panel {
-  height: 469px;
+  flex: 1 1 auto;
+  min-height: 0;
+  box-sizing: border-box;
   padding: 1rem;
   border: 1px solid rgba(0, 0, 0, 0.12);
   background: #fff;
-  overflow: auto;
+  overflow-x: auto;
+  overflow-y: scroll;
+  overscroll-behavior: contain;
 }
 
 .preview-panel .sitmun-template-placeholder {
@@ -138,18 +260,37 @@
   font-family: monospace;
 }
 
+.preview-panel .sitmun-template-error {
+  padding: 0.1rem 0.35rem;
+  border-radius: 0.25rem;
+  background: #fef2f2;
+  color: #b91c1c;
+  font-family: monospace;
+  font-weight: 600;
+}
+
+.preview-panel .sitmun-template-known {
+  padding: 0.05rem 0.25rem;
+  border-radius: 0.25rem;
+  background: #fff7ed;
+  color: #c2410c;
+  font-family: monospace;
+}
+
 .preview-panel .sitmun-template-child-error {
   color: #b00020;
 }
 
 .muted-message {
-  margin-bottom: 0.35rem;  
+  margin-bottom: 0.35rem;
 }
 
 .muted-message.preview {
-  margin: 17.5px 0px !important;
+  flex-shrink: 0;
+  margin: 0.5rem 0 !important;
 }
 
 .preview-placeholder-list {
+  flex-shrink: 0;
   margin-top: 0.75rem;
 }

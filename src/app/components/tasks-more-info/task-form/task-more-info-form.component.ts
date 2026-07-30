@@ -49,6 +49,7 @@ import {ErrorHandlerService} from "@app/services/error-handler.service";
 import {LoadingOverlayService} from "@app/services/loading-overlay.service";
 import {LoggerService} from "@app/services/logger.service";
 import {UtilsService} from "@app/services/utils.service";
+import { compareNullableString } from '@app/utils/compare-nullable-string';
 import {magic} from "@environments/constants";
 
 @Component({
@@ -168,7 +169,7 @@ export class TaskMoreInfoFormComponent extends BaseFormComponent<TaskProjection>
     this.taskGroupList = taskGroups;
     this.cartographies = cartographies;
     this.queryTasks = this.filterSelectableQueryTasks(queryTasks)
-      .sort((left, right) => (left.name || '').localeCompare(right.name || ''));
+      .sort((left, right) => compareNullableString(left.name, right.name));
     this.moreInfoUI = uiList.find(ui => ui.name === 'sitmun.moreInfo');
     if (!this.moreInfoUI) {
       this.loggerService.error('UI control "sitmun.moreInfo" not found in database - task will not be identified correctly');

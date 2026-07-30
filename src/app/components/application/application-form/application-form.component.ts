@@ -51,6 +51,7 @@ import {ErrorHandlerService} from "@app/services/error-handler.service";
 import {LoadingOverlayService} from "@app/services/loading-overlay.service";
 import {LoggerService} from "@app/services/logger.service";
 import {UtilsService} from '@app/services/utils.service';
+import { compareNullableString } from '@app/utils/compare-nullable-string';
 import {optionalHttpOrHttpsUrlValidator} from '@app/validators/optional-http-url.validator';
 import {constants} from '@environments/constants';
 
@@ -257,8 +258,8 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
       firstValueFrom(this.userService.fetchAllItems())
       ]
     )
-    situationMaps.sort((a, b) => a.name.localeCompare(b.name));
-    users.sort((a, b) => a.username.localeCompare(b.username));
+    situationMaps.sort((a, b) => compareNullableString(a.name, b.name));
+    users.sort((a, b) => compareNullableString(a.username, b.username));
     this.situationMapList = situationMaps;
     this.usersList = users;
   }

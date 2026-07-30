@@ -36,6 +36,8 @@ describe('TaskTemplatePreviewService', () => {
       context: { pepe: { name: 'Layer' } },
       knownTaskReferences: ['pepe', 'task_13'],
     });
+    expect(req.request.body.appId).toBeUndefined();
+    expect(req.request.body.terId).toBeUndefined();
 
     req.flush({ html: '<p>Layer</p>', placeholders: ['pepe.name'] });
   });

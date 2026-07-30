@@ -49,6 +49,7 @@ import {ErrorHandlerService} from "@app/services/error-handler.service";
 import {LoadingOverlayService} from "@app/services/loading-overlay.service";
 import {LoggerService} from '@app/services/logger.service';
 import {UtilsService} from '@app/services/utils.service';
+import { compareNullableString } from '@app/utils/compare-nullable-string';
 
 function httpUrlValidator(): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
@@ -250,7 +251,7 @@ export class TerritoryFormComponent extends BaseFormComponent<TerritoryProjectio
     ]);
 
     this.territoryGroups = [...territoryGroups];
-    this.territoryTypes = [...territoryTypes].sort((a, b) => a.name.localeCompare(b.name));
+    this.territoryTypes = [...territoryTypes].sort((a, b) => compareNullableString(a.name, b.name));
     this.scopeTypes = [...scopeTypes];
   }
 

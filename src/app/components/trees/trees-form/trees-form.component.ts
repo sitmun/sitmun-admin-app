@@ -515,7 +515,7 @@ export class TreesFormComponent extends BaseFormComponent<Tree> {
       return this.getTreeStructureWarningMessage(filterNodes as any);
     }
     if (validationError === 'nodeType') {
-      return this.translateService.instant('error.tree-type-node-constraint');
+      return this.translateService.instant('backend.error.tree-type-node-constraint');
     }
     return '';
   }

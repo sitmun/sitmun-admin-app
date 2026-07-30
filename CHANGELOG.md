@@ -7,9 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.2.8] - 2026-07-25
+## [1.2.8] - 2026-07-30
 
 ### Added
+
+- **Templates**: Form tabs Details / Template / Sources with preview toggle and resizable sash; insert-from-Sources focuses Template.
+- **Templates**: Bound-table **R** chip and table-only Reference rebind (orphan aliases stay visible); inline `{{…}}` code chips in the visual editor.
 
 - **Templates** / **More Info Advanced**: TipTap HTML editor, ADMIN preview, linked-child execute-child dry-run (coords not required); typeId 16 MIA task configuration UI (runtime map render remains in the viewer).
 - **Literal translations**: Admin CRUD, CSV import/export, and completion indicators.
@@ -21,6 +24,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Templates**: Preview does not post `appId`/`terId` (user-only coords; known APP_*/TERR_* render as bare names when unresolved); styles `.sitmun-template-error` / `.sitmun-template-known`; sash past max width closes Preview; sash past min width hides the editor (restore via left sash or toolbar).
+- **Literal translations** / **Templates**: Language selectors and template preview use enabled languages only (template form refreshes languages on load); CSV import may still target/use disabled languages.
+- **Templates**: `<t>` dictionary enrollment happens on backend Task save (no client ensure-after-save); TipTap nested inner HTML is the exact dictionary key.
+- **Templates**: Split sash matches tree-editor resize (mat-card panes, flex width %, DOM drag outside Angular CD so TipTap does not reflow every pixel, persisted width).
+- **Templates**: Preview show/hide moved into the editor toolbar (and close on the preview pane); external Editor/Split/Preview layout chips removed.
+- **Templates**: Material Visual/HTML toggles, denser icon toolbar (format/table actions via `mat-icon-button` + tooltips), mat-select font/reference controls, and flatter workspace chrome (no nested Editor card).
+- **Templates**: Visual/HTML/Preview sit in the main toolbar band (Preview independent of editor mode); preview pane starts closed.
+- **Templates**: Format HTML and hide-preview are icon buttons; Render stays a labeled primary action.
+- **Templates**: System variables (`{{#APP_NAME}}`) use amber inline chips, distinct from purple `#each` blocks and gray expression chips.
+- **Templates**: Visual editor re-chips raw `{{…}}` on load/update (no longer requires HTML→Visual round-trip).
+- **Templates**: Toolbar rows share a 36px control height (compact selects/inputs instead of tall outline fields).
+
 - **Literal translations** / **Forms** / **Query tasks**: CSV import surfaces `literal_too_long` / `translation_too_long` over 4000 chars; remove unreachable character-limit warning icons; query-task save blocked when `#{param}` placeholders are undeclared.
 - **Trees** / **Task types**: `visible`/`active` semantics aligned with backend; radio folder toggle limited to cartography trees; relation grids and tree-node pickers show localized `typeTitle` and request `lang`.
 - **Connections**: Field hints, Tasks tab intro/quick search, and raised primary JDBC test button aligned with service/layer patterns.
@@ -29,6 +44,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Auth** / **HAL**: Credentialed `authGuard` identity reload with admin-rights warning; coalesced `AuthExpiredInterceptor` `/api/account` probe after 401; Observable logout waits for cookie removal; HAL `Resource`/`AccountService` send `withCredentials: true`.
 
 ### Fixed
+
+- **Templates**: TipTap preserves `data-sitmun-each` on query tables so Preview still expands rows after visual edits ([#441](https://github.com/sitmun/sitmun-admin-app/issues/441)).
+- **Templates** / **i18n**: Forms and lists no longer throw `null.localeCompare` after `language.default` change; shared `compareNullableString` for sorts ([#440](https://github.com/sitmun/sitmun-admin-app/issues/440)).
+- **i18n**: `BaseFormComponent` / tree-nodes / Literal translations read live `config.defaultLang` (no stale construction snapshot after Set-as-default).
+- **Templates** / **i18n**: Sources copy buttons use `common.copy` (added in all locales); nested Plantilla cards label by task type so empty scope no longer shows `entity.task.query.scope.`.
+- **Templates** / **MIA**: Duplicate prefix uses `common.copyPrefix` (was bare `copy_`).
+- **Templates**: Nested Sources cards prefill Parameter fields from the open Plantilla’s saved defaults (parent overrides child task defaults unless the nested field is edited).
 
 - **Layers**: Feature Information character-count hint no longer throws when `CharacterCountPipe` probes validators beside the string-assuming queryable-layers CSV validator; `parseLayerList` tolerates non-string probe values; apply `characterCount:500` on queryable layers.
 - **Forms**: Restored modified-field highlight and translate-icon `(keydown)`; `CanDeactivateGuard` unsaved-changes ([#374](https://github.com/sitmun/sitmun-admin-app/issues/374)); route-id reload and save toolbar gated on loaded data; duplicate Save without extra edit ([#384](https://github.com/sitmun/sitmun-admin-app/issues/384)); plain-text URL/relation selects with `open_in_new` suffix ([#376](https://github.com/sitmun/sitmun-admin-app/issues/376)).

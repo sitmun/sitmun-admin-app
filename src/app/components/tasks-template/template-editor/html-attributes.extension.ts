@@ -1,5 +1,7 @@
 import { Extension } from '@tiptap/core';
 
+export const SITMUN_EACH_HTML_ATTRIBUTE = 'data-sitmun-each';
+
 export const HtmlAttributesExtension = Extension.create({
   name: 'htmlAttributes',
 
@@ -22,6 +24,26 @@ export const HtmlAttributesExtension = Extension.create({
             default: null,
             parseHTML: (element: HTMLElement) => element.getAttribute('data-sitmun-handlebars-block'),
             renderHTML: (attributes: { handlebarBlock?: string | null }) => attributes.handlebarBlock ? { 'data-sitmun-handlebars-block': attributes.handlebarBlock } : {},
+          },
+        },
+      },
+      {
+        types: ['table'],
+        attributes: {
+          sitmunEach: {
+            default: null,
+            parseHTML: (element: HTMLElement) => element.getAttribute(SITMUN_EACH_HTML_ATTRIBUTE),
+            renderHTML: (attributes: { sitmunEach?: string | null }) => {
+              if (!attributes.sitmunEach) {
+                return {};
+              }
+
+              const alias = String(attributes.sitmunEach).replace(/\.rows$/i, '');
+              return {
+                [SITMUN_EACH_HTML_ATTRIBUTE]: attributes.sitmunEach,
+                'data-sitmun-each-alias': alias,
+              };
+            },
           },
         },
       },
