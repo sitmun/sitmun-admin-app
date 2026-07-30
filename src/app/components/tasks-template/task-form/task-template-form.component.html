@@ -169,7 +169,7 @@
                   <div class="preview-error" *ngIf="previewError">
                     {{ previewError }}
                   </div>
-                  <div class="preview-panel ql-editor" [innerHTML]="trustedPreviewHtml"></div>
+                  <div class="preview-panel" data-testid="template-preview-html" [innerHTML]="trustedPreviewHtml"></div>
                   <div class="preview-placeholder-list" *ngIf="previewPlaceholders.length > 0">
                     <strong>{{ 'entity.task.template.detectedPlaceholders' | translate }}</strong>
                     <div>{{ previewPlaceholders.join(', ') }}</div>

@@ -104,6 +104,11 @@
     flex: 1;
     width: 100%;
   }
+
+  .workspace-pane-content {
+    height: calc(100vh - 16rem);
+    max-height: calc(100vh - 16rem);
+  }
 }
 
 .template-workspace--resizing {
@@ -152,6 +157,7 @@
 .editor-panel {
   flex-shrink: 0;
   min-width: 0;
+  min-height: 0;
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -164,6 +170,7 @@
 .preview-panel-wrap {
   flex: 1;
   min-width: 0;
+  min-height: 0;
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -178,6 +185,7 @@
 }
 
 .workspace-pane--preview {
+  height: 100%;
   border: 1px solid rgba(0, 0, 0, 0.12);
   border-radius: 0.5rem;
   background: #fff;
@@ -202,15 +210,19 @@
 }
 
 .workspace-pane-content {
-  flex: 1;
-  min-height: 0;
-  overflow: auto;
+  box-sizing: border-box;
+  // Match TipTap surface height so this box stays fully visible beside the editor
+  // (language controls sit inside, so the HTML pane is slightly shorter and scrolls).
+  height: 428px;
+  max-height: 428px;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   padding: 0.75rem 1rem 1rem;
 }
 
 .preview-controls {
+  flex-shrink: 0;
   margin: 0.25rem 0 0.25rem;
 }
 
@@ -219,6 +231,7 @@
 }
 
 .preview-error {
+  flex-shrink: 0;
   margin-bottom: 0.5rem;
   padding: 0.75rem 1rem;
   border: 1px solid #fecaca;
@@ -228,13 +241,15 @@
 }
 
 .preview-panel {
-  flex: 1;
-  min-height: 20rem;
-  height: 469px;
+  flex: 1 1 auto;
+  min-height: 0;
+  box-sizing: border-box;
   padding: 1rem;
   border: 1px solid rgba(0, 0, 0, 0.12);
   background: #fff;
-  overflow: auto;
+  overflow-x: auto;
+  overflow-y: scroll;
+  overscroll-behavior: contain;
 }
 
 .preview-panel .sitmun-template-placeholder {
@@ -271,9 +286,11 @@
 }
 
 .muted-message.preview {
+  flex-shrink: 0;
   margin: 0.5rem 0 !important;
 }
 
 .preview-placeholder-list {
+  flex-shrink: 0;
   margin-top: 0.75rem;
 }
