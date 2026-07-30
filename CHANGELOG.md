@@ -7,19 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Fixed
-
-- **Templates**: TipTap preserves `data-sitmun-each` on query tables so Preview still expands rows after visual edits ([#441](https://github.com/sitmun/sitmun-admin-app/issues/441)).
-- **Templates** / **i18n**: Forms and lists no longer throw `null.localeCompare` after `language.default` change; shared `compareNullableString` for sorts ([#440](https://github.com/sitmun/sitmun-admin-app/issues/440)).
-- **i18n**: `BaseFormComponent` / tree-nodes / Literal translations read live `config.defaultLang` (no stale construction snapshot after Set-as-default).
-- **Templates** / **i18n**: Sources copy buttons use `common.copy` (added in all locales); nested Plantilla cards label by task type so empty scope no longer shows `entity.task.query.scope.`.
-- **Templates** / **MIA**: Duplicate prefix uses `common.copyPrefix` (was bare `copy_`).
-- **Templates**: Nested Sources cards prefill Parameter fields from the open Plantilla’s saved defaults (parent overrides child task defaults unless the nested field is edited).
+## [1.2.8] - 2026-07-30
 
 ### Added
 
 - **Templates**: Form tabs Details / Template / Sources with preview toggle and resizable sash; insert-from-Sources focuses Template.
 - **Templates**: Bound-table **R** chip and table-only Reference rebind (orphan aliases stay visible); inline `{{…}}` code chips in the visual editor.
+
+- **Templates** / **More Info Advanced**: TipTap HTML editor, ADMIN preview, linked-child execute-child dry-run (coords not required); typeId 16 MIA task configuration UI (runtime map render remains in the viewer).
+- **Literal translations**: Admin CRUD, CSV import/export, and completion indicators.
+- **Task types**: List and title-only form (`/taskType`, `/taskType/:id/taskTypeForm`) with side-menu entry (duplicate hidden); i18n strings in all five locales.
+- **Languages** / **Language chrome**: `enabled`/`order` on language form/list (disabled excluded from menus/dialogs; default language cannot be disabled); toolbar/login show closed BCP-47 ISO and open API endonyms; UI language from `localStorage.lang` → `language.default` → static; guarded set-default workflow with missing-translation preview; `language.default` protected in configuration parameters.
+- **Trees** / **Application trees**: `loadData` and `queryableActive` cartography toggles with admin-tree badges; application↔tree links via `/api/application-trees` with editable `order` ([sitmun-viewer-app#45](https://github.com/sitmun/sitmun-viewer-app/issues/45)).
+- **Application**: Optional responsible institution, eligible PoC selector (built-in/blocked excluded), list warning indicator, and user-form impact warnings ([#316](https://github.com/sitmun/sitmun-admin-app/issues/316)).
+- **Tests**: Jest coverage for WMS metadata parsing, service-form translation prefill, auth/session validation, admin guard feedback, HAL credentials, dialog/grid/URL/relation-selector regressions.
 
 ### Changed
 
@@ -35,20 +36,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Templates**: Visual editor re-chips raw `{{…}}` on load/update (no longer requires HTML→Visual round-trip).
 - **Templates**: Toolbar rows share a 36px control height (compact selects/inputs instead of tall outline fields).
 
-## [1.2.8] - 2026-07-25
-
-### Added
-
-- **Templates** / **More Info Advanced**: TipTap HTML editor, ADMIN preview, linked-child execute-child dry-run (coords not required); typeId 16 MIA task configuration UI (runtime map render remains in the viewer).
-- **Literal translations**: Admin CRUD, CSV import/export, and completion indicators.
-- **Task types**: List and title-only form (`/taskType`, `/taskType/:id/taskTypeForm`) with side-menu entry (duplicate hidden); i18n strings in all five locales.
-- **Languages** / **Language chrome**: `enabled`/`order` on language form/list (disabled excluded from menus/dialogs; default language cannot be disabled); toolbar/login show closed BCP-47 ISO and open API endonyms; UI language from `localStorage.lang` → `language.default` → static; guarded set-default workflow with missing-translation preview; `language.default` protected in configuration parameters.
-- **Trees** / **Application trees**: `loadData` and `queryableActive` cartography toggles with admin-tree badges; application↔tree links via `/api/application-trees` with editable `order` ([sitmun-viewer-app#45](https://github.com/sitmun/sitmun-viewer-app/issues/45)).
-- **Application**: Optional responsible institution, eligible PoC selector (built-in/blocked excluded), list warning indicator, and user-form impact warnings ([#316](https://github.com/sitmun/sitmun-admin-app/issues/316)).
-- **Tests**: Jest coverage for WMS metadata parsing, service-form translation prefill, auth/session validation, admin guard feedback, HAL credentials, dialog/grid/URL/relation-selector regressions.
-
-### Changed
-
 - **Literal translations** / **Forms** / **Query tasks**: CSV import surfaces `literal_too_long` / `translation_too_long` over 4000 chars; remove unreachable character-limit warning icons; query-task save blocked when `#{param}` placeholders are undeclared.
 - **Trees** / **Task types**: `visible`/`active` semantics aligned with backend; radio folder toggle limited to cartography trees; relation grids and tree-node pickers show localized `typeTitle` and request `lang`.
 - **Connections**: Field hints, Tasks tab intro/quick search, and raised primary JDBC test button aligned with service/layer patterns.
@@ -57,6 +44,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Auth** / **HAL**: Credentialed `authGuard` identity reload with admin-rights warning; coalesced `AuthExpiredInterceptor` `/api/account` probe after 401; Observable logout waits for cookie removal; HAL `Resource`/`AccountService` send `withCredentials: true`.
 
 ### Fixed
+
+- **Templates**: TipTap preserves `data-sitmun-each` on query tables so Preview still expands rows after visual edits ([#441](https://github.com/sitmun/sitmun-admin-app/issues/441)).
+- **Templates** / **i18n**: Forms and lists no longer throw `null.localeCompare` after `language.default` change; shared `compareNullableString` for sorts ([#440](https://github.com/sitmun/sitmun-admin-app/issues/440)).
+- **i18n**: `BaseFormComponent` / tree-nodes / Literal translations read live `config.defaultLang` (no stale construction snapshot after Set-as-default).
+- **Templates** / **i18n**: Sources copy buttons use `common.copy` (added in all locales); nested Plantilla cards label by task type so empty scope no longer shows `entity.task.query.scope.`.
+- **Templates** / **MIA**: Duplicate prefix uses `common.copyPrefix` (was bare `copy_`).
+- **Templates**: Nested Sources cards prefill Parameter fields from the open Plantilla’s saved defaults (parent overrides child task defaults unless the nested field is edited).
 
 - **Layers**: Feature Information character-count hint no longer throws when `CharacterCountPipe` probes validators beside the string-assuming queryable-layers CSV validator; `parseLayerList` tolerates non-string probe values; apply `characterCount:500` on queryable layers.
 - **Forms**: Restored modified-field highlight and translate-icon `(keydown)`; `CanDeactivateGuard` unsaved-changes ([#374](https://github.com/sitmun/sitmun-admin-app/issues/374)); route-id reload and save toolbar gated on loaded data; duplicate Save without extra edit ([#384](https://github.com/sitmun/sitmun-admin-app/issues/384)); plain-text URL/relation selects with `open_in_new` suffix ([#376](https://github.com/sitmun/sitmun-admin-app/issues/376)).
