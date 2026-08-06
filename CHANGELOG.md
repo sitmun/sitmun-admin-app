@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **Templates / TipTap**: Attribute mustaches (`src`/`href`/`alt`/… ) stay literal attributes; chips apply only to HTML text. Source-aware protect is idempotent, chips `else if`, and T-wrap restores chips to raw mustaches before storing `<t>` payloads.
+- **Templates / TipTap**: After intentional visual edits, authored `div` blocks, bare table cells (no injected `colgroup`/`min-width`), and links without `target`/`rel` keep their shape; toolbar-created links still get `target="_blank"` and `rel="noopener noreferrer"`.
+- **Templates / TipTap**: Split editor+preview workspace fills available viewport height (was fixed ~428px; preview-only already did).
+- **Templates / TipTap**: HTML comments survive visual round-trip via marker nodes (TipTap drops real `<!--…-->` on parse).
+- **Templates / Preview**: Navigable links in the preview pane open in a new tab (`noopener`) so the admin SPA is not replaced.
+
+### Follow-ups (confirmed; not in this change)
+
+- Viewer: `renderMiaTasks` returns `taskId: 0` when `appId`/`terId` absent → spinner; mirror `989adfa` one-error-per-task.
+- Admin Sources: `rootParameterDefaults` new object each CD resets QEC form; memoize + typed-value regression.
+- Admin Sources: unsaved Parameters relation-grid values ignored (reads `entityToEdit.properties`); live-grid prefill after memoization fix.
+- Admin Sources: preview language control only in Template preview pane.
+- Admin: `replaceReferenceAliasInHtml` only matches double-quoted `data-sitmun-each`.
+- Templates: TipTap-split triple mustache normalization fixture (narrow).
+- Admin Jest test hygiene: silence expected noise (`Code list … not initialized`, `NG0304` unknown elements) via code-list mocks and complete TestBed schemas; separate PR.
+- Templates / TipTap UX: mustache `img`/`iframe` `src` placeholder (icon + binding label) and selection inspector for `src`/`alt`/`title` so Source links like `{{foto.url}}` are visible without HTML mode; separate PR.
+- Investigate: SITNA `currentFeature` object-identity in `resolveMiaGfiTarget`.
+
 ## [1.2.8] - 2026-07-30
 
 ### Added

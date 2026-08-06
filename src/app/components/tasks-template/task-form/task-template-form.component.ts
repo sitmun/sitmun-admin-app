@@ -81,6 +81,18 @@ interface TemplateTaskProperties extends Record<string, unknown> {
   childTaskOrderIds?: number[];
 }
 
+/**
+ * Admin Template preview must not navigate the SPA away.
+ * Real hrefs open in a new tab; hash / javascript: URLs are left alone.
+ */
+export function shouldOpenPreviewHrefInNewTab(href: string | null | undefined): boolean {
+  const value = (href || '').trim();
+  if (!value || value.startsWith('#')) {
+    return false;
+  }
+  return !/^javascript:/i.test(value);
+}
+
 @Component({
   selector: 'app-task-template-form',
   templateUrl: './task-template-form.component.html',
@@ -857,6 +869,28 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
         this.previewDirty = false;
       },
     });
+  }
+
+  /** Keep admin on the form; open preview links in a new tab (authored HTML often omits target). */
+  protected onPreviewPanelClick(event: MouseEvent): void {
+    const eventTarget = event.target;
+    if (!(eventTarget instanceof Element)) {
+      return;
+    }
+    const panel = event.currentTarget;
+    if (!(panel instanceof Element)) {
+      return;
+    }
+    const anchor = eventTarget.closest('a[href]');
+    if (!(anchor instanceof HTMLAnchorElement) || !panel.contains(anchor)) {
+      return;
+    }
+    if (!shouldOpenPreviewHrefInNewTab(anchor.getAttribute('href'))) {
+      return;
+    }
+    event.preventDefault();
+    event.stopPropagation();
+    window.open(anchor.href, '_blank', 'noopener,noreferrer');
   }
 
   private createObject(id: number | null = null): Task {

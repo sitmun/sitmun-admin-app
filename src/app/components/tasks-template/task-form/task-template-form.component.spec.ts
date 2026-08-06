@@ -10,7 +10,52 @@ import { of, throwError } from 'rxjs';
 import { LanguageService } from '@app/domain/translation/services/language.service';
 import { magic } from '@environments/constants';
 
-import { TaskTemplateFormComponent } from './task-template-form.component';
+import { TaskTemplateFormComponent, shouldOpenPreviewHrefInNewTab } from './task-template-form.component';
+
+describe('shouldOpenPreviewHrefInNewTab', () => {
+  it('opens http(s) and relative navigable hrefs in a new tab', () => {
+    expect(shouldOpenPreviewHrefInNewTab('https://example.test/x.png')).toBe(true);
+    expect(shouldOpenPreviewHrefInNewTab('/path')).toBe(true);
+  });
+
+  it('ignores empty, hash, and javascript urls', () => {
+    expect(shouldOpenPreviewHrefInNewTab('')).toBe(false);
+    expect(shouldOpenPreviewHrefInNewTab('#section')).toBe(false);
+    expect(shouldOpenPreviewHrefInNewTab('javascript:alert(1)')).toBe(false);
+  });
+});
+
+describe('TaskTemplateFormComponent preview link clicks', () => {
+  it('opens navigable preview links in a new tab', () => {
+    const openSpy = jest.spyOn(window, 'open').mockImplementation(() => null);
+    const panel = document.createElement('div');
+    const anchor = document.createElement('a');
+    anchor.href = 'https://example.test/photo.jpg';
+    anchor.textContent = 'open photo';
+    panel.appendChild(anchor);
+    document.body.appendChild(panel);
+
+    const component = Object.create(TaskTemplateFormComponent.prototype) as TaskTemplateFormComponent;
+    const event = {
+      target: anchor,
+      currentTarget: panel,
+      preventDefault: jest.fn(),
+      stopPropagation: jest.fn(),
+    } as unknown as MouseEvent;
+
+    (component as any).onPreviewPanelClick(event);
+
+    expect(event.preventDefault).toHaveBeenCalled();
+    expect(openSpy).toHaveBeenCalledWith(
+      expect.stringContaining('https://example.test/photo.jpg'),
+      '_blank',
+      'noopener,noreferrer',
+    );
+
+    openSpy.mockRestore();
+    panel.remove();
+  });
+});
 
 describe('TaskTemplateFormComponent', () => {
   let component: TaskTemplateFormComponent;
