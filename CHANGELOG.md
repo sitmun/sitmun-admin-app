@@ -19,10 +19,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Templates**: `replaceReferenceAliasInHtml` renames single-quoted `data-sitmun-each` as well as double-quoted.
 - **Tests**: Filter expected Jest `console.error` noise (`Code list … not initialized`, `NG0304`); TipTap-split triple-mustache normalize fixture.
 
-### Follow-ups (confirmed; not in this change)
+### Changed
 
-- Admin Sources: preview language control only in Template preview pane.
-- Investigate: SITNA `currentFeature` object-identity in `resolveMiaGfiTarget` — match uses `Array.includes` (reference equality); if SITNA clones/replaces the feature object vs `layer.features`, preference silently falls back to the first MIA-capable feature. No code change until runtime evidence.
+- **Templates / Preview**: Preview language selector stays in the Template preview pane only; Sources Execute inherits that language (no Sources language UI).
 
 ## [1.2.8] - 2026-07-30
 

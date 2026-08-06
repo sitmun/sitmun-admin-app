@@ -857,8 +857,21 @@ describe('TaskTemplateFormComponent', () => {
       (component as any).previewHtml,
     );
 
-    const trusted = (component as any).trustedPreviewHtml;
+    expect((component as any).trustedPreviewHtml).toBeTruthy();
+  });
 
-    expect(trusted).toBeTruthy();
+  it('keeps preview language control only in the Template preview pane', () => {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const fs = require('fs') as typeof import('fs');
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const path = require('path') as typeof import('path');
+    const html = fs.readFileSync(path.join(__dirname, 'task-template-form.component.html'), 'utf8');
+
+    expect([...html.matchAll(/preview-language-field/g)]).toHaveLength(1);
+    const sourcesStart = html.indexOf("entity.task.template.sources.header");
+    expect(sourcesStart).toBeGreaterThan(-1);
+    expect(html.slice(0, sourcesStart)).toContain('preview-language-field');
+    expect(html.slice(sourcesStart)).not.toContain('preview-language-field');
+    expect(html.slice(sourcesStart)).toContain('[language]="previewLanguageControl.value"');
   });
 });

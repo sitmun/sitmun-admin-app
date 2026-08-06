@@ -118,6 +118,7 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
   protected taskLookup = new Map<number, TaskProjection>();
   protected templateChildTasks = new Map<number, TemplateChildTaskLink[]>();
   protected previewLanguages: Language[] = [];
+  /** Template preview pane only; Sources Execute inherits this value (no Sources language UI). */
   protected previewLanguageControl = new FormControl(config.defaultLang, { nonNullable: true });
   protected previewHtml = '';
   protected trustedPreviewHtml: SafeHtml = '';
