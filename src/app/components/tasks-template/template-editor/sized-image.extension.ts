@@ -2,6 +2,8 @@ import { mergeAttributes } from '@tiptap/core';
 import Image from '@tiptap/extension-image';
 import { NodeSelection } from '@tiptap/pm/state';
 
+import { createMustacheMediaPlaceholder, isMustacheMediaSrc } from './mustache-media';
+
 export const SizedImageExtension = Image.extend({
   addAttributes() {
     return {
@@ -52,35 +54,34 @@ export const SizedImageExtension = Image.extend({
   },
 
   addNodeView() {
-    return ({ node, editor, getPos, HTMLAttributes }) => {
+    return ({ node, editor, getPos }) => {
       const wrapper = document.createElement('div');
       wrapper.className = 'sitmun-resizable-image';
       wrapper.contentEditable = 'false';
 
-      const image = document.createElement('img');
-      Object.entries(HTMLAttributes).forEach(([key, value]) => {
-        if (value != null) {
-          image.setAttribute(key, String(value));
-        }
-      });
+      let media: HTMLElement;
+      let currentSrc = String(node.attrs['src'] || '');
+      let mustacheMode = isMustacheMediaSrc(currentSrc);
 
       const handle = document.createElement('span');
       handle.className = 'sitmun-resizable-image__handle';
 
-      const applySize = (width: number | null, height: number | null) => {
-        image.style.width = width ? `${width}px` : '';
-        image.style.height = height ? `${height}px` : '';
+      const applySize = (target: HTMLElement, width: number | null, height: number | null) => {
+        target.style.width = width ? `${width}px` : '';
+        target.style.height = height ? `${height}px` : '';
 
-        if (width) {
-          image.setAttribute('width', String(width));
-        } else {
-          image.removeAttribute('width');
-        }
+        if (target instanceof HTMLImageElement) {
+          if (width) {
+            target.setAttribute('width', String(width));
+          } else {
+            target.removeAttribute('width');
+          }
 
-        if (height) {
-          image.setAttribute('height', String(height));
-        } else {
-          image.removeAttribute('height');
+          if (height) {
+            target.setAttribute('height', String(height));
+          } else {
+            target.removeAttribute('height');
+          }
         }
       };
 
@@ -89,7 +90,33 @@ export const SizedImageExtension = Image.extend({
         return Number.isFinite(numericValue) && numericValue > 0 ? numericValue : null;
       };
 
-      applySize(readDimension(node.attrs['width']), readDimension(node.attrs['height']));
+      const buildImage = (attrs: Record<string, unknown>): HTMLImageElement => {
+        const image = document.createElement('img');
+        for (const [key, value] of Object.entries(attrs)) {
+          if (value == null || (key === 'src' && isMustacheMediaSrc(String(value)))) {
+            continue;
+          }
+          image.setAttribute(key, String(value));
+        }
+        if (attrs['src'] != null && !isMustacheMediaSrc(String(attrs['src']))) {
+          image.setAttribute('src', String(attrs['src']));
+        }
+        return image;
+      };
+
+      const mountMedia = (attrs: Record<string, unknown>) => {
+        const src = String(attrs['src'] || '');
+        mustacheMode = isMustacheMediaSrc(src);
+        currentSrc = src;
+        media = mustacheMode
+          ? createMustacheMediaPlaceholder('img', src)
+          : buildImage(attrs);
+        applySize(media, readDimension(attrs['width']), readDimension(attrs['height']));
+        wrapper.replaceChildren(media, handle);
+        handle.style.display = mustacheMode ? 'none' : '';
+      };
+
+      mountMedia(node.attrs as Record<string, unknown>);
 
       const selectNode = () => {
         const position = getPos();
@@ -113,9 +140,13 @@ export const SizedImageExtension = Image.extend({
         event.preventDefault();
         event.stopPropagation();
 
+        if (mustacheMode || !(media instanceof HTMLImageElement)) {
+          return;
+        }
+
         selectNode();
 
-        const rect = image.getBoundingClientRect();
+        const rect = media.getBoundingClientRect();
         const startWidth = rect.width;
         const startHeight = rect.height;
         const startX = event.clientX;
@@ -124,7 +155,7 @@ export const SizedImageExtension = Image.extend({
         const onMouseMove = (moveEvent: MouseEvent) => {
           const nextWidth = Math.max(24, Math.round(startWidth + (moveEvent.clientX - startX)));
           const nextHeight = Math.max(24, Math.round(startHeight + (moveEvent.clientY - startY)));
-          applySize(nextWidth, nextHeight);
+          applySize(media, nextWidth, nextHeight);
         };
 
         const onMouseUp = (upEvent: MouseEvent) => {
@@ -133,7 +164,7 @@ export const SizedImageExtension = Image.extend({
 
           const finalWidth = Math.max(24, Math.round(startWidth + (upEvent.clientX - startX)));
           const finalHeight = Math.max(24, Math.round(startHeight + (upEvent.clientY - startY)));
-          applySize(finalWidth, finalHeight);
+          applySize(media, finalWidth, finalHeight);
           editor.commands.updateAttributes('image', {
             width: String(finalWidth),
             height: String(finalHeight),
@@ -144,25 +175,44 @@ export const SizedImageExtension = Image.extend({
         document.addEventListener('mouseup', onMouseUp);
       });
 
-      wrapper.appendChild(image);
-      wrapper.appendChild(handle);
-
       return {
         dom: wrapper,
         update: (updatedNode) => {
-          if (updatedNode.type !== node.type) {
+          if (updatedNode.type.name !== 'image') {
             return false;
           }
 
-          Object.entries(updatedNode.attrs).forEach(([key, value]) => {
-            if (value == null) {
-              image.removeAttribute(key);
-              return;
-            }
+          const nextSrc = String(updatedNode.attrs['src'] || '');
+          const nextMustache = isMustacheMediaSrc(nextSrc);
+          if (nextMustache !== mustacheMode) {
+            mountMedia(updatedNode.attrs as Record<string, unknown>);
+            return true;
+          }
 
-            image.setAttribute(key, String(value));
-          });
-          applySize(readDimension(updatedNode.attrs['width']), readDimension(updatedNode.attrs['height']));
+          if (mustacheMode) {
+            if (nextSrc !== currentSrc) {
+              const label = media.querySelector('.sitmun-mustache-media-placeholder__src');
+              if (label) {
+                label.textContent = nextSrc;
+              }
+              currentSrc = nextSrc;
+            }
+            applySize(media, readDimension(updatedNode.attrs['width']), readDimension(updatedNode.attrs['height']));
+            return true;
+          }
+
+          if (!(media instanceof HTMLImageElement)) {
+            return false;
+          }
+
+          for (const [key, value] of Object.entries(updatedNode.attrs)) {
+            if (value == null) {
+              media.removeAttribute(key);
+              continue;
+            }
+            media.setAttribute(key, String(value));
+          }
+          applySize(media, readDimension(updatedNode.attrs['width']), readDimension(updatedNode.attrs['height']));
           return true;
         },
       };

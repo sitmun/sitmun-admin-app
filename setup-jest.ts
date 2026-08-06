@@ -84,10 +84,15 @@ class MockIntersectionObserver {
 // Add to global
 global.IntersectionObserver = MockIntersectionObserver as any;
 
-// Output test console logs
-// global.console = {
-//   ...console,
-//   log: console.log,
-//   error: console.error,
-//   warn: console.warn,
-// };
+// Quiet expected Jest noise from incomplete TestBed / unloaded code lists.
+const originalConsoleError = console.error.bind(console);
+console.error = (...args: unknown[]) => {
+  const message = args.map((arg) => String(arg)).join(' ');
+  if (/Code list .+ not initialized/i.test(message)) {
+    return;
+  }
+  if (/\bNG0304\b/.test(message)) {
+    return;
+  }
+  originalConsoleError(...args);
+};

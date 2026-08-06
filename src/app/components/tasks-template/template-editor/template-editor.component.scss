@@ -178,6 +178,11 @@
     padding: 0 0.35rem;
     text-align: center;
   }
+
+  &--media-attr {
+    width: 8.5rem;
+    padding: 0 0.4rem;
+  }
 }
 
 .template-editor-visual-surface {
@@ -265,6 +270,42 @@
 :host ::ng-deep .sitmun-resizable-image.ProseMirror-selectednode .sitmun-resizable-image__handle {
   opacity: 1;
   pointer-events: auto;
+}
+
+:host ::ng-deep .sitmun-mustache-media-placeholder {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  max-width: 100%;
+  min-height: 2.5rem;
+  padding: 0.5rem 0.75rem;
+  box-sizing: border-box;
+  border: 1px dashed #64748b;
+  border-radius: 4px;
+  background: #f8fafc;
+  color: #334155;
+  line-height: 1.3;
+}
+
+:host ::ng-deep .sitmun-mustache-media-placeholder__icon {
+  flex: 0 0 auto;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+:host ::ng-deep .sitmun-mustache-media-placeholder__src {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.85rem;
+  word-break: break-all;
+}
+
+:host ::ng-deep .ProseMirror-selectednode.sitmun-mustache-media-placeholder,
+:host ::ng-deep .sitmun-resizable-image.ProseMirror-selectednode .sitmun-mustache-media-placeholder {
+  outline: 2px solid #93c5fd;
+  outline-offset: 2px;
 }
 
 :host ::ng-deep .template-editor-host table {

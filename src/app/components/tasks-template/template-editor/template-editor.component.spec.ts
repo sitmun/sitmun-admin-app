@@ -42,6 +42,12 @@ describe('TemplateEditorComponent', () => {
     expect(normalizeHandlebarsMarkup('<p>{{task.<span>name</span>}}</p>')).toBe('<p>{{task.name}}</p>');
   });
 
+  it('normalizes TipTap-injected tags inside triple mustaches without truncating at first }}', () => {
+    // Double-first matching would stop at the first `}}` and leave a stray `}`.
+    expect(normalizeHandlebarsMarkup('{{{rich.<b>html</b>}}}')).toBe('{{{rich.html}}}');
+    expect(normalizeHandlebarsMarkup('<p>{{{x<span>y</span>}}}</p>')).toBe('<p>{{{xy}}}</p>');
+  });
+
   it('should normalize rgb colors for color inputs', () => {
     expect(normalizeEditorColorValue('rgb(255, 0, 128)', '#000000')).toBe('#ff0080');
   });
@@ -277,6 +283,44 @@ describe('TemplateEditorComponent', () => {
     expect(html).toContain('alt="{{task_1.url}}"');
     expect(html).not.toMatch(/src="[^"]*data-sitmun-handlebars/);
     expect(html).toContain('data-sitmun-handlebars-expr');
+
+    editor.destroy();
+    host.remove();
+  });
+
+  it('shows mustache media placeholders and serializes literal src/alt/title', () => {
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    const editor = new Editor({
+      element: host,
+      extensions: createTemplateEditorExtensions(),
+      content: '',
+    });
+
+    editor.commands.setContent(
+      protectTemplateEditorHtml(
+        '<img src="{{foto.url}}" alt="{{foto.url}}" title="{{#APP_NAME}}">' +
+          '<iframe src="{{task_1.contentUrl}}" title="map"></iframe>',
+      ),
+      false,
+    );
+
+    const placeholders = host.querySelectorAll('.sitmun-mustache-media-placeholder');
+    expect(placeholders.length).toBe(2);
+    expect(host.querySelector('[data-sitmun-mustache-media="img"] .sitmun-mustache-media-placeholder__src')?.textContent)
+      .toBe('{{foto.url}}');
+    expect(host.querySelector('[data-sitmun-mustache-media="iframe"] .sitmun-mustache-media-placeholder__src')?.textContent)
+      .toBe('{{task_1.contentUrl}}');
+    expect(host.querySelector('img[src*="{{"]')).toBeNull();
+    expect(host.querySelector('iframe[src*="{{"]')).toBeNull();
+
+    const serialized = restoreHandlebarsChipsFromHtml(editor.getHTML());
+    expect(serialized).toContain('src="{{foto.url}}"');
+    expect(serialized).toContain('alt="{{foto.url}}"');
+    expect(serialized).toContain('title="{{#APP_NAME}}"');
+    expect(serialized).toContain('<iframe');
+    expect(serialized).toContain('src="{{task_1.contentUrl}}"');
+    expect(serialized).not.toContain('sitmun-mustache-media-placeholder');
 
     editor.destroy();
     host.remove();

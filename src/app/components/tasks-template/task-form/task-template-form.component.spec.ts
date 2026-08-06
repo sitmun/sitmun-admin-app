@@ -470,6 +470,26 @@ describe('TaskTemplateFormComponent', () => {
     expect((component as any).linkedTasks[0].draftReferenceAlias).toBe('consulta_padron');
   });
 
+  it('should replace single-quoted data-sitmun-each when renaming a reference alias', async () => {
+    component.entityToEdit = { properties: {} } as any;
+    (component as any).previewExecutionContext = { pepe: { value: 1 } };
+    component.entityForm = new FormGroup({
+      name: new FormControl('Template 1'),
+      taskGroupId: new FormControl(2),
+      templateHtml: new FormControl("<table data-sitmun-each='pepe.rows'><tbody><tr><td>{{name}}</td></tr></tbody></table>"),
+    });
+    (component as any).linkedTasks = [
+      { relationType: 'template-task', taskId: 13, referenceAlias: 'pepe', draftReferenceAlias: 'pepe', name: 'Consulta', typeLabel: 'Consulta SQL', relationId: 1 },
+    ];
+
+    (component as any).onReferenceAliasDraftChanged((component as any).linkedTasks[0], 'consulta_padron');
+    await (component as any).applyReferenceAliasChange((component as any).linkedTasks[0]);
+    (component as any).confirmPendingReferenceAliasChange(true);
+
+    expect(component.entityForm.get('templateHtml')?.value)
+      .toBe("<table data-sitmun-each='consulta_padron.rows'><tbody><tr><td>{{name}}</td></tr></tbody></table>");
+  });
+
   it('should replace placeholders on successive alias changes', async () => {
     component.entityToEdit = { properties: {} } as any;
     (component as any).previewExecutionContext = { pepe: { value: 1 } };
@@ -719,6 +739,57 @@ describe('TaskTemplateFormComponent', () => {
       $explicitVar: 'abc',
       pepe: { tui_name: 'layerCatalog' },
     }, null, [], (component as any).previewLanguageControl.value);
+  });
+
+  it('should reuse the same rootParameterDefaults object when values are unchanged', () => {
+    component.entityToEdit = {
+      properties: {
+        parameters: [{ name: 'featureId', type: 'string', value: '42' }],
+      },
+    } as any;
+
+    const first = (component as any).rootParameterDefaults;
+    const second = (component as any).rootParameterDefaults;
+
+    expect(first).toEqual({ featureId: '42' });
+    expect(second).toBe(first);
+  });
+
+  it('should include unsaved Parameters relation-grid values in preview context', async () => {
+    component.entityToEdit = {
+      properties: {
+        parameters: [{ name: 'featureId', type: 'string', value: 'saved' }],
+      },
+    } as any;
+    component.entityForm = new FormGroup({
+      name: new FormControl('Template 1'),
+      taskGroupId: new FormControl(2),
+      templateHtml: new FormControl('{{$featureId}}'),
+    });
+    (component as any).previewExecutionContext = {};
+    Object.defineProperty(component, 'relationGrids', {
+      configurable: true,
+      get: () => ({
+        toArray: () => [
+          {
+            table: (component as any).parametersTable,
+            dataGrid: {
+              getAllCurrentData: () => [{ name: 'featureId', type: 'string', value: 'unsaved-live' }],
+            },
+          },
+        ],
+      }),
+    });
+
+    await (component as any).renderPreview();
+
+    expect(previewService.previewTemplate).toHaveBeenCalledWith(
+      '{{$featureId}}',
+      { $featureId: 'unsaved-live' },
+      null,
+      [],
+      (component as any).previewLanguageControl.value,
+    );
   });
 
   it('should keep preview errors local to the preview panel', async () => {

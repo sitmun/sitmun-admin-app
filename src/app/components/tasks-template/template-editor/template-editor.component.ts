@@ -456,6 +456,9 @@ export class TemplateEditorComponent implements AfterViewInit, OnChanges, OnDest
   interactionErrors: string[] = [];
   selectedElementWidth = '';
   selectedElementHeight = '';
+  selectedElementSrc = '';
+  selectedElementAlt = '';
+  selectedElementTitle = '';
   selectedTextColor = '#000000';
   selectedHighlightColor = '#ffffff';
   selectedFontSize = '';
@@ -900,6 +903,33 @@ export class TemplateEditorComponent implements AfterViewInit, OnChanges, OnDest
     this.syncSelectionState();
   }
 
+  updateSelectedMediaAttribute(attribute: 'src' | 'alt' | 'title', value: string): void {
+    if (!this.editor || !this.isMediaAttrInspectorVisible()) {
+      return;
+    }
+
+    const trimmedValue = String(value ?? '').trim();
+    if (attribute === 'src') {
+      this.selectedElementSrc = trimmedValue;
+    } else if (attribute === 'alt') {
+      this.selectedElementAlt = trimmedValue;
+    } else {
+      this.selectedElementTitle = trimmedValue;
+    }
+
+    const attrs: Record<string, string | null> = {
+      [attribute]: trimmedValue || null,
+    };
+
+    if (this.selectedNodeType === 'image') {
+      this.editor.chain().focus().updateAttributes('image', attrs).run();
+    } else if (this.selectedNodeType === 'iframe' && attribute !== 'alt') {
+      this.editor.chain().focus().updateAttributes('iframe', attrs).run();
+    }
+
+    this.syncSelectionState();
+  }
+
   formatHtmlSource(): void {
     this.onHtmlSourceChanged(beautifyHtml(this.htmlSource || '', {
       indent_size: 2,
@@ -982,6 +1012,14 @@ export class TemplateEditorComponent implements AfterViewInit, OnChanges, OnDest
 
   isSizeControlVisible(): boolean {
     return this.selectedNodeType === 'image' || this.selectedNodeType === 'iframe';
+  }
+
+  isMediaAttrInspectorVisible(): boolean {
+    return this.isSizeControlVisible();
+  }
+
+  isImageAttrInspectorVisible(): boolean {
+    return this.selectedNodeType === 'image';
   }
 
   isTableContextVisible(): boolean {
@@ -1173,6 +1211,9 @@ export class TemplateEditorComponent implements AfterViewInit, OnChanges, OnDest
     if (!this.isSizeControlVisible()) {
       this.selectedElementWidth = '';
       this.selectedElementHeight = '';
+      this.selectedElementSrc = '';
+      this.selectedElementAlt = '';
+      this.selectedElementTitle = '';
       this.changeDetectorRef.detectChanges();
       return;
     }
@@ -1180,6 +1221,9 @@ export class TemplateEditorComponent implements AfterViewInit, OnChanges, OnDest
     const attributes = this.editor.getAttributes(this.selectedNodeType) as Record<string, string | null | undefined>;
     this.selectedElementWidth = this.normalizeDimensionValue(attributes['width']);
     this.selectedElementHeight = this.normalizeDimensionValue(attributes['height']);
+    this.selectedElementSrc = attributes['src'] ? String(attributes['src']) : '';
+    this.selectedElementAlt = attributes['alt'] ? String(attributes['alt']) : '';
+    this.selectedElementTitle = attributes['title'] ? String(attributes['title']) : '';
     this.changeDetectorRef.detectChanges();
   }
 
@@ -1189,6 +1233,9 @@ export class TemplateEditorComponent implements AfterViewInit, OnChanges, OnDest
     this.tableSelectionMode = 'none';
     this.selectedElementWidth = '';
     this.selectedElementHeight = '';
+    this.selectedElementSrc = '';
+    this.selectedElementAlt = '';
+    this.selectedElementTitle = '';
     this.selectedTextColor = '#000000';
     this.selectedHighlightColor = '#fff59d';
     this.selectedFontSize = '';

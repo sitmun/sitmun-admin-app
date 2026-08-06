@@ -310,6 +310,34 @@
         (ngModelChange)="updateSelectedElementSize('height', $event)"
         [attr.aria-label]="'entity.task.template.editor.height' | translate"
         [matTooltip]="'entity.task.template.editor.height' | translate">
+      <input
+        class="toolbar-control toolbar-control--media-attr"
+        type="text"
+        [disabled]="readonly"
+        [ngModel]="selectedElementSrc"
+        (ngModelChange)="updateSelectedMediaAttribute('src', $event)"
+        [attr.aria-label]="'entity.task.template.editor.src' | translate"
+        [matTooltip]="'entity.task.template.editor.src' | translate"
+        placeholder="src">
+      <input
+        *ngIf="isImageAttrInspectorVisible()"
+        class="toolbar-control toolbar-control--media-attr"
+        type="text"
+        [disabled]="readonly"
+        [ngModel]="selectedElementAlt"
+        (ngModelChange)="updateSelectedMediaAttribute('alt', $event)"
+        [attr.aria-label]="'entity.task.template.editor.alt' | translate"
+        [matTooltip]="'entity.task.template.editor.alt' | translate"
+        placeholder="alt">
+      <input
+        class="toolbar-control toolbar-control--media-attr"
+        type="text"
+        [disabled]="readonly"
+        [ngModel]="selectedElementTitle"
+        (ngModelChange)="updateSelectedMediaAttribute('title', $event)"
+        [attr.aria-label]="'entity.task.template.editor.title' | translate"
+        [matTooltip]="'entity.task.template.editor.title' | translate"
+        placeholder="title">
     </div>
   </div>
 
