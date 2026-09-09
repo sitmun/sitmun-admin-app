@@ -17,19 +17,10 @@ import {Capabilities} from '../models/capabilities.model';
 })
 export class CapabilitiesService extends RestService<Capabilities> {
 
-  /**
-   * API endpoint path for capabilities
-   * Used as a base URL for capabilities-related requests
-   */
-  public CAPABILITIES_API = 'helpers/capabilities?url=';
+  public CAPABILITIES_API = 'helpers/capabilities';
 
-  /**
-   * Creates an instance of CapabilitiesService.
-   * @param injector - Angular injector instance for dependency injection
-   * @param http - HttpClient for making HTTP requests
-   */
   constructor(injector: Injector, private http: HttpClient) {
-    super(Capabilities, "helpers/capabilities?url=", injector);
+    super(Capabilities, 'helpers/capabilities', injector);
   }
 
   /**
@@ -44,9 +35,12 @@ export class CapabilitiesService extends RestService<Capabilities> {
       }
       const requestOptions = {
         headers: new HttpHeaders(headerDict),
+        params: { url },
       };
-      const finalUrl = this.resourceService.getResourceUrl(this.CAPABILITIES_API).concat(url);
-      return this.http.get(finalUrl, requestOptions);
+      return this.http.get(
+        this.resourceService.getResourceUrl(this.CAPABILITIES_API),
+        requestOptions
+      );
     } else {
       return of(null);
     }

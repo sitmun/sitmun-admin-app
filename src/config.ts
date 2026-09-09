@@ -100,11 +100,8 @@ export const config = {
   },
   applicationTemplateIdentificator: "PRINT_TEMPLATE",
   capabilitiesRequest: {
-    simpleRequest: 'request=GetCapabilities',
-    requestWithWMS: 'request=GetCapabilities%26service=WMS',
     WFSIdentificator: 'WFS',
     WMSIdentificator: 'WMS',
-
   },
   /** Material icon per node view mode code (keys = nodeViewModeCodes). Fallback for unknown codes. */
   nodeViewModes: {

@@ -1,5 +1,5 @@
 import { provideHttpClient } from '@angular/common/http';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 
 import { firstValueFrom, toArray } from 'rxjs';
@@ -11,6 +11,7 @@ import { CapabilitiesService } from './capabilities.service';
 
 describe('CapabilitiesService', () => {
   let service: CapabilitiesService;
+  let httpMock: HttpTestingController;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -25,6 +26,11 @@ describe('CapabilitiesService', () => {
     });
 
     service = TestBed.inject(CapabilitiesService);
+    httpMock = TestBed.inject(HttpTestingController);
+  });
+
+  afterEach(() => {
+    httpMock.verify();
   });
 
   it('should be created', () => {
@@ -60,6 +66,20 @@ describe('CapabilitiesService', () => {
           done();
         }
       });
+    });
+
+    it('sends the full upstream URL as a single url query param', () => {
+      const upstream =
+        'https://pcivil.icgc.cat/ogc/geoservei?map=/opt/idec/dades/pcivil/risc_quimic.map&request=GetCapabilities&service=WMS';
+
+      service.getInfo(upstream).subscribe();
+
+      const req = httpMock.expectOne(
+        (request) => request.url.includes('helpers/capabilities')
+      );
+      expect(req.request.method).toBe('GET');
+      expect(req.request.params.get('url')).toBe(upstream);
+      req.flush({ success: true });
     });
   });
 });

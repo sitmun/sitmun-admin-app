@@ -4,6 +4,7 @@ import { firstValueFrom } from "rxjs";
 
 import { CapabilitiesService, Cartography, CartographyStyle } from "@app/domain";
 import {LoggerService} from '@app/services/logger.service';
+import { appendGetCapabilitiesParams } from '@app/services/wms-get-capabilities-url';
 import { config } from "@config";
 
 /** Parsed WMS field with main text and per-language translations. */
@@ -143,14 +144,9 @@ export class WMSCapabilitiesService {
    * @returns Promise resolving to an object with success status and response data
    */
   private async wmsGetCapabilitiesRequest(url: string): Promise<{success: boolean, asJson: any}> {
-    if (!url.includes(config.capabilitiesRequest.simpleRequest)) {
-      if (!url.endsWith('?')) {
-        url += '?';
-      }
-      url += config.capabilitiesRequest.requestWithWMS;
-    }
+    const requestUrl = appendGetCapabilitiesParams(url);
     try {
-      const response = await firstValueFrom(this.capabilitiesService.getInfo(url));
+      const response = await firstValueFrom(this.capabilitiesService.getInfo(requestUrl));
       return { success: true, asJson: response };
     } catch (_) {
       return { success: false, asJson: null };
