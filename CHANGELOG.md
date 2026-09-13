@@ -36,6 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **CI / Dependabot**: npm updates target `dev` weekly. Angular, TipTap, and echarts majors are ignored; Angular and TipTap minors/patches are grouped into one PR each.
 - **Services / Capabilities**: Fetch details/layers POST `helpers/capabilities` JSON (`url`, `type`, optional overlay credentials). Backend builds GetCapabilities (keeps `?map=`). Authentication other than None forces proxied on ([sitmun-backend-core#260](https://github.com/sitmun/sitmun-backend-core/issues/260)).
 - **Tests**: `npm test` no longer collects coverage; `npm run test:coverage` writes `coverage/admin-app/lcov.info` and `reports/ut_report.xml` for Sonar. Jest stubs AG Grid, echarts, and the Material barrels so form specs do not compile the real libraries or unused Material modules.
 - **Templates / Preview**: Preview language selector stays in the Template preview pane only; Sources Execute inherits that language (no Sources language UI).
