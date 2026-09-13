@@ -1,0 +1,38 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    target-branch: dev
+    schedule:
+      interval: weekly
+    ignore:
+      - dependency-name: "@angular/*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@angular-devkit/*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@angular-eslint/*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@angular-builders/*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: angular-eslint
+        update-types: ["version-update:semver-major"]
+      - dependency-name: jest-preset-angular
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@tiptap/*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: echarts
+        update-types: ["version-update:semver-major"]
+      - dependency-name: ngx-echarts
+        update-types: ["version-update:semver-major"]
+    groups:
+      angular:
+        patterns:
+          - "@angular/*"
+          - "@angular-devkit/*"
+          - "@angular-eslint/*"
+          - "@angular-builders/*"
+          - angular-eslint
+          - jest-preset-angular
+      tiptap:
+        patterns:
+          - "@tiptap/*"
