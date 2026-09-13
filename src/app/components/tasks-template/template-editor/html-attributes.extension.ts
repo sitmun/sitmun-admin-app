@@ -10,6 +10,11 @@ export const HtmlAttributesExtension = Extension.create({
       {
         types: ['paragraph', 'heading', 'bulletList', 'orderedList', 'listItem', 'table', 'tableRow', 'tableHeader', 'tableCell', 'image', 'iframe', 'translationLiteral', 'link'],
         attributes: {
+          id: {
+            default: null,
+            parseHTML: (element: HTMLElement) => element.getAttribute('id'),
+            renderHTML: (attributes: { id?: string | null }) => attributes.id ? { id: attributes.id } : {},
+          },
           class: {
             default: null,
             parseHTML: (element: HTMLElement) => element.getAttribute('class'),

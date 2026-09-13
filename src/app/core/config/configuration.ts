@@ -332,6 +332,32 @@ export class Configuration {
     formComponent: 'TaskTemplateFormComponent'
   };
 
+  static readonly TASK_MAP_IMAGE: FormConfiguration = {
+    id: 'tasksMapImage',
+    labelSingular: 'entity.task.mapImage.label',
+    labelPlural: 'entity.task.mapImage.label',
+    icon: 'map',
+    font: 'material-icons-round',
+    route: 'tasksMapImage',
+    formRoute: 'taskMapImage/:id/:type',
+    duplicateRoute: 'taskMapImage/:id/:type/:idDuplicate',
+    component: 'TasksMapImageComponent',
+    formComponent: 'TaskMapImageFormComponent'
+  };
+
+  static readonly TASK_DOCUMENT_EXPORT: FormConfiguration = {
+    id: 'tasksDocumentExport',
+    labelSingular: 'entity.task.documentExport.label',
+    labelPlural: 'entity.task.documentExport.label',
+    icon: 'picture_as_pdf',
+    font: 'material-icons-round',
+    route: 'tasksDocumentExport',
+    formRoute: 'taskDocumentExport/:id/:type',
+    duplicateRoute: 'taskDocumentExport/:id/:type/:idDuplicate',
+    component: 'TasksDocumentExportComponent',
+    formComponent: 'TaskDocumentExportFormComponent'
+  };
+
   /**
    * Advanced More Info tasks configuration
    */
@@ -496,6 +522,8 @@ export class Configuration {
       Configuration.TASK,
       Configuration.TASK_BASIC,
       Configuration.TASK_QUERY,
+      Configuration.TASK_MAP_IMAGE,
+      Configuration.TASK_DOCUMENT_EXPORT,
       Configuration.TASK_LOCATOR,
       Configuration.TASK_MORE_INFO,
       Configuration.TASK_TEMPLATE,
@@ -559,6 +587,8 @@ export class Configuration {
           children: [
             Configuration.toMenuItem(Configuration.TASK_BASIC),
             Configuration.toMenuItem(Configuration.TASK_QUERY),
+            Configuration.toMenuItem(Configuration.TASK_MAP_IMAGE),
+            Configuration.toMenuItem(Configuration.TASK_DOCUMENT_EXPORT),
             Configuration.toMenuItem(Configuration.TASK_LOCATOR),
             Configuration.toMenuItem(Configuration.TASK_TEMPLATE),
             Configuration.toMenuItem(Configuration.TASK_EDIT),

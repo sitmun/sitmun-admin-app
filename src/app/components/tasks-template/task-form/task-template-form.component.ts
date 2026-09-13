@@ -19,7 +19,6 @@ import {
   Role,
   RoleService,
   Task,
-  TaskAvailability,
   TaskAvailabilityProjection,
   TaskAvailabilityService,
   TaskGroup,
@@ -39,7 +38,7 @@ import {
   TerritoryService,
   TranslationService,
 } from '@app/domain';
-import { canKeepOrUpdate, onCreate, onDelete, onUpdatedRelation, Status } from '@app/frontend-gui/src/lib/data-grid/data-grid.component';
+import { canKeepOrUpdate, Status } from '@app/frontend-gui/src/lib/data-grid/data-grid.component';
 import { ErrorHandlerService } from '@app/services/error-handler.service';
 import { LoadingOverlayService } from '@app/services/loading-overlay.service';
 import { LoggerService } from '@app/services/logger.service';
@@ -51,6 +50,7 @@ import { config } from '@config';
 import { TEMPLATE_TASK_RELATION_TYPES, constants, magic } from '@environments/constants';
 import { environment } from '@environments/environment';
 
+import { createTaskAvailabilitiesTable, createTaskRolesTable, updateTaskGroupRelation } from '../../tasks-shared/task-relation-tables';
 import { QueryExecutionCardComponent, TemplateChildTaskLink } from '../query-execution-card/query-execution-card.component';
 import { TemplateValidationResult } from '../template-editor/template-html-validator.service';
 
@@ -141,7 +141,7 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
   private splitResizeCleanup: (() => void) | null = null;
   protected systemVariables = new Map<string, string>();
   protected pendingReferenceAliasChange: PendingReferenceAliasChange | null = null;
-  protected templateValidation: TemplateValidationResult = { valid: true, errors: [] };
+  protected templateValidation: TemplateValidationResult = { valid: true, errors: [], warnings: [] };
   protected linkTaskSearchControl = new FormControl<string | LinkableTemplateTask>('', { nonNullable: true });
   protected filteredLinkableTasks = of<LinkableTemplateTask[]>([]);
   protected readonly displayLinkableTaskWith = (task: LinkableTemplateTask | string): string => this.displayLinkableTask(task);
@@ -248,13 +248,15 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
     this.initializePreviewLanguage();
 
     const queryTaskOptions = { params: [{ key: 'type.id', value: magic.taskQueryTypeId }] };
+    const mapImageTaskOptions = { params: [{ key: 'type.id', value: magic.taskMapImageTypeId }] };
     const templateTaskOptions = { params: [{ key: 'type.id', value: magic.taskTemplateTypeId }] };
-    const [queryTasks, templateTasks] = await Promise.all([
+    const [queryTasks, mapImageTasks, templateTasks] = await Promise.all([
       firstValueFrom(this.taskService.fetchAllProjectionItems(TaskProjection, queryTaskOptions, undefined, 'tasks')),
+      firstValueFrom(this.taskService.fetchAllProjectionItems(TaskProjection, mapImageTaskOptions, undefined, 'tasks')),
       firstValueFrom(this.taskService.fetchAllProjectionItems(TaskProjection, templateTaskOptions, undefined, 'tasks')),
     ]);
 
-    [...queryTasks, ...templateTasks].forEach((task) => this.taskLookup.set(task.id, task));
+    [...queryTasks, ...mapImageTasks, ...templateTasks].forEach((task) => this.taskLookup.set(task.id, task));
 
     const validQueryTasks = this.filterLinkableQueryTasks(queryTasks);
     const nestedTemplates = templateTasks
@@ -264,9 +266,11 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
         constants.taskRelationType.templateNested,
         this.translateService.instant('entity.task.template.label'),
       ));
+    const linkableMapImageTasks = this.filterLinkableMapImageTasks(mapImageTasks);
 
     this.linkableTasks = [
       ...validQueryTasks,
+      ...linkableMapImageTasks,
       ...nestedTemplates,
     ].sort((left, right) => compareNullableString(left.name, right.name));
 
@@ -344,7 +348,7 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
 
       const taskGroupId = this.entityForm.get('taskGroupId')?.value;
       if (typeof taskGroupId === 'number') {
-        await firstValueFrom(entityCreated.updateRelationEx('group', this.taskGroupService.createProxy(taskGroupId)));
+        await updateTaskGroupRelation(entityCreated, taskGroupId, this.taskGroupService);
       }
 
       return entityCreated.id;
@@ -358,7 +362,7 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
 
       const taskGroupId = this.entityForm.get('taskGroupId')?.value;
       if (typeof taskGroupId === 'number') {
-        await firstValueFrom(entityToUpdate.updateRelationEx('group', this.taskGroupService.createProxy(taskGroupId)));
+        await updateTaskGroupRelation(entityToUpdate, taskGroupId, this.taskGroupService);
       }
     })();
   }
@@ -566,6 +570,9 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
   protected getTaskTypeLabel(task: TaskProjection): string {
     if (task.typeId === magic.taskTemplateTypeId) {
       return this.translateService.instant('entity.task.template.label');
+    }
+    if (task.typeId === magic.taskMapImageTypeId) {
+      return this.translateService.instant('entity.task.mapImage.label');
     }
 
     const scope = String(TaskPropertiesContract.getScope(task.properties) || '');
@@ -896,6 +903,26 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
     window.open(anchor.href, '_blank', 'noopener,noreferrer');
   }
 
+  protected onPreviewPanelKeydown(event: Event): void {
+    const target = event.target;
+    if (!(target instanceof Element)) {
+      return;
+    }
+
+    const anchor = target.closest('a[href]');
+    if (!(anchor instanceof HTMLAnchorElement)) {
+      return;
+    }
+
+    if (!shouldOpenPreviewHrefInNewTab(anchor.getAttribute('href'))) {
+      return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+    window.open(anchor.href, '_blank', 'noopener,noreferrer');
+  }
+
   private createObject(id: number | null = null): Task {
     const safeToEdit = TaskProjection.fromObject(this.entityToEdit);
     const formValues = this.entityForm.getRawValue();
@@ -928,6 +955,14 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
 
       return [this.toLinkableTask(task, constants.taskRelationType.templateTask, this.getScopeLabel(scope))];
     });
+  }
+
+  private filterLinkableMapImageTasks(tasks: TaskProjection[]): LinkableTemplateTask[] {
+    return tasks.map((task) => this.toLinkableTask(
+      task,
+      constants.taskRelationType.templateTask,
+      this.translateService.instant('entity.task.mapImage.label'),
+    ));
   }
 
   private getScopeLabel(scope: string): string {
@@ -1347,83 +1382,28 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
   }
 
   private defineRolesTable(): DataTableDefinition<Role, Role> {
-    return DataTableDefinition.builder<Role, Role>(this.dialog, this.errorHandler, this.loadingService)
-      .withRelationsColumns([
-        this.utils.getSelCheckboxColumnDef(),
-        this.utils.getRouterLinkColumnDef(
-          'common.form.name',
-          'name',
-          '/role/:id/roleForm',
-          { id: 'id' },
-        ),
-        this.utils.getNonEditableColumnDef('common.form.description', 'description'),
-        this.utils.getStatusColumnDef(),
-      ])
-      .withRelationsOrder('name')
-      .withRelationsFetcher(() => {
-        if (this.isNew()) {
-          return of([]);
-        }
-        return this.entityToEdit.getRelationArrayEx(Role, 'roles', { projection: 'view' });
-      })
-      .withRelationsUpdater(async (roles: (Role & Status)[]) => {
-        await onUpdatedRelation(roles).forAll((item) => this.entityToEdit.substituteAllRelation('roles', item));
-      })
-      .withTargetsColumns([
-        this.utils.getSelCheckboxColumnDef(),
-        this.utils.getNonEditableColumnDef('common.form.name', 'name'),
-        this.utils.getNonEditableColumnDef('common.form.description', 'description'),
-      ])
-      .withTargetsOrder('name')
-      .withTargetsFetcher(() => this.roleService.fetchAllItems())
-      .withTargetToRelation((items) => items)
-      .withTargetsTitle('entity.task.roles.title')
-      .build();
+    return createTaskRolesTable(this.relationTableContext());
   }
 
   private defineAvailabilitiesTable(): DataTableDefinition<TaskAvailabilityProjection, TerritoryProjection> {
-    return DataTableDefinition.builder<TaskAvailabilityProjection, TerritoryProjection>(this.dialog, this.errorHandler, this.loadingService)
-      .withRelationsColumns([
-        this.utils.getSelCheckboxColumnDef(),
-        this.utils.getRouterLinkColumnDef(
-          'common.form.name',
-          'territoryName',
-          '/territory/:id/territoryForm',
-          { id: 'territoryId' },
-        ),
-        this.utils.getNonEditableColumnDef('common.form.code', 'territoryCode'),
-        this.utils.getNonEditableColumnDef('common.form.type', 'territoryTypeName'),
-        this.utils.getNonEditableDateColumnDef('common.form.created', 'createdDate'),
-        this.utils.getStatusColumnDef(),
-      ])
-      .withRelationsOrder('territoryName')
-      .withRelationsFetcher(() => {
-        if (!this.isNew()) {
-          return this.entityToEdit.getRelationArrayEx(TaskAvailabilityProjection, 'availabilities', { projection: 'view' });
-        }
-        return of([]);
-      })
-      .withRelationsUpdater(async (availabilities: (TaskAvailabilityProjection & Status)[]) => {
-        await onDelete(availabilities).forEach((item) => this.taskAvailabilityService.delete(this.taskAvailabilityService.createProxy(item.id)));
-        await onCreate(availabilities)
-          .map((item) => TaskAvailability.of(this.taskService.createProxy(this.entityID), this.territoryService.createProxy(item.territoryId)))
-          .forEach((item) => this.taskAvailabilityService.create(item));
-        availabilities.forEach((item) => item.newItem = false);
-      })
-      .withTargetsColumns([
-        this.utils.getSelCheckboxColumnDef(),
-        this.utils.getNonEditableColumnDef('common.form.name', 'name'),
-        this.utils.getNonEditableColumnDef('common.form.code', 'code'),
-        this.utils.getNonEditableColumnDef('common.form.type', 'typeName'),
-      ])
-      .withTargetsOrder('name')
-      .withTargetsFetcher(() => this.territoryService.fetchAllProjectionItems(TerritoryProjection))
-      .withTargetInclude((availabilities: TaskAvailabilityProjection[]) => (item: TerritoryProjection) => {
-        return !availabilities.some((availability) => availability.territoryId === item.id);
-      })
-      .withTargetToRelation((items: TerritoryProjection[]) => items.map((item) => TaskAvailabilityProjection.of(this.entityToEdit, item)))
-      .withTargetsTitle('entity.task.territories.title')
-      .withTargetsOrder('name')
-      .build();
+    return createTaskAvailabilitiesTable(this.relationTableContext());
   }
+
+  private relationTableContext() {
+    return {
+      dialog: this.dialog,
+      errorHandler: this.errorHandler,
+      loadingService: this.loadingService,
+      utils: this.utils,
+      roleService: this.roleService,
+      territoryService: this.territoryService,
+      taskAvailabilityService: this.taskAvailabilityService,
+      taskService: this.taskService,
+      isNew: () => this.isNew(),
+      entity: this.entityToEdit,
+      entityId: this.entityID,
+      roleTargetToRelation: (items: Role[]) => items,
+    };
+  }
+
 }

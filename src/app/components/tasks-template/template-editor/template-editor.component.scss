@@ -231,6 +231,23 @@
   outline: none;
 }
 
+:host ::ng-deep .ProseMirror .sitmun-pdf-header,
+:host ::ng-deep .ProseMirror .sitmun-pdf-header-full-bleed {
+  outline: 2px dashed #2563eb;
+  outline-offset: 3px;
+}
+
+:host ::ng-deep .ProseMirror .sitmun-pdf-footer,
+:host ::ng-deep .ProseMirror .sitmun-pdf-footer-full-bleed {
+  outline: 2px dashed #059669;
+  outline-offset: 3px;
+}
+
+:host ::ng-deep .ProseMirror .sitmun-pdf-header-full-bleed,
+:host ::ng-deep .ProseMirror .sitmun-pdf-footer-full-bleed {
+  outline-style: solid;
+}
+
 :host ::ng-deep .ProseMirror img,
 :host ::ng-deep .ProseMirror iframe {
   max-width: 100%;
@@ -427,6 +444,19 @@
 }
 
 .template-editor-errors__title {
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+}
+
+.template-editor-warnings {
+  margin-top: 0.75rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid #fcd34d;
+  background: #fffbeb;
+  color: #92400e;
+}
+
+.template-editor-warnings__title {
   font-weight: 600;
   margin-bottom: 0.35rem;
 }

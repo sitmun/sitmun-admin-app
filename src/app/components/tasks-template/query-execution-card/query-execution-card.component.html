@@ -124,7 +124,7 @@
           <mat-icon>content_copy</mat-icon>
         </button>
       </div>
-      <div class="template-result-panel" [innerHTML]="trustedRenderedTemplateHtml"></div>
+      <app-safe-html-preview class="template-result-panel" [html]="renderedTemplateHtml"></app-safe-html-preview>
     </div>
   </mat-card-content>
 </mat-card>

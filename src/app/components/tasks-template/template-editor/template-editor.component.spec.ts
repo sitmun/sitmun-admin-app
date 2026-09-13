@@ -1,7 +1,12 @@
 import { Editor } from '@tiptap/core';
+import { TextSelection } from '@tiptap/pm/state';
 
 import { handlebarsSystemVariableHtmlAttribute } from './handlebars-system-variable.extension';
 import { createTemplateEditorExtensions } from './template-editor-extensions';
+import {
+  resolveSelectedPdfRegionNode,
+  updateHtmlClass,
+} from './template-editor-transformations';
 import {
   editorHtmlHasUnprotectedMustaches,
   normalizeEditorColorValue,
@@ -54,6 +59,61 @@ describe('TemplateEditorComponent', () => {
 
   it('should normalize short hex colors for color inputs', () => {
     expect(normalizeEditorColorValue('#0f8', '#000000')).toBe('#00ff88');
+  });
+
+  it('should update PDF classes without changing custom classes', () => {
+    expect(updateHtmlClass('custom sitmun-pdf-footer', 'sitmun-pdf-header', [
+      'sitmun-pdf-header',
+      'sitmun-pdf-footer',
+    ])).toBe('custom sitmun-pdf-header');
+    expect(updateHtmlClass('custom sitmun-pdf-header', null, ['sitmun-pdf-header'])).toBe('custom');
+  });
+
+  it('should resolve a marked nested block before its table ancestor', () => {
+    const editor = new Editor({
+      extensions: createTemplateEditorExtensions(),
+      content: '<table><tbody><tr><td><p class="sitmun-pdf-header custom">Header</p></td></tr></tbody></table>',
+    });
+    let markedPosition = -1;
+    editor.state.doc.descendants((node, position) => {
+      if (String(node.attrs['class'] || '').includes('sitmun-pdf-header')) {
+        markedPosition = position;
+      }
+    });
+
+    const selected = resolveSelectedPdfRegionNode(
+      TextSelection.create(editor.state.doc, markedPosition + 1),
+    );
+
+    expect(selected?.pos).toBe(markedPosition);
+    expect(selected?.node.attrs['class']).toContain('sitmun-pdf-header');
+    editor.destroy();
+  });
+
+  it('should replace an existing PDF header variant through the editor transaction', () => {
+    const editor = new Editor({
+      extensions: createTemplateEditorExtensions(),
+      content: '<p class="sitmun-pdf-header custom">First</p><p>Second</p>',
+    });
+    (component as any).editor = editor;
+    component.componentFocusedWithin = true;
+    let secondParagraphPosition = -1;
+    editor.state.doc.descendants((node, position) => {
+      if (node.type.name === 'paragraph' && node.textContent === 'Second') {
+        secondParagraphPosition = position;
+      }
+    });
+    editor.commands.setNodeSelection(secondParagraphPosition);
+
+    component.togglePdfFullBleedHeader();
+
+    const document = new DOMParser().parseFromString(editor.getHTML(), 'text/html');
+    expect(document.querySelectorAll('.sitmun-pdf-header')).toHaveLength(0);
+    expect(document.querySelectorAll('.sitmun-pdf-header-full-bleed')).toHaveLength(1);
+    expect(document.querySelector('.sitmun-pdf-header-full-bleed')?.textContent).toBe('Second');
+    expect(document.querySelector('.custom')?.textContent).toBe('First');
+    editor.destroy();
+    (component as any).editor = null;
   });
 
   it('should protect structural Handlebars blocks inside tables', () => {

@@ -13,8 +13,22 @@ import {
   handlebarsSystemVariableHtmlAttribute,
   isSystemVariableMustache,
 } from './handlebars-system-variable.extension';
+import {
+  PDF_FOOTER_CLASS,
+  PDF_FOOTER_CLASSES,
+  PDF_FULL_BLEED_FOOTER_CLASS,
+  PDF_FULL_BLEED_HEADER_CLASS,
+  PDF_HEADER_CLASS,
+  PDF_HEADER_CLASSES,
+  PDF_REGION_CLASSES,
+  PDF_REGION_NODE_TYPES,
+} from './pdf-region.constants';
 import { scrubTipTapTableSerializeArtifacts } from './sitmun-table.extension';
 import { createTemplateEditorExtensions } from './template-editor-extensions';
+import {
+  resolveSelectedPdfRegionNode,
+  updateHtmlClass,
+} from './template-editor-transformations';
 import {
   htmlCommentToMarker,
   rewritePlantillaHtml,
@@ -350,6 +364,7 @@ export class TemplateEditorComponent implements AfterViewInit, OnChanges, OnDest
   editorMode: 'visual' | 'html' = 'visual';
   htmlSource = '';
   validationErrors: string[] = [];
+  validationWarnings: string[] = [];
   interactionErrors: string[] = [];
   selectedElementWidth = '';
   selectedElementHeight = '';
@@ -366,6 +381,11 @@ export class TemplateEditorComponent implements AfterViewInit, OnChanges, OnDest
   selectedNodeType: SelectedNodeType = 'none';
   tableSelectionMode: TableSelectionMode = 'none';
   canDeleteSelection = false;
+  canMarkPdfRegion = false;
+  pdfHeaderSelected = false;
+  pdfFooterSelected = false;
+  pdfFullBleedHeaderSelected = false;
+  pdfFullBleedFooterSelected = false;
   editorFocused = false;
   componentFocusedWithin = false;
 
@@ -512,6 +532,22 @@ export class TemplateEditorComponent implements AfterViewInit, OnChanges, OnDest
 
   toggleOrderedList(): void {
     this.editor?.chain().focus().toggleOrderedList().run();
+  }
+
+  togglePdfHeader(): void {
+    this.togglePdfRegion(PDF_HEADER_CLASS, PDF_HEADER_CLASSES);
+  }
+
+  togglePdfFooter(): void {
+    this.togglePdfRegion(PDF_FOOTER_CLASS, PDF_FOOTER_CLASSES);
+  }
+
+  togglePdfFullBleedHeader(): void {
+    this.togglePdfRegion(PDF_FULL_BLEED_HEADER_CLASS, PDF_HEADER_CLASSES);
+  }
+
+  togglePdfFullBleedFooter(): void {
+    this.togglePdfRegion(PDF_FULL_BLEED_FOOTER_CLASS, PDF_FOOTER_CLASSES);
   }
 
   toggleTextAlign(alignment: 'left' | 'center' | 'right' | 'justify'): void {
@@ -1049,6 +1085,7 @@ export class TemplateEditorComponent implements AfterViewInit, OnChanges, OnDest
 
   private publishValidation(validation: TemplateValidationResult): void {
     this.validationErrors = validation.errors;
+    this.validationWarnings = validation.warnings;
     this.validationChange.emit(validation);
   }
 
@@ -1096,6 +1133,13 @@ export class TemplateEditorComponent implements AfterViewInit, OnChanges, OnDest
     this.selectedNodeType = this.resolveSelectedNodeType(selection);
     this.tableSelectionMode = this.resolveTableSelectionMode(selection);
     this.rememberCurrentTablePosition(selection);
+    const pdfRegionNode = this.getSelectedPdfRegionNode();
+    const pdfRegionClasses = new Set(String(pdfRegionNode?.node.attrs['class'] || '').split(/\s+/).filter(Boolean));
+    this.canMarkPdfRegion = pdfRegionNode !== null;
+    this.pdfHeaderSelected = pdfRegionClasses.has(PDF_HEADER_CLASS);
+    this.pdfFooterSelected = pdfRegionClasses.has(PDF_FOOTER_CLASS);
+    this.pdfFullBleedHeaderSelected = pdfRegionClasses.has(PDF_FULL_BLEED_HEADER_CLASS);
+    this.pdfFullBleedFooterSelected = pdfRegionClasses.has(PDF_FULL_BLEED_FOOTER_CLASS);
 
     const textStyleAttributes = this.editor.getAttributes('textStyle') as Record<string, string | null | undefined>;
     const highlightAttributes = this.editor.getAttributes('highlight') as Record<string, string | null | undefined>;
@@ -1140,6 +1184,61 @@ export class TemplateEditorComponent implements AfterViewInit, OnChanges, OnDest
     this.selectedTableCellBorderColor = '#000000';
     this.selectedTableCellBorderWidth = '1';
     this.selectedTableEachAlias = '';
+    this.canMarkPdfRegion = false;
+    this.pdfHeaderSelected = false;
+    this.pdfFooterSelected = false;
+    this.pdfFullBleedHeaderSelected = false;
+    this.pdfFullBleedFooterSelected = false;
+  }
+
+  private togglePdfRegion(targetClass: string, categoryClasses: Set<string>): void {
+    if (!this.editor) {
+      return;
+    }
+
+    const selected = this.getSelectedPdfRegionNode();
+    if (!selected) {
+      return;
+    }
+
+    const selectedClasses = new Set(String(selected.node.attrs['class'] || '').split(/\s+/).filter(Boolean));
+    const removeSelectedMarker = selectedClasses.has(targetClass);
+    let transaction = this.editor.state.tr;
+
+    this.editor.state.doc.descendants((node, pos) => {
+      if (!PDF_REGION_NODE_TYPES.has(node.type.name)) {
+        return;
+      }
+
+      const currentClass = String(node.attrs['class'] || '');
+      const currentClasses = currentClass.split(/\s+/);
+      const isSelectedNode = pos === selected.pos;
+      const hasCategoryClass = currentClasses.some((className) => categoryClasses.has(className));
+      if (!isSelectedNode && (removeSelectedMarker || !hasCategoryClass)) {
+        return;
+      }
+
+      const nextClass = isSelectedNode
+        ? updateHtmlClass(currentClass, removeSelectedMarker ? null : targetClass, [...PDF_REGION_CLASSES])
+        : updateHtmlClass(currentClass, null, [...categoryClasses]);
+      if ((nextClass || '') !== currentClass) {
+        transaction = transaction.setNodeMarkup(pos, undefined, { ...node.attrs, class: nextClass });
+      }
+    });
+
+    this.interactionErrors = [];
+    if (transaction.docChanged) {
+      this.editor.view.dispatch(transaction);
+    }
+    this.syncSelectionState();
+  }
+
+  private getSelectedPdfRegionNode(): { node: ProseMirrorNode; pos: number } | null {
+    if (!this.editor) {
+      return null;
+    }
+
+    return resolveSelectedPdfRegionNode(this.editor.state.selection);
   }
 
   private syncTableEachAliasState(): void {

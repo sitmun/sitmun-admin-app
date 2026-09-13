@@ -172,7 +172,9 @@
                   <div
                     class="preview-panel"
                     data-testid="template-preview-html"
+                    tabindex="0"
                     (click)="onPreviewPanelClick($event)"
+                    (keydown.enter)="onPreviewPanelKeydown($event)"
                     [innerHTML]="trustedPreviewHtml"></div>
                   <div class="preview-placeholder-list" *ngIf="previewPlaceholders.length > 0">
                     <strong>{{ 'entity.task.template.detectedPlaceholders' | translate }}</strong>

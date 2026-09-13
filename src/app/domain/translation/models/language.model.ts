@@ -48,4 +48,3 @@ export function compareLanguagesByOrder(left: Language, right: Language): number
 export function sortLanguagesByOrder(languages: readonly Language[]): Language[] {
   return [...languages].sort(compareLanguagesByOrder);
 }
-
