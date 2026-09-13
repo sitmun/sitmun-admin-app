@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Templates / Map image**: Task type 18 form, layer catalog, source reorder, and Plantilla Sources linking for map-image children.
+- **Templates / Document export**: Task type 17 form restricted to PDF output (`downloadFormat` `pdf`).
+- **Templates / TipTap**: PDF header, footer, and full-bleed region classes with validator rules.
+
+### Security
+
+- **Templates / Preview**: Nested execute-child results render in a sandboxed iframe (`sandbox` with no allow-tokens). The main Template preview pane is still trusted HTML.
+
 ### Fixed
 
 - **Layers**: Relation tabs (Territories, Permissions, Trees, and experimental grids) load on tab select instead of all at form open. `saveAll` skips unvisited grids so Details-only save does not wait 5s ([sitmun-application-stack#41](https://github.com/sitmun/sitmun-application-stack/issues/41)).

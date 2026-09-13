@@ -23,6 +23,8 @@ export const config = {
     'query': 5,
     'moreInfo': 6,
     'report': 7,
+    'documentExport': 17,
+    'mapImage': 18,
     'template': 15,
     'editionWFS': 8,
     'thematic': 9,
