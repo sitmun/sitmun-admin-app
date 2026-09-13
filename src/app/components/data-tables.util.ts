@@ -761,8 +761,18 @@ export class DataTablesRegistry {
    * @returns This registry instance for method chaining
    */
   register(spec: DataTableSpec) {
-    this.registry.push(spec);
+    if (!this.registry.includes(spec)) {
+      this.registry.push(spec);
+    }
     return this
+  }
+
+  unregister(spec: DataTableSpec) {
+    const i = this.registry.indexOf(spec);
+    if (i >= 0) {
+      this.registry.splice(i, 1);
+    }
+    return this;
   }
 
   /**

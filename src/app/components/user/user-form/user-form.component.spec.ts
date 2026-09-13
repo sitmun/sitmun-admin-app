@@ -318,9 +318,73 @@ describe('UserFormComponent', () => {
 
       findSpy.mockClear();
       component.entityToEdit = Object.assign(component.empty(), { username: 'admin' });
+      jest.spyOn(component.entityToEdit, 'getRelationArrayEx').mockReturnValue(of([]));
       await component.fetchRelatedData();
       expect(findSpy).not.toHaveBeenCalled();
       expect(component.applicationsAsPointOfContact).toEqual([]);
+    });
+  });
+
+  describe('positions surface', () => {
+    it('shows a full Positions tab for new users and ordinary accounts', () => {
+      component.entityID = -1;
+      component.entityToEdit = component.empty();
+      component.leftoverPositionCount = 0;
+      expect(component.canShowPositionsTab()).toBe(true);
+      expect(component.isPositionsRepair()).toBe(false);
+
+      component.entityID = 8;
+      component.entityToEdit = Object.assign(component.empty(), { username: 'alice' });
+      component.leftoverPositionCount = 0;
+      expect(component.canShowPositionsTab()).toBe(true);
+      expect(component.isPositionsRepair()).toBe(false);
+    });
+
+    it('hides Positions for public and empty admin; repairs leftover admin only', () => {
+      component.entityID = 1;
+      component.entityToEdit = Object.assign(component.empty(), { username: 'public' });
+      component.leftoverPositionCount = 3;
+      expect(component.canShowPositionsTab()).toBe(false);
+
+      component.entityToEdit = Object.assign(component.empty(), { username: 'admin' });
+      component.leftoverPositionCount = 0;
+      expect(component.canShowPositionsTab()).toBe(false);
+
+      component.leftoverPositionCount = 2;
+      expect(component.canShowPositionsTab()).toBe(true);
+      expect(component.isPositionsRepair()).toBe(true);
+    });
+
+    it('prefetch leftover positions for admin and skips apps', async () => {
+      const findSpy = jest.spyOn(applicationService, 'findByCreatorId');
+      component.entityID = 1;
+      component.entityToEdit = Object.assign(component.empty(), { username: 'admin' });
+      jest.spyOn(component.entityToEdit, 'getRelationArrayEx').mockReturnValue(of([{ id: 9 }, { id: 10 }] as any));
+
+      await component.fetchRelatedData();
+
+      expect(findSpy).not.toHaveBeenCalled();
+      expect(component.leftoverPositionCount).toBe(2);
+      expect(component.canShowPositionsTab()).toBe(true);
+      expect(component.isPositionsRepair()).toBe(true);
+    });
+
+    it('registers the positions table only while the tab is shown', () => {
+      const register = jest.spyOn(component.dataTables, 'register');
+      const unregister = jest.spyOn(component.dataTables, 'unregister');
+
+      component.entityID = 1;
+      component.entityToEdit = Object.assign(component.empty(), { username: 'public' });
+      component.leftoverPositionCount = 2;
+      component.postFetchData();
+      expect(unregister).toHaveBeenCalledWith(component['userPositionsTable']);
+
+      register.mockClear();
+      unregister.mockClear();
+      component.entityToEdit = Object.assign(component.empty(), { username: 'admin' });
+      component.leftoverPositionCount = 2;
+      component.postFetchData();
+      expect(register).toHaveBeenCalledWith(component['userPositionsTable']);
     });
   });
 });

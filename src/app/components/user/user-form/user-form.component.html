@@ -132,7 +132,7 @@
       </mat-card-content>
     </mat-card>
   </mat-tab>
-  <mat-tab *ngIf="!isBuiltInAdmin && !isBuiltInPublic">
+  <mat-tab *ngIf="canShowPositionsTab()">
     <ng-template mat-tab-label>
       <span class="sitmun-tab-label-with-indicator">
         {{ 'entity.user.positions.header' | translate }}
@@ -151,7 +151,9 @@
         <app-relation-grid
           *ngIf="dataLoaded"
           [table]="userPositionsTable"
-          [allNewElements]="isNewOrDuplicated()">
+          [allNewElements]="isNewOrDuplicated()"
+          [addButton]="!isPositionsRepair()"
+          [duplicateButton]="!isPositionsRepair()">
         </app-relation-grid>
       </mat-card-content>
     </mat-card>
