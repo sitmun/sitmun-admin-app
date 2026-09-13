@@ -798,7 +798,22 @@ describe('LayersFormComponent', () => {
       expect(detailsTab).toContain('related-entity-open-link');
       expect(detailsTab).toContain("['/service', serviceId, 'serviceForm']");
       expect(territoriesTab).toContain('app-relation-grid');
+      expect(territoriesTab).toContain('matTabContent');
       expect(territoriesTab).not.toContain('sitmun-cartography-form-entity');
+    });
+
+    it('wraps Permissions and Trees relation grids in matTabContent', () => {
+      const permissionsTab = layersFormTemplate.match(
+        /entity\.cartography\.permissions\.header[\s\S]*?<\/mat-tab>/,
+      )?.[0] ?? '';
+      const treesTab = layersFormTemplate.match(
+        /entity\.cartography\.trees\.header[\s\S]*?<\/mat-tab>/,
+      )?.[0] ?? '';
+
+      expect(permissionsTab).toContain('app-relation-grid');
+      expect(permissionsTab).toContain('matTabContent');
+      expect(treesTab).toContain('app-relation-grid');
+      expect(treesTab).toContain('matTabContent');
     });
   });
 

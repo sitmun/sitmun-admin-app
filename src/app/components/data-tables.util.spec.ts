@@ -1,12 +1,12 @@
 import { FormControl, FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 
-import { firstValueFrom, toArray , of } from 'rxjs';
+import { firstValueFrom, of, toArray } from 'rxjs';
 
 import { ErrorHandlerService } from '@app/services/error-handler.service';
 import { LoadingOverlayService } from '@app/services/loading-overlay.service';
 
-import { DataTableDefinition, DataTable2Definition, TemplateDialog } from './data-tables.util';
+import { DataTableDefinition, DataTable2Definition, DataTablesRegistry, TemplateDialog } from './data-tables.util';
 
 describe('DataTableDefinitionBuilder', () => {
   let builder: ReturnType<typeof DataTableDefinition.builder>;
@@ -485,5 +485,45 @@ describe('DataTable2DefinitionBuilder', () => {
       const definition = builder.build();
       expect((definition as any).addFieldRestriction).toBeUndefined();
     });
+  });
+});
+
+describe('DataTablesRegistry.saveAll', () => {
+  let matDialog: jest.Mocked<MatDialog>;
+  let errorHandler: jest.Mocked<ErrorHandlerService>;
+  let loadingService: jest.Mocked<LoadingOverlayService>;
+
+  beforeEach(() => {
+    matDialog = {} as jest.Mocked<MatDialog>;
+    errorHandler = { handleError: jest.fn() } as unknown as jest.Mocked<ErrorHandlerService>;
+    loadingService = {
+      wrap: jest.fn().mockImplementation((fn: unknown) => fn),
+    } as unknown as jest.Mocked<LoadingOverlayService>;
+  });
+
+  it('skips tables with no save subscriber and returns without waiting', async () => {
+    const definition = DataTableDefinition.builder(matDialog, errorHandler, loadingService).build();
+    const save = jest.spyOn(definition, 'save');
+    const registry = new DataTablesRegistry();
+    registry.register(definition);
+
+    const started = Date.now();
+    await registry.saveAll();
+    expect(Date.now() - started).toBeLessThan(500);
+    expect(save).not.toHaveBeenCalled();
+  });
+
+  it('saves tables that have a save subscriber', async () => {
+    const definition = DataTableDefinition.builder(matDialog, errorHandler, loadingService).build();
+    const save = jest.spyOn(definition, 'save').mockImplementation(() => {
+      definition.refreshCommandEvent$.next(true);
+    });
+    const subscription = definition.saveCommandEvent$.subscribe();
+    const registry = new DataTablesRegistry();
+    registry.register(definition);
+
+    await registry.saveAll();
+    expect(save).toHaveBeenCalledTimes(1);
+    subscription.unsubscribe();
   });
 });

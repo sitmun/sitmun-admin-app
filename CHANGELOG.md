@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Layers**: Relation tabs (Territories, Permissions, Trees, and experimental grids) load on tab select instead of all at form open. `saveAll` skips unvisited grids so Details-only save does not wait 5s ([sitmun-application-stack#41](https://github.com/sitmun/sitmun-application-stack/issues/41)).
 - **Users**: Positions tab for built-in `admin` is shown only when leftover rows exist, and then as delete-only ([#456](https://github.com/sitmun/sitmun-admin-app/issues/456)). Hidden for `public`.
 - **Services / Capabilities**: Build WMS GetCapabilities with the WHATWG URL API and send `helpers/capabilities` via an encoded `url` query param so MapServer-style endpoints that already have `?map=` (or other query params) no longer get a second `?` / broken `%26` concat.
 - **Templates / TipTap**: Attribute mustaches (`src`/`href`/`alt`/… ) stay literal attributes; chips apply only to HTML text. Source-aware protect is idempotent, chips `else if`, and T-wrap restores chips to raw mustaches before storing `<t>` payloads.
