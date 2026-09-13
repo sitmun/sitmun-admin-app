@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Templates**: `replaceReferenceAliasInHtml` renames single-quoted `data-sitmun-each` as well as double-quoted.
 - **Tests**: Filter expected Jest `console.error` noise (`Code list … not initialized`, `NG0304`); TipTap-split triple-mustache normalize fixture.
 - **Tests**: Entity form specs import standalone `EntityFormAlertsComponent` so NG0303 unknown-property errors are not emitted. `dialog-form` uses `configureLoggerForTests`.
+- **Query tasks**: `configureForm` no-ops when scope is unset instead of logging an unknown type.
 
 ### Changed
 

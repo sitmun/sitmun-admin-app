@@ -466,7 +466,7 @@ export class TaskQueryFormComponent extends BaseFormComponent<TaskProjection> {
     this.entityForm.get('apiKeyType')?.valueChanges.subscribe(() => {
       this.entityForm.get('apiKeyKeyName')?.setValue(null);
     });
-    this.configureForm(TaskPropertiesContract.getScope(this.entityToEdit.properties))
+    this.configureForm(TaskPropertiesContract.getScope(this.entityToEdit.properties));
   }
 
   /**
@@ -530,7 +530,10 @@ export class TaskQueryFormComponent extends BaseFormComponent<TaskProjection> {
    *
    * @param value - The selected scope value
    */
-  configureForm(value: string) {
+  configureForm(value: string | null | undefined) {
+    if (value == null || value === '') {
+      return;
+    }
     const scope = this.codeValues?.queryTaskScope;
 
     // Sweep and reset provided flags when changing to non-proxied scopes
