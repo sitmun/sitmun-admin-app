@@ -46,7 +46,6 @@ import {LoadingOverlayService} from '@app/services/loading-overlay.service';
 import {LoggerService} from '@app/services/logger.service';
 import {NotificationService} from '@app/services/notification.service';
 import {UtilsService} from '@app/services/utils.service';
-import { appendGetCapabilitiesParams } from '@app/services/wms-get-capabilities-url';
 import { compareNullableString } from '@app/utils/compare-nullable-string';
 import {
   formatImageAccept,
@@ -1940,9 +1939,11 @@ export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
         service = dialogResult.data[0][0];
         url = service.serviceURL;
         if (url) {
-          url = appendGetCapabilitiesParams(url);
-
-          const capabilitiesResult = await firstValueFrom(this.capabilitiesService.getInfo(url));
+          const capabilitiesResult = await firstValueFrom(this.capabilitiesService.getInfo({
+            id: service.id,
+            url,
+            type: service.type,
+          }));
           if (capabilitiesResult.success) {
             const groupLayersResult = this.changeServiceDataByCapabilities(capabilitiesResult.asJson);
             this.createNodesWithCapabilities(groupLayersResult, data, null);

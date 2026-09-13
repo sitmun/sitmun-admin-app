@@ -81,7 +81,10 @@ describe('WMSCapabilitiesService', () => {
     it('case A: uses default-language match as main and other langs as translations', async () => {
       config.defaultLang = 'ca';
 
-      const result = await service.processWMSServiceMetadata('https://example.org/wms');
+      const result = await service.processWMSServiceMetadata({
+        url: 'https://example.org/wms',
+        type: 'WMS',
+      });
 
       expect(typeof result.abstract).toBe('string');
       expect(result.abstract).toBe('Text catala');
@@ -92,7 +95,10 @@ describe('WMSCapabilitiesService', () => {
     it('case B: uses first entry as main and fills its language translation row', async () => {
       config.defaultLang = 'en';
 
-      const result = await service.processWMSServiceMetadata('https://example.org/wms');
+      const result = await service.processWMSServiceMetadata({
+        url: 'https://example.org/wms',
+        type: 'WMS',
+      });
 
       expect(result.abstract).toBe('Text catala');
       expect(result.abstractTranslations.get('ca')).toBe('Text catala');
@@ -105,7 +111,10 @@ describe('WMSCapabilitiesService', () => {
         Abstract: 'Plain abstract',
       });
 
-      const result = await service.processWMSServiceMetadata('https://example.org/wms');
+      const result = await service.processWMSServiceMetadata({
+        url: 'https://example.org/wms',
+        type: 'WMS',
+      });
 
       expect(result.abstract).toBe('Plain abstract');
       expect(result.abstractTranslations.size).toBe(0);
@@ -121,7 +130,10 @@ describe('WMSCapabilitiesService', () => {
       });
       config.defaultLang = 'ca';
 
-      const result = await service.processWMSServiceMetadata('https://example.org/wms');
+      const result = await service.processWMSServiceMetadata({
+        url: 'https://example.org/wms',
+        type: 'WMS',
+      });
 
       expect(result.abstract).toBe('Text catala underscore');
       expect(result.abstractTranslations.get('es')).toBe('Texto hash text');
@@ -136,7 +148,10 @@ describe('WMSCapabilitiesService', () => {
       });
       config.defaultLang = 'ca';
 
-      const result = await service.processWMSServiceMetadata('https://example.org/wms');
+      const result = await service.processWMSServiceMetadata({
+        url: 'https://example.org/wms',
+        type: 'WMS',
+      });
 
       expect(typeof result.title).toBe('string');
       expect(result.title).toBe('Titol catala');
@@ -155,7 +170,10 @@ describe('WMSCapabilitiesService', () => {
       });
       config.defaultLang = 'oc-aranes';
 
-      const result = await service.processWMSServiceMetadata('https://example.org/wms');
+      const result = await service.processWMSServiceMetadata({
+        url: 'https://example.org/wms',
+        type: 'WMS',
+      });
 
       expect(result.abstract).toBe('Text aranes');
       expect(result.abstractTranslations.get('ca')).toBe('Text catala');
@@ -173,12 +191,36 @@ describe('WMSCapabilitiesService', () => {
       });
       config.defaultLang = 'ca';
 
-      const result = await service.processWMSServiceMetadata('https://example.org/wms');
+      const result = await service.processWMSServiceMetadata({
+        url: 'https://example.org/wms',
+        type: 'WMS',
+      });
 
       expect(result.abstract).toBe('Catalan abstract');
       expect(result.abstractTranslations.get('en')).toBe('English abstract');
       expect(result.abstractTranslations.get('es')).toBe('Spanish abstract');
       expect(result.abstractTranslations.has('ca')).toBe(false);
+    });
+  });
+
+  describe('capabilities helper payload', () => {
+    it('posts the form URL without appending GetCapabilities', async () => {
+      mockCapabilitiesResponse({
+        Title: 'Plain title',
+        Abstract: 'Plain abstract',
+      });
+
+      await service.processWMSServiceMetadata({
+        url: 'https://example.org/wms?map=/maps/demo.map',
+        type: 'WMS',
+        authenticationMode: 'None',
+      });
+
+      expect(capabilitiesService.getInfo).toHaveBeenCalledWith({
+        url: 'https://example.org/wms?map=/maps/demo.map',
+        type: 'WMS',
+        authenticationMode: 'None',
+      });
     });
   });
 });

@@ -1662,7 +1662,7 @@ describe('ServiceFormComponent', () => {
     });
   });
 
-  describe('proxy authentication sync', () => {
+  describe('auth implies proxy', () => {
     beforeEach(() => {
       component.dataLoaded = true;
       component.entityForm.patchValue({
@@ -1687,27 +1687,26 @@ describe('ServiceFormComponent', () => {
       expect(fixture.debugElement.query(By.css('.sitmun-service-form-auth-fields'))).not.toBeNull();
     });
 
-    it('disables authentication fields when proxy is disabled', () => {
-      component.entityForm.patchValue({isProxied: false});
+    it('keeps authentication fields enabled when proxy is disabled', () => {
+      component.entityForm.patchValue({isProxied: false, authenticationMode: 'None'});
       fixture.detectChanges();
 
       expect(component.isProxyEnabled()).toBe(false);
-      expect(component.entityForm.get('authenticationMode')?.disabled).toBe(true);
-      expect(component.entityForm.get('user')?.disabled).toBe(true);
-      expect(component.entityForm.get('password')?.disabled).toBe(true);
-    });
-
-    it('enables authentication fields when proxy is enabled', () => {
-      component.entityForm.patchValue({isProxied: true, authenticationMode: 'HTTP Basic authentication'});
-      fixture.detectChanges();
-
-      expect(component.isProxyEnabled()).toBe(true);
       expect(component.entityForm.get('authenticationMode')?.disabled).toBe(false);
       expect(component.entityForm.get('user')?.disabled).toBe(false);
       expect(component.entityForm.get('password')?.disabled).toBe(false);
     });
 
-    it('clears authentication fields when proxy is disabled', () => {
+    it('forces proxy on when authentication is not None', () => {
+      component.entityForm.patchValue({isProxied: false, authenticationMode: 'None'});
+      component.entityForm.patchValue({authenticationMode: 'HTTP Basic authentication'});
+      fixture.detectChanges();
+
+      expect(component.entityForm.get('isProxied')?.value).toBe(true);
+      expect(component.entityForm.get('authenticationMode')?.disabled).toBe(false);
+    });
+
+    it('snaps proxy back on if turned off while authentication is set', () => {
       component.entityForm.patchValue({
         isProxied: true,
         authenticationMode: 'HTTP Basic authentication',
@@ -1718,9 +1717,21 @@ describe('ServiceFormComponent', () => {
       component.entityForm.patchValue({isProxied: false});
       fixture.detectChanges();
 
-      expect(component.entityForm.get('authenticationMode')?.value).toBe('None');
-      expect(component.entityForm.get('user')?.value).toBeNull();
-      expect(component.entityForm.get('password')?.value).toBeNull();
+      expect(component.entityForm.get('isProxied')?.value).toBe(true);
+      expect(component.entityForm.get('authenticationMode')?.value).toBe('HTTP Basic authentication');
+      expect(component.entityForm.get('user')?.value).toBe('proxy-user');
+      expect(component.entityForm.get('password')?.value).toBe('proxy-pass');
+    });
+
+    it('does not force proxy off when authentication is cleared to None', () => {
+      component.entityForm.patchValue({
+        isProxied: true,
+        authenticationMode: 'HTTP Basic authentication',
+      });
+      component.entityForm.patchValue({authenticationMode: 'None'});
+      fixture.detectChanges();
+
+      expect(component.entityForm.get('isProxied')?.value).toBe(true);
     });
 
     it('preserves authentication fields for proxied services on load', () => {
@@ -1738,6 +1749,24 @@ describe('ServiceFormComponent', () => {
 
       expect(component.isProxyEnabled()).toBe(true);
       expect(component.entityForm.get('authenticationMode')?.value).toBe('HTTP Basic authentication');
+      expect(component.entityForm.get('user')?.value).toBe('stored-user');
+      expect(component.entityForm.get('password')?.value).toBe('stored-pass');
+    });
+
+    it('forces proxy on for authenticated services on load', () => {
+      component.entityToEdit = Object.assign(component.empty(), {
+        name: 'authenticated-service',
+        type: 'WMS',
+        serviceURL: 'https://example.com/wms',
+        isProxied: false,
+        authenticationMode: 'HTTP Basic authentication',
+        user: 'stored-user',
+        password: 'stored-pass',
+      });
+      component.postFetchData();
+      fixture.detectChanges();
+
+      expect(component.entityForm.get('isProxied')?.value).toBe(true);
       expect(component.entityForm.get('user')?.value).toBe('stored-user');
       expect(component.entityForm.get('password')?.value).toBe('stored-pass');
     });

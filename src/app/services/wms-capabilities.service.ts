@@ -2,9 +2,8 @@ import { Injectable } from '@angular/core';
 
 import { firstValueFrom } from "rxjs";
 
-import { CapabilitiesService, Cartography, CartographyStyle } from "@app/domain";
+import { CapabilitiesService, Cartography, CartographyStyle, ServiceCapabilitiesProbe } from "@app/domain";
 import {LoggerService} from '@app/services/logger.service';
-import { appendGetCapabilitiesParams } from '@app/services/wms-get-capabilities-url';
 import { config } from "@config";
 
 /** Parsed WMS field with main text and per-language translations. */
@@ -79,12 +78,12 @@ export class WMSCapabilitiesService {
    * Processes WMS service metadata from a GetCapabilities request.
    * Extracts service information including title, abstract, and supported projections.
    *
-   * @param url - URL of the WMS service
+   * @param probe - Form overlay posted to the capabilities helper
    * @returns Promise resolving to WMSServiceCapabilities object with service metadata
    * @throws Error if the service is not a valid WMS 1.1.1 or 1.3.0 service
    */
-  async processWMSServiceMetadata(url: string): Promise<WMSServiceCapabilities> {
-    const result = await this.wmsGetCapabilitiesRequest(url);
+  async processWMSServiceMetadata(probe: ServiceCapabilitiesProbe): Promise<WMSServiceCapabilities> {
+    const result = await this.wmsGetCapabilitiesRequest(probe);
 
     if (result.success) {
       const body = result.asJson.asJson;
@@ -116,12 +115,12 @@ export class WMSCapabilitiesService {
    * Processes WMS service capabilities to extract layer information.
    * Retrieves and processes layer metadata including names, titles, and styles.
    *
-   * @param url - URL of the WMS service
+   * @param probe - Form overlay posted to the capabilities helper
    * @returns Promise resolving to WMSLayersCapabilities object with layers and styles
    * @throws Error if the service is not a valid WMS 1.1.1 or 1.3.0 service
    */
-  async processWMSServiceCapabilities(url: string): Promise<WMSLayersCapabilities> {
-    const result = await this.wmsGetCapabilitiesRequest(url);
+  async processWMSServiceCapabilities(probe: ServiceCapabilitiesProbe): Promise<WMSLayersCapabilities> {
+    const result = await this.wmsGetCapabilitiesRequest(probe);
     if (result.success) {
       const body = result.asJson.asJson;
       const wms_1_1_1 = body.WMT_MS_Capabilities;
@@ -137,16 +136,15 @@ export class WMSCapabilitiesService {
   }
 
   /**
-   * Makes a GetCapabilities request to a WMS service.
-   * Handles URL formatting and adds necessary request parameters.
+   * Posts the form overlay to the backend capabilities helper.
+   * The backend builds GetCapabilities and applies origin credentials.
    *
-   * @param url - Base URL of the WMS service
+   * @param probe - Form overlay posted to the capabilities helper
    * @returns Promise resolving to an object with success status and response data
    */
-  private async wmsGetCapabilitiesRequest(url: string): Promise<{success: boolean, asJson: any}> {
-    const requestUrl = appendGetCapabilitiesParams(url);
+  private async wmsGetCapabilitiesRequest(probe: ServiceCapabilitiesProbe): Promise<{success: boolean, asJson: any}> {
     try {
-      const response = await firstValueFrom(this.capabilitiesService.getInfo(requestUrl));
+      const response = await firstValueFrom(this.capabilitiesService.getInfo(probe));
       return { success: true, asJson: response };
     } catch (_) {
       return { success: false, asJson: null };
