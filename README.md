@@ -280,14 +280,14 @@ npm run sonar
 ### Unit Testing
 
 ```bash
-# Run unit tests
+# Run unit tests (no coverage)
 npm test
 
 # Run tests in watch mode
 npm run test:watch
 
-# Run tests with coverage (Jest built-in)
-npm test -- --coverage
+# Run tests with coverage artifacts for SonarCloud
+npm run test:coverage
 
 # Run specific test file
 npm test -- --testNamePattern="UserComponent"
@@ -308,7 +308,7 @@ npm test -- --testNamePattern="UserComponent"
 - **Unit Tests**: Component logic, services, and utilities (Jest)
 - **Integration Tests**: Component-service integration (Jest)
 - **E2E Tests**: Conditional testing script for CI/CD environments
-- **Coverage**: Jest built-in coverage reporting
+- **Coverage**: `npm run test:coverage` writes `coverage/admin-app/lcov.info` and `reports/ut_report.xml` for SonarCloud. Jest stubs AG Grid, echarts, and the Material barrels.
 
 ## Deployment
 
