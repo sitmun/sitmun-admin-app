@@ -13,8 +13,6 @@ import {
   handlebarsSystemVariableHtmlAttribute,
   isSystemVariableMustache,
 } from './handlebars-system-variable.extension';
-import { scrubTipTapTableSerializeArtifacts } from './sitmun-table.extension';
-import { createTemplateEditorExtensions } from './template-editor-extensions';
 import {
   PDF_FOOTER_CLASS,
   PDF_FOOTER_CLASSES,
@@ -25,6 +23,8 @@ import {
   PDF_REGION_CLASSES,
   PDF_REGION_NODE_TYPES,
 } from './pdf-region.constants';
+import { scrubTipTapTableSerializeArtifacts } from './sitmun-table.extension';
+import { createTemplateEditorExtensions } from './template-editor-extensions';
 import {
   resolveSelectedPdfRegionNode,
   updateHtmlClass,
