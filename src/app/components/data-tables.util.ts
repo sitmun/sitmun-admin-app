@@ -158,6 +158,10 @@ export class DataTableDefinition<RELATION, TARGET> implements RelationGridTable<
     this.saveCommandEvent$.next("save");
   }
 
+  canSaveNow(): boolean {
+    return this.saveCommandEvent$.observed;
+  }
+
   /**
    * Completes all subjects to prevent memory leaks.
    * Should be called when the component using this data table is destroyed.
@@ -507,6 +511,10 @@ export class DataTable2Definition<RELATION, TARGET_LEFT, TARGET_RIGHT> implement
     this.saveCommandEvent$.next("save");
   }
 
+  canSaveNow(): boolean {
+    return this.saveCommandEvent$.observed;
+  }
+
   /**
    * Completes all subjects to prevent memory leaks.
    * Should be called when the component using this data table is destroyed.
@@ -691,6 +699,12 @@ export interface DataTableSpec {
 
   /** Completes all subjects to prevent memory leaks */
   complete(): void;
+
+  /**
+   * False when no grid is subscribed to save (unvisited lazy tab).
+   * Omitted means always eligible, matching historical eager tabs.
+   */
+  canSaveNow?(): boolean;
 }
 
 /**
@@ -815,12 +829,13 @@ export class DataTablesRegistry {
    * @returns Promise that resolves when all tables are saved or timeout occurs
    */
   async saveAll(): Promise<void> {
-    if (this.registry.length === 0) {
+    const specs = this.registry.filter((spec) => spec.canSaveNow?.() !== false);
+    if (specs.length === 0) {
       return;
     }
 
     // Create promises that will resolve when refresh events occur
-    const refreshPromises = this.registry.map(spec =>
+    const refreshPromises = specs.map(spec =>
       firstValueFrom(
         race(
           spec.refreshCommandEvent$,
@@ -830,7 +845,7 @@ export class DataTablesRegistry {
     );
 
     // Trigger saves
-    this.registry.forEach(spec => {
+    specs.forEach(spec => {
       spec.save();
     });
 
