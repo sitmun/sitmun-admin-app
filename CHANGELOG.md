@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Templates / TipTap**: After intentional visual edits, authored `div` blocks, bare table cells (no injected `colgroup`/`min-width`), and links without `target`/`rel` keep their shape; toolbar-created links still get `target="_blank"` and `rel="noopener noreferrer"`.
 - **Templates / TipTap**: Split editor+preview workspace fills available viewport height (was fixed ~428px; preview-only already did).
 - **Templates / TipTap**: HTML comments survive visual round-trip via marker nodes (TipTap drops real `<!--…-->` on parse).
+- **Templates / TipTap**: Unclosed or almost-closed HTML comments (`<!--` without a literal `-->`) no longer delete later markup on HTML↔visual switch; the comment is healed to `<!--…-->` and following tags stay siblings.
 - **Templates / Preview**: Navigable links in the preview pane open in a new tab (`noopener`) so the admin SPA is not replaced.
 - **Templates / Sources**: Memoize `rootParameterDefaults` (stable identity across CD) and prefer live Parameters grid rows for Sources prefill + Template preview `$…` context.
 - **Templates / TipTap**: Mustache `img`/`iframe` `src` shows a binding placeholder in visual mode (no relative URL load); selection toolbar inspects/edits `src`/`alt`/`title`; serialize keeps literal attributes.

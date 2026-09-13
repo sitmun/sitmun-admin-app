@@ -58,4 +58,10 @@ describe('TemplateHtmlValidatorService', () => {
     });
     expect(service.validate('<t>Hola').errors).toContain('Etiqueta <t> sin cierre.');
   });
+
+  it('still allows visual mode when a comment is unclosed but later tags balance', () => {
+    expect(service.validate('<p>BEFORE_MARKER</p><!-- tip <p>AFTER_MARKER</p>').valid).toBe(true);
+    expect(service.validate('<p>BEFORE_MARKER</p><!-- tip -><p>AFTER_MARKER</p>').valid).toBe(true);
+    expect(service.validate('<p>BEFORE_MARKER</p><!-- tip -- ><p>AFTER_MARKER</p>').valid).toBe(true);
+  });
 });

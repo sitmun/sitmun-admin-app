@@ -349,6 +349,36 @@ describe('TemplateEditorComponent', () => {
     host.remove();
   });
 
+  it.each([
+    '<p>BEFORE_MARKER</p><!-- tip <p>AFTER_MARKER</p>',
+    '<p>BEFORE_MARKER</p><!-- tip -><p>AFTER_MARKER</p>',
+    '<p>BEFORE_MARKER</p><!-- tip -- ><p>AFTER_MARKER</p>',
+  ])('keeps markup after a malformed HTML comment through TipTap round-trip: %s', (source) => {
+    const validator = new TemplateHtmlValidatorService({ instant: (key: string) => key } as any);
+    expect(validator.validate(source).valid).toBe(true);
+
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    const editor = new Editor({
+      element: host,
+      extensions: createTemplateEditorExtensions(),
+      content: '',
+    });
+
+    const protectedHtml = protectTemplateEditorHtml(source);
+    expect(protectedHtml).not.toMatch(/<!--/);
+    editor.commands.setContent(protectedHtml, false);
+
+    const serialized = restoreHandlebarsChipsFromHtml(editor.getHTML());
+    expect(serialized).toContain('<p>AFTER_MARKER</p>');
+    expect(serialized).toContain('BEFORE_MARKER');
+    expect(serialized).toMatch(/<!--\s*tip\s*-->/);
+    expect(serialized).not.toContain('data-sitmun-html-comment');
+
+    editor.destroy();
+    host.remove();
+  });
+
   it('round-trips inline mustache chips to raw mustaches through TipTap', () => {
     const host = document.createElement('div');
     document.body.appendChild(host);

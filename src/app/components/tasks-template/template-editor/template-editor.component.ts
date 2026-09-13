@@ -13,9 +13,12 @@ import {
   handlebarsSystemVariableHtmlAttribute,
   isSystemVariableMustache,
 } from './handlebars-system-variable.extension';
-import { htmlCommentHtmlAttribute } from './html-comment.extension';
 import { scrubTipTapTableSerializeArtifacts } from './sitmun-table.extension';
 import { createTemplateEditorExtensions } from './template-editor-extensions';
+import {
+  htmlCommentToMarker,
+  rewritePlantillaHtml,
+} from './template-html-rewrite';
 import { TemplateHtmlValidatorService, TemplateValidationResult } from './template-html-validator.service';
 import { translationLiteralHtmlAttribute, translationLiteralSelector } from './translation-literal.extension';
 
@@ -32,16 +35,6 @@ import { translationLiteralHtmlAttribute, translationLiteralSelector } from './t
  * - No visual update → form stays clean; persisted HTML unchanged.
  * - After a visual update → serialize may rewrite, but supported shapes (attrs, div, bare table, link, comments) are preserved.
  */
-
-/** Known chip openers skipped wholesale so re-protect stays idempotent. */
-const CHIP_SKIP_OPENERS: Array<{ attr: string; openTag: string; closeTag: string }> = [
-  { attr: handlebarsExpressionHtmlAttribute, openTag: 'span', closeTag: '</span>' },
-  { attr: handlebarsSystemVariableHtmlAttribute, openTag: 'span', closeTag: '</span>' },
-  { attr: handlebarsBlockHtmlAttribute, openTag: 'div', closeTag: '</div>' },
-  { attr: htmlCommentHtmlAttribute, openTag: 'div', closeTag: '</div>' },
-  // Table-section each/if rows reuse the structural block attribute on <tr>.
-  { attr: handlebarsBlockHtmlAttribute, openTag: 'tr', closeTag: '</tr>' },
-];
 
 /** Strip accidental HTML tags TipTap inserts inside mustache placeholders (triple-first). */
 export function normalizeHandlebarsMarkup(html: string): string {
@@ -139,22 +132,23 @@ export function protectHandlebarsExpressions(html: string): string {
 }
 
 /**
- * Full protect for TipTap `setContent`: table pre-pass, text-only chips, then comment markers.
+ * Full protect for TipTap `setContent`: table pre-pass, then one rewrite (text chips + comment markers).
  * Attribute mustaches such as `src="{{foto.url}}"` remain literal attribute values.
  * Comments become marker nodes because TipTap drops real `<!--…-->` on parse.
+ * Recovered (unclosed) comments are encoded as `<!--…-->` so later tags stay sibling markup.
  */
 export function protectTemplateEditorHtml(html: string): string {
-  return protectHtmlComments(
-    transformHtmlTextSegments(protectTableHandlebarsBlocks(html || ''), (text) =>
-      protectMustachesInText(text, 'all'),
-    ),
-  );
+  return rewritePlantillaHtml(protectTableHandlebarsBlocks(html || ''), {
+    onText: (text) => protectMustachesInText(text, 'all'),
+    onComment: htmlCommentToMarker,
+  });
 }
 
 /** Turn HTML comments into TipTap-safe marker divs (empty body; comment lives in the data attr). */
 export function protectHtmlComments(html: string): string {
-  return (html || '').replace(/<!--([\s\S]*?)-->/g, (full) => {
-    return `<div ${htmlCommentHtmlAttribute}="${encodeURIComponent(full)}" class="sitmun-html-comment-node"></div>`;
+  return rewritePlantillaHtml(html || '', {
+    onText: (text) => text,
+    onComment: htmlCommentToMarker,
   });
 }
 
@@ -315,107 +309,10 @@ export function readMustache(source: string, start: number): { value: string; en
  * Not a full HTML parser — quote-aware enough for Plantilla attrs (`src="{{…}}"`) without DOM normalize.
  */
 export function transformHtmlTextSegments(html: string, transformText: (text: string) => string): string {
-  let result = '';
-  let index = 0;
-  const source = html || '';
-
-  while (index < source.length) {
-    if (source.startsWith('<!--', index)) {
-      const end = source.indexOf('-->', index + 4);
-      if (end < 0) {
-        result += source.slice(index);
-        break;
-      }
-      result += source.slice(index, end + 3);
-      index = end + 3;
-      continue;
-    }
-
-    if (source[index] === '<') {
-      const chipSkip = matchChipSkip(source, index);
-      if (chipSkip) {
-        result += source.slice(index, chipSkip);
-        index = chipSkip;
-        continue;
-      }
-
-      if (/^<t\b/i.test(source.slice(index))) {
-        const close = findClosingTag(source, index, 't');
-        if (close > index) {
-          result += source.slice(index, close);
-          index = close;
-          continue;
-        }
-      }
-
-      const tagEnd = findTagEnd(source, index);
-      result += source.slice(index, tagEnd);
-      index = tagEnd;
-      continue;
-    }
-
-    const nextTag = source.indexOf('<', index);
-    const textEnd = nextTag < 0 ? source.length : nextTag;
-    result += transformText(source.slice(index, textEnd));
-    index = textEnd;
-  }
-
-  return result;
-}
-
-/** If {@code index} opens a known chip, return index after its closing tag; else null. */
-function matchChipSkip(source: string, index: number): number | null {
-  for (const chip of CHIP_SKIP_OPENERS) {
-    const openPattern = new RegExp(`^<${chip.openTag}\\b[^>]*\\b${chip.attr}\\b[^>]*>`, 'i');
-    const openMatch = openPattern.exec(source.slice(index));
-    if (!openMatch) {
-      continue;
-    }
-    const afterOpen = index + openMatch[0].length;
-    const closeIndex = source.toLowerCase().indexOf(chip.closeTag, afterOpen);
-    if (closeIndex < 0) {
-      return source.length;
-    }
-    return closeIndex + chip.closeTag.length;
-  }
-  return null;
-}
-
-/** End index after matching {@code </tagName>} (or self-closing open). */
-function findClosingTag(source: string, openIndex: number, tagName: string): number {
-  const openEnd = findTagEnd(source, openIndex);
-  if (source[openEnd - 2] === '/') {
-    return openEnd;
-  }
-  const closePattern = new RegExp(`</${tagName}\\s*>`, 'i');
-  const rest = source.slice(openEnd);
-  const match = closePattern.exec(rest);
-  return match ? openEnd + match.index + match[0].length : -1;
-}
-
-/**
- * Index just past the next tag-closing {@code >}, ignoring {@code >} inside quoted attribute values.
- * Intentionally not entity/backslash-complete — sufficient for authored Plantilla HTML.
- */
-function findTagEnd(source: string, start: number): number {
-  let quote: '"' | "'" | null = null;
-  for (let index = start + 1; index < source.length; index += 1) {
-    const char = source[index];
-    if (quote) {
-      if (char === quote) {
-        quote = null;
-      }
-      continue;
-    }
-    if (char === '"' || char === "'") {
-      quote = char;
-      continue;
-    }
-    if (char === '>') {
-      return index + 1;
-    }
-  }
-  return source.length;
+  return rewritePlantillaHtml(html || '', {
+    onText: transformText,
+    onComment: (comment) => comment.authored,
+  });
 }
 
 function escapeHtml(value: string): string {

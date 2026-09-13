@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 
 import { TranslateService } from '@ngx-translate/core';
 
+import { stripPlantillaHtmlComments } from './template-html-rewrite';
+
 export interface TemplateValidationResult {
   valid: boolean;
   errors: string[];
@@ -61,9 +63,7 @@ export class TemplateHtmlValidatorService {
   private validateTagBalance(html: string): string[] {
     const errors: string[] = [];
     const stack: string[] = [];
-    const sanitized = html
-      .replaceAll(/<!--([\s\S]*?)-->/g, '')
-      .replaceAll(/\{\{[\s\S]*?}}/g, 'HANDLEBARS_PLACEHOLDER');
+    const sanitized = stripPlantillaHtmlComments(html).replaceAll(/\{\{[\s\S]*?}}/g, 'HANDLEBARS_PLACEHOLDER');
     const tagPattern = /<\s*(\/)?\s*([a-zA-Z][\w:-]*)([^<>]*?)(\/)?\s*>/g;
 
     let match: RegExpExecArray | null;
