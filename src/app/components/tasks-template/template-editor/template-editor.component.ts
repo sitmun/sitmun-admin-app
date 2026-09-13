@@ -364,6 +364,7 @@ export class TemplateEditorComponent implements AfterViewInit, OnChanges, OnDest
   editorMode: 'visual' | 'html' = 'visual';
   htmlSource = '';
   validationErrors: string[] = [];
+  validationWarnings: string[] = [];
   interactionErrors: string[] = [];
   selectedElementWidth = '';
   selectedElementHeight = '';
@@ -1084,6 +1085,7 @@ export class TemplateEditorComponent implements AfterViewInit, OnChanges, OnDest
 
   private publishValidation(validation: TemplateValidationResult): void {
     this.validationErrors = validation.errors;
+    this.validationWarnings = validation.warnings;
     this.validationChange.emit(validation);
   }
 
