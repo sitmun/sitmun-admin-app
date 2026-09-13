@@ -14,6 +14,7 @@ import {TranslateLoader, TranslateModule} from '@ngx-translate/core';
 import {of} from 'rxjs';
 
 import {FormToolbarComponent} from '@app/components/shared/form-toolbar/form-toolbar.component';
+import {EntityFormAlertsComponent} from '@app/components/shared/entity-form-alerts/entity-form-alerts.component';
 import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
 import { FeatureFlagComponent } from '@app/core/features/feature-flag.component';
 import { FeatureFlagDirective } from '@app/core/features/feature-flag.directive';
@@ -80,7 +81,7 @@ describe('LayersFormComponent', () => {
         FeatureFlagComponent,
         FeatureFlagPipe
       ],
-      imports: [FormsModule, ReactiveFormsModule, RouterModule.forRoot([], {}), SitmunFrontendGuiModule,
+      imports: [FormsModule, ReactiveFormsModule, RouterModule.forRoot([], {}), SitmunFrontendGuiModule, EntityFormAlertsComponent,
         MaterialModule, RouterModule, MatIconTestingModule, BrowserAnimationsModule,
         TranslateModule.forRoot({
           loader: {

@@ -12,6 +12,7 @@ import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
 
 import {FormToolbarComponent} from '@app/components/shared/form-toolbar/form-toolbar.component';
+import {EntityFormAlertsComponent} from '@app/components/shared/entity-form-alerts/entity-form-alerts.component';
 import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
 import {ExternalService, ResourceService} from '@app/core/hal';
 import {
@@ -52,7 +53,7 @@ describe('ServiceFormComponent', () => {
     await TestBed.configureTestingModule({
       teardown: { destroyAfterEach: 0 as any },
       declarations: [ ServiceFormComponent, FormToolbarComponent ],
-      imports: [FormsModule, ReactiveFormsModule, SitmunFrontendGuiModule, RouterModule.forRoot([], {}), MaterialModule, TranslateModule.forRoot({
+      imports: [FormsModule, ReactiveFormsModule, SitmunFrontendGuiModule, EntityFormAlertsComponent, RouterModule.forRoot([], {}), MaterialModule, TranslateModule.forRoot({
           loader: {
             provide: TranslateLoader,
             useFactory: () => ({
