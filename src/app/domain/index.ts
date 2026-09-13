@@ -80,7 +80,7 @@ export { TreeNodeService } from './tree/services/tree-node.service';
 export { DashboardService } from './dashboard/services/dashboard.service';
 
 // Capabilities
-export { CapabilitiesService } from './capabilities/services/capabilities.service';
+export { CapabilitiesService, type ServiceCapabilitiesProbe } from './capabilities/services/capabilities.service';
 
 // Configuration
 export { ConfigurationParametersService } from './configuration/services/configuration-parameters.service';
