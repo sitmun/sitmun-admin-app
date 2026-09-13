@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+- **Dependencies**: `npm audit --fix` (no `--force`) applied semver-compatible lockfile patches (48 → 32 advisories). Remaining Angular, TipTap, and echarts majors were not forced.
 - **Templates / Preview**: Nested execute-child results render in a sandboxed iframe (`sandbox` with no allow-tokens). The main Template preview pane is still trusted HTML.
 
 ### Fixed
