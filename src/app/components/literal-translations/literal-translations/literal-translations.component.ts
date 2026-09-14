@@ -186,7 +186,9 @@ export class LiteralTranslationsComponent implements CanComponentDeactivate, OnI
 
   onGridReady(event: GridReadyEvent<LiteralTranslationItem>): void {
     this.gridApi = event.api;
-    this.refreshGrid();
+    if (this.languageControl.value) {
+      this.refreshGrid();
+    }
   }
 
   get noRowsOverlayTemplate(): string {

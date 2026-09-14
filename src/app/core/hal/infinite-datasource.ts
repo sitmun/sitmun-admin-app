@@ -37,11 +37,20 @@ export function createInfiniteDatasource<T>(
 ): IDatasource {
   const pageSize = options.pageSize ?? INFINITE_PAGE_SIZE_DEFAULT;
   const active = new Subscription();
+  const pending = new Set<IGetRowsParams>();
   let lastTotalElements: number | undefined;
   let progressiveCache = createProgressiveCache<T>('');
 
+  function complete(params: IGetRowsParams, fn: () => void): void {
+    if (!pending.delete(params)) {
+      return;
+    }
+    fn();
+  }
+
   return {
     getRows: (params: IGetRowsParams) => {
+      pending.add(params);
       const page = Math.floor(params.startRow / pageSize);
       const generationAtStart = options.getGeneration?.() ?? 0;
       const sort = mapAgSortToHal(params.sortModel as any, options.columnDefs);
@@ -63,12 +72,12 @@ export function createInfiniteDatasource<T>(
         const sub = from(loadProgressiveRows(params, request, cacheKey, searchText, generationAtStart)).subscribe({
           next: ({rows, lastRow, stale}) => {
             if (stale || (options.getGeneration?.() ?? 0) !== generationAtStart) {
-              params.failCallback();
+              complete(params, () => params.failCallback());
               return;
             }
-            params.successCallback(rows, lastRow);
+            complete(params, () => params.successCallback(rows, lastRow));
           },
-          error: () => params.failCallback(),
+          error: () => complete(params, () => params.failCallback()),
         });
         active.add(sub);
         return;
@@ -77,6 +86,7 @@ export function createInfiniteDatasource<T>(
       const sub = fetch(request).subscribe({
         next: ({rows, totalElements}) => {
           if ((options.getGeneration?.() ?? 0) !== generationAtStart) {
+            complete(params, () => params.failCallback());
             return;
           }
           if (
@@ -87,13 +97,18 @@ export function createInfiniteDatasource<T>(
             options.gridApi.setRowCount(totalElements, true);
           }
           lastTotalElements = totalElements;
-          params.successCallback(rows, totalElements);
+          complete(params, () => params.successCallback(rows, totalElements));
         },
-        error: () => params.failCallback(),
+        error: () => complete(params, () => params.failCallback()),
       });
       active.add(sub);
     },
-    destroy: () => active.unsubscribe(),
+    destroy: () => {
+      active.unsubscribe();
+      for (const params of [...pending]) {
+        complete(params, () => params.failCallback());
+      }
+    },
   };
 
   async function loadProgressiveRows(
