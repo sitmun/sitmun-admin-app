@@ -7,5 +7,6 @@ export const environment = {
   logLevel: LogLevel.Error,
   version: '1.2.8',
   buildTimestamp: new Date().toISOString(),
-  environmentName: 'e2e'
+  environmentName: 'e2e',
+  sessionTokenRefreshIntervalMs: 10 * 60 * 1000
 };

@@ -1,5 +1,4 @@
 import {
-  HttpContext,
   HttpContextToken,
   HttpErrorResponse,
   HttpEvent,
@@ -13,7 +12,6 @@ import {Router} from '@angular/router';
 import {EMPTY, Observable, defer, throwError} from 'rxjs';
 import {catchError, finalize, shareReplay, tap} from 'rxjs/operators';
 
-import {AccountService} from '@app/core/account/account.service';
 import {LoginService} from '@app/core/auth/login.service';
 import {NotificationService} from '@app/services/notification.service';
 import {environment} from '@environments/environment';
@@ -52,7 +50,6 @@ export class AuthExpiredInterceptor implements HttpInterceptor {
 
     /** constructor */
     constructor(
-        private accountService: AccountService,
         private loginService: LoginService,
         private notificationService: NotificationService,
         private router: Router
@@ -83,8 +80,7 @@ export class AuthExpiredInterceptor implements HttpInterceptor {
 
   private validateSession(): void {
     if (!this.validation$) {
-      const context = new HttpContext().set(SUPPRESS_SESSION_VALIDATION, true);
-      this.validation$ = defer(() => this.accountService.get(context)).pipe(
+      this.validation$ = defer(() => this.loginService.refreshSession()).pipe(
         tap(() => {
           this.transientWarningShown = false;
         }),
