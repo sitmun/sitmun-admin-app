@@ -389,7 +389,7 @@ describe('UserFormComponent', () => {
       expect(register).toHaveBeenCalledWith(component['userPositionsTable']);
     });
 
-    it('orders Alta immediately before Baja and keeps Alta editable without minValidYear 2000', () => {
+    it('orders createdDate immediately before expirationDate and keeps createdDate editable without minValidYear 2000', () => {
       const fields = component['userPositionsTable'].relationsColumnsDefs
         .map((col: { field?: string }) => col.field)
         .filter((field: string | undefined) => field && field !== 'status');
@@ -403,22 +403,24 @@ describe('UserFormComponent', () => {
         'type'
       ]);
 
-      const alta = component['userPositionsTable'].relationsColumnsDefs.find(
+      const createdDate = component['userPositionsTable'].relationsColumnsDefs.find(
         (col: { field?: string }) => col.field === 'createdDate'
       );
-      const baja = component['userPositionsTable'].relationsColumnsDefs.find(
+      const expirationDate = component['userPositionsTable'].relationsColumnsDefs.find(
         (col: { field?: string }) => col.field === 'expirationDate'
       );
-      expect(alta.editable).toBe(true);
-      expect(alta.emptyValueKey).toBe('entity.user.position.alta.placeholder');
-      expect(alta.filterParams.minValidYear).toBeUndefined();
-      expect(alta.cellRenderer({ value: null })).toBe('entity.user.position.alta.placeholder');
-      expect(baja.emptyValueKey).toBe('entity.user.position.baja.placeholder');
-      expect(baja.filterParams.minValidYear).toBeUndefined();
-      expect(baja.cellRenderer({ value: null })).toBe('entity.user.position.baja.placeholder');
+      expect(createdDate.editable).toBe(true);
+      expect(createdDate.emptyValueKey).toBe('entity.user.position.createdDate.placeholder');
+      expect(createdDate.headerTooltip).toBe('entity.user.position.createdDate.tooltip');
+      expect(expirationDate.headerTooltip).toBe('entity.user.position.expirationDate.tooltip');
+      expect(createdDate.filterParams.minValidYear).toBeUndefined();
+      expect(createdDate.cellRenderer({ value: null })).toBe('entity.user.position.createdDate.placeholder');
+      expect(expirationDate.emptyValueKey).toBe('entity.user.position.expirationDate.placeholder');
+      expect(expirationDate.filterParams.minValidYear).toBeUndefined();
+      expect(expirationDate.cellRenderer({ value: null })).toBe('entity.user.position.expirationDate.placeholder');
     });
 
-    it('PUT of a null Alta keeps createdDate null on the update payload', async () => {
+    it('PUT of a null createdDate keeps createdDate null on the update payload', async () => {
       const update = jest.spyOn(userPositionService, 'update').mockReturnValue(of({} as never));
 
       await component['userPositionsTable'].handleSaveRelations({

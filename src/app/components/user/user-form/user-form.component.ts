@@ -425,14 +425,15 @@ export class UserFormComponent extends BaseFormComponent<UserProjection> {
         Object.assign(this.utils.getRouterLinkColumnDef('entity.territory.label', 'territoryName', '/territory/:id/territoryForm', {id: 'territoryId'}), {flex: 2, minWidth: 140, tooltipField: 'territoryName'}),
         Object.assign(this.utils.getEditableColumnDef('entity.user.position.name', 'name'), {flex: 2, minWidth: 120, tooltipField: 'name'}),
         Object.assign(this.utils.getEditableColumnDef('entity.user.position.organization', 'organization'), {flex: 2, minWidth: 120, tooltipField: 'organization'}),
-        Object.assign(this.utils.getDateColumnDef('entity.user.position.alta', 'createdDate', true, {
+        Object.assign(this.utils.getDateColumnDef('entity.user.position.createdDate', 'createdDate', true, {
           minValidYear: null,
-          emptyValueKey: 'entity.user.position.alta.placeholder'
+          emptyValueKey: 'entity.user.position.createdDate.placeholder',
+          headerTooltipKey: 'entity.user.position.createdDate.tooltip'
         }), {flex: 0, minWidth: 120}),
-        Object.assign(this.utils.getDateColumnDef('entity.user.position.baja', 'expirationDate', true, {
+        Object.assign(this.utils.getDateColumnDef('entity.user.position.expirationDate', 'expirationDate', true, {
           minValidYear: null,
-          emptyValueKey: 'entity.user.position.baja.placeholder',
-          headerTooltipKey: 'entity.user.position.baja.tooltip'
+          emptyValueKey: 'entity.user.position.expirationDate.placeholder',
+          headerTooltipKey: 'entity.user.position.expirationDate.tooltip'
         }), {flex: 0, minWidth: 120}),
         Object.assign(this.utils.getEditableColumnDef('common.form.email', 'email'), {flex: 2, minWidth: 160, tooltipField: 'email'}),
         Object.assign(this.utils.getSelectColumnDef<CodeList, string>('common.form.type', 'type', true,
