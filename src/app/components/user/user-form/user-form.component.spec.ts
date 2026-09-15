@@ -46,6 +46,7 @@ describe('UserFormComponent', () => {
   let component: UserFormComponent;
   let fixture: ComponentFixture<UserFormComponent>;
   let applicationService: ApplicationService;
+  let userPositionService: UserPositionService;
 
   beforeAll(async () => {
     await TestBed.configureTestingModule({
@@ -94,6 +95,7 @@ describe('UserFormComponent', () => {
     const loggerService = TestBed.inject(LoggerService);
     configureLoggerForTests(loggerService);
     applicationService = TestBed.inject(ApplicationService);
+    userPositionService = TestBed.inject(UserPositionService);
     component.entityToEdit = component.empty();
     component.postFetchData();
     fixture.detectChanges();
@@ -385,6 +387,68 @@ describe('UserFormComponent', () => {
       component.leftoverPositionCount = 2;
       component.postFetchData();
       expect(register).toHaveBeenCalledWith(component['userPositionsTable']);
+    });
+
+    it('orders createdDate immediately before expirationDate and keeps createdDate editable without minValidYear 2000', () => {
+      const fields = component['userPositionsTable'].relationsColumnsDefs
+        .map((col: { field?: string }) => col.field)
+        .filter((field: string | undefined) => field && field !== 'status');
+      expect(fields).toEqual([
+        'territoryName',
+        'name',
+        'organization',
+        'createdDate',
+        'expirationDate',
+        'email',
+        'type'
+      ]);
+
+      const createdDate = component['userPositionsTable'].relationsColumnsDefs.find(
+        (col: { field?: string }) => col.field === 'createdDate'
+      );
+      const expirationDate = component['userPositionsTable'].relationsColumnsDefs.find(
+        (col: { field?: string }) => col.field === 'expirationDate'
+      );
+      expect(createdDate.editable).toBe(true);
+      expect(createdDate.emptyValueKey).toBe('entity.user.position.createdDate.placeholder');
+      expect(createdDate.headerTooltip).toBe('entity.user.position.createdDate.tooltip');
+      expect(expirationDate.headerTooltip).toBe('entity.user.position.expirationDate.tooltip');
+      expect(createdDate.filterParams.minValidYear).toBeUndefined();
+      expect(createdDate.cellRenderer({ value: null })).toBe('entity.user.position.createdDate.placeholder');
+      expect(expirationDate.emptyValueKey).toBe('entity.user.position.expirationDate.placeholder');
+      expect(expirationDate.filterParams.minValidYear).toBeUndefined();
+      expect(expirationDate.cellRenderer({ value: null })).toBe('entity.user.position.expirationDate.placeholder');
+    });
+
+    it('PUT of a null createdDate keeps createdDate null on the update payload', async () => {
+      const update = jest.spyOn(userPositionService, 'update').mockReturnValue(of({} as never));
+
+      await component['userPositionsTable'].handleSaveRelations({
+        event: 'save',
+        data: [
+          {
+            id: 11,
+            userId: 8,
+            territoryId: 4,
+            createdDate: null,
+            expirationDate: '2026-09-15T00:00:00.000Z',
+            status: 'pendingModify',
+            newItem: false
+          } as never
+        ]
+      });
+
+      expect(update).toHaveBeenCalledTimes(1);
+      expect(update.mock.calls[0][0].createdDate).toBeNull();
+    });
+
+    it('marks the Positions tab when the inverted-interval warning is present', () => {
+      component.entityID = 8;
+      component.entityToEdit = Object.assign(component.empty(), {
+        username: 'alice',
+        warnings: ['entity.user.warning.position-inverted-interval']
+      });
+      expect(component.positionsTabHasWarning()).toBe(true);
     });
   });
 });
