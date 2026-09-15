@@ -1,6 +1,7 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { TestBed } from '@angular/core/testing';
+import { fakeAsync, TestBed, tick } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 
 import { AccountService } from '@app/core/account/account.service';
 
@@ -21,6 +22,7 @@ describe('LoginService', () => {
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
+        provideRouter([]),
         LoginService,
         AuthService,
         Principal,
@@ -53,4 +55,15 @@ describe('LoginService', () => {
     const req = httpMock.expectOne((request) => request.url.endsWith('/authenticate/logout'));
     req.flush('Server error', { status: 500, statusText: 'Server Error' });
   });
+
+  it('POSTs authenticate/refresh on session keep-alive', fakeAsync(() => {
+    loginService.startSessionRefresh();
+    tick(0);
+
+    const req = httpMock.expectOne((request) => request.url.endsWith('/authenticate/refresh'));
+    expect(req.request.method).toBe('POST');
+    expect(req.request.withCredentials).toBe(true);
+    req.flush(null, { status: 200, statusText: 'OK' });
+    loginService.clearSession();
+  }));
 });

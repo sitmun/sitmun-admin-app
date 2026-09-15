@@ -1,7 +1,9 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Router } from '@angular/router';
 
-import {firstValueFrom, Observable, of} from 'rxjs';
-import {catchError, map} from 'rxjs/operators';
+import { EMPTY, firstValueFrom, Observable, of, Subscription, timer, throwError } from 'rxjs';
+import { catchError, map, switchMap } from 'rxjs/operators';
 
 import {LoginMethod} from "@app/components/login/login.component";
 import {environment} from "@environments/environment";
@@ -16,10 +18,13 @@ export class LoginService {
 
   public AUTH_OIDC_LOGIN_API = '/oauth2/authorization';
 
+  private sessionRefreshSubscription: Subscription | null = null;
+
   /** constructor */
   constructor(
     private readonly authServerProvider: AuthService,
-    private readonly principal: Principal
+    private readonly principal: Principal,
+    private readonly router: Router
   ) {}
 
   /**Login operation*/
@@ -31,6 +36,7 @@ export class LoginService {
       const data = await firstValueFrom(this.authServerProvider.login(credentials));
       // Identity is resolved by the route guard on the subsequent navigation,
       // so we avoid a duplicate /api/account request right after login.
+      this.startSessionRefresh();
       cb();
       return data;
     } catch (err) {
@@ -42,6 +48,7 @@ export class LoginService {
 
   /** Clears local state and requests backend cookie removal. */
   logout(): Observable<void> {
+    this.stopSessionRefresh();
     this.principal.authenticate(null);
 
     return this.authServerProvider.logout().pipe(
@@ -59,7 +66,30 @@ export class LoginService {
    * logout cascade. Explicit user logout still uses {@link logout}.
    */
   clearSession() {
+    this.stopSessionRefresh();
     this.principal.authenticate(null);
+  }
+
+  startSessionRefresh(): void {
+    this.stopSessionRefresh();
+    this.sessionRefreshSubscription = timer(0, environment.sessionTokenRefreshIntervalMs)
+      .pipe(
+        switchMap(() => this.refreshSession().pipe(catchError(() => EMPTY)))
+      )
+      .subscribe();
+  }
+
+  refreshSession(): Observable<unknown> {
+    return this.authServerProvider.refresh().pipe(
+      catchError((error: unknown) => {
+        if (error instanceof HttpErrorResponse && error.status === 401) {
+          this.clearSession();
+          void this.router.navigate(['/login']);
+          return EMPTY;
+        }
+        return throwError(() => error);
+      })
+    );
   }
 
   getEnabledAuthMethods(): Observable<LoginMethod[]> {
@@ -68,5 +98,10 @@ export class LoginService {
 
   initOidcLogin(providerId: string) {
     globalThis.location.href = `${environment.apiBaseURL}${this.AUTH_OIDC_LOGIN_API}/${providerId}?client_type=admin`
+  }
+
+  private stopSessionRefresh(): void {
+    this.sessionRefreshSubscription?.unsubscribe();
+    this.sessionRefreshSubscription = null;
   }
 }

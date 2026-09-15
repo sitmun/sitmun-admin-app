@@ -9,5 +9,6 @@ export const environment = {
   logLevel: LogLevel.Debug,
   version: '1.2.8',
   buildTimestamp: new Date().toISOString(),
-  environmentName: 'development'
+  environmentName: 'development',
+  sessionTokenRefreshIntervalMs: 2 * 60 * 1000
 };
