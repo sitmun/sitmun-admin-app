@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - **Auth**: Sliding `POST /api/authenticate/refresh` every 2 minutes. Resource 401s prove life with `/refresh`, not `/account` ([sitmun-backend-core#264](https://github.com/sitmun/sitmun-backend-core/issues/264)).
+- **Users**: Positions tab columns are Territorio, Cargo, Organización, Alta, Baja, Email, Tipo. Alta is editable; empty Alta shows an unknown-start placeholder and empty Baja shows Activo. Pre-2000 Alta dates stay visible. Inverted Alta/Baja surfaces `entity.user.warning.position-inverted-interval`. Civil day follows the JVM/Compose `TZ`, not a `sitmun.time-zone` property ([#462](https://github.com/sitmun/sitmun-admin-app/issues/462)).
 - **Templates / Map image**: Task type 18 form, layer catalog, source reorder, and Plantilla Sources linking for map-image children.
 - **Templates / Document export**: Task type 17 form restricted to PDF output (`downloadFormat` `pdf`).
 - **Templates / TipTap**: PDF header, footer, and full-bleed region classes with validator rules.

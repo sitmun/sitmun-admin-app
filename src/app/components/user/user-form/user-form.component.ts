@@ -52,6 +52,9 @@ export class UserFormComponent extends BaseFormComponent<UserProjection> {
   private static readonly WARNING_POSITION_WITHOUT_DETAILS =
     'entity.user.warning.position-without-details';
 
+  private static readonly WARNING_POSITION_INVERTED_INTERVAL =
+    'entity.user.warning.position-inverted-interval';
+
   private static readonly WARNING_ROLE_WITHOUT_POSITION =
     'entity.user.warning.role-without-position';
 
@@ -422,14 +425,21 @@ export class UserFormComponent extends BaseFormComponent<UserProjection> {
         Object.assign(this.utils.getRouterLinkColumnDef('entity.territory.label', 'territoryName', '/territory/:id/territoryForm', {id: 'territoryId'}), {flex: 2, minWidth: 140, tooltipField: 'territoryName'}),
         Object.assign(this.utils.getEditableColumnDef('entity.user.position.name', 'name'), {flex: 2, minWidth: 120, tooltipField: 'name'}),
         Object.assign(this.utils.getEditableColumnDef('entity.user.position.organization', 'organization'), {flex: 2, minWidth: 120, tooltipField: 'organization'}),
+        Object.assign(this.utils.getDateColumnDef('entity.user.position.alta', 'createdDate', true, {
+          minValidYear: null,
+          emptyValueKey: 'entity.user.position.alta.placeholder'
+        }), {flex: 0, minWidth: 120}),
+        Object.assign(this.utils.getDateColumnDef('entity.user.position.baja', 'expirationDate', true, {
+          minValidYear: null,
+          emptyValueKey: 'entity.user.position.baja.placeholder',
+          headerTooltipKey: 'entity.user.position.baja.tooltip'
+        }), {flex: 0, minWidth: 120}),
         Object.assign(this.utils.getEditableColumnDef('common.form.email', 'email'), {flex: 2, minWidth: 160, tooltipField: 'email'}),
         Object.assign(this.utils.getSelectColumnDef<CodeList, string>('common.form.type', 'type', true,
           () => this.codeList('userPosition.type').map(item => item.description),
           () => this.codeList('userPosition.type'),
           'value',
           'description'), {flex: 0, minWidth: 120}),
-        Object.assign(this.utils.getDateColumnDef('common.form.expirationDate', 'expirationDate', true), {flex: 0, minWidth: 120}),
-        Object.assign(this.utils.getDateColumnDef('entity.user.dataCreated', 'createdDate'), {flex: 0, minWidth: 120}),
         Object.assign(this.utils.getStatusColumnDef(), {flex: 0})
       ])
       .withRelationsFetcher(() => {
@@ -614,6 +624,7 @@ export class UserFormComponent extends BaseFormComponent<UserProjection> {
     }
     return this.warningsInclude(
       UserFormComponent.WARNING_POSITION_WITHOUT_DETAILS,
+      UserFormComponent.WARNING_POSITION_INVERTED_INTERVAL,
       UserFormComponent.WARNING_ROLE_WITHOUT_POSITION
     );
   }
