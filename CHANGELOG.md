@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.9] - 2026-09-18
+
 ### Added
 
 - **Auth**: Sliding `POST /api/authenticate/refresh` every 2 minutes. Resource 401s prove life with `/refresh`, not `/account` ([sitmun-backend-core#264](https://github.com/sitmun/sitmun-backend-core/issues/264)).
@@ -397,7 +399,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Various bug fixes and improvements from development phase
 
-[Unreleased]: https://github.com/sitmun/sitmun-admin-app/compare/sitmun-admin-app/1.2.8...HEAD
+[Unreleased]: https://github.com/sitmun/sitmun-admin-app/compare/sitmun-admin-app/1.2.9...HEAD
+[1.2.9]: https://github.com/sitmun/sitmun-admin-app/compare/sitmun-admin-app/1.2.8...sitmun-admin-app/1.2.9
 [1.2.8]: https://github.com/sitmun/sitmun-admin-app/compare/sitmun-admin-app/1.2.7...sitmun-admin-app/1.2.8
 [1.2.7]: https://github.com/sitmun/sitmun-admin-app/compare/sitmun-admin-app/1.2.6...sitmun-admin-app/1.2.7
 [1.2.6]: https://github.com/sitmun/sitmun-admin-app/compare/sitmun-admin-app/1.2.5...sitmun-admin-app/1.2.6

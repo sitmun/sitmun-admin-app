@@ -7,7 +7,7 @@ export const environment = {
   production: false,
   apiBaseURL: 'http://localhost:9000/backend',
   logLevel: LogLevel.Debug,
-  version: '1.2.8',
+  version: '1.2.9',
   buildTimestamp: new Date().toISOString(),
   environmentName: 'development',
   sessionTokenRefreshIntervalMs: 2 * 60 * 1000

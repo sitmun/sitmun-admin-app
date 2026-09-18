@@ -5,7 +5,7 @@ export const environment = {
   production: false,
   apiBaseURL: '/backend',
   logLevel: LogLevel.Error,
-  version: '1.2.8',
+  version: '1.2.9',
   buildTimestamp: new Date().toISOString(),
   environmentName: 'e2e',
   sessionTokenRefreshIntervalMs: 10 * 60 * 1000
