@@ -9,6 +9,7 @@ import { ActivatedRoute, convertToParamMap, RouterModule } from '@angular/router
 import { TranslateLoader, TranslateModule, TranslateService } from '@ngx-translate/core';
 import { of } from 'rxjs';
 
+import { EntityFormAlertsComponent } from '@app/components/shared/entity-form-alerts/entity-form-alerts.component';
 import { FormToolbarComponent } from '@app/components/shared/form-toolbar/form-toolbar.component';
 import { Configuration } from '@app/core/config/configuration';
 import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
@@ -36,6 +37,7 @@ describe('TerritoryTypeFormComponent', () => {
         FormsModule,
         ReactiveFormsModule,
         SitmunFrontendGuiModule,
+        EntityFormAlertsComponent,
         RouterModule.forRoot([], {}),
         MaterialModule,
         MatIconTestingModule,

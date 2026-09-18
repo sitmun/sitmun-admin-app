@@ -145,6 +145,38 @@
               (click)="insertTable()">
         <mat-icon>table_chart</mat-icon>
       </button>
+      <button mat-icon-button type="button" [class.toolbar-active]="pdfHeaderSelected"
+              [disabled]="readonly || !canMarkPdfRegion"
+              [matTooltip]="'entity.task.template.editor.pdfHeader' | translate"
+              [attr.aria-label]="'entity.task.template.editor.pdfHeader' | translate"
+              [attr.aria-pressed]="pdfHeaderSelected"
+              (click)="togglePdfHeader()">
+        <mat-icon>vertical_align_top</mat-icon>
+      </button>
+      <button mat-icon-button type="button" [class.toolbar-active]="pdfFooterSelected"
+              [disabled]="readonly || !canMarkPdfRegion"
+              [matTooltip]="'entity.task.template.editor.pdfFooter' | translate"
+              [attr.aria-label]="'entity.task.template.editor.pdfFooter' | translate"
+              [attr.aria-pressed]="pdfFooterSelected"
+              (click)="togglePdfFooter()">
+        <mat-icon>vertical_align_bottom</mat-icon>
+      </button>
+      <button mat-icon-button type="button" [class.toolbar-active]="pdfFullBleedHeaderSelected"
+              [disabled]="readonly || !canMarkPdfRegion"
+              [matTooltip]="'entity.task.template.editor.pdfFullBleedHeader' | translate"
+              [attr.aria-label]="'entity.task.template.editor.pdfFullBleedHeader' | translate"
+              [attr.aria-pressed]="pdfFullBleedHeaderSelected"
+              (click)="togglePdfFullBleedHeader()">
+        <mat-icon fontSet="material-symbols-outlined">page_header</mat-icon>
+      </button>
+      <button mat-icon-button type="button" [class.toolbar-active]="pdfFullBleedFooterSelected"
+              [disabled]="readonly || !canMarkPdfRegion"
+              [matTooltip]="'entity.task.template.editor.pdfFullBleedFooter' | translate"
+              [attr.aria-label]="'entity.task.template.editor.pdfFullBleedFooter' | translate"
+              [attr.aria-pressed]="pdfFullBleedFooterSelected"
+              (click)="togglePdfFullBleedFooter()">
+        <mat-icon fontSet="material-symbols-outlined">page_footer</mat-icon>
+      </button>
       <button mat-icon-button type="button" [class.toolbar-active]="isActive('translationLiteral')"
               [disabled]="readonly" [matTooltip]="'entity.task.template.editor.translationLiteral' | translate"
               (click)="wrapSelectionInTranslationLiteral()">
@@ -310,6 +342,34 @@
         (ngModelChange)="updateSelectedElementSize('height', $event)"
         [attr.aria-label]="'entity.task.template.editor.height' | translate"
         [matTooltip]="'entity.task.template.editor.height' | translate">
+      <input
+        class="toolbar-control toolbar-control--media-attr"
+        type="text"
+        [disabled]="readonly"
+        [ngModel]="selectedElementSrc"
+        (ngModelChange)="updateSelectedMediaAttribute('src', $event)"
+        [attr.aria-label]="'entity.task.template.editor.src' | translate"
+        [matTooltip]="'entity.task.template.editor.src' | translate"
+        placeholder="src">
+      <input
+        *ngIf="isImageAttrInspectorVisible()"
+        class="toolbar-control toolbar-control--media-attr"
+        type="text"
+        [disabled]="readonly"
+        [ngModel]="selectedElementAlt"
+        (ngModelChange)="updateSelectedMediaAttribute('alt', $event)"
+        [attr.aria-label]="'entity.task.template.editor.alt' | translate"
+        [matTooltip]="'entity.task.template.editor.alt' | translate"
+        placeholder="alt">
+      <input
+        class="toolbar-control toolbar-control--media-attr"
+        type="text"
+        [disabled]="readonly"
+        [ngModel]="selectedElementTitle"
+        (ngModelChange)="updateSelectedMediaAttribute('title', $event)"
+        [attr.aria-label]="'entity.task.template.editor.title' | translate"
+        [matTooltip]="'entity.task.template.editor.title' | translate"
+        placeholder="title">
     </div>
   </div>
 
@@ -331,6 +391,13 @@
     <ul>
       <li *ngFor="let error of validationErrors">{{ error }}</li>
       <li *ngFor="let error of interactionErrors">{{ error }}</li>
+    </ul>
+  </div>
+
+  <div class="template-editor-warnings" *ngIf="validationWarnings.length > 0">
+    <div class="template-editor-warnings__title">{{ 'entity.task.template.editor.warningsTitle' | translate }}</div>
+    <ul>
+      <li *ngFor="let warning of validationWarnings">{{ warning }}</li>
     </ul>
   </div>
 </div>

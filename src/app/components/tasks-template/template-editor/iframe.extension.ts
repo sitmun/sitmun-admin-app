@@ -1,5 +1,7 @@
 import { mergeAttributes, Node } from '@tiptap/core';
 
+import { createMustacheMediaPlaceholder, isMustacheMediaSrc } from './mustache-media';
+
 export const IframeExtension = Node.create({
   name: 'iframe',
   group: 'block',
@@ -62,6 +64,11 @@ export const IframeExtension = Node.create({
 
   addNodeView() {
     return ({ node }) => {
+      const src = String(node.attrs['src'] || '');
+      if (isMustacheMediaSrc(src)) {
+        return { dom: createMustacheMediaPlaceholder('iframe', src) };
+      }
+
       const dom = document.createElement('iframe');
       const attributes = node.attrs as Record<string, string | null>;
       for (const [key, value] of Object.entries(attributes)) {
@@ -70,7 +77,26 @@ export const IframeExtension = Node.create({
         }
       }
       dom.setAttribute('contenteditable', 'false');
-      return { dom };
+      return {
+        dom,
+        update: (updatedNode) => {
+          if (updatedNode.type.name !== 'iframe') {
+            return false;
+          }
+          const nextSrc = String(updatedNode.attrs['src'] || '');
+          if (isMustacheMediaSrc(nextSrc)) {
+            return false;
+          }
+          for (const [key, value] of Object.entries(updatedNode.attrs as Record<string, string | null>)) {
+            if (value == null) {
+              dom.removeAttribute(key);
+            } else {
+              dom.setAttribute(key, value);
+            }
+          }
+          return true;
+        },
+      };
     };
   },
 });

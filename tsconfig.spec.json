@@ -23,6 +23,9 @@
   "include": [
     "src/**/*.ts",
     "src/**/*.spec.ts",
-    "src/**/*.d.ts"
+    "src/**/*.d.ts",
+    "jest/**/*.ts",
+    "jest.config.ts",
+    "jest.coverage.config.ts"
   ]
 }

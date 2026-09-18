@@ -9,6 +9,7 @@ import { RouterModule } from '@angular/router';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { of, firstValueFrom } from 'rxjs';
 
+import { EntityFormAlertsComponent } from '@app/components/shared/entity-form-alerts/entity-form-alerts.component';
 import { FormToolbarComponent } from '@app/components/shared/form-toolbar/form-toolbar.component';
 import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
 import { ExternalService, ResourceService } from '@app/core/hal';
@@ -45,6 +46,7 @@ describe('UserFormComponent', () => {
   let component: UserFormComponent;
   let fixture: ComponentFixture<UserFormComponent>;
   let applicationService: ApplicationService;
+  let userPositionService: UserPositionService;
 
   beforeAll(async () => {
     await TestBed.configureTestingModule({
@@ -55,6 +57,7 @@ describe('UserFormComponent', () => {
         ReactiveFormsModule,
         RouterModule.forRoot([], {}),
         SitmunFrontendGuiModule,
+        EntityFormAlertsComponent,
         MaterialModule,
         MatIconTestingModule,
         BrowserAnimationsModule,
@@ -92,6 +95,7 @@ describe('UserFormComponent', () => {
     const loggerService = TestBed.inject(LoggerService);
     configureLoggerForTests(loggerService);
     applicationService = TestBed.inject(ApplicationService);
+    userPositionService = TestBed.inject(UserPositionService);
     component.entityToEdit = component.empty();
     component.postFetchData();
     fixture.detectChanges();
@@ -316,9 +320,135 @@ describe('UserFormComponent', () => {
 
       findSpy.mockClear();
       component.entityToEdit = Object.assign(component.empty(), { username: 'admin' });
+      jest.spyOn(component.entityToEdit, 'getRelationArrayEx').mockReturnValue(of([]));
       await component.fetchRelatedData();
       expect(findSpy).not.toHaveBeenCalled();
       expect(component.applicationsAsPointOfContact).toEqual([]);
+    });
+  });
+
+  describe('positions surface', () => {
+    it('shows a full Positions tab for new users and ordinary accounts', () => {
+      component.entityID = -1;
+      component.entityToEdit = component.empty();
+      component.leftoverPositionCount = 0;
+      expect(component.canShowPositionsTab()).toBe(true);
+      expect(component.isPositionsRepair()).toBe(false);
+
+      component.entityID = 8;
+      component.entityToEdit = Object.assign(component.empty(), { username: 'alice' });
+      component.leftoverPositionCount = 0;
+      expect(component.canShowPositionsTab()).toBe(true);
+      expect(component.isPositionsRepair()).toBe(false);
+    });
+
+    it('hides Positions for public and empty admin; repairs leftover admin only', () => {
+      component.entityID = 1;
+      component.entityToEdit = Object.assign(component.empty(), { username: 'public' });
+      component.leftoverPositionCount = 3;
+      expect(component.canShowPositionsTab()).toBe(false);
+
+      component.entityToEdit = Object.assign(component.empty(), { username: 'admin' });
+      component.leftoverPositionCount = 0;
+      expect(component.canShowPositionsTab()).toBe(false);
+
+      component.leftoverPositionCount = 2;
+      expect(component.canShowPositionsTab()).toBe(true);
+      expect(component.isPositionsRepair()).toBe(true);
+    });
+
+    it('prefetch leftover positions for admin and skips apps', async () => {
+      const findSpy = jest.spyOn(applicationService, 'findByCreatorId');
+      component.entityID = 1;
+      component.entityToEdit = Object.assign(component.empty(), { username: 'admin' });
+      jest.spyOn(component.entityToEdit, 'getRelationArrayEx').mockReturnValue(of([{ id: 9 }, { id: 10 }] as any));
+
+      await component.fetchRelatedData();
+
+      expect(findSpy).not.toHaveBeenCalled();
+      expect(component.leftoverPositionCount).toBe(2);
+      expect(component.canShowPositionsTab()).toBe(true);
+      expect(component.isPositionsRepair()).toBe(true);
+    });
+
+    it('registers the positions table only while the tab is shown', () => {
+      const register = jest.spyOn(component.dataTables, 'register');
+      const unregister = jest.spyOn(component.dataTables, 'unregister');
+
+      component.entityID = 1;
+      component.entityToEdit = Object.assign(component.empty(), { username: 'public' });
+      component.leftoverPositionCount = 2;
+      component.postFetchData();
+      expect(unregister).toHaveBeenCalledWith(component['userPositionsTable']);
+
+      register.mockClear();
+      unregister.mockClear();
+      component.entityToEdit = Object.assign(component.empty(), { username: 'admin' });
+      component.leftoverPositionCount = 2;
+      component.postFetchData();
+      expect(register).toHaveBeenCalledWith(component['userPositionsTable']);
+    });
+
+    it('orders createdDate immediately before expirationDate and keeps createdDate editable without minValidYear 2000', () => {
+      const fields = component['userPositionsTable'].relationsColumnsDefs
+        .map((col: { field?: string }) => col.field)
+        .filter((field: string | undefined) => field && field !== 'status');
+      expect(fields).toEqual([
+        'territoryName',
+        'name',
+        'organization',
+        'createdDate',
+        'expirationDate',
+        'email',
+        'type'
+      ]);
+
+      const createdDate = component['userPositionsTable'].relationsColumnsDefs.find(
+        (col: { field?: string }) => col.field === 'createdDate'
+      );
+      const expirationDate = component['userPositionsTable'].relationsColumnsDefs.find(
+        (col: { field?: string }) => col.field === 'expirationDate'
+      );
+      expect(createdDate.editable).toBe(true);
+      expect(createdDate.emptyValueKey).toBe('entity.user.position.createdDate.placeholder');
+      expect(createdDate.headerTooltip).toBe('entity.user.position.createdDate.tooltip');
+      expect(expirationDate.headerTooltip).toBe('entity.user.position.expirationDate.tooltip');
+      expect(createdDate.filterParams.minValidYear).toBeUndefined();
+      expect(createdDate.cellRenderer({ value: null })).toBe('entity.user.position.createdDate.placeholder');
+      expect(expirationDate.emptyValueKey).toBe('entity.user.position.expirationDate.placeholder');
+      expect(expirationDate.filterParams.minValidYear).toBeUndefined();
+      expect(expirationDate.cellRenderer({ value: null })).toBe('entity.user.position.expirationDate.placeholder');
+    });
+
+    it('PUT of a null createdDate keeps createdDate null on the update payload', async () => {
+      const update = jest.spyOn(userPositionService, 'update').mockReturnValue(of({} as never));
+
+      await component['userPositionsTable'].handleSaveRelations({
+        event: 'save',
+        data: [
+          {
+            id: 11,
+            userId: 8,
+            territoryId: 4,
+            createdDate: null,
+            expirationDate: '2026-09-15T00:00:00.000Z',
+            status: 'pendingModify',
+            newItem: false
+          } as never
+        ]
+      });
+
+      expect(update).toHaveBeenCalledTimes(1);
+      expect(update.mock.calls[0][0].createdDate).toBeNull();
+    });
+
+    it('marks the Positions tab when the inverted-interval warning is present', () => {
+      component.entityID = 8;
+      component.entityToEdit = Object.assign(component.empty(), {
+        username: 'alice',
+        warnings: ['entity.user.warning.position-inverted-interval']
+      });
+      expect(component.positionsTabHasWarning()).toBe(true);
     });
   });
 });

@@ -14,6 +14,7 @@ import {TranslateLoader, TranslateModule} from '@ngx-translate/core';
 import {of} from 'rxjs';
 
 import {FormToolbarComponent} from '@app/components/shared/form-toolbar/form-toolbar.component';
+import {EntityFormAlertsComponent} from '@app/components/shared/entity-form-alerts/entity-form-alerts.component';
 import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
 import { FeatureFlagComponent } from '@app/core/features/feature-flag.component';
 import { FeatureFlagDirective } from '@app/core/features/feature-flag.directive';
@@ -80,7 +81,7 @@ describe('LayersFormComponent', () => {
         FeatureFlagComponent,
         FeatureFlagPipe
       ],
-      imports: [FormsModule, ReactiveFormsModule, RouterModule.forRoot([], {}), SitmunFrontendGuiModule,
+      imports: [FormsModule, ReactiveFormsModule, RouterModule.forRoot([], {}), SitmunFrontendGuiModule, EntityFormAlertsComponent,
         MaterialModule, RouterModule, MatIconTestingModule, BrowserAnimationsModule,
         TranslateModule.forRoot({
           loader: {
@@ -797,7 +798,22 @@ describe('LayersFormComponent', () => {
       expect(detailsTab).toContain('related-entity-open-link');
       expect(detailsTab).toContain("['/service', serviceId, 'serviceForm']");
       expect(territoriesTab).toContain('app-relation-grid');
+      expect(territoriesTab).toContain('matTabContent');
       expect(territoriesTab).not.toContain('sitmun-cartography-form-entity');
+    });
+
+    it('wraps Permissions and Trees relation grids in matTabContent', () => {
+      const permissionsTab = layersFormTemplate.match(
+        /entity\.cartography\.permissions\.header[\s\S]*?<\/mat-tab>/,
+      )?.[0] ?? '';
+      const treesTab = layersFormTemplate.match(
+        /entity\.cartography\.trees\.header[\s\S]*?<\/mat-tab>/,
+      )?.[0] ?? '';
+
+      expect(permissionsTab).toContain('app-relation-grid');
+      expect(permissionsTab).toContain('matTabContent');
+      expect(treesTab).toContain('app-relation-grid');
+      expect(treesTab).toContain('matTabContent');
     });
   });
 

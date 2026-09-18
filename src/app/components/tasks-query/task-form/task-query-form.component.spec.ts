@@ -9,6 +9,7 @@ import { RouterModule } from '@angular/router';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
 
+import { EntityFormAlertsComponent } from '@app/components/shared/entity-form-alerts/entity-form-alerts.component';
 import { FormToolbarComponent } from '@app/components/shared/form-toolbar/form-toolbar.component';
 import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
 import { ExternalService, ResourceService } from '@app/core/hal';
@@ -37,6 +38,7 @@ describe('TaskQueryFormComponent', () => {
         ReactiveFormsModule,
         RouterModule.forRoot([], {}),
         SitmunFrontendGuiModule,
+        EntityFormAlertsComponent,
         MaterialModule,
         MatIconTestingModule,
         BrowserAnimationsModule,
@@ -92,6 +94,13 @@ describe('TaskQueryFormComponent', () => {
 
   afterEach(() => fixture?.destroy());
   afterAll(() => TestBed.resetTestingModule());
+
+  it('does not treat an unset scope as an unknown type', () => {
+    const spy = jest.spyOn(console, 'error');
+    spy.mockClear();
+    component.configureForm(null);
+    expect(spy.mock.calls.some((call) => String(call[0]).includes('Unknown task query scope'))).toBe(false);
+  });
 
   it('should create', () => {
     expect(component).toBeTruthy();

@@ -9,6 +9,7 @@ import { RouterModule } from '@angular/router';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
 
+import { EntityFormAlertsComponent } from '@app/components/shared/entity-form-alerts/entity-form-alerts.component';
 import { FormToolbarComponent } from '@app/components/shared/form-toolbar/form-toolbar.component';
 import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
 import { ExternalService, ResourceService } from '@app/core/hal';
@@ -34,6 +35,7 @@ describe('LanguageFormComponent', () => {
         ReactiveFormsModule,
         RouterModule.forRoot([], {}),
         SitmunFrontendGuiModule,
+        EntityFormAlertsComponent,
         MaterialModule,
         MatIconTestingModule,
         BrowserAnimationsModule,
@@ -152,6 +154,33 @@ describe('LanguageFormComponent', () => {
     component.postFetchData();
     expect(component.entityForm.get('enabled')?.value).toBe(true);
     expect(component.entityForm.get('enabled')?.disabled).toBe(true);
+  });
+
+  it('renders entity-form-alerts without NG0303 unknown-property errors', () => {
+    const ng0303: string[] = [];
+    const originalError = console.error.bind(console);
+    const spy = jest.spyOn(console, 'error').mockImplementation((...args: unknown[]) => {
+      const message = args.map(String).join(' ');
+      if (/\bNG0303\b/.test(message)) {
+        ng0303.push(message);
+        return;
+      }
+      originalError(...args);
+    });
+
+    component.dataLoaded = true;
+    component.entityToEdit = Object.assign(component.empty(), {
+      id: 3,
+      name: 'Català',
+      shortname: 'ca',
+      order: 1,
+      enabled: true,
+    });
+    component.postFetchData();
+    fixture.detectChanges();
+    spy.mockRestore();
+
+    expect(ng0303).toEqual([]);
   });
 
   it('stays pristine after render so navigate-back does not prompt', async () => {

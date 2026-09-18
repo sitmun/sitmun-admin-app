@@ -22,6 +22,13 @@ export class TaskPropertiesContract {
   private static readonly API_KEY_TYPE = 'apiKeyType';
   private static readonly TEMPLATE_HTML = 'templateHtml';
   private static readonly TEMPLATE_EDITOR_STATE = 'templateEditorState';
+  private static readonly DEPRECATED_PDF_REGION_HEIGHT_KEYS = ['pdfHeaderHeightMm', 'pdfFooterHeightMm'];
+  private static readonly FORMAT = 'format';
+  private static readonly WIDTH = 'width';
+  private static readonly HEIGHT = 'height';
+  private static readonly SRS = 'srs';
+  private static readonly BBOX_MARGIN_PERCENT = 'bboxMarginPercent';
+  private static readonly MAP_SOURCES = 'mapSources';
 
   /**
    * Normalizes unknown input into a safe properties record.
@@ -95,6 +102,43 @@ export class TaskPropertiesContract {
 
   public static getTemplateEditorState(properties: TaskProperties | null | undefined): unknown {
     return TaskPropertiesContract.fromRaw(properties)[TaskPropertiesContract.TEMPLATE_EDITOR_STATE] ?? null;
+  }
+
+  public static hasDeprecatedPdfRegionHeights(properties: TaskProperties | null | undefined): boolean {
+    const normalized = TaskPropertiesContract.fromRaw(properties);
+    return TaskPropertiesContract.DEPRECATED_PDF_REGION_HEIGHT_KEYS.some((key) => key in normalized);
+  }
+
+  public static getFormat(properties: TaskProperties | null | undefined): string | null {
+    const value = TaskPropertiesContract.fromRaw(properties)[TaskPropertiesContract.FORMAT];
+    return typeof value === 'string' ? value : null;
+  }
+
+  public static getWidth(properties: TaskProperties | null | undefined): number | null {
+    const value = TaskPropertiesContract.fromRaw(properties)[TaskPropertiesContract.WIDTH];
+    return typeof value === 'number' && Number.isFinite(value) ? value : null;
+  }
+
+  public static getHeight(properties: TaskProperties | null | undefined): number | null {
+    const value = TaskPropertiesContract.fromRaw(properties)[TaskPropertiesContract.HEIGHT];
+    return typeof value === 'number' && Number.isFinite(value) ? value : null;
+  }
+
+  public static getSrs(properties: TaskProperties | null | undefined): string | null {
+    const value = TaskPropertiesContract.fromRaw(properties)[TaskPropertiesContract.SRS];
+    return typeof value === 'string' ? value : null;
+  }
+
+  public static getBboxMarginPercent(properties: TaskProperties | null | undefined): number | null {
+    const value = TaskPropertiesContract.fromRaw(properties)[TaskPropertiesContract.BBOX_MARGIN_PERCENT];
+    return typeof value === 'number' && Number.isFinite(value) ? value : null;
+  }
+
+  public static getMapSources(properties: TaskProperties | null | undefined): Array<Record<string, unknown>> {
+    const value = TaskPropertiesContract.fromRaw(properties)[TaskPropertiesContract.MAP_SOURCES];
+    return Array.isArray(value)
+      ? value.filter((item): item is Record<string, unknown> => !!item && typeof item === 'object')
+      : [];
   }
 
   /**
@@ -300,4 +344,61 @@ export class TaskPropertiesContract {
       [TaskPropertiesContract.TEMPLATE_EDITOR_STATE]: templateEditorState
     };
   }
+
+  public static withoutDeprecatedPdfRegionHeights(
+    properties: TaskProperties | null | undefined
+  ): TaskProperties {
+    const updated = TaskPropertiesContract.fromRaw(properties);
+    TaskPropertiesContract.DEPRECATED_PDF_REGION_HEIGHT_KEYS.forEach((key) => delete updated[key]);
+    return updated;
+  }
+
+  public static withFormat(properties: TaskProperties | null | undefined, format: string | null): TaskProperties {
+    return {
+      ...TaskPropertiesContract.fromRaw(properties),
+      [TaskPropertiesContract.FORMAT]: format
+    };
+  }
+
+  public static withWidth(properties: TaskProperties | null | undefined, width: number | null): TaskProperties {
+    return {
+      ...TaskPropertiesContract.fromRaw(properties),
+      [TaskPropertiesContract.WIDTH]: width
+    };
+  }
+
+  public static withHeight(properties: TaskProperties | null | undefined, height: number | null): TaskProperties {
+    return {
+      ...TaskPropertiesContract.fromRaw(properties),
+      [TaskPropertiesContract.HEIGHT]: height
+    };
+  }
+
+  public static withSrs(properties: TaskProperties | null | undefined, srs: string | null): TaskProperties {
+    return {
+      ...TaskPropertiesContract.fromRaw(properties),
+      [TaskPropertiesContract.SRS]: srs
+    };
+  }
+
+  public static withBboxMarginPercent(
+    properties: TaskProperties | null | undefined,
+    bboxMarginPercent: number | null
+  ): TaskProperties {
+    return {
+      ...TaskPropertiesContract.fromRaw(properties),
+      [TaskPropertiesContract.BBOX_MARGIN_PERCENT]: bboxMarginPercent
+    };
+  }
+
+  public static withMapSources(
+    properties: TaskProperties | null | undefined,
+    mapSources: object[]
+  ): TaskProperties {
+    return {
+      ...TaskPropertiesContract.fromRaw(properties),
+      [TaskPropertiesContract.MAP_SOURCES]: [...mapSources]
+    };
+  }
+
 }

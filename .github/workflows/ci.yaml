@@ -27,7 +27,7 @@ jobs:
       run: npm run lint
     
     - name: Unit tests
-      run: npm run test -- --watch=false --coverage
+      run: npm run test:coverage
     
     - name: Sonar Cloud Scan
       uses: sonarsource/sonarcloud-github-action@master

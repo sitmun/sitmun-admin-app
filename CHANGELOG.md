@@ -7,6 +7,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.9] - 2026-09-18
+
+### Added
+
+- **Auth**: Sliding `POST /api/authenticate/refresh` every 2 minutes. Resource 401s prove life with `/refresh`, not `/account` ([sitmun-backend-core#264](https://github.com/sitmun/sitmun-backend-core/issues/264)).
+- **Users**: Positions tab columns are Territory, Position, Organization, Valid from / Valid until (ES Fecha de alta / Fecha de baja), Email, Type. Empty `createdDate` is “Not set”; empty `expirationDate` is Active. Header tooltips: first/last day the position is active (inclusive). `createdDate` is editable; pre-2000 dates stay visible. Inverted interval surfaces `entity.user.warning.position-inverted-interval`. Civil day follows the JVM/Compose `TZ` ([#462](https://github.com/sitmun/sitmun-admin-app/issues/462)).
+- **Templates / Map image**: Task type 18 form, layer catalog, source reorder, and Plantilla Sources linking for map-image children.
+- **Templates / Document export**: Task type 17 form restricted to PDF output (`downloadFormat` `pdf`).
+- **Templates / TipTap**: PDF header, footer, and full-bleed region classes with validator rules.
+
+### Security
+
+- **Dependencies**: `npm audit --fix` (no `--force`) applied semver-compatible lockfile patches (48 → 32 advisories). Remaining Angular, TipTap, and echarts majors were not forced.
+- **Templates / Preview**: Nested execute-child results render in a sandboxed iframe (`sandbox` with no allow-tokens). The main Template preview pane is still trusted HTML.
+
+### Fixed
+
+- **Literal translations**: Infinite grid reload no longer sticks on the loading spinner. Stale or destroyed AG Grid `getRows` now call `failCallback` so a replacement datasource can load.
+- **Layers**: Relation tabs (Territories, Permissions, Trees, and experimental grids) load on tab select instead of all at form open. `saveAll` skips unvisited grids so Details-only save does not wait 5s ([sitmun-application-stack#41](https://github.com/sitmun/sitmun-application-stack/issues/41)).
+- **Users**: Positions tab for built-in `admin` is shown only when leftover rows exist, and then as delete-only ([#456](https://github.com/sitmun/sitmun-admin-app/issues/456)). Hidden for `public`.
+- **Templates / TipTap**: Attribute mustaches (`src`/`href`/`alt`/… ) stay literal attributes; chips apply only to HTML text. Source-aware protect is idempotent, chips `else if`, and T-wrap restores chips to raw mustaches before storing `<t>` payloads.
+- **Templates / TipTap**: After intentional visual edits, authored `div` blocks, bare table cells (no injected `colgroup`/`min-width`), and links without `target`/`rel` keep their shape; toolbar-created links still get `target="_blank"` and `rel="noopener noreferrer"`.
+- **Templates / TipTap**: Split editor+preview workspace fills available viewport height (was fixed ~428px; preview-only already did).
+- **Templates / TipTap**: HTML comments survive visual round-trip via marker nodes (TipTap drops real `<!--…-->` on parse).
+- **Templates / TipTap**: Unclosed or almost-closed HTML comments (`<!--` without a literal `-->`) no longer delete later markup on HTML↔visual switch; the comment is healed to `<!--…-->` and following tags stay siblings.
+- **Templates / Preview**: Navigable links in the preview pane open in a new tab (`noopener`) so the admin SPA is not replaced.
+- **Templates / Sources**: Memoize `rootParameterDefaults` (stable identity across CD) and prefer live Parameters grid rows for Sources prefill + Template preview `$…` context.
+- **Templates / TipTap**: Mustache `img`/`iframe` `src` shows a binding placeholder in visual mode (no relative URL load); selection toolbar inspects/edits `src`/`alt`/`title`; serialize keeps literal attributes.
+- **Templates**: `replaceReferenceAliasInHtml` renames single-quoted `data-sitmun-each` as well as double-quoted.
+- **Tests**: Filter expected Jest `console.error` noise (`Code list … not initialized`, `NG0304`); TipTap-split triple-mustache normalize fixture.
+- **Tests**: Entity form specs import standalone `EntityFormAlertsComponent` so NG0303 unknown-property errors are not emitted. `dialog-form` uses `configureLoggerForTests`.
+- **Query tasks**: `configureForm` no-ops when scope is unset instead of logging an unknown type.
+
+### Changed
+
+- **CI / Dependabot**: npm updates target `dev` weekly. Angular, TipTap, and echarts majors are ignored; Angular and TipTap minors/patches are grouped into one PR each.
+- **Services / Capabilities**: Fetch details/layers POST `helpers/capabilities` JSON (`url`, `type`, optional overlay credentials). Backend builds GetCapabilities (keeps `?map=`). Authentication other than None forces proxied on ([sitmun-backend-core#260](https://github.com/sitmun/sitmun-backend-core/issues/260)).
+- **Tests**: `npm test` no longer collects coverage; `npm run test:coverage` writes `coverage/admin-app/lcov.info` and `reports/ut_report.xml` for Sonar. Jest stubs AG Grid, echarts, and the Material barrels so form specs do not compile the real libraries or unused Material modules.
+- **Templates / Preview**: Preview language selector stays in the Template preview pane only; Sources Execute inherits that language (no Sources language UI).
+
 ## [1.2.8] - 2026-07-30
 
 ### Added
@@ -359,7 +399,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Various bug fixes and improvements from development phase
 
-[Unreleased]: https://github.com/sitmun/sitmun-admin-app/compare/sitmun-admin-app/1.2.8...HEAD
+[Unreleased]: https://github.com/sitmun/sitmun-admin-app/compare/sitmun-admin-app/1.2.9...HEAD
+[1.2.9]: https://github.com/sitmun/sitmun-admin-app/compare/sitmun-admin-app/1.2.8...sitmun-admin-app/1.2.9
 [1.2.8]: https://github.com/sitmun/sitmun-admin-app/compare/sitmun-admin-app/1.2.7...sitmun-admin-app/1.2.8
 [1.2.7]: https://github.com/sitmun/sitmun-admin-app/compare/sitmun-admin-app/1.2.6...sitmun-admin-app/1.2.7
 [1.2.6]: https://github.com/sitmun/sitmun-admin-app/compare/sitmun-admin-app/1.2.5...sitmun-admin-app/1.2.6

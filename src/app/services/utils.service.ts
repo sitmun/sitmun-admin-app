@@ -159,7 +159,9 @@ export class UtilsService {
    * Gets date filter parameters for AG Grid date columns.
    * @returns Object containing date filter configuration.
    */
-  getDateFilterParams() {
+  getDateFilterParams(options?: { minValidYear?: number | null }) {
+    const minValidYear =
+      options && 'minValidYear' in options ? options.minValidYear : 2000;
     return {
       comparator: function (filterLocalDateAtMidnight, cellValue) {
         if (cellValue == null) {
@@ -179,11 +181,10 @@ export class UtilsService {
         if (cellDate > filterLocalDateAtMidnight) {
           return 1;
         }
-        // Default return if none of the conditions are met
         return 0;
       },
       browserDatePicker: true,
-      minValidYear: 2000,
+      ...(minValidYear == null ? {} : { minValidYear }),
     };
   }
 
@@ -416,14 +417,30 @@ export class UtilsService {
    * @param editable - Optional flag to make column editable.
    * @returns Column definition object for date column.
    */
-  getDateColumnDef(alias, field, editable?: boolean) {
+  getDateColumnDef(
+    alias,
+    field,
+    editable?: boolean,
+    options?: {
+      minValidYear?: number | null;
+      emptyValueKey?: string;
+      headerTooltipKey?: string;
+    }
+  ) {
     return {
       headerName: this.getTranslate(alias),
       field: field,
       filter: 'agDateColumnFilter',
-      filterParams: this.getDateFilterParams(),
+      filterParams: this.getDateFilterParams(options),
       editable: editable ?? false,
+      emptyValueKey: options?.emptyValueKey,
+      headerTooltip: options?.headerTooltipKey
+        ? this.getTranslate(options.headerTooltipKey)
+        : undefined,
       cellRenderer: (data) => {
+        if (!data.value && options?.emptyValueKey) {
+          return this.getTranslate(options.emptyValueKey);
+        }
         return this.getDateFormated(data);
       },
       cellEditor: 'agDateStringCellEditor',

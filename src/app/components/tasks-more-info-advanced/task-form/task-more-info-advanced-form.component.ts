@@ -48,6 +48,12 @@ import {LoggerService} from '@app/services/logger.service';
 import {UtilsService} from '@app/services/utils.service';
 import { compareNullableString } from '@app/utils/compare-nullable-string';
 import {TEMPLATE_TASK_RELATION_TYPES, magic, constants} from '@environments/constants';
+import {
+  mappingAddTestId,
+  mappingRowIds,
+  type MappingOwner,
+  type MappingRowIds
+} from './mia-mapping-testid';
 
 /**
  * Properties stored in task.properties for an MIA task.
@@ -75,6 +81,7 @@ interface TemplateChildTaskLink {
 interface MappingRowView {
   mapping: ChildParamMapping;
   availableMiaParams: TaskMoreInfoParameter[];
+  ids: MappingRowIds;
 }
 
 interface TemplateChildMappingView {
@@ -91,6 +98,7 @@ interface TemplateChildMappingView {
   mappingRows: MappingRowView[];
   childParameters: TaskMoreInfoParameter[];
   canAddMapping: boolean;
+  addTestId: string;
   childNodes: TemplateChildMappingView[];
 }
 
@@ -100,6 +108,7 @@ interface IncludedTaskMappingView {
   mappingRows: MappingRowView[];
   childParameters: TaskMoreInfoParameter[];
   canAddMapping: boolean;
+  addTestId: string;
   isTemplate: boolean;
   templateChildViews: TemplateChildMappingView[];
 }
@@ -894,15 +903,17 @@ export class TaskMoreInfoAdvancedFormComponent extends BaseFormComponent<TaskPro
     this.includedTaskMappingViews = this.includedTasks.map(task => {
       const mappings = this.ensureChildMappings(task.id);
       const childParameters = this.getChildParameters(task);
+      const owner: MappingOwner = {kind: 'included', taskId: task.id};
       const templateChildViews = this.isTemplateTask(task)
         ? this.buildTemplateChildViews(task.id, task.id, 1, new Set([task.id]))
         : [];
       return {
         task,
         mappings,
-        mappingRows: this.buildMappingRows(mappings),
+        mappingRows: this.buildMappingRows(owner, mappings),
         childParameters,
         canAddMapping: mappings.length < this.miaParameters.length && childParameters.length > 0,
+        addTestId: mappingAddTestId(owner),
         isTemplate: this.isTemplateTask(task),
         templateChildViews
       };
@@ -961,10 +972,11 @@ export class TaskMoreInfoAdvancedFormComponent extends BaseFormComponent<TaskPro
     return innerMappings.get(innerTaskId);
   }
 
-  private buildMappingRows(mappings: ChildParamMapping[]): MappingRowView[] {
+  private buildMappingRows(owner: MappingOwner, mappings: ChildParamMapping[]): MappingRowView[] {
     return mappings.map((mapping, index) => ({
       mapping,
-      availableMiaParams: this.getAvailableMiaParamsForMappings(mappings, index)
+      availableMiaParams: this.getAvailableMiaParamsForMappings(mappings, index),
+      ids: mappingRowIds(owner, index)
     }));
   }
 
@@ -988,6 +1000,13 @@ export class TaskMoreInfoAdvancedFormComponent extends BaseFormComponent<TaskPro
       nextPath.add(childTask.id);
 
       const nodeKey = `${rootTemplateTaskId}:${childTask.id}:${childLink.referenceAlias}:${depth}`;
+      const owner: MappingOwner = {
+        kind: 'template',
+        rootTemplateTaskId,
+        childTaskId: childTask.id,
+        referenceAlias: childLink.referenceAlias,
+        depth
+      };
 
       return {
         key: nodeKey,
@@ -1000,9 +1019,10 @@ export class TaskMoreInfoAdvancedFormComponent extends BaseFormComponent<TaskPro
         expandedByDefault: depth === 1,
         expanded: this.getTemplateNodeExpandedState(nodeKey, depth === 1),
         mappings,
-        mappingRows: this.buildMappingRows(mappings),
+        mappingRows: this.buildMappingRows(owner, mappings),
         childParameters,
         canAddMapping: mappings.length < this.miaParameters.length && childParameters.length > 0,
+        addTestId: mappingAddTestId(owner),
         childNodes: canTraverseChildren
           ? this.buildTemplateChildViews(rootTemplateTaskId, childTask.id, depth + 1, nextPath)
           : []

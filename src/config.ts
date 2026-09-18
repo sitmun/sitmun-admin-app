@@ -23,6 +23,8 @@ export const config = {
     'query': 5,
     'moreInfo': 6,
     'report': 7,
+    'documentExport': 17,
+    'mapImage': 18,
     'template': 15,
     'editionWFS': 8,
     'thematic': 9,
@@ -100,11 +102,8 @@ export const config = {
   },
   applicationTemplateIdentificator: "PRINT_TEMPLATE",
   capabilitiesRequest: {
-    simpleRequest: 'request=GetCapabilities',
-    requestWithWMS: 'request=GetCapabilities%26service=WMS',
     WFSIdentificator: 'WFS',
     WMSIdentificator: 'WMS',
-
   },
   /** Material icon per node view mode code (keys = nodeViewModeCodes). Fallback for unknown codes. */
   nodeViewModes: {

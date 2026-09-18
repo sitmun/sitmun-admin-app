@@ -17,6 +17,8 @@ export class AuthService {
 
   public LOGOUT_API = 'authenticate/logout';
 
+  public REFRESH_API = 'authenticate/refresh';
+
   public AUTH_METHODS_API = 'auth/enabled-methods';
 
   /** constructor*/
@@ -46,6 +48,15 @@ export class AuthService {
   logout(): Observable<HttpResponse<void>> {
     return this.http.post<void>(
       this.resourceService.getResourceUrl(this.LOGOUT_API),
+      null,
+      {observe: 'response', withCredentials: true}
+    );
+  }
+
+  /** Sliding refresh of the admin session cookie. */
+  refresh(): Observable<HttpResponse<void>> {
+    return this.http.post<void>(
+      this.resourceService.getResourceUrl(this.REFRESH_API),
       null,
       {observe: 'response', withCredentials: true}
     );

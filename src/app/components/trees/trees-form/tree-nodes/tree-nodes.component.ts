@@ -1939,14 +1939,11 @@ export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
         service = dialogResult.data[0][0];
         url = service.serviceURL;
         if (url) {
-          if (!url.includes(config.capabilitiesRequest.simpleRequest)) {
-            if (url[url.length - 1] != '?') {
-              url += "?";
-            }
-            url += config.capabilitiesRequest.requestWithWMS;
-          }
-
-          const capabilitiesResult = await firstValueFrom(this.capabilitiesService.getInfo(url));
+          const capabilitiesResult = await firstValueFrom(this.capabilitiesService.getInfo({
+            id: service.id,
+            url,
+            type: service.type,
+          }));
           if (capabilitiesResult.success) {
             const groupLayersResult = this.changeServiceDataByCapabilities(capabilitiesResult.asJson);
             this.createNodesWithCapabilities(groupLayersResult, data, null);

@@ -8,6 +8,7 @@ import { firstValueFrom, map, of } from 'rxjs';
 
 import {BaseFormComponent} from "@app/components/base-form.component";
 import {DataTable2Definition, DataTableDefinition} from "@app/components/data-tables.util";
+import {canShowPositionsTab, PositionsSurface, positionsSurface} from './positions-surface';
 import {Configuration} from "@app/core/config/configuration";
 import {MessagesInterceptorStateService} from "@app/core/interceptors/messages.interceptor";
 import {
@@ -50,6 +51,9 @@ export class UserFormComponent extends BaseFormComponent<UserProjection> {
 
   private static readonly WARNING_POSITION_WITHOUT_DETAILS =
     'entity.user.warning.position-without-details';
+
+  private static readonly WARNING_POSITION_INVERTED_INTERVAL =
+    'entity.user.warning.position-inverted-interval';
 
   private static readonly WARNING_ROLE_WITHOUT_POSITION =
     'entity.user.warning.role-without-position';
@@ -97,6 +101,10 @@ export class UserFormComponent extends BaseFormComponent<UserProjection> {
   /** Flag indicating if this is the built-in public user */
   isBuiltInPublic = false;
 
+  leftoverPositionCount = 0;
+
+  private positionsTableRegistered = false;
+
   /** Cached applications where this user is the point of contact. */
   applicationsAsPointOfContact: Application[] = [];
 
@@ -127,7 +135,8 @@ export class UserFormComponent extends BaseFormComponent<UserProjection> {
 
   override async preFetchData(): Promise<void> {
     await this.initCodeLists(['userPosition.type']);
-    this.dataTables.register(this.userConfigurationsTable).register(this.userPositionsTable);
+    this.dataTables.register(this.userConfigurationsTable);
+    this.positionsTableRegistered = false;
   }
 
   override async fetchOriginal(): Promise<UserProjection> {
@@ -152,11 +161,16 @@ export class UserFormComponent extends BaseFormComponent<UserProjection> {
 
   override async fetchRelatedData(): Promise<void> {
     this.applicationsAsPointOfContact = [];
+    this.leftoverPositionCount = 0;
     if (!this.isEdition()) {
       return;
     }
     const username = this.entityToEdit?.username;
-    if (username === 'public' || username === 'admin') {
+    if (username === 'public') {
+      return;
+    }
+    if (username === 'admin') {
+      this.leftoverPositionCount = await this.loadLeftoverPositionCount();
       return;
     }
     this.applicationsAsPointOfContact = await firstValueFrom(
@@ -206,6 +220,14 @@ export class UserFormComponent extends BaseFormComponent<UserProjection> {
       ),
     });
 
+    this.syncPositionsTableRegistration();
+  }
+
+  override afterSave(): void {
+    super.afterSave();
+    if (this.entityToEdit?.username === 'admin' && !this.isNew()) {
+      void this.refreshAdminLeftoverPositions();
+    }
   }
 
   /**
@@ -403,14 +425,22 @@ export class UserFormComponent extends BaseFormComponent<UserProjection> {
         Object.assign(this.utils.getRouterLinkColumnDef('entity.territory.label', 'territoryName', '/territory/:id/territoryForm', {id: 'territoryId'}), {flex: 2, minWidth: 140, tooltipField: 'territoryName'}),
         Object.assign(this.utils.getEditableColumnDef('entity.user.position.name', 'name'), {flex: 2, minWidth: 120, tooltipField: 'name'}),
         Object.assign(this.utils.getEditableColumnDef('entity.user.position.organization', 'organization'), {flex: 2, minWidth: 120, tooltipField: 'organization'}),
+        Object.assign(this.utils.getDateColumnDef('entity.user.position.createdDate', 'createdDate', true, {
+          minValidYear: null,
+          emptyValueKey: 'entity.user.position.createdDate.placeholder',
+          headerTooltipKey: 'entity.user.position.createdDate.tooltip'
+        }), {flex: 0, minWidth: 120}),
+        Object.assign(this.utils.getDateColumnDef('entity.user.position.expirationDate', 'expirationDate', true, {
+          minValidYear: null,
+          emptyValueKey: 'entity.user.position.expirationDate.placeholder',
+          headerTooltipKey: 'entity.user.position.expirationDate.tooltip'
+        }), {flex: 0, minWidth: 120}),
         Object.assign(this.utils.getEditableColumnDef('common.form.email', 'email'), {flex: 2, minWidth: 160, tooltipField: 'email'}),
         Object.assign(this.utils.getSelectColumnDef<CodeList, string>('common.form.type', 'type', true,
           () => this.codeList('userPosition.type').map(item => item.description),
           () => this.codeList('userPosition.type'),
           'value',
           'description'), {flex: 0, minWidth: 120}),
-        Object.assign(this.utils.getDateColumnDef('common.form.expirationDate', 'expirationDate', true), {flex: 0, minWidth: 120}),
-        Object.assign(this.utils.getDateColumnDef('entity.user.dataCreated', 'createdDate'), {flex: 0, minWidth: 120}),
         Object.assign(this.utils.getStatusColumnDef(), {flex: 0})
       ])
       .withRelationsFetcher(() => {
@@ -492,6 +522,22 @@ export class UserFormComponent extends BaseFormComponent<UserProjection> {
 
   canShowApplicationsAsPointOfContact(): boolean {
     return this.isEdition() && !this.isBuiltInAdmin && !this.isBuiltInPublic;
+  }
+
+  get positionsSurface(): PositionsSurface {
+    return positionsSurface({
+      username: this.entityToEdit?.username,
+      leftoverCount: this.leftoverPositionCount,
+      isNew: this.isNew(),
+    });
+  }
+
+  canShowPositionsTab(): boolean {
+    return canShowPositionsTab(this.positionsSurface);
+  }
+
+  isPositionsRepair(): boolean {
+    return this.positionsSurface === 'repair';
   }
 
   getPointOfContactImpactMessage(): string | null {
@@ -579,6 +625,7 @@ export class UserFormComponent extends BaseFormComponent<UserProjection> {
     }
     return this.warningsInclude(
       UserFormComponent.WARNING_POSITION_WITHOUT_DETAILS,
+      UserFormComponent.WARNING_POSITION_INVERTED_INTERVAL,
       UserFormComponent.WARNING_ROLE_WITHOUT_POSITION
     );
   }
@@ -586,5 +633,31 @@ export class UserFormComponent extends BaseFormComponent<UserProjection> {
   private warningsInclude(...keys: string[]): boolean {
     const warnings = this.entityToEdit?.warnings ?? [];
     return keys.some(key => warnings.includes(key));
+  }
+
+  private async loadLeftoverPositionCount(): Promise<number> {
+    if (!this.entityToEdit) {
+      return 0;
+    }
+    const positions = await firstValueFrom(
+      this.entityToEdit.getRelationArrayEx(UserPositionProjection, 'positions', {projection: 'view'})
+    );
+    return positions.length;
+  }
+
+  private async refreshAdminLeftoverPositions(): Promise<void> {
+    this.leftoverPositionCount = await this.loadLeftoverPositionCount();
+    this.syncPositionsTableRegistration();
+  }
+
+  private syncPositionsTableRegistration(): void {
+    const show = this.canShowPositionsTab();
+    if (show && !this.positionsTableRegistered) {
+      this.dataTables.register(this.userPositionsTable);
+      this.positionsTableRegistered = true;
+    } else if (!show && this.positionsTableRegistered) {
+      this.dataTables.unregister(this.userPositionsTable);
+      this.positionsTableRegistered = false;
+    }
   }
 }

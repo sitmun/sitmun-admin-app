@@ -88,6 +88,8 @@ export class SideMenuComponent implements OnChanges, OnInit {
           children: [
             Configuration.toMenuItem(Configuration.TASK_BASIC),
             Configuration.toMenuItem(Configuration.TASK_QUERY),
+            Configuration.toMenuItem(Configuration.TASK_MAP_IMAGE),
+            Configuration.toMenuItem(Configuration.TASK_DOCUMENT_EXPORT),
             Configuration.toMenuItem(Configuration.TASK_LOCATOR),
             Configuration.toMenuItem(Configuration.TASK_TEMPLATE),
             Configuration.toMenuItem(Configuration.TASK_EDIT),

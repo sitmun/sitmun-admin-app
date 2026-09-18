@@ -1,5 +1,5 @@
 import type {IGetRowsParams} from '@ag-grid-community/core';
-import {defer, of, throwError} from 'rxjs';
+import {defer, of, Subject, throwError} from 'rxjs';
 
 import {createInfiniteDatasource} from './infinite-datasource';
 
@@ -91,7 +91,7 @@ describe('createInfiniteDatasource', () => {
     expect(fetch).toHaveBeenCalledWith(expect.not.objectContaining({searchText: expect.any(String)}));
   });
 
-  it('ignores stale responses when generation changed', () => {
+  it('fails the AG Grid request when generation changed', () => {
     let generation = 0;
     const fetch = jest.fn().mockImplementation(() =>
       defer(() => {
@@ -100,6 +100,7 @@ describe('createInfiniteDatasource', () => {
       }),
     );
     const successCallback = jest.fn();
+    const failCallback = jest.fn();
     const ds = createInfiniteDatasource(fetch, {
       pageSize: 10,
       getGeneration: () => generation,
@@ -110,10 +111,34 @@ describe('createInfiniteDatasource', () => {
       endRow: 10,
       sortModel: [],
       successCallback,
-      failCallback: jest.fn(),
+      failCallback,
     } as unknown as IGetRowsParams);
 
     expect(successCallback).not.toHaveBeenCalled();
+    expect(failCallback).toHaveBeenCalled();
+  });
+
+  it('fails in-flight getRows on destroy so AG Grid can load the next datasource', () => {
+    const subject = new Subject<{
+      rows: unknown[];
+      totalElements: number;
+      pageNumber: number;
+      pageSize: number;
+      totalPages: number;
+    }>();
+    const failCallback = jest.fn();
+    const ds = createInfiniteDatasource(() => subject.asObservable(), {pageSize: 10});
+
+    ds.getRows!({
+      startRow: 0,
+      endRow: 10,
+      sortModel: [],
+      successCallback: jest.fn(),
+      failCallback,
+    } as unknown as IGetRowsParams);
+
+    ds.destroy!();
+    expect(failCallback).toHaveBeenCalled();
   });
 
   it('unsubscribes active requests on destroy', () => {

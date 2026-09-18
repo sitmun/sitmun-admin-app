@@ -274,6 +274,7 @@
     <mat-card class="sitmun-mat-card-margin" appearance="outlined">
       <mat-card-content>
         <app-relation-grid
+          #parametersGrid
           *ngIf="dataLoaded"
           [table]="parametersTable"
           [allNewElements]="isNewOrDuplicated()"

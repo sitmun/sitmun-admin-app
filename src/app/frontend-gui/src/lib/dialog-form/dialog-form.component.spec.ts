@@ -9,6 +9,9 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { TranslateLoader, TranslateModule, TranslateService } from '@ngx-translate/core';
 import { of } from 'rxjs';
 
+import {LoggerService} from '@app/services/logger.service';
+import {configureLoggerForTests} from '@app/testing/test-helpers';
+
 import { DIALOG_FORM_EVENTS, DialogFormComponent } from './dialog-form.component';
 import { DialogMessageComponent } from '../dialog-message/dialog-message.component';
 
@@ -55,6 +58,7 @@ describe('DialogFormComponent', () => {
     fixture = TestBed.createComponent(DialogFormComponent);
     component = fixture.componentInstance;
     component.form = new FormGroup({});
+    configureLoggerForTests(TestBed.inject(LoggerService));
     fixture.detectChanges();
   });
 
@@ -63,6 +67,27 @@ describe('DialogFormComponent', () => {
   });
 
   describe('doAdd', () => {
+    it('does not dump form validity to console.log', () => {
+      const debugDumps: string[] = [];
+      const originalLog = console.log.bind(console);
+      const spy = jest.spyOn(console, 'log').mockImplementation((...args: unknown[]) => {
+        const message = args.map(String).join(' ');
+        if (message.includes('Form valid:')) {
+          debugDumps.push(message);
+          return;
+        }
+        originalLog(...args);
+      });
+
+      component.form = new FormGroup({
+        name: new FormControl('', Validators.required)
+      });
+      component.doAdd();
+      spy.mockRestore();
+
+      expect(debugDumps).toEqual([]);
+    });
+
     it('does not close the dialog when the form is invalid', () => {
       component.form = new FormGroup({
         name: new FormControl('', Validators.required)

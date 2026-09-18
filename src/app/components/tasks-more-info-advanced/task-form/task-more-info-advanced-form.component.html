@@ -180,16 +180,28 @@
                         <div class="mapping-row mapping-row-card" *ngFor="let row of taskView.mappingRows; let mi = index; trackBy: trackMappingRow">
                           <mat-form-field appearance="outline" class="mapping-select">
                             <mat-label>{{ 'entity.task.moreInfoAdvanced.miaParam' | translate }}</mat-label>
-                            <mat-select [(value)]="row.mapping.miaParam" (selectionChange)="onMappingChanged()">
-                              <mat-option *ngFor="let p of row.availableMiaParams" [value]="p.label">
+                            <mat-select
+                              [attr.data-testid]="row.ids.miaSelect"
+                              [(value)]="row.mapping.miaParam"
+                              (selectionChange)="onMappingChanged()">
+                              <mat-option
+                                *ngFor="let p of row.availableMiaParams"
+                                [attr.data-testid]="row.ids.option('mia', p.label)"
+                                [value]="p.label">
                                 {{ p.label }}
                               </mat-option>
                             </mat-select>
                           </mat-form-field>
                           <mat-form-field appearance="outline" class="mapping-select">
                             <mat-label>{{ 'entity.task.moreInfoAdvanced.childParam' | translate }}</mat-label>
-                            <mat-select [(value)]="row.mapping.childParam" (selectionChange)="onMappingChanged()">
-                              <mat-option *ngFor="let p of taskView.childParameters" [value]="p.label">
+                            <mat-select
+                              [attr.data-testid]="row.ids.childSelect"
+                              [(value)]="row.mapping.childParam"
+                              (selectionChange)="onMappingChanged()">
+                              <mat-option
+                                *ngFor="let p of taskView.childParameters"
+                                [attr.data-testid]="row.ids.option('child', p.label)"
+                                [value]="p.label">
                                 {{ p.label }}
                               </mat-option>
                             </mat-select>
@@ -201,7 +213,7 @@
                       </div>
 
                       <div class="mapping-actions-row">
-                        <button mat-stroked-button type="button" (click)="addMapping(taskView.task.id)" [disabled]="!taskView.canAddMapping">
+                        <button mat-stroked-button type="button" [attr.data-testid]="taskView.addTestId" (click)="addMapping(taskView.task.id)" [disabled]="!taskView.canAddMapping">
                           <mat-icon>add_circle</mat-icon>
                           {{ 'common.button.add' | translate }}
                         </button>
@@ -289,16 +301,28 @@
                   <div class="mapping-row mapping-row-card" *ngFor="let row of node.mappingRows; let mi = index; trackBy: trackMappingRow">
                     <mat-form-field appearance="outline" class="mapping-select">
                       <mat-label>{{ 'entity.task.moreInfoAdvanced.miaParam' | translate }}</mat-label>
-                      <mat-select [(value)]="row.mapping.miaParam" (selectionChange)="onMappingChanged()">
-                        <mat-option *ngFor="let p of row.availableMiaParams" [value]="p.label">
+                      <mat-select
+                        [attr.data-testid]="row.ids.miaSelect"
+                        [(value)]="row.mapping.miaParam"
+                        (selectionChange)="onMappingChanged()">
+                        <mat-option
+                          *ngFor="let p of row.availableMiaParams"
+                          [attr.data-testid]="row.ids.option('mia', p.label)"
+                          [value]="p.label">
                           {{ p.label }}
                         </mat-option>
                       </mat-select>
                     </mat-form-field>
                     <mat-form-field appearance="outline" class="mapping-select">
                       <mat-label>{{ 'entity.task.moreInfoAdvanced.childParam' | translate }}</mat-label>
-                      <mat-select [(value)]="row.mapping.childParam" (selectionChange)="onMappingChanged()">
-                        <mat-option *ngFor="let p of node.childParameters" [value]="p.label">
+                      <mat-select
+                        [attr.data-testid]="row.ids.childSelect"
+                        [(value)]="row.mapping.childParam"
+                        (selectionChange)="onMappingChanged()">
+                        <mat-option
+                          *ngFor="let p of node.childParameters"
+                          [attr.data-testid]="row.ids.option('child', p.label)"
+                          [value]="p.label">
                           {{ p.label }}
                         </mat-option>
                       </mat-select>
@@ -310,7 +334,7 @@
                 </div>
 
                 <div class="mapping-actions-row">
-                  <button mat-stroked-button type="button" (click)="addMapping(node.task.id, node.rootTemplateTaskId)" [disabled]="!node.canAddMapping">
+                  <button mat-stroked-button type="button" [attr.data-testid]="node.addTestId" (click)="addMapping(node.task.id, node.rootTemplateTaskId)" [disabled]="!node.canAddMapping">
                     <mat-icon>add_circle</mat-icon>
                     {{ 'common.button.add' | translate }}
                   </button>
@@ -334,16 +358,28 @@
                   <div class="mapping-row mapping-row-card" *ngFor="let row of node.mappingRows; let mi = index; trackBy: trackMappingRow">
                     <mat-form-field appearance="outline" class="mapping-select">
                       <mat-label>{{ 'entity.task.moreInfoAdvanced.miaParam' | translate }}</mat-label>
-                      <mat-select [(value)]="row.mapping.miaParam" (selectionChange)="onMappingChanged()">
-                        <mat-option *ngFor="let p of row.availableMiaParams" [value]="p.label">
+                      <mat-select
+                        [attr.data-testid]="row.ids.miaSelect"
+                        [(value)]="row.mapping.miaParam"
+                        (selectionChange)="onMappingChanged()">
+                        <mat-option
+                          *ngFor="let p of row.availableMiaParams"
+                          [attr.data-testid]="row.ids.option('mia', p.label)"
+                          [value]="p.label">
                           {{ p.label }}
                         </mat-option>
                       </mat-select>
                     </mat-form-field>
                     <mat-form-field appearance="outline" class="mapping-select">
                       <mat-label>{{ 'entity.task.moreInfoAdvanced.childParam' | translate }}</mat-label>
-                      <mat-select [(value)]="row.mapping.childParam" (selectionChange)="onMappingChanged()">
-                        <mat-option *ngFor="let p of node.childParameters" [value]="p.label">
+                      <mat-select
+                        [attr.data-testid]="row.ids.childSelect"
+                        [(value)]="row.mapping.childParam"
+                        (selectionChange)="onMappingChanged()">
+                        <mat-option
+                          *ngFor="let p of node.childParameters"
+                          [attr.data-testid]="row.ids.option('child', p.label)"
+                          [value]="p.label">
                           {{ p.label }}
                         </mat-option>
                       </mat-select>
@@ -354,7 +390,7 @@
                   </div>
                 </div>
                 <div class="mapping-actions-row">
-                  <button mat-stroked-button type="button" (click)="addMapping(node.task.id, node.rootTemplateTaskId)" [disabled]="!node.canAddMapping">
+                  <button mat-stroked-button type="button" [attr.data-testid]="node.addTestId" (click)="addMapping(node.task.id, node.rootTemplateTaskId)" [disabled]="!node.canAddMapping">
                     <mat-icon>add_circle</mat-icon>
                     {{ 'common.button.add' | translate }}
                   </button>

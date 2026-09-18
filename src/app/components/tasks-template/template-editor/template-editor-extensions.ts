@@ -1,9 +1,6 @@
 import Color from '@tiptap/extension-color';
 import Highlight from '@tiptap/extension-highlight';
 import Link from '@tiptap/extension-link';
-import Table from '@tiptap/extension-table';
-import TableCell from '@tiptap/extension-table-cell';
-import TableHeader from '@tiptap/extension-table-header';
 import TableRow from '@tiptap/extension-table-row';
 import TextAlign from '@tiptap/extension-text-align';
 import TextStyle from '@tiptap/extension-text-style';
@@ -16,45 +13,55 @@ import { HandlebarsBlockExtension } from './handlebars-block.extension';
 import { HandlebarsExpressionExtension } from './handlebars-expression.extension';
 import { HandlebarsSystemVariableExtension } from './handlebars-system-variable.extension';
 import { HtmlAttributesExtension } from './html-attributes.extension';
+import { HtmlCommentExtension } from './html-comment.extension';
 import { IframeExtension } from './iframe.extension';
+import { SitmunDivExtension } from './sitmun-div.extension';
+import {
+  SitmunTableCellExtension,
+  SitmunTableExtension,
+  SitmunTableHeaderExtension,
+} from './sitmun-table.extension';
 import { SizedImageExtension } from './sized-image.extension';
 import { TranslationLiteralExtension } from './translation-literal.extension';
 
-/** Production TipTap extension list for the template visual editor (shared with Jest). */
+/** TipTap extension set for Plantilla visual editor (Jest + runtime share this list). */
 export function createTemplateEditorExtensions() {
   return [
     StarterKit.configure({
       codeBlock: false,
       horizontalRule: false,
     }),
+    SitmunDivExtension,
     Underline,
     TextStyle,
     FontSizeExtension,
     Color,
     Highlight.configure({ multicolor: true }),
     TextAlign.configure({
-      types: ['heading', 'paragraph'],
+      types: ['heading', 'paragraph', 'div'],
       alignments: ['left', 'center', 'right', 'justify'],
     }),
     Link.configure({
       openOnClick: false,
+      // Explicit nulls override TipTap defaults (mergeDeep keeps nested keys for empty {}).
+      // Toolbar insert sets target/rel; authored links round-trip without forced attrs.
       HTMLAttributes: {
-        rel: 'noopener noreferrer',
+        target: null,
+        rel: null,
+        class: null,
       },
     }),
     SizedImageExtension,
-    Table.configure({
-      resizable: false,
-      allowTableNodeSelection: true,
-    }),
+    SitmunTableExtension,
     TableRow,
-    TableHeader,
-    TableCell,
+    SitmunTableHeaderExtension,
+    SitmunTableCellExtension,
     IframeExtension,
     TranslationLiteralExtension,
     HandlebarsSystemVariableExtension,
     HandlebarsBlockExtension,
     HandlebarsExpressionExtension,
+    HtmlCommentExtension,
     HtmlAttributesExtension,
     DeletableSelectionExtension,
   ];

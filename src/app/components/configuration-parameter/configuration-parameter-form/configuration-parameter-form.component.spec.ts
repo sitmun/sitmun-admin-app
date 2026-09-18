@@ -10,6 +10,7 @@ import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
 
 import { FormToolbarComponent } from '@app/components/shared/form-toolbar/form-toolbar.component';
+import { EntityFormAlertsComponent } from '@app/components/shared/entity-form-alerts/entity-form-alerts.component';
 import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
 import { ExternalService, ResourceService } from '@app/core/hal';
 import {
@@ -38,7 +39,7 @@ describe('ConfigurationParameterFormComponent', () => {
         FormsModule,
         ReactiveFormsModule,
         RouterModule.forRoot([], {}),
-        SitmunFrontendGuiModule,
+        SitmunFrontendGuiModule, EntityFormAlertsComponent,
         MaterialModule,
         RouterModule,
         MatIconTestingModule,

@@ -12,16 +12,48 @@ import { handlebarsExpressionHtmlAttribute } from './handlebars-expression.exten
 import {
   handlebarsSystemVariableHtmlAttribute,
   isSystemVariableMustache,
-  SYSTEM_VARIABLE_MUSTACHE_PATTERN,
 } from './handlebars-system-variable.extension';
+import {
+  PDF_FOOTER_CLASS,
+  PDF_FOOTER_CLASSES,
+  PDF_FULL_BLEED_FOOTER_CLASS,
+  PDF_FULL_BLEED_HEADER_CLASS,
+  PDF_HEADER_CLASS,
+  PDF_HEADER_CLASSES,
+  PDF_REGION_CLASSES,
+  PDF_REGION_NODE_TYPES,
+} from './pdf-region.constants';
+import { scrubTipTapTableSerializeArtifacts } from './sitmun-table.extension';
 import { createTemplateEditorExtensions } from './template-editor-extensions';
+import {
+  resolveSelectedPdfRegionNode,
+  updateHtmlClass,
+} from './template-editor-transformations';
+import {
+  htmlCommentToMarker,
+  rewritePlantillaHtml,
+} from './template-html-rewrite';
 import { TemplateHtmlValidatorService, TemplateValidationResult } from './template-html-validator.service';
 import { translationLiteralHtmlAttribute, translationLiteralSelector } from './translation-literal.extension';
 
-const HANDLEBARS_TABLE_ROW_ATTR = handlebarsBlockHtmlAttribute;
+/**
+ * TipTap Plantilla HTML helpers.
+ *
+ * Mustache contract:
+ * - Text nodes → chips (expression / system-variable / structural).
+ * - Attribute values, comments, and existing chip wrappers stay literal (no chip nesting).
+ * - Do not DOM-parse before protect: that would normalize source before TipTap sees it.
+ * - HTML comments → marker nodes (TipTap drops real comments); restore on serialize.
+ *
+ * Persistence contract (parent form):
+ * - No visual update → form stays clean; persisted HTML unchanged.
+ * - After a visual update → serialize may rewrite, but supported shapes (attrs, div, bare table, link, comments) are preserved.
+ */
 
+/** Strip accidental HTML tags TipTap inserts inside mustache placeholders (triple-first). */
 export function normalizeHandlebarsMarkup(html: string): string {
-  return (html || '').replace(/\{\{[\s\S]*?}}/g, (placeholder) => {
+  // Triple-first so TipTap-split `{{{` fragments are not truncated at the first `}}`.
+  return (html || '').replace(/\{\{\{[\s\S]*?\}\}\}|\{\{[\s\S]*?}}/g, (placeholder) => {
     if (/<\/?(?:p|div|section|article|table|thead|tbody|tfoot|tr|td|th|ul|ol|li|h[1-6]|blockquote|pre|br)\b/i.test(placeholder)) {
       return placeholder;
     }
@@ -56,72 +88,245 @@ export function normalizeEditorColorValue(value: string | null | undefined, fall
   return fallback;
 }
 
+/**
+ * Pre-pass: turn `#each`/`#if` between table rows into synthetic chip rows TipTap can keep in tbody.
+ * Run before the text-segment protect pass (those wrappers are then skipped by the scanner).
+ */
 export function protectTableHandlebarsBlocks(html: string): string {
   return (html || '').replace(
     /(<(?:tbody|thead|tfoot)\b[^>]*>|<\/tr>)\s*(\{\{[#/][\s\S]*?}})\s*(?=<tr\b|<\/(?:tbody|thead|tfoot)>)/gi,
-    (_match, previousTag: string, block: string) => `${previousTag}<tr ${HANDLEBARS_TABLE_ROW_ATTR}="${encodeURIComponent(block)}"><td><p>Handlebars block</p></td></tr>`,
+    (_match, previousTag: string, block: string) => `${previousTag}<tr ${handlebarsBlockHtmlAttribute}="${encodeURIComponent(block)}"><td><p>Handlebars block</p></td></tr>`,
   );
 }
 
-/** Inline chips for {@code {{#APP_NAME}}} (backend system vars). Runs before structural blocks. */
+/** Chip system variables (`{{#APP_NAME}}`) in text nodes only. */
 export function protectSystemVariableMustaches(html: string): string {
-  // Clone global pattern so callers cannot leave a dirty lastIndex.
-  const pattern = new RegExp(SYSTEM_VARIABLE_MUSTACHE_PATTERN.source, 'g');
-  return (html || '').replace(pattern, (match) => {
-    if (match.includes(handlebarsSystemVariableHtmlAttribute)) {
-      return match;
-    }
-
-    return `<span ${handlebarsSystemVariableHtmlAttribute}="${encodeURIComponent(match)}" class="sitmun-handlebars-system-variable-node">${escapeHtml(match)}</span>`;
-  });
+  return transformHtmlTextSegments(html || '', (text) => protectMustachesInText(text, 'sysvar'));
 }
 
-/** True when visual HTML still has raw mustaches outside chip wrappers (needs re-protect). */
+/**
+ * True when TipTap HTML still has complete raw mustaches in eligible text
+ * (attributes/comments/chips ignored). Used to decide whether to re-protect.
+ */
 export function editorHtmlHasUnprotectedMustaches(editorHtml: string): boolean {
-  const withoutChips = (editorHtml || '')
-    .replace(/<span\b[^>]*\bdata-sitmun-handlebars-sysvar\b[^>]*>[\s\S]*?<\/span>/gi, '')
-    .replace(/<span\b[^>]*\bdata-sitmun-handlebars-expr\b[^>]*>[\s\S]*?<\/span>/gi, '')
-    .replace(/<div\b[^>]*\bdata-sitmun-handlebars-block\b[^>]*>[\s\S]*?<\/div>/gi, '')
-    .replace(/<tr\b[^>]*\bdata-sitmun-handlebars-block\b[^>]*>[\s\S]*?<\/tr>/gi, '');
-  return /\{\{\s*[/#]?[\s\S]*?}}/.test(withoutChips);
+  let found = false;
+  transformHtmlTextSegments(editorHtml || '', (text) => {
+    if (found) {
+      return text;
+    }
+    let index = 0;
+    while (index < text.length) {
+      const mustacheStart = text.indexOf('{{', index);
+      if (mustacheStart < 0) {
+        break;
+      }
+      const mustache = readMustache(text, mustacheStart);
+      if (!mustache) {
+        index = mustacheStart + 2;
+        continue;
+      }
+      found = true;
+      break;
+    }
+    return text;
+  });
+  return found;
 }
 
+/** Chip `#if` / `else` / `else if` / closers (and table pre-pass) in text nodes. */
 export function protectStructuralHandlebarsBlocks(html: string): string {
-  return protectTableHandlebarsBlocks(html || '').replace(
-    /\{\{\s*(?:[#/][^}]+|else)\s*}}/gi,
-    (block) => {
-      if (isSystemVariableMustache(block) || block.includes(handlebarsSystemVariableHtmlAttribute)) {
-        return block;
-      }
-
-      return `<div ${handlebarsBlockHtmlAttribute}="${encodeURIComponent(block)}">${escapeHtml(block)}</div>`;
-    },
+  return transformHtmlTextSegments(protectTableHandlebarsBlocks(html || ''), (text) =>
+    protectMustachesInText(text, 'structural'),
   );
 }
 
-/** Wrap non-structural mustaches after structural protect. Order: sysvar → structural → expressions. */
+/** Chip non-structural, non-sysvar mustaches in text nodes. */
 export function protectHandlebarsExpressions(html: string): string {
-  return (html || '').replace(/\{\{\{[\s\S]*?\}\}\}|\{\{[\s\S]*?\}\}/g, (match) => {
-    if (
-      match.includes(handlebarsExpressionHtmlAttribute)
-      || match.includes(handlebarsBlockHtmlAttribute)
-      || match.includes(handlebarsSystemVariableHtmlAttribute)
-    ) {
-      return match;
-    }
+  return transformHtmlTextSegments(html || '', (text) => protectMustachesInText(text, 'expression'));
+}
 
-    if (/^\{\{\s*(?:[#/]|else\b)/i.test(match)) {
-      return match;
-    }
-
-    return `<span ${handlebarsExpressionHtmlAttribute}="${encodeURIComponent(match)}" class="sitmun-handlebars-expression-node">${escapeHtml(match)}</span>`;
+/**
+ * Full protect for TipTap `setContent`: table pre-pass, then one rewrite (text chips + comment markers).
+ * Attribute mustaches such as `src="{{foto.url}}"` remain literal attribute values.
+ * Comments become marker nodes because TipTap drops real `<!--…-->` on parse.
+ * Recovered (unclosed) comments are encoded as `<!--…-->` so later tags stay sibling markup.
+ */
+export function protectTemplateEditorHtml(html: string): string {
+  return rewritePlantillaHtml(protectTableHandlebarsBlocks(html || ''), {
+    onText: (text) => protectMustachesInText(text, 'all'),
+    onComment: htmlCommentToMarker,
   });
 }
 
-export function protectTemplateEditorHtml(html: string): string {
-  return protectHandlebarsExpressions(
-    protectStructuralHandlebarsBlocks(protectSystemVariableMustaches(html || '')),
+/** Turn HTML comments into TipTap-safe marker divs (empty body; comment lives in the data attr). */
+export function protectHtmlComments(html: string): string {
+  return rewritePlantillaHtml(html || '', {
+    onText: (text) => text,
+    onComment: htmlCommentToMarker,
+  });
+}
+
+/**
+ * DOM restore of chip nodes → raw mustaches for persisted HTML and `<t>` payloads.
+ * Safe to use DOM here: chips are generated nodes, not authored source to preserve byte-for-byte.
+ * Comment markers are restored from the serialized string (DOM Comment nodes do not survive innerHTML).
+ */
+export function restoreHandlebarsChipsFromHtml(html: string): string {
+  const doc = new DOMParser().parseFromString(html || '', 'text/html');
+  restoreHandlebarsChipsInDocument(doc);
+  return restoreHtmlCommentMarkers(doc.body.innerHTML);
+}
+
+function restoreHandlebarsChipsInDocument(doc: Document): void {
+  for (const row of Array.from(doc.body.querySelectorAll<HTMLTableRowElement>(`tr[${handlebarsBlockHtmlAttribute}]`))) {
+    row.replaceWith(doc.createTextNode(`\n${decodeStoredAttribute(row.getAttribute(handlebarsBlockHtmlAttribute))}\n`));
+  }
+  for (const block of Array.from(doc.body.querySelectorAll<HTMLElement>(`div[${handlebarsBlockHtmlAttribute}]`))) {
+    block.replaceWith(doc.createTextNode(decodeStoredAttribute(block.getAttribute(handlebarsBlockHtmlAttribute))));
+  }
+  for (const node of Array.from(doc.body.querySelectorAll<HTMLElement>(`span[${handlebarsSystemVariableHtmlAttribute}]`))) {
+    node.replaceWith(doc.createTextNode(decodeStoredAttribute(node.getAttribute(handlebarsSystemVariableHtmlAttribute))));
+  }
+  for (const node of Array.from(doc.body.querySelectorAll<HTMLElement>(`span[${handlebarsExpressionHtmlAttribute}]`))) {
+    node.replaceWith(doc.createTextNode(decodeStoredAttribute(node.getAttribute(handlebarsExpressionHtmlAttribute))));
+  }
+}
+
+/** Splice marker divs back to `<!--…-->` (must run on HTML string; comments are not in innerHTML). */
+export function restoreHtmlCommentMarkers(html: string): string {
+  return (html || '').replace(
+    /<div\b[^>]*\bdata-sitmun-html-comment="([^"]*)"[^>]*>\s*<\/div>/gi,
+    (_match, encoded: string) => decodeStoredAttribute(encoded),
   );
+}
+
+function decodeStoredAttribute(value: string | null): string {
+  if (!value) {
+    return '';
+  }
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
+}
+
+type ProtectMode = 'sysvar' | 'structural' | 'expression' | 'all';
+
+/** Replace mustaches in a single text segment according to {@link ProtectMode}. */
+function protectMustachesInText(text: string, mode: ProtectMode): string {
+  let result = '';
+  let index = 0;
+  while (index < text.length) {
+    const mustacheStart = text.indexOf('{{', index);
+    if (mustacheStart < 0) {
+      result += text.slice(index);
+      break;
+    }
+
+    result += text.slice(index, mustacheStart);
+    const mustache = readMustache(text, mustacheStart);
+    if (!mustache) {
+      result += '{{';
+      index = mustacheStart + 2;
+      continue;
+    }
+
+    result += chipMustache(mustache.value, mode);
+    index = mustache.end;
+  }
+  return result;
+}
+
+function chipMustache(match: string, mode: ProtectMode): string {
+  if (isSystemVariableMustache(match)) {
+    if (mode === 'expression' || mode === 'structural') {
+      return match;
+    }
+    return `<span ${handlebarsSystemVariableHtmlAttribute}="${encodeURIComponent(match)}" class="sitmun-handlebars-system-variable-node">${escapeHtml(match)}</span>`;
+  }
+
+  if (isStructuralMustache(match)) {
+    if (mode === 'expression' || mode === 'sysvar') {
+      return match;
+    }
+    return `<div ${handlebarsBlockHtmlAttribute}="${encodeURIComponent(match)}">${escapeHtml(match)}</div>`;
+  }
+
+  if (mode === 'sysvar' || mode === 'structural') {
+    return match;
+  }
+
+  return `<span ${handlebarsExpressionHtmlAttribute}="${encodeURIComponent(match)}" class="sitmun-handlebars-expression-node">${escapeHtml(match)}</span>`;
+}
+
+/** `#…`, `/…`, `else`, and `else if …` (not bare `{{name}}`). */
+function isStructuralMustache(match: string): boolean {
+  return /^\{\{\s*(?:[#/]|else(?:\s+if\b)?)\b/i.test(match);
+}
+
+/**
+ * Quote-aware mustache bounds from {@code start} (must be `{{`).
+ * Handles triples and `}` characters inside quoted Handlebars args.
+ */
+export function readMustache(source: string, start: number): { value: string; end: number } | null {
+  if (source.slice(start, start + 2) !== '{{') {
+    return null;
+  }
+
+  let index = start + 2;
+  const triple = source[index] === '{';
+  if (triple) {
+    index += 1;
+  }
+
+  let quote: '"' | "'" | null = null;
+  while (index < source.length) {
+    const char = source[index];
+    if (quote) {
+      if (char === '\\') {
+        index += 2;
+        continue;
+      }
+      if (char === quote) {
+        quote = null;
+      }
+      index += 1;
+      continue;
+    }
+
+    if (char === '"' || char === "'") {
+      quote = char;
+      index += 1;
+      continue;
+    }
+
+    if (char === '}' && source[index + 1] === '}') {
+      if (triple) {
+        if (source[index + 2] === '}') {
+          return { value: source.slice(start, index + 3), end: index + 3 };
+        }
+        index += 1;
+        continue;
+      }
+      return { value: source.slice(start, index + 2), end: index + 2 };
+    }
+
+    index += 1;
+  }
+
+  return null;
+}
+
+/**
+ * Lexical HTML walk: copy tags/comments/chips/`<t>` unchanged; run {@code transformText} on text only.
+ * Not a full HTML parser — quote-aware enough for Plantilla attrs (`src="{{…}}"`) without DOM normalize.
+ */
+export function transformHtmlTextSegments(html: string, transformText: (text: string) => string): string {
+  return rewritePlantillaHtml(html || '', {
+    onText: transformText,
+    onComment: (comment) => comment.authored,
+  });
 }
 
 function escapeHtml(value: string): string {
@@ -159,9 +364,13 @@ export class TemplateEditorComponent implements AfterViewInit, OnChanges, OnDest
   editorMode: 'visual' | 'html' = 'visual';
   htmlSource = '';
   validationErrors: string[] = [];
+  validationWarnings: string[] = [];
   interactionErrors: string[] = [];
   selectedElementWidth = '';
   selectedElementHeight = '';
+  selectedElementSrc = '';
+  selectedElementAlt = '';
+  selectedElementTitle = '';
   selectedTextColor = '#000000';
   selectedHighlightColor = '#ffffff';
   selectedFontSize = '';
@@ -172,6 +381,11 @@ export class TemplateEditorComponent implements AfterViewInit, OnChanges, OnDest
   selectedNodeType: SelectedNodeType = 'none';
   tableSelectionMode: TableSelectionMode = 'none';
   canDeleteSelection = false;
+  canMarkPdfRegion = false;
+  pdfHeaderSelected = false;
+  pdfFooterSelected = false;
+  pdfFullBleedHeaderSelected = false;
+  pdfFullBleedFooterSelected = false;
   editorFocused = false;
   componentFocusedWithin = false;
 
@@ -320,11 +534,31 @@ export class TemplateEditorComponent implements AfterViewInit, OnChanges, OnDest
     this.editor?.chain().focus().toggleOrderedList().run();
   }
 
+  togglePdfHeader(): void {
+    this.togglePdfRegion(PDF_HEADER_CLASS, PDF_HEADER_CLASSES);
+  }
+
+  togglePdfFooter(): void {
+    this.togglePdfRegion(PDF_FOOTER_CLASS, PDF_FOOTER_CLASSES);
+  }
+
+  togglePdfFullBleedHeader(): void {
+    this.togglePdfRegion(PDF_FULL_BLEED_HEADER_CLASS, PDF_HEADER_CLASSES);
+  }
+
+  togglePdfFullBleedFooter(): void {
+    this.togglePdfRegion(PDF_FULL_BLEED_FOOTER_CLASS, PDF_FOOTER_CLASSES);
+  }
+
   toggleTextAlign(alignment: 'left' | 'center' | 'right' | 'justify'): void {
     this.editor?.chain().focus().setTextAlign(alignment).run();
     this.syncSelectionState();
   }
 
+  /**
+   * Toolbar link create/update: always set safe defaults.
+   * Authored links without target/rel keep those attrs absent via Link.configure(HTMLAttributes nulls).
+   */
   toggleLink(): void {
     if (!this.editor) {
       return;
@@ -341,7 +575,11 @@ export class TemplateEditorComponent implements AfterViewInit, OnChanges, OnDest
       return;
     }
 
-    this.editor.chain().focus().setLink({ href: nextUrl.trim() }).run();
+    this.editor.chain().focus().setLink({
+      href: nextUrl.trim(),
+      target: '_blank',
+      rel: 'noopener noreferrer',
+    }).run();
   }
 
   insertImage(): void {
@@ -598,6 +836,33 @@ export class TemplateEditorComponent implements AfterViewInit, OnChanges, OnDest
     this.syncSelectionState();
   }
 
+  updateSelectedMediaAttribute(attribute: 'src' | 'alt' | 'title', value: string): void {
+    if (!this.editor || !this.isMediaAttrInspectorVisible()) {
+      return;
+    }
+
+    const trimmedValue = String(value ?? '').trim();
+    if (attribute === 'src') {
+      this.selectedElementSrc = trimmedValue;
+    } else if (attribute === 'alt') {
+      this.selectedElementAlt = trimmedValue;
+    } else {
+      this.selectedElementTitle = trimmedValue;
+    }
+
+    const attrs: Record<string, string | null> = {
+      [attribute]: trimmedValue || null,
+    };
+
+    if (this.selectedNodeType === 'image') {
+      this.editor.chain().focus().updateAttributes('image', attrs).run();
+    } else if (this.selectedNodeType === 'iframe' && attribute !== 'alt') {
+      this.editor.chain().focus().updateAttributes('iframe', attrs).run();
+    }
+
+    this.syncSelectionState();
+  }
+
   formatHtmlSource(): void {
     this.onHtmlSourceChanged(beautifyHtml(this.htmlSource || '', {
       indent_size: 2,
@@ -607,6 +872,10 @@ export class TemplateEditorComponent implements AfterViewInit, OnChanges, OnDest
     }));
   }
 
+  /**
+   * Wrap the DOM selection in a translation literal.
+   * Restores chips to raw mustaches first so `<t>` stores `{{name}}`, not chip markup.
+   */
   wrapSelectionInTranslationLiteral(): void {
     if (!this.editor || this.readonly) {
       return;
@@ -646,7 +915,9 @@ export class TemplateEditorComponent implements AfterViewInit, OnChanges, OnDest
 
     const container = document.createElement('div');
     container.appendChild(range.cloneContents());
-    const selectedHtml = normalizeHandlebarsMarkup(container.innerHTML || domSelection.toString());
+    const selectedHtml = normalizeHandlebarsMarkup(
+      restoreHandlebarsChipsFromHtml(container.innerHTML || domSelection.toString()),
+    );
     if (!selectedHtml.trim()) {
       this.showInteractionError('entity.task.template.editor.invalidSelection');
       return;
@@ -674,6 +945,14 @@ export class TemplateEditorComponent implements AfterViewInit, OnChanges, OnDest
 
   isSizeControlVisible(): boolean {
     return this.selectedNodeType === 'image' || this.selectedNodeType === 'iframe';
+  }
+
+  isMediaAttrInspectorVisible(): boolean {
+    return this.isSizeControlVisible();
+  }
+
+  isImageAttrInspectorVisible(): boolean {
+    return this.selectedNodeType === 'image';
   }
 
   isTableContextVisible(): boolean {
@@ -777,6 +1056,10 @@ export class TemplateEditorComponent implements AfterViewInit, OnChanges, OnDest
     this.editor.commands.setTextSelection(Math.min(Math.max(selectionFrom, 1), maxPos));
   }
 
+  /**
+   * TipTap HTML → persisted Plantilla HTML: restore chips, scrub table chrome markers,
+   * unwrap translation nodes to `<t>`.
+   */
   private serializeEditorHtml(): string {
     if (!this.editor) {
       return normalizeHandlebarsMarkup(this.htmlSource || '');
@@ -787,29 +1070,8 @@ export class TemplateEditorComponent implements AfterViewInit, OnChanges, OnDest
       table.removeAttribute('data-sitmun-each-alias');
     }
 
-    const handlebarsRows = Array.from(doc.body.querySelectorAll<HTMLTableRowElement>(`tr[${HANDLEBARS_TABLE_ROW_ATTR}]`));
-    for (const row of handlebarsRows) {
-      row.replaceWith(doc.createTextNode(`\n${this.decodeStoredHtml(row.getAttribute(HANDLEBARS_TABLE_ROW_ATTR))}\n`));
-    }
-
-    const handlebarsBlocks = Array.from(doc.body.querySelectorAll<HTMLElement>(`div[${handlebarsBlockHtmlAttribute}]`));
-    for (const block of handlebarsBlocks) {
-      block.replaceWith(doc.createTextNode(this.decodeStoredHtml(block.getAttribute(handlebarsBlockHtmlAttribute))));
-    }
-
-    const systemVariableNodes = Array.from(
-      doc.body.querySelectorAll<HTMLElement>(`span[${handlebarsSystemVariableHtmlAttribute}]`),
-    );
-    for (const node of systemVariableNodes) {
-      node.replaceWith(
-        doc.createTextNode(this.decodeStoredHtml(node.getAttribute(handlebarsSystemVariableHtmlAttribute))),
-      );
-    }
-
-    const expressionNodes = Array.from(doc.body.querySelectorAll<HTMLElement>(`span[${handlebarsExpressionHtmlAttribute}]`));
-    for (const node of expressionNodes) {
-      node.replaceWith(doc.createTextNode(this.decodeStoredHtml(node.getAttribute(handlebarsExpressionHtmlAttribute))));
-    }
+    restoreHandlebarsChipsInDocument(doc);
+    scrubTipTapTableSerializeArtifacts(doc.body);
 
     const translationNodes = Array.from(doc.body.querySelectorAll<HTMLElement>(translationLiteralSelector));
     for (const node of translationNodes) {
@@ -818,11 +1080,12 @@ export class TemplateEditorComponent implements AfterViewInit, OnChanges, OnDest
       node.replaceWith(literal);
     }
 
-    return normalizeHandlebarsMarkup(doc.body.innerHTML);
+    return normalizeHandlebarsMarkup(restoreHtmlCommentMarkers(doc.body.innerHTML));
   }
 
   private publishValidation(validation: TemplateValidationResult): void {
     this.validationErrors = validation.errors;
+    this.validationWarnings = validation.warnings;
     this.validationChange.emit(validation);
   }
 
@@ -870,6 +1133,13 @@ export class TemplateEditorComponent implements AfterViewInit, OnChanges, OnDest
     this.selectedNodeType = this.resolveSelectedNodeType(selection);
     this.tableSelectionMode = this.resolveTableSelectionMode(selection);
     this.rememberCurrentTablePosition(selection);
+    const pdfRegionNode = this.getSelectedPdfRegionNode();
+    const pdfRegionClasses = new Set(String(pdfRegionNode?.node.attrs['class'] || '').split(/\s+/).filter(Boolean));
+    this.canMarkPdfRegion = pdfRegionNode !== null;
+    this.pdfHeaderSelected = pdfRegionClasses.has(PDF_HEADER_CLASS);
+    this.pdfFooterSelected = pdfRegionClasses.has(PDF_FOOTER_CLASS);
+    this.pdfFullBleedHeaderSelected = pdfRegionClasses.has(PDF_FULL_BLEED_HEADER_CLASS);
+    this.pdfFullBleedFooterSelected = pdfRegionClasses.has(PDF_FULL_BLEED_FOOTER_CLASS);
 
     const textStyleAttributes = this.editor.getAttributes('textStyle') as Record<string, string | null | undefined>;
     const highlightAttributes = this.editor.getAttributes('highlight') as Record<string, string | null | undefined>;
@@ -882,6 +1152,9 @@ export class TemplateEditorComponent implements AfterViewInit, OnChanges, OnDest
     if (!this.isSizeControlVisible()) {
       this.selectedElementWidth = '';
       this.selectedElementHeight = '';
+      this.selectedElementSrc = '';
+      this.selectedElementAlt = '';
+      this.selectedElementTitle = '';
       this.changeDetectorRef.detectChanges();
       return;
     }
@@ -889,6 +1162,9 @@ export class TemplateEditorComponent implements AfterViewInit, OnChanges, OnDest
     const attributes = this.editor.getAttributes(this.selectedNodeType) as Record<string, string | null | undefined>;
     this.selectedElementWidth = this.normalizeDimensionValue(attributes['width']);
     this.selectedElementHeight = this.normalizeDimensionValue(attributes['height']);
+    this.selectedElementSrc = attributes['src'] ? String(attributes['src']) : '';
+    this.selectedElementAlt = attributes['alt'] ? String(attributes['alt']) : '';
+    this.selectedElementTitle = attributes['title'] ? String(attributes['title']) : '';
     this.changeDetectorRef.detectChanges();
   }
 
@@ -898,6 +1174,9 @@ export class TemplateEditorComponent implements AfterViewInit, OnChanges, OnDest
     this.tableSelectionMode = 'none';
     this.selectedElementWidth = '';
     this.selectedElementHeight = '';
+    this.selectedElementSrc = '';
+    this.selectedElementAlt = '';
+    this.selectedElementTitle = '';
     this.selectedTextColor = '#000000';
     this.selectedHighlightColor = '#fff59d';
     this.selectedFontSize = '';
@@ -905,6 +1184,61 @@ export class TemplateEditorComponent implements AfterViewInit, OnChanges, OnDest
     this.selectedTableCellBorderColor = '#000000';
     this.selectedTableCellBorderWidth = '1';
     this.selectedTableEachAlias = '';
+    this.canMarkPdfRegion = false;
+    this.pdfHeaderSelected = false;
+    this.pdfFooterSelected = false;
+    this.pdfFullBleedHeaderSelected = false;
+    this.pdfFullBleedFooterSelected = false;
+  }
+
+  private togglePdfRegion(targetClass: string, categoryClasses: Set<string>): void {
+    if (!this.editor) {
+      return;
+    }
+
+    const selected = this.getSelectedPdfRegionNode();
+    if (!selected) {
+      return;
+    }
+
+    const selectedClasses = new Set(String(selected.node.attrs['class'] || '').split(/\s+/).filter(Boolean));
+    const removeSelectedMarker = selectedClasses.has(targetClass);
+    let transaction = this.editor.state.tr;
+
+    this.editor.state.doc.descendants((node, pos) => {
+      if (!PDF_REGION_NODE_TYPES.has(node.type.name)) {
+        return;
+      }
+
+      const currentClass = String(node.attrs['class'] || '');
+      const currentClasses = currentClass.split(/\s+/);
+      const isSelectedNode = pos === selected.pos;
+      const hasCategoryClass = currentClasses.some((className) => categoryClasses.has(className));
+      if (!isSelectedNode && (removeSelectedMarker || !hasCategoryClass)) {
+        return;
+      }
+
+      const nextClass = isSelectedNode
+        ? updateHtmlClass(currentClass, removeSelectedMarker ? null : targetClass, [...PDF_REGION_CLASSES])
+        : updateHtmlClass(currentClass, null, [...categoryClasses]);
+      if ((nextClass || '') !== currentClass) {
+        transaction = transaction.setNodeMarkup(pos, undefined, { ...node.attrs, class: nextClass });
+      }
+    });
+
+    this.interactionErrors = [];
+    if (transaction.docChanged) {
+      this.editor.view.dispatch(transaction);
+    }
+    this.syncSelectionState();
+  }
+
+  private getSelectedPdfRegionNode(): { node: ProseMirrorNode; pos: number } | null {
+    if (!this.editor) {
+      return null;
+    }
+
+    return resolveSelectedPdfRegionNode(this.editor.state.selection);
   }
 
   private syncTableEachAliasState(): void {

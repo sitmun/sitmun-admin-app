@@ -13,6 +13,7 @@ import {RouterModule} from '@angular/router';
 import {TranslateLoader, TranslateModule} from '@ngx-translate/core';
 import {firstValueFrom, of} from 'rxjs';
 
+import {EntityFormAlertsComponent} from '@app/components/shared/entity-form-alerts/entity-form-alerts.component';
 import {FormToolbarComponent} from '@app/components/shared/form-toolbar/form-toolbar.component';
 import {ExternalConfigurationService} from '@app/core/config/external-configuration.service';
 import {ExternalService, ResourceService} from '@app/core/hal';
@@ -73,6 +74,7 @@ describe('TerritoryFormComponent', () => {
         FormsModule,
         ReactiveFormsModule,
         SitmunFrontendGuiModule,
+        EntityFormAlertsComponent,
         RouterModule.forRoot([], {}),
         MaterialModule,
         MatIconTestingModule,

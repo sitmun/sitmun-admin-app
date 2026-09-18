@@ -1,7 +1,12 @@
 import { Editor } from '@tiptap/core';
+import { TextSelection } from '@tiptap/pm/state';
 
 import { handlebarsSystemVariableHtmlAttribute } from './handlebars-system-variable.extension';
 import { createTemplateEditorExtensions } from './template-editor-extensions';
+import {
+  resolveSelectedPdfRegionNode,
+  updateHtmlClass,
+} from './template-editor-transformations';
 import {
   editorHtmlHasUnprotectedMustaches,
   normalizeEditorColorValue,
@@ -11,6 +16,8 @@ import {
   protectSystemVariableMustaches,
   protectTableHandlebarsBlocks,
   protectTemplateEditorHtml,
+  readMustache,
+  restoreHandlebarsChipsFromHtml,
   TemplateEditorComponent,
 } from './template-editor.component';
 import { TemplateHtmlValidatorService } from './template-html-validator.service';
@@ -40,12 +47,73 @@ describe('TemplateEditorComponent', () => {
     expect(normalizeHandlebarsMarkup('<p>{{task.<span>name</span>}}</p>')).toBe('<p>{{task.name}}</p>');
   });
 
+  it('normalizes TipTap-injected tags inside triple mustaches without truncating at first }}', () => {
+    // Double-first matching would stop at the first `}}` and leave a stray `}`.
+    expect(normalizeHandlebarsMarkup('{{{rich.<b>html</b>}}}')).toBe('{{{rich.html}}}');
+    expect(normalizeHandlebarsMarkup('<p>{{{x<span>y</span>}}}</p>')).toBe('<p>{{{xy}}}</p>');
+  });
+
   it('should normalize rgb colors for color inputs', () => {
     expect(normalizeEditorColorValue('rgb(255, 0, 128)', '#000000')).toBe('#ff0080');
   });
 
   it('should normalize short hex colors for color inputs', () => {
     expect(normalizeEditorColorValue('#0f8', '#000000')).toBe('#00ff88');
+  });
+
+  it('should update PDF classes without changing custom classes', () => {
+    expect(updateHtmlClass('custom sitmun-pdf-footer', 'sitmun-pdf-header', [
+      'sitmun-pdf-header',
+      'sitmun-pdf-footer',
+    ])).toBe('custom sitmun-pdf-header');
+    expect(updateHtmlClass('custom sitmun-pdf-header', null, ['sitmun-pdf-header'])).toBe('custom');
+  });
+
+  it('should resolve a marked nested block before its table ancestor', () => {
+    const editor = new Editor({
+      extensions: createTemplateEditorExtensions(),
+      content: '<table><tbody><tr><td><p class="sitmun-pdf-header custom">Header</p></td></tr></tbody></table>',
+    });
+    let markedPosition = -1;
+    editor.state.doc.descendants((node, position) => {
+      if (String(node.attrs['class'] || '').includes('sitmun-pdf-header')) {
+        markedPosition = position;
+      }
+    });
+
+    const selected = resolveSelectedPdfRegionNode(
+      TextSelection.create(editor.state.doc, markedPosition + 1),
+    );
+
+    expect(selected?.pos).toBe(markedPosition);
+    expect(selected?.node.attrs['class']).toContain('sitmun-pdf-header');
+    editor.destroy();
+  });
+
+  it('should replace an existing PDF header variant through the editor transaction', () => {
+    const editor = new Editor({
+      extensions: createTemplateEditorExtensions(),
+      content: '<p class="sitmun-pdf-header custom">First</p><p>Second</p>',
+    });
+    (component as any).editor = editor;
+    component.componentFocusedWithin = true;
+    let secondParagraphPosition = -1;
+    editor.state.doc.descendants((node, position) => {
+      if (node.type.name === 'paragraph' && node.textContent === 'Second') {
+        secondParagraphPosition = position;
+      }
+    });
+    editor.commands.setNodeSelection(secondParagraphPosition);
+
+    component.togglePdfFullBleedHeader();
+
+    const document = new DOMParser().parseFromString(editor.getHTML(), 'text/html');
+    expect(document.querySelectorAll('.sitmun-pdf-header')).toHaveLength(0);
+    expect(document.querySelectorAll('.sitmun-pdf-header-full-bleed')).toHaveLength(1);
+    expect(document.querySelector('.sitmun-pdf-header-full-bleed')?.textContent).toBe('Second');
+    expect(document.querySelector('.custom')?.textContent).toBe('First');
+    editor.destroy();
+    (component as any).editor = null;
   });
 
   it('should protect structural Handlebars blocks inside tables', () => {
@@ -189,6 +257,188 @@ describe('TemplateEditorComponent', () => {
     expect(protectHandlebarsExpressions('{{{html}}}')).toContain('data-sitmun-handlebars-expr=');
   });
 
+  it('leaves attribute mustaches literal for img, anchor, iframe, and sysvar attrs', () => {
+    const protectedHtml = protectTemplateEditorHtml(
+      '<img src="{{task_1.url}}" alt=\'{{task_1.url}}\'>' +
+        '<a href="{{task_1.url}}">x</a>' +
+        '<iframe src="{{task_1.contentUrl}}"></iframe>' +
+        '<p title="{{#APP_NAME}}" data-app="{{#APP_ID}}">t</p>',
+    );
+
+    expect(protectedHtml).toContain('src="{{task_1.url}}"');
+    expect(protectedHtml).toContain("alt='{{task_1.url}}'");
+    expect(protectedHtml).toContain('href="{{task_1.url}}"');
+    expect(protectedHtml).toContain('src="{{task_1.contentUrl}}"');
+    expect(protectedHtml).toContain('title="{{#APP_NAME}}"');
+    expect(protectedHtml).toContain('data-app="{{#APP_ID}}"');
+    expect(protectedHtml).not.toMatch(/src="[^"]*data-sitmun-handlebars/);
+    expect(protectedHtml).not.toMatch(/href="[^"]*data-sitmun-handlebars/);
+  });
+
+  it('wraps HTML comments as TipTap markers without chipping mustaches inside', () => {
+    const protectedHtml = protectTemplateEditorHtml(
+      '<!-- tip: {{foto.url}} --><p>{{task_1.url}}</p><p>{{#APP_NAME}}</p>',
+    );
+
+    expect(protectedHtml).toContain('data-sitmun-html-comment=');
+    expect(protectedHtml).toContain(encodeURIComponent('<!-- tip: {{foto.url}} -->'));
+    expect(protectedHtml).not.toContain('<!-- tip: {{foto.url}} -->');
+    expect(protectedHtml).toContain('data-sitmun-handlebars-expr=');
+    expect(protectedHtml).toContain('data-sitmun-handlebars-sysvar=');
+    expect(protectedHtml).not.toMatch(/data-sitmun-html-comment="[^"]*data-sitmun-handlebars/);
+  });
+
+  it('chips else and else-if as structural blocks', () => {
+    const protectedHtml = protectTemplateEditorHtml(
+      '{{#if foo}}yes{{else if bar}}maybe{{else}}no{{/if}}',
+    );
+
+    expect(protectedHtml).toContain('data-sitmun-handlebars-block="%7B%7B%23if%20foo%7D%7D"');
+    expect(protectedHtml).toContain('data-sitmun-handlebars-block="%7B%7Belse%20if%20bar%7D%7D"');
+    expect(protectedHtml).toContain('data-sitmun-handlebars-block="%7B%7Belse%7D%7D"');
+    expect(protectedHtml).toContain('data-sitmun-handlebars-block="%7B%7B%2Fif%7D%7D"');
+  });
+
+  it('is idempotent for text chips and attribute mustaches', () => {
+    const html =
+      '<img src="{{task_1.url}}"><p>{{name}}</p>{{#if x}}{{else if y}}{{else}}{{/if}}<!-- {{c}} -->';
+    const once = protectTemplateEditorHtml(html);
+    expect(protectTemplateEditorHtml(once)).toBe(once);
+  });
+
+  it('treats attribute-only and comment mustaches as already protected', () => {
+    expect(editorHtmlHasUnprotectedMustaches('<img src="{{task_1.url}}">')).toBe(false);
+    expect(editorHtmlHasUnprotectedMustaches('<!-- {{name}} --><p>x</p>')).toBe(false);
+    expect(editorHtmlHasUnprotectedMustaches('<p>{{name}}</p>')).toBe(true);
+  });
+
+  it('reads mustaches that contain quoted closing braces', () => {
+    const source = '{{#if (eq x "}")}}yes{{/if}}';
+    const first = readMustache(source, 0);
+    expect(first?.value).toBe('{{#if (eq x "}")}}');
+  });
+
+  it('restores chips for T-wrap payloads', () => {
+    const chipped = protectTemplateEditorHtml('<span>{{name}}</span>');
+    expect(chipped).toContain('data-sitmun-handlebars-expr');
+    expect(restoreHandlebarsChipsFromHtml(chipped)).toContain('{{name}}');
+    expect(restoreHandlebarsChipsFromHtml(chipped)).not.toContain('data-sitmun-handlebars-expr');
+  });
+
+  it('keeps attribute mustaches through TipTap setContent/getHTML', () => {
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    const editor = new Editor({
+      element: host,
+      extensions: createTemplateEditorExtensions(),
+      content: '',
+    });
+
+    editor.commands.setContent(
+      protectTemplateEditorHtml('<img src="{{task_1.url}}" alt="{{task_1.url}}"><p>{{name}}</p>'),
+      false,
+    );
+    const html = editor.getHTML();
+    expect(html).toContain('src="{{task_1.url}}"');
+    expect(html).toContain('alt="{{task_1.url}}"');
+    expect(html).not.toMatch(/src="[^"]*data-sitmun-handlebars/);
+    expect(html).toContain('data-sitmun-handlebars-expr');
+
+    editor.destroy();
+    host.remove();
+  });
+
+  it('shows mustache media placeholders and serializes literal src/alt/title', () => {
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    const editor = new Editor({
+      element: host,
+      extensions: createTemplateEditorExtensions(),
+      content: '',
+    });
+
+    editor.commands.setContent(
+      protectTemplateEditorHtml(
+        '<img src="{{foto.url}}" alt="{{foto.url}}" title="{{#APP_NAME}}">' +
+          '<iframe src="{{task_1.contentUrl}}" title="map"></iframe>',
+      ),
+      false,
+    );
+
+    const placeholders = host.querySelectorAll('.sitmun-mustache-media-placeholder');
+    expect(placeholders.length).toBe(2);
+    expect(host.querySelector('[data-sitmun-mustache-media="img"] .sitmun-mustache-media-placeholder__src')?.textContent)
+      .toBe('{{foto.url}}');
+    expect(host.querySelector('[data-sitmun-mustache-media="iframe"] .sitmun-mustache-media-placeholder__src')?.textContent)
+      .toBe('{{task_1.contentUrl}}');
+    expect(host.querySelector('img[src*="{{"]')).toBeNull();
+    expect(host.querySelector('iframe[src*="{{"]')).toBeNull();
+
+    const serialized = restoreHandlebarsChipsFromHtml(editor.getHTML());
+    expect(serialized).toContain('src="{{foto.url}}"');
+    expect(serialized).toContain('alt="{{foto.url}}"');
+    expect(serialized).toContain('title="{{#APP_NAME}}"');
+    expect(serialized).toContain('<iframe');
+    expect(serialized).toContain('src="{{task_1.contentUrl}}"');
+    expect(serialized).not.toContain('sitmun-mustache-media-placeholder');
+
+    editor.destroy();
+    host.remove();
+  });
+
+  it('preserves HTML comments through TipTap setContent/getHTML restore', () => {
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    const editor = new Editor({
+      element: host,
+      extensions: createTemplateEditorExtensions(),
+      content: '',
+    });
+
+    const source =
+      '<h1>t</h1><!-- tip: {{foto.url}} must stay --><section><p>x</p></section>';
+    editor.commands.setContent(protectTemplateEditorHtml(source), false);
+    expect(editor.getHTML()).toContain('data-sitmun-html-comment=');
+    expect(editor.getHTML()).not.toContain('<!-- tip:');
+
+    const serialized = restoreHandlebarsChipsFromHtml(editor.getHTML());
+    expect(serialized).toContain('<!-- tip: {{foto.url}} must stay -->');
+    expect(serialized).not.toContain('data-sitmun-html-comment');
+
+    editor.destroy();
+    host.remove();
+  });
+
+  it.each([
+    '<p>BEFORE_MARKER</p><!-- tip <p>AFTER_MARKER</p>',
+    '<p>BEFORE_MARKER</p><!-- tip -><p>AFTER_MARKER</p>',
+    '<p>BEFORE_MARKER</p><!-- tip -- ><p>AFTER_MARKER</p>',
+  ])('keeps markup after a malformed HTML comment through TipTap round-trip: %s', (source) => {
+    const validator = new TemplateHtmlValidatorService({ instant: (key: string) => key } as any);
+    expect(validator.validate(source).valid).toBe(true);
+
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    const editor = new Editor({
+      element: host,
+      extensions: createTemplateEditorExtensions(),
+      content: '',
+    });
+
+    const protectedHtml = protectTemplateEditorHtml(source);
+    expect(protectedHtml).not.toMatch(/<!--/);
+    editor.commands.setContent(protectedHtml, false);
+
+    const serialized = restoreHandlebarsChipsFromHtml(editor.getHTML());
+    expect(serialized).toContain('<p>AFTER_MARKER</p>');
+    expect(serialized).toContain('BEFORE_MARKER');
+    expect(serialized).toMatch(/<!--\s*tip\s*-->/);
+    expect(serialized).not.toContain('data-sitmun-html-comment');
+
+    editor.destroy();
+    host.remove();
+  });
+
   it('round-trips inline mustache chips to raw mustaches through TipTap', () => {
     const host = document.createElement('div');
     document.body.appendChild(host);
@@ -201,11 +451,7 @@ describe('TemplateEditorComponent', () => {
     editor.commands.setContent(protectTemplateEditorHtml('<p>{{name}}</p><p>{{{html}}}</p>'), false);
     expect(editor.getHTML()).toContain('data-sitmun-handlebars-expr');
 
-    const doc = new DOMParser().parseFromString(editor.getHTML(), 'text/html');
-    for (const node of Array.from(doc.body.querySelectorAll('span[data-sitmun-handlebars-expr]'))) {
-      node.replaceWith(document.createTextNode(decodeURIComponent(node.getAttribute('data-sitmun-handlebars-expr') || '')));
-    }
-    const serialized = doc.body.innerHTML;
+    const serialized = restoreHandlebarsChipsFromHtml(editor.getHTML());
     expect(serialized).toContain('{{name}}');
     expect(serialized).toContain('{{{html}}}');
     expect(serialized).not.toContain('data-sitmun-handlebars-expr');
@@ -231,24 +477,7 @@ describe('TemplateEditorComponent', () => {
     expect(editor.getHTML()).toContain('data-sitmun-handlebars-block');
     expect(editor.getHTML()).not.toMatch(/data-sitmun-handlebars-block="[^"]*APP_NAME/);
 
-    const doc = new DOMParser().parseFromString(editor.getHTML(), 'text/html');
-    for (const node of Array.from(doc.body.querySelectorAll('span[data-sitmun-handlebars-sysvar]'))) {
-      node.replaceWith(
-        document.createTextNode(decodeURIComponent(node.getAttribute('data-sitmun-handlebars-sysvar') || '')),
-      );
-    }
-    for (const node of Array.from(doc.body.querySelectorAll('div[data-sitmun-handlebars-block]'))) {
-      node.replaceWith(
-        document.createTextNode(decodeURIComponent(node.getAttribute('data-sitmun-handlebars-block') || '')),
-      );
-    }
-    for (const node of Array.from(doc.body.querySelectorAll('span[data-sitmun-handlebars-expr]'))) {
-      node.replaceWith(
-        document.createTextNode(decodeURIComponent(node.getAttribute('data-sitmun-handlebars-expr') || '')),
-      );
-    }
-
-    const serialized = doc.body.innerHTML;
+    const serialized = restoreHandlebarsChipsFromHtml(editor.getHTML());
     expect(serialized).toContain('{{#APP_NAME}}');
     expect(serialized).toContain('{{#each rows}}');
     expect(serialized).toContain('{{/each}}');
@@ -256,5 +485,80 @@ describe('TemplateEditorComponent', () => {
 
     editor.destroy();
     host.remove();
+  });
+
+  describe('edited-document shape preservation (PR2)', () => {
+    function serializeVisual(html: string): string {
+      const host = document.createElement('div');
+      document.body.appendChild(host);
+      const editor = new Editor({
+        element: host,
+        extensions: createTemplateEditorExtensions(),
+        content: '',
+      });
+      editor.commands.setContent(protectTemplateEditorHtml(html), false);
+      // Insert a sibling paragraph at the document end (outside tables/blocks).
+      editor.commands.insertContentAt(editor.state.doc.content.size, {
+        type: 'paragraph',
+        content: [{ type: 'text', text: 'sibling-marker' }],
+      });
+      (component as any).editor = editor;
+      const serialized = (component as any).serializeEditorHtml() as string;
+      editor.destroy();
+      host.remove();
+      (component as any).editor = null;
+      return serialized;
+    }
+
+    it('keeps authored div blocks after a sibling visual edit', () => {
+      const serialized = serializeVisual('<div class="box"><p>inside</p></div>');
+      expect(serialized).toContain('<div');
+      expect(serialized).toContain('class="box"');
+      expect(serialized).toContain('inside');
+      expect(serialized).toContain('sibling-marker');
+      expect(serialized).not.toMatch(/^<p class="box"/);
+    });
+
+    it('does not inject colgroup or min-width into a minimal authored table', () => {
+      const serialized = serializeVisual(
+        '<table><tbody><tr><td>A</td><td>B</td></tr></tbody></table>',
+      );
+      expect(serialized).toContain('<table');
+      expect(serialized).toContain('<td>A</td>');
+      expect(serialized).toContain('<td>B</td>');
+      expect(serialized).not.toContain('<colgroup');
+      expect(serialized).not.toContain('min-width');
+      expect(serialized).not.toContain('data-sitmun-had-colgroup');
+      expect(serialized).not.toContain('data-sitmun-cell-bare');
+    });
+
+    it('does not force target/rel onto authored links without them', () => {
+      const serialized = serializeVisual('<p><a href="https://example.test/x">link</a></p>');
+      expect(serialized).toContain('href="https://example.test/x"');
+      expect(serialized).not.toContain('target=');
+      expect(serialized).not.toContain('rel=');
+    });
+
+    it('sets target and rel when the toolbar creates a link', () => {
+      const host = document.createElement('div');
+      document.body.appendChild(host);
+      const editor = new Editor({
+        element: host,
+        extensions: createTemplateEditorExtensions(),
+        content: '<p>hello</p>',
+      });
+      editor.commands.setTextSelection({ from: 1, to: 6 });
+      editor.chain().focus().setLink({
+        href: 'https://example.test/new',
+        target: '_blank',
+        rel: 'noopener noreferrer',
+      }).run();
+      const html = editor.getHTML();
+      expect(html).toContain('href="https://example.test/new"');
+      expect(html).toContain('target="_blank"');
+      expect(html).toContain('rel="noopener noreferrer"');
+      editor.destroy();
+      host.remove();
+    });
   });
 });

@@ -38,10 +38,14 @@ import {TaskUIFormComponent} from '@app/components/task-ui/task-ui-form/task-ui-
 import {TaskUIComponent} from '@app/components/task-ui/task-ui.component';
 import {TaskBasicFormComponent} from "@app/components/tasks-basic/task-form/task-basic-form.component";
 import {TasksBasicComponent} from '@app/components/tasks-basic/tasks-basic.component';
+import {TaskDocumentExportFormComponent} from '@app/components/tasks-document-export/task-form/task-document-export-form.component';
+import {TasksDocumentExportComponent} from '@app/components/tasks-document-export/tasks-document-export.component';
 import {TaskEditFormComponent} from '@app/components/tasks-edit/task-form/task-edit-form.component';
 import {TasksEditComponent} from '@app/components/tasks-edit/tasks-edit.component';
 import {TaskLocatorFormComponent} from '@app/components/tasks-locator/task-form/task-locator-form.component';
 import {TasksLocatorComponent} from '@app/components/tasks-locator/tasks-locator.component';
+import {TaskMapImageFormComponent} from '@app/components/tasks-map-image/task-form/task-map-image-form.component';
+import {TasksMapImageComponent} from '@app/components/tasks-map-image/tasks-map-image.component';
 import {TaskMoreInfoFormComponent} from '@app/components/tasks-more-info/task-form/task-more-info-form.component';
 import {TasksMoreInfoComponent} from '@app/components/tasks-more-info/tasks-more-info.component';
 import {TaskMoreInfoAdvancedFormComponent} from '@app/components/tasks-more-info-advanced/task-form/task-more-info-advanced-form.component';
@@ -94,6 +98,8 @@ export const APP_ROUTES: Routes = [
       {path: `tasks/:id/${magic.taskBasicTypeId}`, component: TaskBasicFormComponent, canDeactivate: [CanDeactivateGuard]},
       {path: `tasks/:id/${magic.taskLocatorTypeId}`, component: TaskLocatorFormComponent, canDeactivate: [CanDeactivateGuard]},
       {path: `tasks/:id/${magic.taskQueryTypeId}`, component: TaskQueryFormComponent, canDeactivate: [CanDeactivateGuard]},
+      {path: `tasks/:id/${magic.taskMapImageTypeId}`, component: TaskMapImageFormComponent, canDeactivate: [CanDeactivateGuard]},
+      {path: `tasks/:id/${magic.taskDocumentExportTypeId}`, component: TaskDocumentExportFormComponent, canDeactivate: [CanDeactivateGuard]},
       {path: `tasks/:id/${magic.taskMoreInfoTypeId}`, component: TaskMoreInfoFormComponent, canDeactivate: [CanDeactivateGuard]},
       {path: `tasks/:id/${magic.taskTemplateTypeId}`, component: TaskTemplateFormComponent, canDeactivate: [CanDeactivateGuard]},
       {path: `tasks/:id/${magic.taskMoreInfoAdvancedTypeId}`, component: TaskMoreInfoAdvancedFormComponent, canDeactivate: [CanDeactivateGuard]},
@@ -112,6 +118,12 @@ export const APP_ROUTES: Routes = [
       {path: 'tasksQuery', component: TasksQueryComponent, canDeactivate: [CanDeactivateGuard]},
       {path: 'taskQuery/:id/:type', component: TaskQueryFormComponent, canDeactivate: [CanDeactivateGuard]},
       {path: 'taskQuery/:id/:type/:idDuplicate', component: TaskQueryFormComponent, canDeactivate: [CanDeactivateGuard]},
+      {path: 'tasksMapImage', component: TasksMapImageComponent, canDeactivate: [CanDeactivateGuard]},
+      {path: 'taskMapImage/:id/:type', component: TaskMapImageFormComponent, canDeactivate: [CanDeactivateGuard]},
+      {path: 'taskMapImage/:id/:type/:idDuplicate', component: TaskMapImageFormComponent, canDeactivate: [CanDeactivateGuard]},
+      {path: 'tasksDocumentExport', component: TasksDocumentExportComponent, canDeactivate: [CanDeactivateGuard]},
+      {path: 'taskDocumentExport/:id/:type', component: TaskDocumentExportFormComponent, canDeactivate: [CanDeactivateGuard]},
+      {path: 'taskDocumentExport/:id/:type/:idDuplicate', component: TaskDocumentExportFormComponent, canDeactivate: [CanDeactivateGuard]},
       {path: 'tasksTemplate', component: TasksTemplateComponent, canDeactivate: [CanDeactivateGuard]},
       {path: 'taskTemplate/:id/:type', component: TaskTemplateFormComponent, canDeactivate: [CanDeactivateGuard]},
       {path: 'taskTemplate/:id/:type/:idDuplicate', component: TaskTemplateFormComponent, canDeactivate: [CanDeactivateGuard]},

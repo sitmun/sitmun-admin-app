@@ -1,7 +1,7 @@
 # SITMUN Administration Application
 
 [![License: EUPL v1.2](https://img.shields.io/badge/License-EUPL%20v1.2-blue.svg)](LICENSE)
-![Version](https://img.shields.io/badge/version-1.2.8-blue.svg)
+![Version](https://img.shields.io/badge/version-1.2.9-blue.svg)
 
 The **SITMUN Administration Application** is the official web-based frontend for managing the SITMUN geospatial application platform. Built with TypeScript and Angular 19, it provides a comprehensive administrative interface for the [SITMUN Backend Core](https://github.com/sitmun/sitmun-backend-core) REST API.
 
@@ -280,14 +280,14 @@ npm run sonar
 ### Unit Testing
 
 ```bash
-# Run unit tests
+# Run unit tests (no coverage)
 npm test
 
 # Run tests in watch mode
 npm run test:watch
 
-# Run tests with coverage (Jest built-in)
-npm test -- --coverage
+# Run tests with coverage artifacts for SonarCloud
+npm run test:coverage
 
 # Run specific test file
 npm test -- --testNamePattern="UserComponent"
@@ -308,7 +308,7 @@ npm test -- --testNamePattern="UserComponent"
 - **Unit Tests**: Component logic, services, and utilities (Jest)
 - **Integration Tests**: Component-service integration (Jest)
 - **E2E Tests**: Conditional testing script for CI/CD environments
-- **Coverage**: Jest built-in coverage reporting
+- **Coverage**: `npm run test:coverage` writes `coverage/admin-app/lcov.info` and `reports/ut_report.xml` for SonarCloud. Jest stubs AG Grid, echarts, and the Material barrels.
 
 ## Deployment
 

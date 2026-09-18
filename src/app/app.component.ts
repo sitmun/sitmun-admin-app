@@ -65,11 +65,12 @@ export class AppComponent implements OnInit, OnDestroy {
 
     this.setInitialLanguage();
 
-    if (this.principal.isAuthenticated()) {
-      this.principal.identity().then((account) => {
-        this.currentAccount = account;
-      });
-    }
+    this.principal.identity().then((account) => {
+      this.currentAccount = account;
+      if (account) {
+        this.loginService.startSessionRefresh();
+      }
+    });
 
   }
 

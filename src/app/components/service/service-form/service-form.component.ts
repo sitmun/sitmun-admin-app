@@ -24,6 +24,7 @@ import {
   CodeList,
   CodeListService,
   Service,
+  ServiceCapabilitiesProbe,
   ServiceParameter,
   ServiceParameterService,
   ServiceService,
@@ -115,9 +116,13 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
     return this.codeList('service.authenticationMode').filter(m => m.value !== 'API key');
   }
 
-  /** Whether the SITMUN proxy toggle is enabled; authentication is only relevant when true. */
+  /** Whether the SITMUN proxy toggle is enabled. */
   isProxyEnabled(): boolean {
     return Boolean(this.entityForm?.get('isProxied')?.value);
+  }
+
+  private hasOriginAuthentication(mode: string | null | undefined = this.entityForm?.get('authenticationMode')?.value): boolean {
+    return mode != null && mode !== '' && mode !== ServiceFormComponent.AUTHENTICATION_MODE_NONE;
   }
 
   /**
@@ -332,44 +337,50 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
       isProxied: new UntypedFormControl(this.entityToEdit.isProxied, []),
     });
 
-    this.initProxyAuthenticationSync();
+    this.initAuthImpliesProxy();
 
     const currentType = this.findInCodeList('service.type', this.entityToEdit.type);
     this.tableLoadButtonDisabled = currentType ? currentType.value !== config.capabilitiesRequest.WMSIdentificator : false;
   }
 
-  /** Keeps authentication fields aligned with proxy usage at runtime. */
-  private initProxyAuthenticationSync(): void {
-    this.applyProxyAuthenticationState(this.isProxyEnabled());
+  /** Auth other than None forces proxied on; turning proxy off while auth is set snaps it back. */
+  private initAuthImpliesProxy(): void {
+    this.applyAuthImpliesProxy(this.entityForm.get('authenticationMode')!.value);
+
+    this.entityForm.get('authenticationMode')!.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(mode => this.applyAuthImpliesProxy(mode));
 
     this.entityForm.get('isProxied')!.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(isProxied => this.applyProxyAuthenticationState(Boolean(isProxied)));
+      .subscribe(isProxied => {
+        if (!isProxied && this.hasOriginAuthentication()) {
+          this.entityForm.get('isProxied')!.setValue(true, {emitEvent: false});
+        }
+      });
   }
 
-  private applyProxyAuthenticationState(proxyEnabled: boolean): void {
-    const authenticationModeControl = this.entityForm.get('authenticationMode')!;
-    const userControl = this.entityForm.get('user')!;
-    const passwordControl = this.entityForm.get('password')!;
-
-    if (proxyEnabled) {
-      authenticationModeControl.setValidators([Validators.required]);
-      authenticationModeControl.enable({emitEvent: false});
-      userControl.enable({emitEvent: false});
-      passwordControl.enable({emitEvent: false});
-    } else {
-      authenticationModeControl.clearValidators();
-      this.entityForm.patchValue({
-        authenticationMode: ServiceFormComponent.AUTHENTICATION_MODE_NONE,
-        user: null,
-        password: null,
-      }, {emitEvent: false});
-      authenticationModeControl.disable({emitEvent: false});
-      userControl.disable({emitEvent: false});
-      passwordControl.disable({emitEvent: false});
+  private applyAuthImpliesProxy(mode: string): void {
+    if (this.hasOriginAuthentication(mode)) {
+      this.entityForm.get('isProxied')!.setValue(true, {emitEvent: false});
     }
+  }
 
-    authenticationModeControl.updateValueAndValidity({emitEvent: false});
+  private capabilitiesProbe(): ServiceCapabilitiesProbe {
+    const raw = this.entityForm.getRawValue();
+    const probe: ServiceCapabilitiesProbe = {
+      url: raw.serviceURL,
+      type: raw.type,
+      authenticationMode: raw.authenticationMode,
+      user: raw.user,
+    };
+    if (this.entityID >= 1) {
+      probe.id = this.entityID;
+    }
+    if (raw.password) {
+      probe.password = raw.password;
+    }
+    return probe;
   }
 
   /**
@@ -499,7 +510,7 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
     dialogRef.afterClosed().subscribe(next => {
       if (next?.event === 'Accept') {
         if (this.entityForm.get('type').value === constants.codeValue.serviceType.wms) {
-          this.wmsCapabilitiesService.processWMSServiceMetadata(this.entityForm.value.serviceURL)
+          this.wmsCapabilitiesService.processWMSServiceMetadata(this.capabilitiesProbe())
             .then((capabilities) => {
               this.entityForm.patchValue({
                 name: capabilities.title?.substring(0, 60),
@@ -560,7 +571,7 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
     dialogRef.afterClosed().subscribe(next => {
       if (next?.event === 'Accept') {
         if (this.entityForm.get('type').value === constants.codeValue.serviceType.wms) {
-          this.wmsCapabilitiesService.processWMSServiceCapabilities(this.entityForm.value.serviceURL)
+          this.wmsCapabilitiesService.processWMSServiceCapabilities(this.capabilitiesProbe())
             .then((response: WMSLayersCapabilities) => {
               this.wmsLayersCapabilities = response
               this.layersTable.saveCommandEvent$.next("save")

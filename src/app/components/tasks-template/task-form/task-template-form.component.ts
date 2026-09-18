@@ -19,7 +19,6 @@ import {
   Role,
   RoleService,
   Task,
-  TaskAvailability,
   TaskAvailabilityProjection,
   TaskAvailabilityService,
   TaskGroup,
@@ -39,7 +38,7 @@ import {
   TerritoryService,
   TranslationService,
 } from '@app/domain';
-import { canKeepOrUpdate, onCreate, onDelete, onUpdatedRelation, Status } from '@app/frontend-gui/src/lib/data-grid/data-grid.component';
+import { canKeepOrUpdate, Status } from '@app/frontend-gui/src/lib/data-grid/data-grid.component';
 import { ErrorHandlerService } from '@app/services/error-handler.service';
 import { LoadingOverlayService } from '@app/services/loading-overlay.service';
 import { LoggerService } from '@app/services/logger.service';
@@ -51,6 +50,7 @@ import { config } from '@config';
 import { TEMPLATE_TASK_RELATION_TYPES, constants, magic } from '@environments/constants';
 import { environment } from '@environments/environment';
 
+import { createTaskAvailabilitiesTable, createTaskRolesTable, updateTaskGroupRelation } from '../../tasks-shared/task-relation-tables';
 import { QueryExecutionCardComponent, TemplateChildTaskLink } from '../query-execution-card/query-execution-card.component';
 import { TemplateValidationResult } from '../template-editor/template-html-validator.service';
 
@@ -81,6 +81,18 @@ interface TemplateTaskProperties extends Record<string, unknown> {
   childTaskOrderIds?: number[];
 }
 
+/**
+ * Admin Template preview must not navigate the SPA away.
+ * Real hrefs open in a new tab; hash / javascript: URLs are left alone.
+ */
+export function shouldOpenPreviewHrefInNewTab(href: string | null | undefined): boolean {
+  const value = (href || '').trim();
+  if (!value || value.startsWith('#')) {
+    return false;
+  }
+  return !/^javascript:/i.test(value);
+}
+
 @Component({
   selector: 'app-task-template-form',
   templateUrl: './task-template-form.component.html',
@@ -106,6 +118,7 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
   protected taskLookup = new Map<number, TaskProjection>();
   protected templateChildTasks = new Map<number, TemplateChildTaskLink[]>();
   protected previewLanguages: Language[] = [];
+  /** Template preview pane only; Sources Execute inherits this value (no Sources language UI). */
   protected previewLanguageControl = new FormControl(config.defaultLang, { nonNullable: true });
   protected previewHtml = '';
   protected trustedPreviewHtml: SafeHtml = '';
@@ -128,7 +141,7 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
   private splitResizeCleanup: (() => void) | null = null;
   protected systemVariables = new Map<string, string>();
   protected pendingReferenceAliasChange: PendingReferenceAliasChange | null = null;
-  protected templateValidation: TemplateValidationResult = { valid: true, errors: [] };
+  protected templateValidation: TemplateValidationResult = { valid: true, errors: [], warnings: [] };
   protected linkTaskSearchControl = new FormControl<string | LinkableTemplateTask>('', { nonNullable: true });
   protected filteredLinkableTasks = of<LinkableTemplateTask[]>([]);
   protected readonly displayLinkableTaskWith = (task: LinkableTemplateTask | string): string => this.displayLinkableTask(task);
@@ -150,6 +163,8 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
   private readonly queryExecutionCards?: QueryList<QueryExecutionCardComponent>;
 
   private previewExecutionContext: Record<string, unknown> = {};
+  /** Stable identity for Sources QEC inherited defaults (new {} each CD resets typed values). */
+  private cachedRootParameterDefaults: Record<string, string> = {};
 
   constructor(
     dialog: MatDialog,
@@ -233,13 +248,15 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
     this.initializePreviewLanguage();
 
     const queryTaskOptions = { params: [{ key: 'type.id', value: magic.taskQueryTypeId }] };
+    const mapImageTaskOptions = { params: [{ key: 'type.id', value: magic.taskMapImageTypeId }] };
     const templateTaskOptions = { params: [{ key: 'type.id', value: magic.taskTemplateTypeId }] };
-    const [queryTasks, templateTasks] = await Promise.all([
+    const [queryTasks, mapImageTasks, templateTasks] = await Promise.all([
       firstValueFrom(this.taskService.fetchAllProjectionItems(TaskProjection, queryTaskOptions, undefined, 'tasks')),
+      firstValueFrom(this.taskService.fetchAllProjectionItems(TaskProjection, mapImageTaskOptions, undefined, 'tasks')),
       firstValueFrom(this.taskService.fetchAllProjectionItems(TaskProjection, templateTaskOptions, undefined, 'tasks')),
     ]);
 
-    [...queryTasks, ...templateTasks].forEach((task) => this.taskLookup.set(task.id, task));
+    [...queryTasks, ...mapImageTasks, ...templateTasks].forEach((task) => this.taskLookup.set(task.id, task));
 
     const validQueryTasks = this.filterLinkableQueryTasks(queryTasks);
     const nestedTemplates = templateTasks
@@ -249,9 +266,11 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
         constants.taskRelationType.templateNested,
         this.translateService.instant('entity.task.template.label'),
       ));
+    const linkableMapImageTasks = this.filterLinkableMapImageTasks(mapImageTasks);
 
     this.linkableTasks = [
       ...validQueryTasks,
+      ...linkableMapImageTasks,
       ...nestedTemplates,
     ].sort((left, right) => compareNullableString(left.name, right.name));
 
@@ -329,7 +348,7 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
 
       const taskGroupId = this.entityForm.get('taskGroupId')?.value;
       if (typeof taskGroupId === 'number') {
-        await firstValueFrom(entityCreated.updateRelationEx('group', this.taskGroupService.createProxy(taskGroupId)));
+        await updateTaskGroupRelation(entityCreated, taskGroupId, this.taskGroupService);
       }
 
       return entityCreated.id;
@@ -343,7 +362,7 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
 
       const taskGroupId = this.entityForm.get('taskGroupId')?.value;
       if (typeof taskGroupId === 'number') {
-        await firstValueFrom(entityToUpdate.updateRelationEx('group', this.taskGroupService.createProxy(taskGroupId)));
+        await updateTaskGroupRelation(entityToUpdate, taskGroupId, this.taskGroupService);
       }
     })();
   }
@@ -552,6 +571,9 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
     if (task.typeId === magic.taskTemplateTypeId) {
       return this.translateService.instant('entity.task.template.label');
     }
+    if (task.typeId === magic.taskMapImageTypeId) {
+      return this.translateService.instant('entity.task.mapImage.label');
+    }
 
     const scope = String(TaskPropertiesContract.getScope(task.properties) || '');
     if (!scope) {
@@ -560,18 +582,18 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
     return this.getScopeLabel(scope);
   }
 
-  /** Saved Parameter defaults from this Plantilla; prefills nested Sources forms. */
+  /**
+   * Plantilla Parameter defaults for Sources QEC prefill.
+   * Prefer live Parameters grid rows when mounted; otherwise saved properties.
+   * Memoized by content so Angular CD does not recreate QEC forms every cycle.
+   */
   protected get rootParameterDefaults(): Record<string, string> {
-    const defaults: Record<string, string> = {};
-    const parameters = TaskPropertiesContract.getParameters(this.entityToEdit?.properties);
-    for (const parameter of parameters) {
-      const name = String(parameter['variable'] ?? parameter['name'] ?? parameter['label'] ?? '');
-      const value = parameter['value'];
-      if (name && typeof value === 'string' && value.trim()) {
-        defaults[name] = value;
-      }
+    const next = this.buildRootParameterDefaultsMap();
+    if (this.sameStringRecord(this.cachedRootParameterDefaults, next)) {
+      return this.cachedRootParameterDefaults;
     }
-    return defaults;
+    this.cachedRootParameterDefaults = next;
+    return this.cachedRootParameterDefaults;
   }
 
   protected get referenceAliases(): string[] {
@@ -859,6 +881,48 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
     });
   }
 
+  /** Keep admin on the form; open preview links in a new tab (authored HTML often omits target). */
+  protected onPreviewPanelClick(event: MouseEvent): void {
+    const eventTarget = event.target;
+    if (!(eventTarget instanceof Element)) {
+      return;
+    }
+    const panel = event.currentTarget;
+    if (!(panel instanceof Element)) {
+      return;
+    }
+    const anchor = eventTarget.closest('a[href]');
+    if (!(anchor instanceof HTMLAnchorElement) || !panel.contains(anchor)) {
+      return;
+    }
+    if (!shouldOpenPreviewHrefInNewTab(anchor.getAttribute('href'))) {
+      return;
+    }
+    event.preventDefault();
+    event.stopPropagation();
+    window.open(anchor.href, '_blank', 'noopener,noreferrer');
+  }
+
+  protected onPreviewPanelKeydown(event: Event): void {
+    const target = event.target;
+    if (!(target instanceof Element)) {
+      return;
+    }
+
+    const anchor = target.closest('a[href]');
+    if (!(anchor instanceof HTMLAnchorElement)) {
+      return;
+    }
+
+    if (!shouldOpenPreviewHrefInNewTab(anchor.getAttribute('href'))) {
+      return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+    window.open(anchor.href, '_blank', 'noopener,noreferrer');
+  }
+
   private createObject(id: number | null = null): Task {
     const safeToEdit = TaskProjection.fromObject(this.entityToEdit);
     const formValues = this.entityForm.getRawValue();
@@ -891,6 +955,14 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
 
       return [this.toLinkableTask(task, constants.taskRelationType.templateTask, this.getScopeLabel(scope))];
     });
+  }
+
+  private filterLinkableMapImageTasks(tasks: TaskProjection[]): LinkableTemplateTask[] {
+    return tasks.map((task) => this.toLinkableTask(
+      task,
+      constants.taskRelationType.templateTask,
+      this.translateService.instant('entity.task.mapImage.label'),
+    ));
   }
 
   private getScopeLabel(scope: string): string {
@@ -1149,7 +1221,7 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
   }
 
   private buildTemplateParameterPreviewContext(): Record<string, unknown> {
-    return TaskPropertiesContract.getParameters(this.entityToEdit?.properties).reduce<Record<string, unknown>>((context, parameter) => {
+    return this.collectParameterRecords().reduce<Record<string, unknown>>((context, parameter) => {
       const name = this.parameterName(parameter);
       if (!name) {
         return context;
@@ -1166,6 +1238,47 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
       context[`$${name}`] = value;
       return context;
     }, {});
+  }
+
+  private buildRootParameterDefaultsMap(): Record<string, string> {
+    const defaults: Record<string, string> = {};
+    for (const parameter of this.collectParameterRecords()) {
+      const name = this.parameterName(parameter);
+      const value = parameter['value'];
+      if (name && typeof value === 'string' && value.trim()) {
+        defaults[name] = value;
+      }
+    }
+    return defaults;
+  }
+
+  /** Live Parameters grid when mounted; otherwise persisted entity properties. */
+  private collectParameterRecords(): Record<string, unknown>[] {
+    const live = this.readLiveParameterRows();
+    if (live) {
+      return live;
+    }
+    return TaskPropertiesContract.getParameters(this.entityToEdit?.properties);
+  }
+
+  private readLiveParameterRows(): Record<string, unknown>[] | null {
+    const grid = this.relationGrids
+      ?.toArray()
+      .find((relationGrid) => relationGrid.table === this.parametersTable)
+      ?.dataGrid;
+    if (!grid) {
+      return null;
+    }
+    return (grid.getAllCurrentData() as (Record<string, unknown> & Status)[]).filter(canKeepOrUpdate);
+  }
+
+  private sameStringRecord(left: Record<string, string>, right: Record<string, string>): boolean {
+    const leftKeys = Object.keys(left);
+    const rightKeys = Object.keys(right);
+    if (leftKeys.length !== rightKeys.length) {
+      return false;
+    }
+    return leftKeys.every((key) => left[key] === right[key]);
   }
 
   private parameterName(parameter: Record<string, unknown>): string {
@@ -1194,7 +1307,7 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
 
   private replaceReferenceAliasInHtml(templateHtml: string, previousReferenceAlias: string, nextReferenceAlias: string): string {
     const referencePattern = new RegExp(`(^|[^A-Za-z0-9_])${this.escapeRegExp(previousReferenceAlias)}(?=[.\\s}\\]])`, 'g');
-    const tableEachPattern = new RegExp(`(\\sdata-sitmun-each=")${this.escapeRegExp(previousReferenceAlias)}(?=[."])`, 'g');
+    const tableEachPattern = new RegExp(`(\\sdata-sitmun-each=["'])${this.escapeRegExp(previousReferenceAlias)}(?=[.'"])`, 'g');
 
     return templateHtml
       .replace(/\{\{\{?[\s\S]*?\}\}\}?/g, (placeholder) => placeholder.replace(referencePattern, `$1${nextReferenceAlias}`))
@@ -1269,83 +1382,28 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
   }
 
   private defineRolesTable(): DataTableDefinition<Role, Role> {
-    return DataTableDefinition.builder<Role, Role>(this.dialog, this.errorHandler, this.loadingService)
-      .withRelationsColumns([
-        this.utils.getSelCheckboxColumnDef(),
-        this.utils.getRouterLinkColumnDef(
-          'common.form.name',
-          'name',
-          '/role/:id/roleForm',
-          { id: 'id' },
-        ),
-        this.utils.getNonEditableColumnDef('common.form.description', 'description'),
-        this.utils.getStatusColumnDef(),
-      ])
-      .withRelationsOrder('name')
-      .withRelationsFetcher(() => {
-        if (this.isNew()) {
-          return of([]);
-        }
-        return this.entityToEdit.getRelationArrayEx(Role, 'roles', { projection: 'view' });
-      })
-      .withRelationsUpdater(async (roles: (Role & Status)[]) => {
-        await onUpdatedRelation(roles).forAll((item) => this.entityToEdit.substituteAllRelation('roles', item));
-      })
-      .withTargetsColumns([
-        this.utils.getSelCheckboxColumnDef(),
-        this.utils.getNonEditableColumnDef('common.form.name', 'name'),
-        this.utils.getNonEditableColumnDef('common.form.description', 'description'),
-      ])
-      .withTargetsOrder('name')
-      .withTargetsFetcher(() => this.roleService.fetchAllItems())
-      .withTargetToRelation((items) => items)
-      .withTargetsTitle('entity.task.roles.title')
-      .build();
+    return createTaskRolesTable(this.relationTableContext());
   }
 
   private defineAvailabilitiesTable(): DataTableDefinition<TaskAvailabilityProjection, TerritoryProjection> {
-    return DataTableDefinition.builder<TaskAvailabilityProjection, TerritoryProjection>(this.dialog, this.errorHandler, this.loadingService)
-      .withRelationsColumns([
-        this.utils.getSelCheckboxColumnDef(),
-        this.utils.getRouterLinkColumnDef(
-          'common.form.name',
-          'territoryName',
-          '/territory/:id/territoryForm',
-          { id: 'territoryId' },
-        ),
-        this.utils.getNonEditableColumnDef('common.form.code', 'territoryCode'),
-        this.utils.getNonEditableColumnDef('common.form.type', 'territoryTypeName'),
-        this.utils.getNonEditableDateColumnDef('common.form.created', 'createdDate'),
-        this.utils.getStatusColumnDef(),
-      ])
-      .withRelationsOrder('territoryName')
-      .withRelationsFetcher(() => {
-        if (!this.isNew()) {
-          return this.entityToEdit.getRelationArrayEx(TaskAvailabilityProjection, 'availabilities', { projection: 'view' });
-        }
-        return of([]);
-      })
-      .withRelationsUpdater(async (availabilities: (TaskAvailabilityProjection & Status)[]) => {
-        await onDelete(availabilities).forEach((item) => this.taskAvailabilityService.delete(this.taskAvailabilityService.createProxy(item.id)));
-        await onCreate(availabilities)
-          .map((item) => TaskAvailability.of(this.taskService.createProxy(this.entityID), this.territoryService.createProxy(item.territoryId)))
-          .forEach((item) => this.taskAvailabilityService.create(item));
-        availabilities.forEach((item) => item.newItem = false);
-      })
-      .withTargetsColumns([
-        this.utils.getSelCheckboxColumnDef(),
-        this.utils.getNonEditableColumnDef('common.form.name', 'name'),
-        this.utils.getNonEditableColumnDef('common.form.code', 'code'),
-        this.utils.getNonEditableColumnDef('common.form.type', 'typeName'),
-      ])
-      .withTargetsOrder('name')
-      .withTargetsFetcher(() => this.territoryService.fetchAllProjectionItems(TerritoryProjection))
-      .withTargetInclude((availabilities: TaskAvailabilityProjection[]) => (item: TerritoryProjection) => {
-        return !availabilities.some((availability) => availability.territoryId === item.id);
-      })
-      .withTargetToRelation((items: TerritoryProjection[]) => items.map((item) => TaskAvailabilityProjection.of(this.entityToEdit, item)))
-      .withTargetsTitle('entity.task.territories.title')
-      .withTargetsOrder('name')
-      .build();
+    return createTaskAvailabilitiesTable(this.relationTableContext());
   }
+
+  private relationTableContext() {
+    return {
+      dialog: this.dialog,
+      errorHandler: this.errorHandler,
+      loadingService: this.loadingService,
+      utils: this.utils,
+      roleService: this.roleService,
+      territoryService: this.territoryService,
+      taskAvailabilityService: this.taskAvailabilityService,
+      taskService: this.taskService,
+      isNew: () => this.isNew(),
+      entity: this.entityToEdit,
+      entityId: this.entityID,
+      roleTargetToRelation: (items: Role[]) => items,
+    };
+  }
+
 }
