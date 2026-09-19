@@ -123,7 +123,7 @@ export class DashboardComponent implements OnInit {
               for (const item of keysUsersChartData) {
                 this.usersChartData.push({index: item, value: this.usersOnDate[item]});
               }
-              this.usersToShow = this.usersChartData.slice(this.usersChartData.length - 30, this.usersChartData.length);
+              this.usersToShow = this.usersChartData;
             }
             if (this.usersPerApplication) {
               this.usersPerApplicationDataAvailable = true;

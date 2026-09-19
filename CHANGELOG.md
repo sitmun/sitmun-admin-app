@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.2.9] - 2026-09-18
+## [1.2.9] - 2026-09-19
 
 ### Added
 
@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Dashboard**: Registration chart plots every day instead of capping at the last 30 points; README docker build updated to use `ENVIRONMENT=development` instead of the removed `BUILD_MODE=docker-dev`.
 - **Literal translations**: Infinite grid reload no longer sticks on the loading spinner. Stale or destroyed AG Grid `getRows` now call `failCallback` so a replacement datasource can load.
 - **Layers**: Relation tabs (Territories, Permissions, Trees, and experimental grids) load on tab select instead of all at form open. `saveAll` skips unvisited grids so Details-only save does not wait 5s ([sitmun-application-stack#41](https://github.com/sitmun/sitmun-application-stack/issues/41)).
 - **Users**: Positions tab for built-in `admin` is shown only when leftover rows exist, and then as delete-only ([#456](https://github.com/sitmun/sitmun-admin-app/issues/456)). Hidden for `public`.

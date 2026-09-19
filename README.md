@@ -193,7 +193,7 @@ For Docker builds, use the parent stack's docker-compose:
 docker compose build front
 
 # Docker build with source maps for debugging
-BUILD_MODE=docker-dev docker compose build front
+ENVIRONMENT=development docker compose build front
 ```
 
 ### Application Configuration

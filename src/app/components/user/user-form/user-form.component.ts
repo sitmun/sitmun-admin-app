@@ -8,7 +8,6 @@ import { firstValueFrom, map, of } from 'rxjs';
 
 import {BaseFormComponent} from "@app/components/base-form.component";
 import {DataTable2Definition, DataTableDefinition} from "@app/components/data-tables.util";
-import {canShowPositionsTab, PositionsSurface, positionsSurface} from './positions-surface';
 import {Configuration} from "@app/core/config/configuration";
 import {MessagesInterceptorStateService} from "@app/core/interceptors/messages.interceptor";
 import {
@@ -36,6 +35,8 @@ import {ErrorHandlerService} from "@app/services/error-handler.service";
 import {LoadingOverlayService} from "@app/services/loading-overlay.service";
 import {LoggerService} from '@app/services/logger.service';
 import {UtilsService} from '@app/services/utils.service';
+
+import {canShowPositionsTab, PositionsSurface, positionsSurface} from './positions-surface';
 
 
 @Component({
