@@ -7,7 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.2.9] - 2026-09-19
+### Fixed
+
+- **Templates**: Roles and Territories assigned on the template, document-export, and map-image task forms persist after save ([#467](https://github.com/sitmun/sitmun-admin-app/issues/467)).
 
 ### Added
 

@@ -1400,8 +1400,8 @@ export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection>
       taskAvailabilityService: this.taskAvailabilityService,
       taskService: this.taskService,
       isNew: () => this.isNew(),
-      entity: this.entityToEdit,
-      entityId: this.entityID,
+      entity: () => this.entityToEdit,
+      entityId: () => this.entityID,
       roleTargetToRelation: (items: Role[]) => items,
     };
   }

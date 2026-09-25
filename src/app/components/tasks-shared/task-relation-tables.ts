@@ -25,8 +25,8 @@ export interface TaskRelationTableContext {
   taskAvailabilityService: TaskAvailabilityService;
   taskService: TaskService;
   isNew: () => boolean;
-  entity: any;
-  entityId: number;
+  entity: () => any;
+  entityId: () => number;
   roleTargetToRelation?: (items: Role[]) => Role[];
 }
 
@@ -39,9 +39,9 @@ export function createTaskRolesTable(context: TaskRelationTableContext): DataTab
       context.utils.getStatusColumnDef(),
     ])
     .withRelationsOrder('name')
-    .withRelationsFetcher(() => context.isNew() ? of([]) : context.entity.getRelationArrayEx(Role, 'roles', { projection: 'view' }))
+    .withRelationsFetcher(() => context.isNew() ? of([]) : context.entity().getRelationArrayEx(Role, 'roles', { projection: 'view' }))
     .withRelationsUpdater(async (roles: (Role & Status)[]) => {
-      await onUpdatedRelation(roles).forAll((item) => context.entity.substituteAllRelation('roles', item));
+      await onUpdatedRelation(roles).forAll((item) => context.entity().substituteAllRelation('roles', item));
     })
     .withTargetsColumns([
       context.utils.getSelCheckboxColumnDef(),
@@ -66,11 +66,11 @@ export function createTaskAvailabilitiesTable(context: TaskRelationTableContext)
       context.utils.getStatusColumnDef(),
     ])
     .withRelationsOrder('territoryName')
-    .withRelationsFetcher(() => context.isNew() ? of([]) : context.entity.getRelationArrayEx(TaskAvailabilityProjection, 'availabilities', { projection: 'view' }))
+    .withRelationsFetcher(() => context.isNew() ? of([]) : context.entity().getRelationArrayEx(TaskAvailabilityProjection, 'availabilities', { projection: 'view' }))
     .withRelationsUpdater(async (availabilities: (TaskAvailabilityProjection & Status)[]) => {
       await onDelete(availabilities).forEach((item) => context.taskAvailabilityService.delete(context.taskAvailabilityService.createProxy(item.id)));
       await onCreate(availabilities)
-        .map((item) => TaskAvailability.of(context.taskService.createProxy(context.entityId), context.territoryService.createProxy(item.territoryId)))
+        .map((item) => TaskAvailability.of(context.taskService.createProxy(context.entityId()), context.territoryService.createProxy(item.territoryId)))
         .forEach((item) => context.taskAvailabilityService.create(item));
       availabilities.forEach((item) => { item.newItem = false; });
     })
@@ -83,7 +83,7 @@ export function createTaskAvailabilitiesTable(context: TaskRelationTableContext)
     .withTargetsOrder('name')
     .withTargetsFetcher(() => context.territoryService.fetchAllProjectionItems(TerritoryProjection))
     .withTargetInclude((availabilities: TaskAvailabilityProjection[]) => (item: TerritoryProjection) => !availabilities.some((availability) => availability.territoryId === item.id))
-    .withTargetToRelation((items: TerritoryProjection[]) => items.map((item) => TaskAvailabilityProjection.of(context.entity, item)))
+    .withTargetToRelation((items: TerritoryProjection[]) => items.map((item) => TaskAvailabilityProjection.of(context.entity(), item)))
     .withTargetsTitle('entity.task.territories.title')
     .build();
 }
