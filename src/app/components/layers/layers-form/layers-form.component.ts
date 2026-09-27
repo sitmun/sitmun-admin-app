@@ -1,5 +1,5 @@
 import { HttpClient } from "@angular/common/http";
-import {Component, TemplateRef, ViewChild} from '@angular/core';
+import {Component, inject, TemplateRef, ViewChild} from '@angular/core';
 import {
   AbstractControl,
   FormControl,
@@ -19,6 +19,7 @@ import {map} from 'rxjs/operators';
 
 import {BaseFormComponent} from '@app/components/base-form.component';
 import {DataTableDefinition, TemplateDialog} from '@app/components/data-tables.util';
+import {RelationGridComponent} from '@app/components/shared/relation-grid/relation-grid.component';
 import {Configuration} from "@app/core/config/configuration";
 import {MessagesInterceptorStateService} from '@app/core/interceptors/messages.interceptor';
 import {
@@ -33,6 +34,7 @@ import {
   CartographyGroupService,
   CartographyParameter,
   CartographyParameterService,
+  GetInfoService,
   CartographyProjection,
   CartographyService,
   CartographyStyle,
@@ -52,6 +54,9 @@ import {LoggerService} from '@app/services/logger.service';
 import {UtilsService} from '@app/services/utils.service';
 import { compareNullableString } from '@app/utils/compare-nullable-string';
 import {constants} from '@environments/constants';
+
+import { previewFeatureInfoFormat } from './feature-info-preview';
+import { describeFeatureTypeRequestUrl, featureTypeElementNames } from './feature-type-elements';
 
 type StyleDialogValue = CartographyStyle & {
   url?: string | null;
@@ -79,6 +84,12 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
   services: any[] = [];
 
   territorialTypes: any[] = [];
+  featureInfoSeedMessage = '';
+
+  private readonly getInfoService = inject(GetInfoService);
+
+  @ViewChild('parametersGrid')
+  private parametersGrid?: RelationGridComponent;
 
   private joinedLayersValidationSub?: Subscription;
 
@@ -385,6 +396,9 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
         {...this.utils.getNonEditableColumnWithProviderDef('entity.cartography.parameters.format', 'format', (x) => {
           return this.codeList('cartographyParameter.format').find(item => item.value === x)?.description || '';
         }), flex: 0, minWidth: 100},
+        {...this.utils.getEditableColumnDef('entity.cartography.parameters.fractionDigits', 'fractionDigits', 80), flex: 0},
+        {...this.utils.getBooleanColumnDef('entity.cartography.parameters.padFractionDigits', 'padFractionDigits', true, 80, 120), flex: 0},
+        {...this.utils.getEditableColumnDef('entity.cartography.parameters.dateStyle', 'dateStyle', 100), flex: 0},
         {...this.utils.getEditableColumnDef('entity.cartography.parameters.order', 'order', 80), flex: 0},
         this.utils.getStatusColumnDef()
       ])
@@ -419,12 +433,18 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
           value: new FormControl(null, [Validators.required]),
           format: new FormControl(null, []),
           order: new FormControl(null, []),
+          fractionDigits: new FormControl(null, []),
+          padFractionDigits: new FormControl(false, []),
+          dateStyle: new FormControl(null, []),
         })).withPreOpenFunction((form: FormGroup) => {
           const defaultType = this.defaultValueOrNull('cartographyParameter.type');
           const defaultFormat = this.defaultValueOrNull('cartographyParameter.format');
           form.reset({
             type: defaultType?.value || null,
-            format: defaultFormat?.value || null
+            format: defaultFormat?.value || null,
+            padFractionDigits: false,
+            fractionDigits: null,
+            dateStyle: null
           });
         }).build())
         .build();
@@ -713,6 +733,96 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
       return [];
     }
     return raw.split(',').map(value => value.trim()).filter(Boolean);
+  }
+
+  parameterFormatShowsDigits(): boolean {
+    const format = this.parameterDialogValue('format');
+    return format === 'N' || format === 'P';
+  }
+
+  parameterFormatShowsDateStyle(): boolean {
+    return this.parameterDialogValue('format') === 'F';
+  }
+
+  parameterFormatPreview(): string {
+    return previewFeatureInfoFormat(
+      this.parameterDialogValue('format'),
+      this.parameterDialogValue('fractionDigits'),
+      this.parameterDialogValue('padFractionDigits'),
+      this.parameterDialogValue('dateStyle'),
+      localStorage.getItem('lang') || 'en'
+    );
+  }
+
+  async translateParameterLabel(): Promise<void> {
+    const id = this.parameterDialogValue('id');
+    if (typeof id !== 'number') {
+      return;
+    }
+    await this.translateElement(
+      'CartographyParameter',
+      'value',
+      id,
+      this.parameterDialogValue('value') ?? '',
+      250
+    );
+  }
+
+  async translateSelectedParameter(): Promise<void> {
+    const selected = this.parametersGrid?.dataGrid?.gridApi?.getSelectedNodes?.() ?? [];
+    if (selected.length !== 1 || typeof selected[0].data?.id !== 'number') {
+      return;
+    }
+    await this.translateElement(
+      'CartographyParameter',
+      'value',
+      selected[0].data.id,
+      selected[0].data.value ?? '',
+      250
+    );
+  }
+
+  async seedFeatureInfoFields(): Promise<void> {
+    this.featureInfoSeedMessage = '';
+    const service = this.services.find((item) => item.id === this.entityForm.get('serviceId')?.value);
+    const typeName = this.parseLayerList(this.entityForm.get('joinedLayers')?.value)[0] ?? '';
+    const requestUrl = describeFeatureTypeRequestUrl(service?.serviceURL, service?.type, typeName);
+    if (!requestUrl) {
+      this.featureInfoSeedMessage = this.translateService.instant(
+        'entity.cartography.parameters.seedUnavailable'
+      );
+      return;
+    }
+    const response = await firstValueFrom(
+      this.getInfoService.getInfo(encodeURIComponent(requestUrl))
+    ) as { success?: boolean; reason?: string; asJson?: unknown };
+    if (!response?.success || !response.asJson) {
+      this.featureInfoSeedMessage = response?.reason
+        || this.translateService.instant('entity.cartography.parameters.seedUnavailable');
+      return;
+    }
+    const names = featureTypeElementNames(response.asJson);
+    const current = this.parametersGrid?.dataGrid?.gridApi
+      ? this.parametersGrid.dataGrid.getAllCurrentData()
+      : [];
+    const existing = new Set(current.map((row: { name?: string }) => row.name));
+    const drafts = names
+      .filter((name) => !existing.has(name))
+      .map((name, index) => ({
+        name,
+        value: name,
+        type: 'INFO',
+        format: null,
+        order: existing.size + index,
+        fractionDigits: null,
+        padFractionDigits: false,
+        dateStyle: null
+      }));
+    this.parametersGrid?.dataGrid?.addItems(drafts);
+  }
+
+  private parameterDialogValue(name: string): any {
+    return this.parametersTable.templateDialog('newParameterDialog').form.get(name)?.value;
   }
 
   private toCartographyStyle(item: StyleDialogValue): CartographyStyle {

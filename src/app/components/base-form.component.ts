@@ -967,6 +967,32 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
     }
   }
 
+  protected async translateElement(
+    entity: string,
+    property: string,
+    elementId: number,
+    defaultValue: string,
+    maxLength: number
+  ): Promise<void> {
+    const column = `${entity}.${property}`;
+    const translations = this.createTranslationsList(column);
+    const existing = await firstValueFrom(
+      this.translationService.search('byElement', {
+        params: [
+          { key: 'element', value: elementId.toString() },
+          { key: 'column', value: entity }
+        ]
+      })
+    );
+    existing
+      .filter((item) => item.column === column)
+      .forEach((item) => translations.set(item.languageShortname, item));
+    const dialogResult = await this.openTranslationDialog(translations, defaultValue, maxLength, false);
+    if (dialogResult && dialogResult.event == 'Accept') {
+      await this.saveTranslation(elementId, translations, defaultValue, true);
+    }
+  }
+
   /**
    * Provides a detailed explanation of form validity status
    * Examines each control's validation status and error messages

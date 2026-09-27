@@ -208,6 +208,31 @@
     </mat-card>
     </ng-template>
   </mat-tab>
+  <mat-tab>
+    <ng-template mat-tab-label>
+      {{ 'entity.cartography.parameters.header' | translate }}
+    </ng-template>
+    <ng-template matTabContent>
+      <mat-card appearance="outlined" class="sitmun-mat-card-margin">
+        <mat-card-content>
+          <button mat-stroked-button type="button" (click)="seedFeatureInfoFields()">
+            {{ 'entity.cartography.parameters.seed' | translate }}
+          </button>
+          <button mat-stroked-button type="button" (click)="translateSelectedParameter()">
+            {{ 'entity.cartography.parameters.translate' | translate }}
+          </button>
+          <p *ngIf="featureInfoSeedMessage">{{ featureInfoSeedMessage }}</p>
+          <app-relation-grid
+            #parametersGrid
+            *ngIf="dataLoaded"
+            [table]="parametersTable"
+            [allNewElements]="isNewOrDuplicated()"
+            templateDialogName="newParameterDialog"
+          ></app-relation-grid>
+        </mat-card-content>
+      </mat-card>
+    </ng-template>
+  </mat-tab>
   <ng-container *appFeatureFlag="'LAYERS_FEATURE_INFORMATION_TAB_FEATURE'">
     <mat-tab>
       <ng-template mat-tab-label>
@@ -246,18 +271,6 @@
           </mat-card-content>
         </mat-card>
       </form>
-      <ng-container *appFeatureFlag="'LAYERS_QUERYABLE_FEATURE'">
-        <mat-card appearance="outlined" class="sitmun-mat-card-margin">
-          <mat-card-content>
-            <app-relation-grid
-              *ngIf="dataLoaded"
-              [table]="parametersTable"
-              [allNewElements]="isNewOrDuplicated()"
-              templateDialogName="newParameterDialog"
-            ></app-relation-grid>
-          </mat-card-content>
-        </mat-card>
-      </ng-container>
       </ng-template>
     </mat-tab>
   </ng-container>
@@ -402,6 +415,8 @@
         <mat-form-field appearance="outline" class="full">
           <mat-label>{{ 'entity.cartography.parameters.value' | translate }}</mat-label>
           <input matInput type="text" formControlName="value" required [maxlength]="250">
+          <mat-icon matSuffix class="iconTranslate" (click)="translateParameterLabel()"
+                    (keydown.enter)="translateParameterLabel()">translate</mat-icon>
         </mat-form-field>
         <mat-form-field appearance="outline" class="full">
           <mat-label>{{ 'entity.cartography.parameters.format' | translate }}</mat-label>
@@ -411,6 +426,23 @@
             </mat-option>
           </mat-select>
         </mat-form-field>
+        <ng-container *ngIf="parameterFormatShowsDigits()">
+          <mat-form-field appearance="outline" class="full">
+            <mat-label>{{ 'entity.cartography.parameters.fractionDigits' | translate }}</mat-label>
+            <input matInput type="number" formControlName="fractionDigits" min="0">
+          </mat-form-field>
+          <mat-slide-toggle color="primary" formControlName="padFractionDigits">
+            {{ 'entity.cartography.parameters.padFractionDigits' | translate }}
+          </mat-slide-toggle>
+        </ng-container>
+        <mat-form-field appearance="outline" class="full" *ngIf="parameterFormatShowsDateStyle()">
+          <mat-label>{{ 'entity.cartography.parameters.dateStyle' | translate }}</mat-label>
+          <mat-select formControlName="dateStyle">
+            <mat-option [value]="null">{{ 'entity.cartography.parameters.dateStyle.datetime' | translate }}</mat-option>
+            <mat-option value="date">{{ 'entity.cartography.parameters.dateStyle.date' | translate }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <p *ngIf="parameterFormatPreview()">{{ 'entity.cartography.parameters.preview' | translate }}: {{ parameterFormatPreview() }}</p>
         <mat-form-field appearance="outline" class="full">
           <mat-label>{{ 'entity.cartography.parameters.order' | translate }}</mat-label>
           <input matInput type="number" formControlName="order">
