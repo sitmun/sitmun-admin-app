@@ -419,6 +419,109 @@ app-login .mat-app-background {
   cursor: pointer;
 }
 
+.mat-mdc-form-field-icon-suffix .iconTranslate.iconTranslateDisabled,
+.iconTranslate.iconTranslateDisabled,
+.iconTranslate:disabled {
+  cursor: default;
+  color: rgba(0, 0, 0, 0.26);
+  pointer-events: none;
+}
+
+.sitmun-i18n-cell {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  gap: 0.25rem;
+}
+
+.sitmun-i18n-cell-text {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sitmun-i18n-cell-translate {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  line-height: 1;
+
+  .material-icons {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.ag-cell.sitmun-format-options-cell {
+  .ag-cell-wrapper,
+  .ag-cell-value {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+.sitmun-format-options {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+}
+
+.sitmun-format-digits,
+.sitmun-format-date {
+  box-sizing: border-box;
+  height: 22px;
+  margin: 0;
+  border: 1px solid rgba(0, 0, 0, 0.38);
+  border-radius: 4px;
+  padding: 0 0.35rem;
+  background: #fff;
+  color: inherit;
+  font: inherit;
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.sitmun-format-digits {
+  width: 2.75rem;
+  min-width: 2.75rem;
+  max-width: 2.75rem;
+  flex: 0 0 2.75rem;
+  padding: 0 0.1rem 0 0.35rem;
+}
+
+.sitmun-format-pad {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin: 0;
+  white-space: nowrap;
+  font-size: 13px;
+}
+
+.sitmun-format-preview {
+  margin-left: auto;
+  color: rgba(0, 0, 0, 0.6);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 //
 // Headers
 //
