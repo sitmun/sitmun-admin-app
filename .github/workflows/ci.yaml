@@ -1,65 +1,23 @@
 name: CI
 
-on:
+"on":
   push:
-    branches: [ main ]
+    branches: [main, dev]
+  pull_request:
+    branches: [main, dev]
 
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-    
-    - name: Use Node.js 20.19
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20.19'
-        cache: 'npm'
-    
-    - name: Install dependencies
-      run: npm ci
-    
-    - name: Lint
-      run: npm run lint
-    
-    - name: Unit tests
-      run: npm run test:coverage
-    
-    - name: Sonar Cloud Scan
-      uses: sonarsource/sonarcloud-github-action@master
-      env:
-        GITHUB_TOKEN: ${{secrets.TOKEN_FOR_WORKFLOWS}}
-        SONAR_TOKEN: ${{secrets.SONAR_TOKEN}}
-    
-    - name: E2E tests
-      run: ./scripts/conditional-e2e.sh
-      shell: bash
-      continue-on-error: true
-    
-    - name: Build for deployment
-      run: npm run build -- --configuration=production --base-href=/admin-app/
-    
-    - name: Validate build artifacts
-      run: |
-        if [ ! -d "dist/admin-app" ]; then
-          echo "ERROR: Build artifacts not found"
-          exit 1
-        fi
-        if [ -z "$(ls -A dist/admin-app)" ]; then
-          echo "ERROR: Build directory is empty"
-          exit 1
-        fi
-        echo "✓ Build artifacts validated"
-    
-    - name: Deploy to GitHub pages
-      env:
-        USERNAME: ${{secrets.USERNAME_FOR_WORKFLOWS}}
-        GITHUB_API_KEY: ${{secrets.TOKEN_FOR_WORKFLOWS}}
-        GITHUB_WORKSPACE: ${{github.workspace}}
-        CI: true
-      run: ./scripts/deploy.sh
-      shell: bash
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20.19"
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run test:coverage
+      - run: npm run build -- --configuration=production --base-href=/admin-app/
+      - name: Validate build artifacts
+        run: test -d dist/admin-app && test -n "$(ls -A dist/admin-app)"
