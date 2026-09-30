@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Layers**: The feature-information field grid is on the cartography form without the experimental query-layer flag. The value column is the default-language label and can be translated per parameter. `N` and `P` edit fraction digits and padding. `F` chooses date or date and time, with a preview in the administrator language. A WFS DescribeFeatureType request seeds top-level element names ([sitmun-application-stack#77](https://github.com/sitmun/sitmun-application-stack/issues/77)).
 - **Auth**: Sliding `POST /api/authenticate/refresh` every 2 minutes. Resource 401s prove life with `/refresh`, not `/account` ([sitmun-backend-core#264](https://github.com/sitmun/sitmun-backend-core/issues/264)).
 - **Users**: Positions tab columns are Territory, Position, Organization, Valid from / Valid until (ES Fecha de alta / Fecha de baja), Email, Type. Empty `createdDate` is “Not set”; empty `expirationDate` is Active. Header tooltips: first/last day the position is active (inclusive). `createdDate` is editable; pre-2000 dates stay visible. Inverted interval surfaces `entity.user.warning.position-inverted-interval`. Civil day follows the JVM/Compose `TZ` ([#462](https://github.com/sitmun/sitmun-admin-app/issues/462)).
 - **Templates / Map image**: Task type 18 form, layer catalog, source reorder, and Plantilla Sources linking for map-image children.
@@ -54,6 +55,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Layers**: The feature-information field grid is on the cartography form without the experimental query-layer flag. The value column is the default-language label and can be translated per parameter. `N` and `P` edit fraction digits and padding. `F` chooses date or date and time, with a preview in the administrator language. A WFS DescribeFeatureType request seeds top-level element names ([sitmun-application-stack#77](https://github.com/sitmun/sitmun-application-stack/issues/77)).
 - **Templates**: Form tabs Details / Template / Sources with preview toggle and resizable sash; insert-from-Sources focuses Template.
 - **Templates**: Bound-table **R** chip and table-only Reference rebind (orphan aliases stay visible); inline `{{…}}` code chips in the visual editor.
 

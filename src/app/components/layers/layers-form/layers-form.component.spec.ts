@@ -2,7 +2,7 @@
 import { readFileSync } from 'fs';
 import { join } from 'path';
 
-import { provideHttpClient } from '@angular/common/http';
+import { HttpErrorResponse, provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -11,7 +11,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
 
 import {TranslateLoader, TranslateModule} from '@ngx-translate/core';
-import {of} from 'rxjs';
+import {of, throwError} from 'rxjs';
 
 import {EntityFormAlertsComponent} from '@app/components/shared/entity-form-alerts/entity-form-alerts.component';
 import {FormToolbarComponent} from '@app/components/shared/form-toolbar/form-toolbar.component';
@@ -45,6 +45,7 @@ import {LoggerService} from '@app/services/logger.service';
 import {configureLoggerForTests, provideErrorHandlerForTests} from '@app/testing/test-helpers';
 import {constants} from '@environments/constants';
 
+import { previewFeatureInfoFormat } from './feature-info-preview';
 import { LayersFormComponent } from './layers-form.component';
 
 const layersFormTemplate = readFileSync(join(__dirname, 'layers-form.component.html'), 'utf8');
@@ -748,6 +749,161 @@ describe('LayersFormComponent', () => {
       expect(table.hasStatusColumn()).toBe(true);
       expect(table.supportsDuplicate()).toBe(false);
       expect(table.hasPickerAdd()).toBe(false);
+      expect(table.relationsColumnsDefs.some((col: { field?: string }) => col.field === 'type')).toBe(false);
+      expect(table.relationsColumnsDefs.some((col: { field?: string }) =>
+        col.field === 'fractionDigits' || col.field === 'padFractionDigits' || col.field === 'dateStyle'
+      )).toBe(false);
+      expect(table.relationsColumnsDefs.some((col: { colId?: string }) => col.colId === 'formatOptions')).toBe(true);
+      const formatColumn = table.relationsColumnsDefs.find((col: { field?: string }) => col.field === 'format') as {
+        editable?: boolean;
+        cellEditor?: string;
+      };
+      expect(formatColumn?.editable).toBe(true);
+      expect(formatColumn?.cellEditor).toBe('agSelectCellEditor');
+      const labelColumn = table.relationsColumnsDefs.find((col: { field?: string }) => col.field === 'value') as {
+        headerValueGetter?: () => string;
+      };
+      expect(labelColumn.headerValueGetter?.()).toBe(
+        `${component['utils'].getTranslate('entity.cartography.parameters.value')} (${component.defaultLang})`
+      );
+    });
+
+    it('opens parameter label translations from the Etiqueta cell icon', async () => {
+      const valueColumn = component['parametersTable'].relationsColumnsDefs.find(
+        (col: { field?: string }) => col.field === 'value'
+      ) as { cellRenderer?: (params: { value?: string; data?: { id?: number; value?: string } }) => HTMLElement };
+      const translate = jest.spyOn(component as unknown as {
+        translateElement: (...args: unknown[]) => Promise<void>;
+      }, 'translateElement').mockResolvedValue(undefined);
+      const cell = valueColumn.cellRenderer?.({ value: 'Kind', data: { id: 9102, value: 'Kind' } });
+      const savedButton = cell?.querySelector('button');
+      expect(savedButton?.disabled).toBe(false);
+      expect(savedButton?.classList.contains('iconTranslateDisabled')).toBe(false);
+      savedButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      expect(translate).toHaveBeenCalledWith('CartographyParameter', 'value', 9102, 'Kind', 250);
+
+      translate.mockClear();
+      const unsaved = valueColumn.cellRenderer?.({ value: 'Draft', data: { value: 'Draft' } });
+      const unsavedButton = unsaved?.querySelector('button');
+      expect(unsavedButton?.disabled).toBe(true);
+      expect(unsavedButton?.classList.contains('iconTranslateDisabled')).toBe(true);
+      unsavedButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      expect(translate).not.toHaveBeenCalled();
+    });
+
+    it('edits format settings in the options cell', () => {
+      const column = component['parametersTable'].relationsColumnsDefs.find(
+        (col: { colId?: string }) => col.colId === 'formatOptions'
+      ) as {
+        editable?: boolean;
+        onCellDoubleClicked?: unknown;
+        cellRenderer?: (params: {
+          data?: {
+            format?: string | null;
+            fractionDigits?: number | null;
+            padFractionDigits?: boolean;
+            dateStyle?: string | null;
+            status?: string;
+            newItem?: boolean;
+          };
+          api?: { refreshCells: () => void };
+        }) => HTMLElement;
+      };
+      const locale = localStorage.getItem('lang') || 'en';
+      const refreshCells = jest.fn();
+      const gridModified = jest.fn();
+      component['parametersGrid'] = {
+        dataGrid: {
+          someStatusHasChanged: false,
+          changeCounter: 0,
+          previousChangeCounter: 0,
+          gridModified: { emit: gridModified }
+        }
+      } as unknown as LayersFormComponent['parametersGrid'];
+      expect(column.editable).toBe(false);
+      expect(column.onCellDoubleClicked).toBeUndefined();
+
+      const numberRow = {
+        format: 'N',
+        fractionDigits: 2,
+        padFractionDigits: false,
+        status: 'statusOK',
+        newItem: false
+      };
+      const numberCell = column.cellRenderer?.({ data: numberRow, api: { refreshCells } });
+      const digits = numberCell?.querySelector('input[type="number"]') as HTMLInputElement;
+      const pad = numberCell?.querySelector('input[type="checkbox"]') as HTMLInputElement;
+      expect(digits.value).toBe('2');
+      expect(digits.max).toBe('99');
+      expect(pad.checked).toBe(false);
+      expect(numberCell?.querySelector('.sitmun-format-preview')?.textContent)
+        .toBe(previewFeatureInfoFormat('N', 2, false, null, locale));
+      expect(numberCell?.textContent).toContain('entity.cartography.parameters.padFractionDigits');
+
+      digits.value = '0';
+      digits.dispatchEvent(new Event('input'));
+      expect(numberRow.fractionDigits).toBe(0);
+      expect(numberRow.status).toBe('pendingModify');
+      expect(component['parametersGrid']?.dataGrid?.someStatusHasChanged).toBe(true);
+      expect(gridModified).toHaveBeenCalledWith(true);
+      expect(numberCell?.querySelector('.sitmun-format-preview')?.textContent)
+        .toBe(previewFeatureInfoFormat('N', 0, false, null, locale));
+
+      digits.value = '';
+      digits.dispatchEvent(new Event('input'));
+      expect(numberRow.fractionDigits).toBeNull();
+
+      digits.value = '1.5';
+      digits.dispatchEvent(new Event('input'));
+      expect(numberRow.fractionDigits).toBeNull();
+
+      pad.checked = true;
+      pad.dispatchEvent(new Event('change'));
+      expect(numberRow.padFractionDigits).toBe(true);
+      expect(refreshCells).toHaveBeenCalled();
+
+      const draft = {
+        format: 'P',
+        fractionDigits: 1,
+        padFractionDigits: false,
+        status: 'pendingCreation',
+        newItem: true
+      };
+      const percentCell = column.cellRenderer?.({ data: draft, api: { refreshCells } });
+      const percentPad = percentCell?.querySelector('input[type="checkbox"]') as HTMLInputElement;
+      percentPad.checked = true;
+      percentPad.dispatchEvent(new Event('change'));
+      expect(draft.padFractionDigits).toBe(true);
+      expect(draft.status).toBe('pendingCreation');
+      expect(percentCell?.querySelector('.sitmun-format-preview')?.textContent)
+        .toBe(previewFeatureInfoFormat('P', 1, true, null, locale));
+
+      expect(column.cellRenderer?.({ data: { format: 'T' } }).querySelector('input, select')).toBeNull();
+      expect(column.cellRenderer?.({ data: { format: 'U' } }).querySelector('input, select')).toBeNull();
+      expect(column.cellRenderer?.({ data: { format: 'I' } }).querySelector('input, select')).toBeNull();
+      expect(column.cellRenderer?.({ data: { format: 'AUTO' } }).querySelector('input, select')).toBeNull();
+      expect(column.cellRenderer?.({ data: { format: null } }).querySelector('input, select')).toBeNull();
+
+      const dateRow = { format: 'F', dateStyle: null as string | null, status: 'statusOK', newItem: false };
+      const dateCell = column.cellRenderer?.({ data: dateRow, api: { refreshCells } });
+      const select = dateCell?.querySelector('select') as HTMLSelectElement;
+      expect(Array.from(select.options).map((option) => option.value)).toEqual(['datetime', 'date']);
+      expect(select.value).toBe('datetime');
+      select.value = 'date';
+      select.dispatchEvent(new Event('change'));
+      expect(dateRow.dateStyle).toBe('date');
+      expect(dateCell?.querySelector('.sitmun-format-preview')?.textContent)
+        .toBe(previewFeatureInfoFormat('F', null, false, 'date', locale));
+      select.value = 'datetime';
+      select.dispatchEvent(new Event('change'));
+      expect(dateRow.dateStyle).toBeNull();
+    });
+
+    it('sets parameter type to INFO when the add dialog opens', () => {
+      const dialog = component['parametersTable'].templateDialog('newParameterDialog');
+      dialog.form.patchValue({ type: 'OTHER' });
+      dialog.preOpenFn(dialog.form);
+      expect(dialog.form.get('type')?.value).toBe('INFO');
     });
 
     it('territorialFiltersTable should have template-dialog, updater, and status capabilities', () => {
@@ -770,9 +926,27 @@ describe('LayersFormComponent', () => {
   });
 
   describe('template markup', () => {
+    it('uses the service-form button for loading feature properties', () => {
+      expect(layersFormTemplate).toContain('id="featureInfoSeedButton"');
+      expect(layersFormTemplate).toContain('mat-raised-button');
+      expect(layersFormTemplate).toContain('color="primary"');
+      expect(layersFormTemplate).toContain('(click)="seedFeatureInfoFields()"');
+    });
+
     it('does not use the undefined and-gap utility class', () => {
       expect(layersFormTemplate).not.toContain('and-gap');
       expect(layersFormTemplate).toContain('add-gap');
+    });
+
+    it('does not show the invariant parameter type in the add dialog', () => {
+      const parameterDialog = layersFormTemplate.match(/#newParameterDialog[\s\S]*?<\/ng-template>/)?.[0] ?? '';
+      expect(parameterDialog).not.toContain('formControlName="type"');
+      expect(parameterDialog).not.toContain('cartographyParameter.type');
+      expect(parameterDialog).toContain(
+        "{{ 'entity.cartography.parameters.value' | translate }} ({{ defaultLang }})"
+      );
+      expect(parameterDialog).toContain('[class.iconTranslateDisabled]="!canTranslateParameterLabel()"');
+      expect(layersFormTemplate).not.toContain('translateSelectedParameter');
     });
 
     it('uses primary slide toggles in modal dialogs instead of checkboxes', () => {
@@ -834,6 +1008,96 @@ describe('LayersFormComponent', () => {
       expect(defaultStyleColumn.flex).toBe(0);
       expect(defaultStyleColumn.minWidth).toBe(100);
       expect(defaultStyleColumn.maxWidth).toBe(120);
+    });
+
+    it('loads WMS properties through DescribeLayer and explains when that fails', async () => {
+      const schema = {
+        'xsd:schema': {
+          'xsd:complexType': {
+            name: 'roadsType',
+            'xsd:complexContent': {
+              'xsd:extension': {
+                base: 'gml:AbstractFeatureType',
+                'xsd:sequence': {
+                  'xsd:element': { name: 'season', type: 'xsd:string' }
+                }
+              }
+            }
+          }
+        }
+      };
+      const describeLayer = {
+        DescribeLayerResponse: {
+          LayerDescription: {
+            name: 'roads',
+            owsURL: 'https://example.test/wfs',
+            owsType: 'WFS',
+            Query: { typeName: 'app:roads' }
+          }
+        }
+      };
+      const dialogRef = {
+        componentInstance: { title: '', message: '' },
+        afterClosed: () => of({ event: 'Accept' })
+      };
+      jest.spyOn(component['dialog'], 'open').mockReturnValue(dialogRef as never);
+      const addItems = jest.fn();
+      component['parametersGrid'] = {
+        dataGrid: { gridApi: {}, getAllCurrentData: () => [], addItems }
+      } as never;
+      component.services = [{ id: 7, type: 'WMS', serviceURL: 'https://example.test/wms' }];
+      component.entityForm.patchValue({ serviceId: 7, joinedLayers: 'roads' });
+      const getInfo = jest.spyOn(getInfoService, 'getInfo')
+        .mockReturnValueOnce(throwError(() => new HttpErrorResponse({
+          status: 400,
+          error: { success: false, reason: 'Unmanaged XML response', asJson: describeLayer }
+        })))
+        .mockReturnValueOnce(of({ success: true, asJson: schema }));
+
+      component.seedFeatureInfoFields();
+
+      expect(dialogRef.componentInstance.title).toBe(component['utils'].getTranslate('common.caution'));
+      expect(dialogRef.componentInstance.message).toBe(
+        component['utils'].getTranslate('entity.cartography.parameters.seedConfirm')
+      );
+      await flushSeed();
+      const urls = getInfo.mock.calls.map((call) => decodeURIComponent(String(call[0])));
+      expect(urls[0]).toContain('request=DescribeLayer');
+      expect(urls[0]).toContain('layers=roads');
+      expect(urls[1]).toContain('request=DescribeFeatureType');
+      expect(addItems).toHaveBeenCalledWith([
+        expect.objectContaining({ name: 'season', value: 'season', type: 'INFO' })
+      ]);
+
+      getInfo.mockReset();
+      getInfo.mockReturnValue(throwError(() => new HttpErrorResponse({
+        status: 400,
+        error: { asJson: { 'ows:ExceptionReport': {} } }
+      })));
+      component.seedFeatureInfoFields();
+      await flushSeed();
+      expect(component.featureInfoSeedMessage).toBe(
+        component['translateService'].instant('entity.cartography.parameters.seedDescribeLayerUnavailable')
+      );
+
+      getInfo.mockReset();
+      getInfo
+        .mockReturnValueOnce(of({ success: true, asJson: describeLayer }))
+        .mockReturnValueOnce(throwError(() => new HttpErrorResponse({
+          status: 400,
+          error: { reason: 'Unmanaged XML response' }
+        })));
+      component.seedFeatureInfoFields();
+      await flushSeed();
+      expect(component.featureInfoSeedMessage).toBe(
+        component['translateService'].instant('entity.cartography.parameters.seedFeatureTypeFailed')
+      );
+
+      async function flushSeed(): Promise<void> {
+        for (let attempt = 0; attempt < 20; attempt++) {
+          await new Promise((resolve) => setTimeout(resolve, 0));
+        }
+      }
     });
 
     it('keeps style legend URL editable with the editable external URL renderer mode', () => {

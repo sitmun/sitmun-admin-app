@@ -25,7 +25,7 @@ export const FEATURE_FLAGS = {
   LAYERS_CARTOGRAPHY_STYLES_TAB_FEATURE: 'layers-cartography-styles-tab',
   /** Layers form: territorial filters and apply-filter toggles (not in viewer client profile yet). */
   LAYERS_FILTERS_TAB_FEATURE: 'layers-filters-tab',
-  /** Layers form: GetFeatureInfo / queryable layer subset and optional cartography parameters (not in SITNA client profile yet). */
+  /** Layers form: queryable layer subset. The feature-information field list is always shown. */
   LAYERS_FEATURE_INFORMATION_TAB_FEATURE: 'layers-feature-information-tab',
   /** Application form: comma-separated scale denominators (not in viewer client profile yet). */
   APPLICATION_SCALES_FEATURE: 'application-scales',
