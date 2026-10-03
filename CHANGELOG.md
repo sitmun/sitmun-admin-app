@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Trees**: The folder metadata and dataset hints say the viewer information button appears when a description, a metadata URL, or a dataset URL is set ([sitmun-viewer-app#173](https://github.com/sitmun/sitmun-viewer-app/issues/173)).
 - **Layers**: The feature-information field grid is on the cartography form without the experimental query-layer flag. The value column is the default-language label and can be translated per parameter. `N` and `P` edit fraction digits and padding. `F` chooses date or date and time, with a preview in the administrator language. A WFS DescribeFeatureType request seeds top-level element names ([sitmun-application-stack#77](https://github.com/sitmun/sitmun-application-stack/issues/77)).
 - **Auth**: Sliding `POST /api/authenticate/refresh` every 2 minutes. Resource 401s prove life with `/refresh`, not `/account` ([sitmun-backend-core#264](https://github.com/sitmun/sitmun-backend-core/issues/264)).
 - **Users**: Positions tab columns are Territory, Position, Organization, Valid from / Valid until (ES Fecha de alta / Fecha de baja), Email, Type. Empty `createdDate` is “Not set”; empty `expirationDate` is Active. Header tooltips: first/last day the position is active (inclusive). `createdDate` is editable; pre-2000 dates stay visible. Inverted interval surfaces `entity.user.warning.position-inverted-interval`. Civil day follows the JVM/Compose `TZ` ([#462](https://github.com/sitmun/sitmun-admin-app/issues/462)).
