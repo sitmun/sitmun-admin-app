@@ -1,4 +1,4 @@
-<mat-toolbar>
+<mat-toolbar *ngIf="showToolbar">
   <button type="button"
           id="deleteChangesButton"
           matTooltip="{{ 'common.button.cancel' | translate }}"

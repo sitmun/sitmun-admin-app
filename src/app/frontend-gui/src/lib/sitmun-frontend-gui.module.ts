@@ -22,11 +22,14 @@ import {CharacterCountPipe} from '@app/components/shared/character-counter-hint/
 import {BtnCheckboxFilterComponent} from './btn-checkbox-filter/btn-checkbox-filter.component';
 import {BtnCheckboxRenderedComponent} from './btn-checkbox-rendered/btn-checkbox-rendered.component';
 import {BtnEditRenderedComponent} from './btn-edit-rendered/btn-edit-rendered.component';
+import {ChartCardComponent} from './chart-card/chart-card.component';
 import {DatagraphComponent} from './data-graph/datagraph.component';
 import {DataTreeComponent} from './data-tree/data-tree.component';
 import {DialogFormComponent} from './dialog-form/dialog-form.component';
 import {DialogMessageComponent} from './dialog-message/dialog-message.component';
 import {DialogTranslationComponent} from './dialog-translation/dialog-translation.component';
+import {EmptyStateComponent} from './empty-state/empty-state.component';
+import {KpiCardComponent} from './kpi-card/kpi-card.component';
 import {MapTreeComponent} from './map-tree/map-tree.component';
 import {MaterialModule} from './material-module';
 
@@ -45,6 +48,9 @@ registerLocaleData(localeEs, 'es');
         DialogMessageComponent,
         DialogTranslationComponent,
         DatagraphComponent,
+        KpiCardComponent,
+        ChartCardComponent,
+        EmptyStateComponent,
         MapTreeComponent,
         CharacterCountPipe,
     ],
@@ -61,6 +67,9 @@ registerLocaleData(localeEs, 'es');
         DialogMessageComponent,
         DialogTranslationComponent,
         DatagraphComponent,
+        KpiCardComponent,
+        ChartCardComponent,
+        EmptyStateComponent,
         // SitmunFrontendCoreModule
         MapTreeComponent,
         CharacterCountPipe,

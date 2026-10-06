@@ -1,6 +1,11 @@
 import {HttpParams} from '@angular/common/http';
 
 import {ResourceHelper} from './resource-helper';
+import {Resource} from './resource.model';
+
+class HalItem extends Resource {
+  name?: string;
+}
 
 describe('ResourceHelper.optionParams', () => {
   it('appends page, size, sort, and custom params when provided', () => {
@@ -20,5 +25,21 @@ describe('ResourceHelper.optionParams', () => {
   it('does not append absent options', () => {
     const params = ResourceHelper.optionParams(new HttpParams(), undefined);
     expect(params.keys().length).toBe(0);
+  });
+});
+
+describe('ResourceHelper.instantiateResourceCollection', () => {
+  it('keeps an empty HAL page when the embedded collection is omitted', () => {
+    const result = ResourceHelper.createEmptyResult<HalItem>('_embedded');
+
+    const page = ResourceHelper.instantiateResourceCollection(HalItem, {
+      _links: {self: {href: 'http://localhost/api/services?health=unchecked'}},
+      page: {size: 100, totalElements: 0, totalPages: 0, number: 0},
+    }, result);
+
+    expect(page.result).toEqual([]);
+    expect(page.totalElements).toBe(0);
+    expect(page.totalPages).toBe(0);
+    expect(page.pageNumber).toBe(0);
   });
 });

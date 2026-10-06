@@ -18,10 +18,12 @@
 </app-entity-form-alerts>
 
 <mat-tab-group
+  #serviceTabs
   mat-stretch-tabs="false"
   mat-align-tabs="end"
   [dynamicHeight]="true"
-  preserveContent="true">
+  preserveContent="true"
+  (selectedTabChange)="onServiceTab($event)">
   <mat-tab label="{{ 'common.form.details' | translate }}">
     <form [formGroup]='entityForm' *ngIf="dataLoaded" class="sitmun-service-form-entity">
       <mat-card class="sitmun-mat-card-margin" appearance="outlined">
@@ -223,6 +225,263 @@
       </mat-card>
     </mat-tab>
   </ng-container>
+  <mat-tab label="{{ 'entity.service.monitoring' | translate }}">
+    <ng-template matTabContent>
+      <div class="sitmun-service-access-panel">
+        <ng-container *ngIf="monitoring() as facts; else noCheck">
+          <div class="access-status">
+            <div class="access-status-copy">
+              <div class="access-status-line">
+                <i class="access-status-dot" [style.background-color]="statusColor(facts.status)" [style.--dot]="statusColor(facts.status)"></i>
+                <span class="access-verdict">{{ accessVerdictText(facts) }}</span>
+                <span class="access-since" *ngIf="facts.since">{{ 'entity.service.access.sinceStatus' | translate:{ time: accessClock(facts.since), ago: accessAgo(facts.since) } }}</span>
+              </div>
+              <p class="access-status-caption">{{ lastCheckText(facts) }}</p>
+            </div>
+            <button mat-raised-button color="primary" type="button" (click)="testAccess()">
+              <mat-icon>refresh</mat-icon>
+              {{ 'entity.service.button.testAccess' | translate }}
+            </button>
+          </div>
+          <div class="access-metrics">
+            <div class="access-metric" [class.warn]="facts.belowTarget">
+              <h3>{{ 'entity.service.access.availability' | translate }}</h3>
+              <p class="access-metric-value">
+                <span>{{ facts.availabilityPercent === null ? '—' : facts.availabilityPercent + '%' }}</span>
+                <span class="access-warn" *ngIf="facts.belowTarget">{{ 'entity.service.access.belowTarget' | translate:{ target: availabilityTarget } }}</span>
+              </p>
+              <p class="access-metric-counts">{{ 'entity.service.access.availabilityOf' | translate:{ good: facts.good, checked: facts.checked, missing: facts.missing } }}</p>
+            </div>
+            <div class="access-metric">
+              <h3>{{ 'entity.service.access.median' | translate }}</h3>
+              <p class="access-metric-value" *ngIf="facts.p50 !== null; else noMedian">{{ facts.p50 }} ms</p>
+              <ng-template #noMedian><p class="access-metric-value">—<ng-container *ngIf="!facts.timedOut"> {{ 'entity.service.access.noSamples' | translate }}</ng-container></p></ng-template>
+              <p class="access-metric-hint">{{ 'entity.service.access.medianHint' | translate }}</p>
+              <p class="access-metric-hint access-timed-out" *ngIf="facts.timedOut">{{ timedOutText(facts) }}</p>
+            </div>
+            <div class="access-metric">
+              <h3>{{ 'entity.service.access.p95Label' | translate }}</h3>
+              <p class="access-metric-value" *ngIf="facts.p95 !== null; else noP95">{{ facts.p95 }} ms</p>
+              <ng-template #noP95><p class="access-metric-value">—<ng-container *ngIf="!facts.timedOut"> {{ 'entity.service.access.noSamples' | translate }}</ng-container></p></ng-template>
+              <p class="access-metric-hint" *ngIf="sampleTimeoutMs > 0">{{ 'entity.service.access.p95Hint' | translate:{ timeout: sampleTimeoutMs } }}</p>
+              <p class="access-metric-hint access-timed-out" *ngIf="facts.timedOut">{{ timedOutText(facts) }}</p>
+            </div>
+          </div>
+          <section class="access-section">
+            <header class="access-section-head">
+              <h3>{{ 'entity.service.access.history' | translate }}</h3>
+              <span>{{ 'entity.service.access.historyWindow' | translate }}</span>
+            </header>
+            <app-service-access-timeline [hours]="accessHours"></app-service-access-timeline>
+          </section>
+          <div class="access-bottom">
+            <section class="access-section">
+              <header class="access-section-head">
+                <h3>{{ 'entity.service.access.latency' | translate }}</h3>
+              </header>
+              <app-datagraph
+                *ngIf="latencySeries().length; else noLatency"
+                [series]="latencySeries()"
+                [height]="240"
+                axis="time"
+                type="line"
+                [reference]="latencyReference()">
+              </app-datagraph>
+              <ng-template #noLatency>
+                <app-empty-state icon="bar_chart" titleKey="common.status.notAvailable" messageKey="entity.service.access.noSample"></app-empty-state>
+              </ng-template>
+            </section>
+            <section class="access-section access-changes">
+              <header class="access-section-head">
+                <h3>{{ 'entity.service.access.recent' | translate }}</h3>
+              </header>
+              <p class="service-access-detail" *ngIf="loneDetail()" [class.bad]="!healthyStatus(accessObservation.status)">
+                <mat-icon aria-hidden="true">{{ healthyStatus(accessObservation.status) ? 'info' : 'error' }}</mat-icon>
+                <span class="service-access-detail-text">{{ accessDetailText(accessObservation.detail) }}</span>
+              </p>
+              <div class="access-change" *ngFor="let change of recentChanges(); trackBy: trackChange">
+                <time>{{ changeClock(change.index) }}</time>
+                <div class="access-change-body">
+                  <div class="access-change-transition">
+                    <span class="access-pill" [class.ok]="healthyStatus(change.from)" [class.bad]="!healthyStatus(change.from)">{{ accessStatusText(change.from) }}</span>
+                    <span aria-hidden="true">→</span>
+                    <span class="access-pill" [class.ok]="healthyStatus(change.to)" [class.bad]="!healthyStatus(change.to)">{{ accessStatusText(change.to) }}</span>
+                  </div>
+                  <span class="access-change-what" *ngIf="change.what" [class.bad]="change.detail && change.failed">
+                    <mat-icon *ngIf="change.detail && change.failed" aria-hidden="true">error</mat-icon>
+                    {{ change.what }}
+                  </span>
+                </div>
+              </div>
+            </section>
+          </div>
+        </ng-container>
+        <ng-template #noCheck>
+          <app-empty-state
+            icon="monitor_heart"
+            titleKey="entity.service.access.noSample"
+            messageKey="entity.service.access.none">
+            <button mat-raised-button color="primary" type="button" (click)="testAccess()">
+              {{ 'entity.service.button.testAccess' | translate }}
+            </button>
+          </app-empty-state>
+          <app-service-access-timeline [hours]="accessHours"></app-service-access-timeline>
+        </ng-template>
+      </div>
+    </ng-template>
+  </mat-tab>
+  <mat-tab *ngIf="entityID > 0" label="{{ 'entity.service.usage.title' | translate }}">
+    <ng-template matTabContent>
+      <div class="sitmun-service-usage-panel" *ngIf="usage as view; else usageLoading">
+        <ng-container *ngIf="usageFacts() as facts; else usageUnmeasured">
+          <div class="usage-head">
+            <mat-icon class="usage-head-icon" aria-hidden="true">query_stats</mat-icon>
+            <div class="usage-head-copy">
+              <div class="usage-verdict">
+                {{ 'entity.service.usage.headline' | translate:{ count: formatCount(facts.requests) } }}
+                <small>{{ 'entity.service.usage.inRange' | translate:{ range: usageRangeLabel() } }}</small>
+              </div>
+              <p class="usage-caption">
+                {{ 'entity.service.usage.measuredBy' | translate }}
+                · {{ 'entity.service.usage.lastUsed' | translate }} {{ usageLastUsedText() }}
+                <ng-container *ngIf="usageAsOfText() as asOfTime">
+                  · {{ 'entity.service.usage.asOf' | translate:{ time: asOfTime } }}
+                </ng-container>
+              </p>
+              <p class="usage-kinds">{{ 'entity.service.usage.kinds' | translate }}</p>
+            </div>
+            <mat-button-toggle-group [value]="usageRange" (change)="loadUsage($event.value)">
+              <mat-button-toggle value="30d">{{ 'entity.service.usage.range30' | translate }}</mat-button-toggle>
+              <mat-button-toggle value="90d">{{ 'entity.service.usage.range90' | translate }}</mat-button-toggle>
+              <mat-button-toggle value="12m">{{ 'entity.service.usage.range12m' | translate }}</mat-button-toggle>
+            </mat-button-toggle-group>
+          </div>
+          <div class="usage-metrics">
+            <div class="usage-metric">
+              <h3>{{ 'entity.service.usage.requests' | translate }}</h3>
+              <p class="usage-metric-value">
+                <span>{{ formatCount(facts.requests) }}</span>
+                <span *ngIf="facts.deltaPercent !== null" class="usage-delta" [class.up]="facts.deltaPercent > 0" [class.down]="facts.deltaPercent < 0">{{ usageDeltaText(facts.deltaPercent) }}</span>
+              </p>
+              <p class="usage-metric-hint">{{ 'entity.service.usage.proxyCalls' | translate }}</p>
+              <p class="usage-metric-hint" *ngIf="facts.previousRequests !== null">{{ 'entity.service.usage.previousPeriod' | translate:{ count: formatCount(facts.previousRequests) } }}</p>
+            </div>
+            <div class="usage-metric" [class.warn]="facts.failed > 0">
+              <h3>{{ 'entity.service.usage.failed' | translate }}</h3>
+              <p class="usage-metric-value">
+                <span>{{ formatCount(facts.failed) }}</span>
+                <span class="usage-unit" *ngIf="facts.failedPercent !== null">· {{ facts.failedPercent }} %</span>
+              </p>
+              <p class="usage-metric-hint" *ngIf="facts.previousFailed !== null">{{ 'entity.service.usage.previousPeriod' | translate:{ count: formatCount(facts.previousFailed) } }}</p>
+            </div>
+            <div class="usage-metric">
+              <h3>{{ 'entity.service.usage.lastUsed' | translate }}</h3>
+              <p class="usage-metric-value">{{ usageLastUsedText() }}</p>
+              <p class="usage-metric-hint">{{ usageSlotsKey() | translate:{ days: facts.daysWithUse, slots: facts.periodSlots } }}</p>
+            </div>
+            <div class="usage-metric">
+              <h3>{{ 'entity.service.usage.viewerLoads' | translate }}</h3>
+              <p class="usage-metric-value">{{ formatCount(facts.viewerLoads) }}</p>
+              <p class="usage-metric-hint">{{ 'entity.service.usage.viewerLoadsHint' | translate }}</p>
+            </div>
+          </div>
+          <app-chart-card class="compact" [title]="usageChartTitleKey() | translate" [empty]="!usageSeries().length" emptyMessageKey="entity.service.usage.unused">
+            <app-datagraph
+              [series]="usageChartSeries()"
+              [height]="240"
+              axis="time"
+              [stacked]="true"
+              [totalLabel]="usageChartTotalLabel()"
+              [dateLocale]="usageChartLocale()"
+              [datePeriod]="usageChartPeriod()"
+              type="bar">
+            </app-datagraph>
+          </app-chart-card>
+          <div class="usage-bottom">
+            <section class="usage-section" *ngIf="view.operations?.length">
+              <h3>{{ 'entity.service.usage.byOperation' | translate }}</h3>
+              <p class="usage-note">{{ 'entity.service.usage.proxyCalls' | translate }}</p>
+              <div class="usage-table-scroll" *ngIf="usageOperations().length">
+                <table mat-table [dataSource]="usageOperations()">
+                  <ng-container matColumnDef="operation">
+                    <th mat-header-cell *matHeaderCellDef>{{ 'entity.service.usage.operation' | translate }}</th>
+                    <td mat-cell *matCellDef="let row">{{ row.operation }}</td>
+                  </ng-container>
+                  <ng-container matColumnDef="requests">
+                    <th mat-header-cell *matHeaderCellDef class="usage-num">{{ 'entity.service.usage.requests' | translate }}</th>
+                    <td mat-cell *matCellDef="let row" class="usage-num">{{ formatCount(row.requests) }}</td>
+                  </ng-container>
+                  <ng-container matColumnDef="failed">
+                    <th mat-header-cell *matHeaderCellDef class="usage-num">{{ 'entity.service.usage.failed' | translate }}</th>
+                    <td mat-cell *matCellDef="let row" class="usage-num">{{ formatCount(row.failed) }}</td>
+                  </ng-container>
+                  <ng-container matColumnDef="errorRate">
+                    <th mat-header-cell *matHeaderCellDef class="usage-num">{{ 'entity.service.usage.errorRate' | translate }}</th>
+                    <td mat-cell *matCellDef="let row" class="usage-num">
+                      <span class="usage-rate">
+                        <span class="usage-rate-label">{{ usageErrorRateText(row.requests, row.failed) }}</span>
+                        <i aria-hidden="true"><b [style.width.%]="operationErrorPercent(row.requests, row.failed) ?? 0"></b></i>
+                      </span>
+                    </td>
+                  </ng-container>
+                  <tr mat-header-row *matHeaderRowDef="usageOperationColumns"></tr>
+                  <tr mat-row *matRowDef="let row; columns: usageOperationColumns"></tr>
+                </table>
+              </div>
+            </section>
+            <section class="usage-section" *ngIf="usageApplications().length">
+              <h3>{{ 'entity.service.usage.byApplication' | translate }}</h3>
+              <p class="usage-note">{{ 'entity.service.usage.kinds' | translate }}</p>
+              <div class="usage-table-scroll">
+                <table mat-table [dataSource]="usageApplications()">
+                  <ng-container matColumnDef="name">
+                    <th mat-header-cell *matHeaderCellDef>{{ 'entity.service.usage.application' | translate }}</th>
+                    <td mat-cell *matCellDef="let row">
+                      <span class="usage-app">
+                        <a class="router-link usage-app-name" [routerLink]="['/application', row.applicationId, 'applicationForm']">{{ row.name }}</a>
+                        <a class="usage-app-new related-entity-open-link" [routerLink]="['/application', row.applicationId, 'applicationForm']" target="_blank" rel="noopener" [matTooltip]="'common.relation.openNewTab' | translate" [attr.aria-label]="'common.relation.openNewTab' | translate">
+                          <mat-icon>open_in_new</mat-icon>
+                        </a>
+                      </span>
+                    </td>
+                  </ng-container>
+                  <ng-container matColumnDef="requests">
+                    <th mat-header-cell *matHeaderCellDef class="usage-num">{{ 'entity.service.usage.requests' | translate }}</th>
+                    <td mat-cell *matCellDef="let row" class="usage-num">{{ formatCount(row.requests) }}</td>
+                  </ng-container>
+                  <ng-container matColumnDef="viewerLoads">
+                    <th mat-header-cell *matHeaderCellDef class="usage-num">{{ 'entity.service.usage.viewerLoads' | translate }}</th>
+                    <td mat-cell *matCellDef="let row" class="usage-num">{{ formatCount(row.viewerLoads) }}</td>
+                  </ng-container>
+                  <tr mat-header-row *matHeaderRowDef="usageApplicationColumns"></tr>
+                  <tr mat-row *matRowDef="let row; columns: usageApplicationColumns"></tr>
+                </table>
+              </div>
+            </section>
+          </div>
+        </ng-container>
+        <ng-template #usageUnmeasured>
+          <mat-button-toggle-group [value]="usageRange" (change)="loadUsage($event.value)">
+            <mat-button-toggle value="30d">{{ 'entity.service.usage.range30' | translate }}</mat-button-toggle>
+            <mat-button-toggle value="90d">{{ 'entity.service.usage.range90' | translate }}</mat-button-toggle>
+            <mat-button-toggle value="12m">{{ 'entity.service.usage.range12m' | translate }}</mat-button-toggle>
+          </mat-button-toggle-group>
+          <div class="usage-metric usage-profile">
+            <h3>{{ 'entity.service.usage.viewerLoads' | translate }}</h3>
+            <p class="usage-metric-value">{{ formatCount(view.viewerLoads) }}</p>
+            <p class="usage-metric-hint">{{ 'entity.service.usage.viewerLoadsHint' | translate }}</p>
+          </div>
+          <app-empty-state
+            icon="bar_chart"
+            titleKey="entity.service.usage.notMeasured"
+            messageKey="entity.service.usage.notMeasuredHint">
+            <button mat-button type="button" (click)="serviceTabs.selectedIndex = 0">{{ 'entity.service.proxied' | translate }}</button>
+          </app-empty-state>
+        </ng-template>
+      </div>
+      <ng-template #usageLoading></ng-template>
+    </ng-template>
+  </mat-tab>
 </mat-tab-group>
 
 <ng-template #newParameterDialog>

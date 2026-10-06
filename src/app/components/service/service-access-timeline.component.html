@@ -1,0 +1,15 @@
+<span class="service-access-trend" role="img">
+  <i *ngFor="let hour of slots; let i = index; trackBy: trackHour"
+     class="service-access-hour"
+     [style.background-color]="color(hour)"
+     [attr.title]="title(i)"
+     [attr.aria-label]="title(i)"></i>
+</span>
+<div class="service-access-ticks">
+  <span class="service-access-tick" *ngFor="let label of tickLabels">{{ label }}</span>
+</div>
+<div class="service-access-legend">
+  <span><i class="service-access-legend-swatch" style="background-color: #2e7d32"></i>{{ 'entity.service.access.legend.ok' | translate }}</span>
+  <span><i class="service-access-legend-swatch" style="background-color: #c62828"></i>{{ 'entity.service.access.legend.down' | translate }}</span>
+  <span><i class="service-access-legend-swatch" style="background-color: #c4c4c4"></i>{{ 'entity.service.access.legend.none' | translate }}</span>
+</div>

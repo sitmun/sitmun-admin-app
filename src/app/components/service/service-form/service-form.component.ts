@@ -4,6 +4,7 @@ import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
 import {MatChipInputEvent} from '@angular/material/chips';
 import {MatDialog} from '@angular/material/dialog';
+import {MatTabChangeEvent} from '@angular/material/tabs';
 import {ActivatedRoute, Router} from '@angular/router';
 
 import {TranslateService} from "@ngx-translate/core";
@@ -24,12 +25,19 @@ import {
   CodeList,
   CodeListService,
   Service,
+  ServiceAccessHour,
+  ServiceAccessObservation,
+  ServiceAccessSample,
+  ServiceUsageApplicationTotal,
+  ServiceUsageRange,
+  ServiceUsageView,
   ServiceCapabilitiesProbe,
   ServiceParameter,
   ServiceParameterService,
   ServiceService,
   TranslationService,
 } from '@app/domain';
+import {DataSeries} from '@app/frontend-gui/src/lib/data-graph/datagraph.component';
 import {
   DialogMessageComponent,
   onCreate,
@@ -48,58 +56,32 @@ import { compareNullableString } from '@app/utils/compare-nullable-string';
 import {config} from '@config';
 import {constants} from '@environments/constants';
 
-/**
- * Component for managing service forms in the application.
- * Extends SitmunMixedBase to provide base functionality for service management.
- *
- * This component provides a comprehensive interface for:
- * 1. Service Management
- *    - Creating new services
- *    - Editing existing services
- *    - Duplicating services with modified attributes
- *    - Form validation and submission
- *
- * 2. Service Configuration
- *    - Basic service information (name, description, URL)
- *    - Authentication settings (mode, credentials)
- *    - Service type configuration (WMS, etc.)
- *    - Proxy settings
- *    - Projection management (SRS)
- *
- * 3. WMS Integration
- *    - Automatic metadata retrieval from WMS GetCapabilities
- *    - Layer discovery and management
- *    - Style configuration
- *    - Projection support detection
- *
- * 4. Parameter Management
- *    - CRUD operations for service parameters
- *    - Parameter type configuration
- *    - Value validation
- *
- * 5. Cartography Integration
- *    - Layer management and configuration
- *    - Style association
- *    - Legend configuration
- *    - Metadata URL management
- *
- * The component uses a tabbed interface to organize:
- * - General Data: Basic service configuration
- * - Parameters: Service parameter management
- * - Cartographies: Layer and style management
- *
- * Key Features:
- * - Multi-language support through translations
- * - Real-time form validation
- * - Automatic WMS capabilities integration
- * - Grid-based parameter and layer management
- * - Support for various service types and authentication modes
- *
- * @example
- * // Route configuration
- * { path: 'service/:id/serviceForm', component: ServiceFormComponent }
- * { path: 'service/:id/serviceForm/:idDuplicate', component: ServiceFormComponent }
- */
+import {
+  accessDetailRequest,
+  accessDetailSentence,
+  accessSinceLabel,
+  AVAILABILITY_TARGET_PERCENT,
+  monitoringFacts,
+  operationErrorPercent as readOperationErrorPercent,
+  recentAccessChanges,
+  TIMEOUT_STATUS,
+  usageAsOfClock,
+  usageFacts as readUsageFacts,
+  type AccessChange,
+  type MonitoringFacts,
+  type UsageFacts,
+} from '../service-access-detail';
+import {
+  accessObserverLabel,
+  accessStatusLabel,
+  accessTrendSlots,
+  bucketStart,
+  healthyAccessStatus,
+  hourColor,
+  hourMinute,
+  mergeBackendObservation,
+} from '../service-access-trend';
+
 @Component({
     selector: 'app-service-form',
     templateUrl: './service-form.component.html',
@@ -159,6 +141,26 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
    * Defines columns, data fetching, and update operations for parameters.
    */
   protected readonly parametersTable: DataTableDefinition<ServiceParameter, ServiceParameter>;
+
+  accessObservation: ServiceAccessObservation | null = null;
+  usageRange: ServiceUsageRange = '30d';
+  usage: ServiceUsageView | null = null;
+  usageOperationColumns = ['operation', 'requests', 'failed', 'errorRate'];
+  usageApplicationColumns = ['name', 'requests', 'viewerLoads'];
+  private usageRequested = false;
+  private usageChart: {view: ServiceUsageView | null; lang: string; series: DataSeries[]} | null = null;
+
+  accessHours = accessTrendSlots(undefined, 'tenMinute');
+  accessSamples: ServiceAccessSample[] = [];
+  sampleTimeoutMs = 0;
+  private latencyChart: {
+    samples: ServiceAccessSample[];
+    timeoutMs: number;
+    lang: string;
+    series: DataSeries[];
+    reference: {value: number} | null;
+  } | null = null;
+  readonly availabilityTarget = AVAILABILITY_TARGET_PERCENT;
 
   /**
    * Flag indicating if the WMS capabilities table load button is disabled.
@@ -235,6 +237,7 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
     this.featureFlagService.featureFlags$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.maybeRegisterParametersTable());
+    this.loadUsage(this.usageRange);
   }
 
   /**
@@ -341,6 +344,8 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
 
     const currentType = this.findInCodeList('service.type', this.entityToEdit.type);
     this.tableLoadButtonDisabled = currentType ? currentType.value !== config.capabilitiesRequest.WMSIdentificator : false;
+    this.refreshAccessTrend();
+    this.loadStoredAccessObservation();
   }
 
   /** Auth other than None forces proxied on; turning proxy off while auth is set snaps it back. */
@@ -486,6 +491,436 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
    */
   isWMS() {
     return this.entityForm?.value.type === constants.codeValue.serviceType.wms
+  }
+
+  testAccess(): void {
+    this.serviceService
+      .accessCheck(this.entityID)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (observation) => {
+          this.accessObservation = observation;
+          this.refreshAccessTrend(observation);
+        },
+        error: (error) => this.errorHandler.handleError(error, 'common.error.loadingFailed'),
+      });
+  }
+
+  private loadStoredAccessObservation(): void {
+    if (this.entityID < 1) {
+      return;
+    }
+    this.serviceService.accessSummaries()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (summaries) => {
+          if (this.accessObservation != null) {
+            return;
+          }
+          const stored = (Array.isArray(summaries) ? summaries : [])
+            .find((summary) => summary.serviceId === this.entityID);
+          if (!stored) {
+            return;
+          }
+          this.accessObservation = {
+            status: stored.status,
+            statusRank: stored.statusRank,
+            observer: stored.observer,
+            elapsedMs: stored.elapsedMs,
+            observedAt: stored.observedAt,
+            detail: stored.detail,
+          };
+        },
+        error: (error) => this.loggerService.warn('Stored service access unavailable', error),
+      });
+  }
+
+  private refreshAccessTrend(observation?: ServiceAccessObservation): void {
+    const paint = (buckets: Array<ServiceAccessHour | null> | null | undefined) => {
+      this.accessHours = mergeBackendObservation(
+        accessTrendSlots(buckets, 'tenMinute'),
+        observation,
+        'tenMinute',
+      );
+    };
+
+    if (this.entityID < 1) {
+      paint(observation ? this.accessHours : undefined);
+      return;
+    }
+
+    this.loadAccessSamples();
+    this.serviceService.accessTrend(this.entityID)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (trend) => paint(trend.buckets),
+        error: (error) => {
+          this.loggerService.warn('Service access trend unavailable', error);
+          paint(this.accessHours);
+        },
+      });
+  }
+
+  onServiceTab(event: MatTabChangeEvent): void {
+    const usageLabel = this.translateService.instant('entity.service.usage.title');
+    if (event.tab.textLabel !== usageLabel || this.entityID < 1 || this.usageRequested) {
+      return;
+    }
+    this.usageRequested = true;
+    this.loadUsage(this.usageRange);
+  }
+
+  accessObserverText(observer: string | null | undefined): string {
+    return accessObserverLabel(observer, (key) => this.translateService.instant(key));
+  }
+
+  accessStatusText(code: string | null | undefined): string {
+    return accessStatusLabel(code, (key) => this.translateService.instant(key));
+  }
+
+  accessDetailText(detail: string | null | undefined): string {
+    return accessDetailSentence(detail, (key) => this.translateService.instant(key));
+  }
+
+  monitoring(): MonitoringFacts | null {
+    return monitoringFacts(this.accessObservation, this.accessHours, this.accessSamples, new Date());
+  }
+
+  accessVerdictText(facts: MonitoringFacts): string {
+    if (facts.status !== TIMEOUT_STATUS || this.sampleTimeoutMs <= 0) {
+      return this.accessStatusText(facts.status);
+    }
+    return this.translateService.instant('entity.service.access.timedOutAfter', {seconds: this.timeoutSeconds()});
+  }
+
+  timedOutText(facts: MonitoringFacts): string {
+    if (facts.timedOut === 0) {
+      return '';
+    }
+    return facts.timedOut === 1
+      ? this.translateService.instant('entity.service.access.timedOutOne')
+      : this.translateService.instant('entity.service.access.timedOutCount', {count: facts.timedOut});
+  }
+
+  private timeoutSeconds(): string {
+    return new Intl.NumberFormat(this.translateService.currentLang || 'es', {maximumFractionDigits: 1})
+      .format(this.sampleTimeoutMs / 1000);
+  }
+
+  statusColor(status: string): string {
+    return hourColor({status});
+  }
+
+  healthyStatus(status: string | null | undefined): boolean {
+    return healthyAccessStatus(status);
+  }
+
+  accessClock(date: Date): string {
+    return hourMinute(date);
+  }
+
+  accessAgo(since: Date): string {
+    return relativeAgo(since, new Date(), this.translateService.currentLang || 'es');
+  }
+
+  checkedText(): string {
+    return accessSinceLabel(this.accessObservation?.observedAt, this.translateService.currentLang || 'es');
+  }
+
+  changeClock(index: number): string {
+    return hourMinute(bucketStart(index, new Date(), 'tenMinute'));
+  }
+
+  lastCheckText(facts: MonitoringFacts): string {
+    const time = this.checkedText();
+    const observer = this.accessObserverText(facts.observer);
+    if (facts.status === TIMEOUT_STATUS && this.sampleTimeoutMs > 0) {
+      return this.translateService.instant('entity.service.access.lastCheckTimeout', {
+        time, observer, seconds: this.timeoutSeconds(),
+      });
+    }
+    const elapsed = facts.elapsedMs ?? '';
+    const key = 'entity.service.access.lastCheck';
+    const translated = this.translateService.instant(key, {time, observer, elapsed});
+    if (translated === key) {
+      return `${time} · ${observer} · ${elapsed} ms`;
+    }
+    return translated;
+  }
+
+  /**
+   * Trend buckets keep only status and observers; the request lives in the latest stored check,
+   * so only the newest change can name it.
+   */
+  recentChanges(): Array<AccessChange & {what: string; failed: boolean; detail: boolean}> {
+    return recentAccessChanges(this.accessHours).map((change, position) => {
+      const failed = !healthyAccessStatus(change.to);
+      const observers = change.observers.map((observer) => this.accessObserverText(observer)).join(', ');
+      const detail = position === 0 && this.carriesDetail(change);
+      const check = !detail ? '' : failed
+        ? this.accessDetailText(this.accessObservation?.detail)
+        : accessDetailRequest(this.accessObservation?.detail);
+      return {...change, what: [check, observers].filter(Boolean).join(' · '), failed, detail};
+    });
+  }
+
+  loneDetail(): boolean {
+    if (this.accessObservation == null) {
+      return false;
+    }
+    const latest = recentAccessChanges(this.accessHours, 1)[0];
+    return !(latest && this.carriesDetail(latest));
+  }
+
+  trackChange(_position: number, change: AccessChange): number {
+    return change.index;
+  }
+
+  private carriesDetail(change: AccessChange): boolean {
+    return Boolean(this.accessObservation?.detail?.trim()) && this.accessObservation?.status === change.to;
+  }
+
+  /**
+   * Same array while the samples, limit, and language are unchanged: a fresh array per
+   * change detection makes the chart call setOption every frame.
+   */
+  latencySeries(): DataSeries[] {
+    return this.rememberLatency().series;
+  }
+
+  latencyReference(): {value: number} | null {
+    return this.rememberLatency().reference;
+  }
+
+  private rememberLatency(): NonNullable<ServiceFormComponent['latencyChart']> {
+    const lang = this.translateService.currentLang;
+    if (
+      this.latencyChart?.samples !== this.accessSamples
+      || this.latencyChart.timeoutMs !== this.sampleTimeoutMs
+      || this.latencyChart.lang !== lang
+    ) {
+      this.latencyChart = {
+        samples: this.accessSamples,
+        timeoutMs: this.sampleTimeoutMs,
+        lang,
+        series: this.buildLatencySeries(),
+        reference: this.buildLatencyReference(),
+      };
+    }
+    return this.latencyChart;
+  }
+
+  /** A timeout has no response time: it breaks its observer's line and becomes a marker on the limit. */
+  private buildLatencySeries(): DataSeries[] {
+    const byObserver = new Map<string, DataSeries>();
+    const timeouts: DataSeries = {
+      name: this.accessStatusText(TIMEOUT_STATUS),
+      kind: 'scatter',
+      color: '#c62828',
+      data: [],
+    };
+    for (const sample of this.accessSamples) {
+      let series = byObserver.get(sample.observer);
+      if (!series) {
+        series = {
+          name: this.accessObserverText(sample.observer),
+          kind: 'line',
+          color: sample.observer === 'proxy' ? '#009688' : '#1565c0',
+          data: [],
+        };
+        byObserver.set(sample.observer, series);
+      }
+      const timedOut = sample.status === TIMEOUT_STATUS;
+      series.data.push({index: sample.observedAt, value: timedOut ? null : sample.elapsedMs});
+      if (timedOut) {
+        timeouts.data.push({
+          index: sample.observedAt,
+          value: this.sampleTimeoutMs > 0 ? this.sampleTimeoutMs : sample.elapsedMs,
+          note: this.translateService.instant('entity.service.access.timedOutAt', {
+            time: hourMinute(new Date(sample.observedAt)),
+            observer: this.accessObserverText(sample.observer),
+          }),
+        });
+      }
+    }
+    return timeouts.data.length ? [...byObserver.values(), timeouts] : [...byObserver.values()];
+  }
+
+  private buildLatencyReference(): {value: number} | null {
+    if (this.sampleTimeoutMs <= 0) {
+      return null;
+    }
+    return {value: this.sampleTimeoutMs};
+  }
+
+  private loadAccessSamples(): void {
+    if (this.entityID < 1) {
+      return;
+    }
+    this.serviceService.accessSamples(this.entityID)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (body) => {
+          this.accessSamples = body.samples ?? [];
+          this.sampleTimeoutMs = body.timeoutMs ?? 0;
+        },
+        error: (error) => this.loggerService.warn('Service access samples unavailable', error),
+      });
+  }
+
+  loadUsage(range: ServiceUsageRange): void {
+    this.usageRange = range;
+    if (this.entityID < 1) {
+      return;
+    }
+    this.serviceService
+      .usage(this.entityID, range)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (view) => {
+          this.usage = view;
+        },
+        error: (error) => this.errorHandler.handleError(error, 'common.error.loadingFailed'),
+      });
+  }
+
+  usageFacts(): UsageFacts | null {
+    return readUsageFacts(this.usage);
+  }
+
+  usageRangeLabel(): string {
+    switch (this.usageRange) {
+      case '30d':
+        return this.translateService.instant('entity.service.usage.range30');
+      case '90d':
+        return this.translateService.instant('entity.service.usage.range90');
+      case '12m':
+        return this.translateService.instant('entity.service.usage.range12m');
+      default: {
+        const unreachable: never = this.usageRange;
+        return unreachable;
+      }
+    }
+  }
+
+  usageAsOfText(): string | null {
+    return usageAsOfClock(this.usage?.asOf, this.translateService.currentLang || 'es');
+  }
+
+  usageDeltaText(percent: number): string {
+    const magnitude = Math.abs(percent);
+    if (percent > 0) {
+      return `▲ ${magnitude} %`;
+    }
+    if (percent < 0) {
+      return `▼ ${magnitude} %`;
+    }
+    return `${magnitude} %`;
+  }
+
+  operationErrorPercent(requests: number | null | undefined, failed: number | null | undefined): number | null {
+    return readOperationErrorPercent(requests, failed);
+  }
+
+  usageErrorRateText(requests: number | null | undefined, failed: number | null | undefined): string {
+    const percent = this.operationErrorPercent(requests, failed);
+    if (percent == null) {
+      return '';
+    }
+    return `${percent} %`;
+  }
+
+  formatCount(value: number | null | undefined): string {
+    if (value == null) {
+      return '';
+    }
+    return new Intl.NumberFormat(this.translateService.currentLang || 'es').format(value);
+  }
+
+  usageLastUsedText(): string {
+    const day = this.usageFacts()?.lastUsedDay;
+    if (day == null || day === '') {
+      return this.translateService.instant('entity.service.usage.unused');
+    }
+    const now = new Date();
+    const today = [
+      now.getFullYear(),
+      String(now.getMonth() + 1).padStart(2, '0'),
+      String(now.getDate()).padStart(2, '0'),
+    ].join('-');
+    if (day === today) {
+      return this.translateService.instant('entity.service.usage.today');
+    }
+    return day;
+  }
+
+  usageOperations() {
+    return (this.usage?.operations ?? []).filter((row) => row.operation !== 'ViewerConfig');
+  }
+
+  usageSeries(): Array<{index: string; value: number | null}> {
+    if (!this.usage?.measured || !this.usage.series) {
+      return [];
+    }
+    return this.usage.series.map((point) => ({index: point.index, value: point.value}));
+  }
+
+  /**
+   * Same array while the payload and language are unchanged: a fresh array per change
+   * detection makes the chart call setOption every frame and restart its bar animation.
+   */
+  usageChartSeries(): DataSeries[] {
+    const lang = this.translateService.currentLang;
+    if (this.usageChart?.view !== this.usage || this.usageChart.lang !== lang) {
+      this.usageChart = {view: this.usage, lang, series: this.buildUsageChartSeries()};
+    }
+    return this.usageChart.series;
+  }
+
+  usageChartPeriod(): 'day' | 'month' {
+    return this.usageRange === '12m' ? 'month' : 'day';
+  }
+
+  usageChartTitleKey(): string {
+    return this.usageChartPeriod() === 'month' ? 'entity.service.usage.perMonth' : 'entity.service.usage.perDay';
+  }
+
+  usageSlotsKey(): string {
+    return this.usageChartPeriod() === 'month' ? 'entity.service.usage.monthsWithUse' : 'entity.service.usage.daysWithUse';
+  }
+
+  private buildUsageChartSeries(): DataSeries[] {
+    const points = this.usage?.measured && this.usage.series ? this.usage.series : [];
+    return [
+      {
+        name: this.translateService.instant('entity.service.usage.successful'),
+        kind: 'bar',
+        color: '#FF9300',
+        data: points.map((point) => ({
+          index: point.index,
+          value: point.value == null ? null : Math.max(0, point.value - (point.failed ?? 0)),
+        })),
+      },
+      {
+        name: this.translateService.instant('entity.service.usage.failed'),
+        kind: 'bar',
+        color: '#c62828',
+        data: points.map((point) => ({index: point.index, value: point.failed ?? 0})),
+      },
+    ];
+  }
+
+  usageChartTotalLabel(): string {
+    return this.translateService.instant('entity.service.usage.requests');
+  }
+
+  usageChartLocale(): string {
+    return this.translateService.currentLang || 'es';
+  }
+
+  usageApplications(): ServiceUsageApplicationTotal[] {
+    return [...(this.usage?.applications ?? [])]
+      .sort((left, right) => (right.requests ?? 0) - (left.requests ?? 0));
   }
 
   /**
@@ -810,4 +1245,23 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
       )
       .build();
   }
+}
+
+function relativeAgo(since: Date, now: Date, locale: string): string {
+  const rtf = new Intl.RelativeTimeFormat(locale, {numeric: 'auto'});
+  const seconds = Math.round((since.getTime() - now.getTime()) / 1000);
+  const units: Array<[Intl.RelativeTimeFormatUnit, number]> = [
+    ['year', 60 * 60 * 24 * 365],
+    ['month', 60 * 60 * 24 * 30],
+    ['week', 60 * 60 * 24 * 7],
+    ['day', 60 * 60 * 24],
+    ['hour', 60 * 60],
+    ['minute', 60],
+  ];
+  for (const [unit, size] of units) {
+    if (Math.abs(seconds) >= size) {
+      return rtf.format(Math.round(seconds / size), unit);
+    }
+  }
+  return rtf.format(seconds, 'second');
 }

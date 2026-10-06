@@ -42,6 +42,7 @@ import {LiteralTranslationsComponent} from '@app/components/literal-translations
 import {LoginComponent} from '@app/components/login/login.component';
 import {RoleFormComponent} from '@app/components/role/role-form/role-form.component';
 import {RoleComponent} from '@app/components/role/role.component';
+import {ServiceAccessTimelineComponent} from '@app/components/service/service-access-timeline.component';
 import {ServiceFormComponent} from '@app/components/service/service-form/service-form.component';
 import {ServiceComponent} from '@app/components/service/service.component';
 import {AuthenticatedLayoutComponent} from '@app/components/shared/authenticated-layout/authenticated-layout.component';
@@ -292,6 +293,7 @@ export function initializeConfiguration(
         UserFormComponent,
         TerritoryFormComponent,
         ServiceFormComponent,
+        ServiceAccessTimelineComponent,
         ApplicationFormComponent,
         TreesFormComponent,
         TreeNodesComponent,

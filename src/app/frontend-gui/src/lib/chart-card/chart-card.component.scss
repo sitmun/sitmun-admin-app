@@ -1,0 +1,31 @@
+.chart-card {
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease;
+  background-color: #fff;
+  height: 100%;
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  mat-card-header {
+    padding: 16px 16px 0;
+  }
+
+  mat-card-content {
+    padding: 16px;
+    min-height: 400px;
+  }
+}
+
+:host.compact mat-card-content {
+  min-height: 240px;
+}
+
+.chart-title {
+  font-size: 18px;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.87);
+  margin: 0;
+}

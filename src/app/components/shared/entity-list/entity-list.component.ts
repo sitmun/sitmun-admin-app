@@ -34,6 +34,8 @@ export interface EntityListConfig<T> {
   defaultColumnSorting?: string[];
   /** Enables row drag ordering in client-side mode */
   rowDragManaged?: boolean;
+  /** AG Grid components registered in addition to the shared grid renderers */
+  gridComponents?: Record<string, unknown>;
   /** Grid configuration options */
   gridOptions?: {
     globalSearch?: boolean;

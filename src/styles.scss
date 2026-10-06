@@ -109,6 +109,126 @@ h2 {
   --ag-odd-row-background-color: rgba(0, 0, 0, 0.02);
   --ag-row-hover-color: rgba(0, 0, 0, 0.06);
 }
+.service-access-trend {
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+  gap: 1px;
+  height: 100%;
+}
+
+.service-access-hour {
+  display: inline-block;
+  flex: 0 0 5px;
+  width: 5px;
+  min-width: 5px;
+  height: 16px;
+  border-radius: 1px;
+}
+
+.dashboard-failing-services-count {
+  font-weight: 600;
+  margin-right: 6px;
+}
+
+.dashboard-affected-use {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dashboard-affected-use i {
+  width: 10px;
+  height: 10px;
+  flex: 0 0 10px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.87);
+  box-sizing: border-box;
+}
+
+.dashboard-affected-use.cfg {
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.dashboard-affected-use.cfg i {
+  background: transparent;
+  border: 2px solid #5c5c5c;
+}
+
+// AG Grid puts `ag-cell-value` on the cell itself when a renderer has no wrapper, and the
+// infinite data-grid sets ellipsis at `:host .sitmun-infinite-grid .ag-cell` (0,3,0).
+.ag-root .ag-row .ag-cell.sitmun-access-status-cell,
+.ag-root .ag-row .ag-cell.sitmun-access-trend-cell,
+.ag-root .ag-row .ag-cell.sitmun-usage-cell {
+  overflow: visible;
+  text-overflow: clip;
+}
+
+.service-usage-30 {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 8px;
+  height: 100%;
+}
+
+.service-usage-bars {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 1px;
+  height: 14px;
+  border-bottom: 1px solid #bdbdbd;
+}
+
+// The Estat header opens the health filter from one funnel that turns orange while filtering.
+.ag-header-cell.sitmun-access-status-header {
+  .ag-header-cell-menu-button {
+    opacity: 1;
+  }
+
+  .ag-filter-icon {
+    display: none;
+  }
+
+  &.ag-header-cell-filtered .ag-header-cell-menu-button .ag-icon {
+    color: #ff9800;
+  }
+}
+
+.service-usage-fail {
+  margin-left: 4px;
+  color: #c62828;
+  font-size: 12px;
+  font-weight: 400;
+  white-space: nowrap;
+}
+
+.service-access-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.service-access-status-dot {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 14px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+// The renderer sets `color` to the status colour.
+.service-access-status-halo {
+  box-shadow: 0 0 0 4px color-mix(in srgb, currentColor 15%, transparent);
+}
+
+.service-usage-bar {
+  display: inline-block;
+  flex: 0 0 3px;
+  width: 3px;
+  background-color: #FF9300;
+  border-radius: 1px 1px 0 0;
+}
+
 .ag-theme-material {
   --ag-odd-row-background-color: rgba(0, 0, 0, 0.02);
   --ag-row-hover-color: rgba(0, 0, 0, 0.06);

@@ -24,108 +24,64 @@
       </mat-grid-tile>
     </mat-grid-list>
 
-    <!-- Actual KPI cards -->
-    <mat-grid-list rowHeight="120px" cols="4" *ngIf="dataLoaded" [gutterSize]="'16px'" [@listAnimation]="KPIsTable.length">
-      <mat-grid-tile *ngFor="let kpi of KPIsTable; let i = index">
-        <mat-card class="kpi-card" appearance="outlined" [matTooltip]="kpi.tooltip" matTooltipPosition="above">
-          <mat-card-content class="kpi-content">
-            <div class="kpi-icon-wrapper" [class.primary-color]="kpi.color === 'primary'" [class.accent-color]="kpi.color === 'accent'">
-              <mat-icon class="kpi-icon">{{ kpi.icon }}</mat-icon>
-            </div>
-            <div class="kpi-details">
-              <div class="kpi-title">{{ kpi.text }}</div>
-              <div class="kpi-value">{{ kpi.number }}</div>
-            </div>
-          </mat-card-content>
-        </mat-card>
-      </mat-grid-tile>
-    </mat-grid-list>
+    <section class="health-section" *ngIf="dataLoaded && healthCards.length" aria-labelledby="health-title">
+      <div class="section-head">
+        <h2 id="health-title">{{ 'dashboard.services' | translate }}</h2>
+        <p class="fresh" *ngIf="freshMinutes !== null">{{ 'dashboard.fresh' | translate:{minutes: freshMinutes} }}</p>
+      </div>
+      <div class="health">
+        <a *ngFor="let card of healthCards"
+           class="health-kpi"
+           [class.warn]="card.kind === 'failing'"
+           [class.neutral]="card.kind === 'unchecked'"
+           [class.quiet]="card.kind === 'healthy'"
+           [routerLink]="card.link"
+           [queryParams]="card.queryParams">
+          <span class="health-label" [class.bad]="card.kind === 'failing'" [class.ok]="card.kind === 'healthy'" [class.none]="card.kind === 'unchecked'">
+            <i aria-hidden="true"></i>{{ card.text }}
+          </span>
+          <span class="health-value">{{ card.display }}</span>
+        </a>
+      </div>
+      <p class="health-msg" *ngIf="healthMessage">{{ healthMessage | translate }}</p>
+    </section>
+    <section class="attention" *ngIf="dataLoaded && hasFailingServices" aria-labelledby="attention-title">
+      <div class="section-head">
+        <h2 id="attention-title">{{ 'dashboard.attention' | translate }}</h2>
+      </div>
+      <app-data-grid
+        [columnDefs]="attentionColumnDefs"
+        [getAll]="attentionFetch"
+        [readOnly]="dashboardGrid.readOnly"
+        [hideExportButton]="dashboardGrid.hideExportButton">
+      </app-data-grid>
+    </section>
+    <section class="affected" *ngIf="dataLoaded && hasFailingServices" aria-labelledby="affected-title">
+      <div class="section-head">
+        <h2 id="affected-title">{{ 'dashboard.affected.title' | translate }}</h2>
+        <p class="meta">{{ affectedStatus() }}</p>
+      </div>
+      <app-data-grid
+        [columnDefs]="affectedColumnDefs"
+        [getAll]="affectedFetch"
+        [readOnly]="dashboardGrid.readOnly"
+        [hideExportButton]="dashboardGrid.hideExportButton">
+      </app-data-grid>
+    </section>
+    <section class="inventory" *ngIf="dataLoaded" aria-labelledby="inventory-title">
+      <div class="section-head">
+        <h2 id="inventory-title">{{ 'dashboard.inventory' | translate }}</h2>
+      </div>
+    <div class="kpi-grid" [@listAnimation]="KPIsTable.length">
+      <app-kpi-card
+        *ngFor="let kpi of KPIsTable"
+        [icon]="kpi.icon"
+        [title]="kpi.text"
+        [value]="kpi.number"
+        [tooltip]="kpi.tooltip"
+        [link]="kpi.link">
+      </app-kpi-card>
+    </div>
+    </section>
   </mat-card-content>
 </mat-card>
-
-<!-- Loading skeleton for charts -->
-<div class="charts-container" *ngIf="!dataLoaded">
-  <mat-card class="chart-card" appearance="outlined" *ngFor="let i of [1,2,3]">
-    <mat-card-header>
-      <div class="skeleton-text skeleton-chart-title"></div>
-    </mat-card-header>
-    <mat-card-content>
-      <div class="chart-skeleton">
-        <mat-spinner diameter="50"></mat-spinner>
-      </div>
-    </mat-card-content>
-  </mat-card>
-</div>
-
-<!-- Actual charts -->
-<div class="charts-container" *ngIf="dataLoaded" @fadeIn>
-  <mat-card class="chart-card" appearance="outlined">
-    <mat-card-header>
-      <mat-card-title class="chart-title">
-        {{ "dashboard.cartographies" | translate }}
-        <span class="chart-subtitle">{{ "dashboard.chartCumulative" | translate }}</span>
-      </mat-card-title>
-    </mat-card-header>
-    <mat-card-content>
-      <app-datagraph 
-        *ngIf="cartographyDataAvailable" 
-        [data]="cartographyChartData" 
-        type="area"
-        [cumulative]="true">
-      </app-datagraph>
-      <div *ngIf="!cartographyDataAvailable" class="empty-state">
-        <mat-icon class="empty-state-icon">bar_chart</mat-icon>
-        <h3 class="empty-state-title">{{ "common.status.notAvailable" | translate }}</h3>
-        <p class="empty-state-message">
-          No cartography creation data available
-        </p>
-      </div>
-    </mat-card-content>
-  </mat-card>
-
-  <mat-card class="chart-card" appearance="outlined">
-    <mat-card-header>
-      <mat-card-title class="chart-title">
-        {{ "dashboard.users" | translate }}
-        <span class="chart-subtitle">{{ "dashboard.chartCumulative" | translate }}</span>
-      </mat-card-title>
-    </mat-card-header>
-    <mat-card-content>
-      <app-datagraph 
-        *ngIf="usersDataAvailable" 
-        [data]="usersToShow" 
-        type="area"
-        [cumulative]="true">
-      </app-datagraph>
-      <div *ngIf="!usersDataAvailable" class="empty-state">
-        <mat-icon class="empty-state-icon">people_outline</mat-icon>
-        <h3 class="empty-state-title">{{ "common.status.notAvailable" | translate }}</h3>
-        <p class="empty-state-message">
-          No user registration data available
-        </p>
-      </div>
-    </mat-card-content>
-  </mat-card>
-
-  <mat-card class="chart-card" appearance="outlined">
-    <mat-card-header>
-      <mat-card-title class="chart-title">
-        {{ "dashboard.usersPerApplication" | translate }}
-      </mat-card-title>
-    </mat-card-header>
-    <mat-card-content>
-      <app-datagraph 
-        *ngIf="usersPerApplicationDataAvailable" 
-        [data]="usersPerApplicationChartData" 
-        type="bar">
-      </app-datagraph>
-      <div *ngIf="!usersPerApplicationDataAvailable" class="empty-state">
-        <mat-icon class="empty-state-icon">apps</mat-icon>
-        <h3 class="empty-state-title">{{ "common.status.notAvailable" | translate }}</h3>
-        <p class="empty-state-message">
-          No user-application distribution data available
-        </p>
-      </div>
-    </mat-card-content>
-  </mat-card>
-</div>

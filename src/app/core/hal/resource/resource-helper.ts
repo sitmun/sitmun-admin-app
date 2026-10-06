@@ -144,18 +144,21 @@ export class ResourceHelper {
     /** instantiate a ResourceCollection from response embedded data*/
     static instantiateResourceCollection<T extends Resource>(type: { new(): T }, payload: any,
                                                              result: ResourceArray<T>, builder?: SubTypeBuilder, embeddedName?: string): ResourceArray<T> {
-        for (const embeddedClassName of Object.keys(payload[result._embedded])) {
-            if(!embeddedName || (embeddedName && embeddedClassName==embeddedName)){
-              const embedded: any = payload[result._embedded];
-                const items = embedded[embeddedClassName];
+        const embedded = payload?.[result._embedded];
+        // Spring HATEOAS omits `_embedded` on an empty page. That is zero rows, not a failed block.
+        if (embedded) {
+          for (const embeddedClassName of Object.keys(embedded)) {
+            if (!embeddedName || embeddedClassName == embeddedName) {
+              const items = embedded[embeddedClassName];
               for (const item of items) {
-                    let instance: T = new type();
-                    instance = this.searchSubtypes(builder, embeddedClassName, instance);
+                let instance: T = new type();
+                instance = this.searchSubtypes(builder, embeddedClassName, instance);
 
-                    this.instantiateResource(instance, item);
-                    result.push(instance);
-                }
+                this.instantiateResource(instance, item);
+                result.push(instance);
+              }
             }
+          }
         }
 
         result.totalElements = payload.page ? payload.page.totalElements : result.length;

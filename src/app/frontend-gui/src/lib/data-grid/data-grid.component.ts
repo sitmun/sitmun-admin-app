@@ -381,6 +381,9 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
   /** Grid components */
   @Input() components: any;
 
+  /** Components merged onto the shared grid registry (column filters, cell renderers) */
+  @Input() extraComponents: Record<string, unknown>;
+
   /** Column definitions */
   @Input() columnDefs: any[];
 
@@ -640,6 +643,9 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
    * Handles component initialization
    */
   ngOnInit(): void {
+    if (this.extraComponents) {
+      this.components = {...this.components, ...this.extraComponents};
+    }
     this.configureAutoSizeStrategy();
 
     // Set up debounced search (300ms delay)
@@ -807,6 +813,21 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
 
   get showDuplicateButton(): boolean {
     return !this.hideDuplicateButton && !this.readOnly;
+  }
+
+  get showToolbar(): boolean {
+    return this.showDiscardChangesButton
+      || this.showUndoButton
+      || this.showRedoButton
+      || !!this.applyChangesButton
+      || (this.globalSearch && (!this.isInfiniteMode || this.progressiveLocalFilter || this.backendSearch))
+      || this.showReplaceControls
+      || (!this.hideExportButton && !this.isInfiniteMode)
+      || this.showDeleteButton
+      || this.showDuplicateButton
+      || this.showNewButton
+      || this.showAddButton
+      || this.showRegisterButton;
   }
 
   private expandTruncatedCellColumn(params): void {
@@ -1336,6 +1357,7 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     if (this.rowModelMode === 'infinite') {
+      this.primeServerFilters();
       this.setupInfiniteGrid();
       return;
     }
@@ -1344,9 +1366,22 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
     this.loadData();
   }
 
+  /**
+   * AG Grid creates filters lazily, so a server filter preset outside the grid (a query param)
+   * would not mark its header until opened. Build those filters before the datasource is set.
+   */
+  private primeServerFilters(): void {
+    const serverFilters = new Set(Object.keys(this.extraComponents ?? {}));
+    const columns = this.columnDefs.filter((col) => typeof col.filter === 'string' && serverFilters.has(col.filter));
+    const active = columns.some((col) => this.gridApi.getFilterInstance(col.colId ?? col.field)?.isFilterActive());
+    if (active) {
+      this.gridApi.onFilterChanged();
+    }
+  }
+
   private prepareColumnDefsForRowModel(columnDefs: any[]): any[] {
     if (this.rowModelMode === 'infinite') {
-      return prepareInfiniteColumnDefs(columnDefs);
+      return prepareInfiniteColumnDefs(columnDefs, new Set(Object.keys(this.extraComponents ?? {})));
     }
     return prepareClientSideColumnDefs(columnDefs);
   }

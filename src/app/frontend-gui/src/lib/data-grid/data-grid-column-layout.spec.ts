@@ -1,6 +1,7 @@
 import {
   applyDataBasedColumnWidths,
   prepareClientSideColumnDefs,
+  prepareInfiniteColumnDefs,
   resolveAutoSizeStrategy,
   usesContentBasedColumnSizing,
   usesFlexColumnLayout,
@@ -141,6 +142,61 @@ describe('data-grid-column-layout', () => {
     expect(prepared[1]).toEqual(expect.objectContaining({flex: 1, minWidth: 140}));
     expect(prepared[2]).toEqual(expect.objectContaining({flex: 2, minWidth: 200}));
     expect(prepared[3]).toEqual(expect.objectContaining({flex: 0}));
+  });
+
+  it('keeps type and status resizable and a fixed column on infinite lists', () => {
+    const prepared = prepareInfiniteColumnDefs([
+      {headerName: '', checkboxSelection: true, resizable: false, flex: 0, width: 56},
+      {headerName: 'Name', field: 'name', flex: 2, minWidth: 200},
+      {headerName: 'Type', field: 'type', flex: 0, width: 108, minWidth: 80, resizable: true},
+      {headerName: 'Endpoint', field: 'serviceURL', flex: 4, minWidth: 280},
+      {headerName: 'Status', field: 'accessStatus', flex: 0, width: 152, minWidth: 112, resizable: true},
+      {
+        headerName: 'Fixed',
+        colId: 'fixed',
+        flex: 0,
+        width: 224,
+        minWidth: 224,
+        maxWidth: 224,
+        suppressSizeToFit: true,
+        resizable: false,
+      },
+    ]);
+
+    expect(prepared[2]).toEqual(expect.objectContaining({
+      field: 'type', flex: 0, width: 108, minWidth: 80, resizable: true,
+    }));
+    expect(prepared[2].maxWidth).toBeUndefined();
+    expect(prepared[2].lockPosition).toBeUndefined();
+    expect(prepared[2].suppressSizeToFit).toBeUndefined();
+    expect(prepared[3]).toEqual(expect.objectContaining({field: 'serviceURL', flex: 4, minWidth: 280}));
+    expect(prepared[3].width).toBeUndefined();
+    expect(prepared[4]).toEqual(expect.objectContaining({
+      field: 'accessStatus', flex: 0, width: 152, minWidth: 112, resizable: true,
+    }));
+    expect(prepared[4].maxWidth).toBeUndefined();
+    expect(prepared[4].lockPosition).toBeUndefined();
+    expect(prepared[4].suppressSizeToFit).toBeUndefined();
+    expect(prepared[5]).toEqual(expect.objectContaining({
+      colId: 'fixed',
+      flex: 0,
+      width: 224,
+      minWidth: 224,
+      maxWidth: 224,
+      suppressSizeToFit: true,
+      resizable: false,
+    }));
+  });
+
+  it('keeps only server-side column filters on infinite lists', () => {
+    const prepared = prepareInfiniteColumnDefs([
+      {field: 'name', filter: 'agTextColumnFilter'},
+      {field: 'type', filter: true},
+      {field: 'accessStatus', filter: 'serviceHealthFilter', width: 168, flex: 0},
+    ], new Set(['serviceHealthFilter']));
+
+    expect(prepared.map((col) => col.filter)).toEqual([false, false, 'serviceHealthFilter']);
+    expect(prepareInfiniteColumnDefs([{field: 'accessStatus', filter: 'serviceHealthFilter'}])[0].filter).toBe(false);
   });
 
   it('legacy non-flex grid falls back to content-based sizing', () => {

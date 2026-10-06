@@ -18,6 +18,7 @@
       [infiniteGridHeight]="config.infiniteGridHeight ?? '60vh'"
       [progressiveLocalFilter]="config.progressiveLocalFilter ?? false"
       [backendSearch]="config.backendSearch ?? false"
+      [extraComponents]="config.gridComponents"
       [globalSearch]="gridOptions.globalSearch"
       [eventRefreshSubscription]='refreshCommandEvent$.asObservable()'
       [eventSaveAgGridStateSubscription]='saveAgGridStateEvent.asObservable()'

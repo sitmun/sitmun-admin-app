@@ -1,8 +1,9 @@
-<div class="chart-container">
-  <div 
-    echarts 
-    [options]="chartOption" 
+<div class="chart-container" [style.height.px]="height">
+  <div
+    echarts
+    [options]="chartOption"
     [loading]="loading"
+    [autoResize]="true"
     class="echarts-instance">
   </div>
 </div>

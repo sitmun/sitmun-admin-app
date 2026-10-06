@@ -35,8 +35,12 @@ function withoutWrapAutoHeight(col: DataGridColumnDef): DataGridColumnDef {
 
 /**
  * Infinite row model: fixed row height, flex columns fill the viewport; explicit width/flex:0 stay fixed.
+ * Rows come from the server, so only filters named in `serverFilters` (they drive the fetch) stay.
  */
-export function prepareInfiniteColumnDefs(columnDefs: DataGridColumnDef[]): DataGridColumnDef[] {
+export function prepareInfiniteColumnDefs(
+  columnDefs: DataGridColumnDef[],
+  serverFilters: ReadonlySet<string> = new Set(),
+): DataGridColumnDef[] {
   return columnDefs.map((col) => {
     if (col.checkboxSelection) {
       return narrowCheckboxColumn(col);
@@ -45,9 +49,9 @@ export function prepareInfiniteColumnDefs(columnDefs: DataGridColumnDef[]): Data
     const flex = resolveInfiniteFlex(col);
     const processed: DataGridColumnDef = {
       ...withoutWrapAutoHeight(col),
-      filter: false,
+      filter: typeof col.filter === 'string' && serverFilters.has(col.filter) ? col.filter : false,
       flex,
-      resizable: true,
+      resizable: col.resizable !== false,
     };
 
     if (flex !== 0) {

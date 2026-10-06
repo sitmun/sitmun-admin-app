@@ -1,6 +1,6 @@
 
 import { provideHttpClient } from '@angular/common/http';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
@@ -8,13 +8,14 @@ import { By } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
 
-import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
+import { TranslateLoader, TranslateModule, TranslateService } from '@ngx-translate/core';
 import { of } from 'rxjs';
 
 import {EntityFormAlertsComponent} from '@app/components/shared/entity-form-alerts/entity-form-alerts.component';
 import {FormToolbarComponent} from '@app/components/shared/form-toolbar/form-toolbar.component';
 import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
 import {ExternalService, ResourceService} from '@app/core/hal';
+import {SUPPRESS_HTTP_NOTIFICATION} from '@app/core/interceptors/messages.interceptor';
 import {
   CartographyService,
   CartographyStyleService,
@@ -24,6 +25,7 @@ import {
   ServiceService,
   TranslationService
 } from '@app/domain';
+import {ServiceAccessHour} from '@app/domain/service/models/service-access.model';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
 import { MaterialModule } from '@app/material-module';
 import { LoggerService } from '@app/services/logger.service';
@@ -32,6 +34,7 @@ import { WMSCapabilitiesService, WMSServiceCapabilities } from '@app/services/wm
 import {configureLoggerForTests, provideErrorHandlerForTests} from '@app/testing/test-helpers';
 import { config } from '@config';
 
+import {ServiceAccessTimelineComponent} from '../service-access-timeline.component';
 import { ServiceFormComponent } from './service-form.component';
 
 describe('ServiceFormComponent', () => {
@@ -52,7 +55,7 @@ describe('ServiceFormComponent', () => {
      
     await TestBed.configureTestingModule({
       teardown: { destroyAfterEach: 0 as any },
-      declarations: [ ServiceFormComponent, FormToolbarComponent ],
+      declarations: [ ServiceFormComponent, FormToolbarComponent, ServiceAccessTimelineComponent ],
       imports: [FormsModule, ReactiveFormsModule, SitmunFrontendGuiModule, EntityFormAlertsComponent, RouterModule.forRoot([], {}), MaterialModule, TranslateModule.forRoot({
           loader: {
             provide: TranslateLoader,
@@ -1769,6 +1772,531 @@ describe('ServiceFormComponent', () => {
       expect(component.entityForm.get('isProxied')?.value).toBe(true);
       expect(component.entityForm.get('user')?.value).toBe('stored-user');
       expect(component.entityForm.get('password')?.value).toBe('stored-pass');
+    });
+  });
+
+  describe('access check', () => {
+    let monitoringLabel = 'Monitorización';
+    let testAccessLabel = 'Probar acceso';
+
+    function spanishLabels(): void {
+      monitoringLabel = 'Monitorización';
+      testAccessLabel = 'Probar acceso';
+      const translate = TestBed.inject(TranslateService);
+      translate.setDefaultLang('es');
+      translate.use('es');
+      translate.setTranslation('es', {
+        'entity.service.monitoring': 'Monitorización',
+        'entity.service.button.testAccess': 'Probar acceso',
+        'entity.service.access.status.up': 'Operativo',
+        'entity.service.access.status.auth_failed': 'Autenticación rechazada',
+        'entity.service.access.status.server_error': 'Error del servidor',
+        'entity.service.access.none': 'Ninguno',
+        'entity.service.access.returns': 'devuelve',
+        'entity.service.accessStatus': 'Estado',
+      }, true);
+      fixture.detectChanges();
+    }
+
+    function englishLabels(): void {
+      monitoringLabel = 'Monitoring';
+      testAccessLabel = 'Test access';
+      const translate = TestBed.inject(TranslateService);
+      translate.setDefaultLang('en');
+      translate.use('en');
+      translate.setTranslation('en', {
+        'entity.service.monitoring': 'Monitoring',
+        'entity.service.button.testAccess': 'Test access',
+        'entity.service.access.none': 'None',
+        'entity.service.access.returns': 'returns',
+        'entity.service.access.unknownHost': 'could not resolve the host',
+      }, true);
+      fixture.detectChanges();
+    }
+
+    async function probeButton(): Promise<HTMLButtonElement> {
+      const tabs = Array.from(fixture.nativeElement.querySelectorAll('[role="tab"]')) as HTMLElement[];
+      const monitoring = tabs.find((tab) => tab.textContent?.includes(monitoringLabel));
+      expect(monitoring?.textContent).toContain(monitoringLabel);
+      const group = fixture.debugElement.query(By.css('mat-tab-group'));
+      group.componentInstance.selectedIndex = tabs.indexOf(monitoring!);
+      fixture.detectChanges();
+      await new Promise((resolve) => setTimeout(resolve, 150));
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      const buttons = Array.from(fixture.nativeElement.querySelectorAll('button')) as HTMLButtonElement[];
+      const button = buttons.find((candidate) => candidate.textContent?.includes(testAccessLabel));
+      expect(button?.textContent ?? fixture.nativeElement.querySelector('.mat-mdc-tab-body-active')?.textContent).toContain(testAccessLabel);
+      return button!;
+    }
+
+    it('posts access-check, renders Operativo, and does not save', async () => {
+      spanishLabels();
+      component.entityID = -1;
+      component.entityForm.patchValue({blocked: true, type: 'WMS', serviceURL: 'http://127.0.0.1:9/wms'});
+      fixture.detectChanges();
+
+      const saveSpy = jest.spyOn(component, 'onSaveButtonClicked');
+      const probe = await probeButton();
+      expect(probe.disabled).toBe(false);
+      expect(probe.type).toBe('button');
+      probe.click();
+
+      expect(saveSpy).not.toHaveBeenCalled();
+
+      const http = TestBed.inject(HttpTestingController);
+      const posted = http.match((request) => request.method === 'POST' && request.url.includes('/services/-1/access-check'));
+      expect(posted).toHaveLength(1);
+      expect(posted[0].request.context.get(SUPPRESS_HTTP_NOTIFICATION)).toBe(true);
+      posted[0].flush({
+        status: 'up',
+        observer: 'backend',
+        elapsedMs: 128,
+        observedAt: '2026-10-05T11:30:00',
+      });
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.textContent).toContain('Operativo');
+      expect(fixture.nativeElement.textContent).toContain('backend');
+      expect(fixture.nativeElement.textContent).toContain('128');
+      expect(fixture.nativeElement.textContent).toContain('11:30');
+      const cells = Array.from(fixture.nativeElement.querySelectorAll('.service-access-hour')) as HTMLElement[];
+      expect(cells).toHaveLength(144);
+      expect(cells[143].style.backgroundColor).toBe('rgb(46, 125, 50)');
+      expect(cells.slice(0, 143).every((cell) => cell.style.backgroundColor === 'rgb(196, 196, 196)')).toBe(true);
+      expect(http.match((request) => request.method === 'POST' && request.url.includes('helpers/capabilities'))).toEqual([]);
+    });
+
+    it('shows the 24 h strip as 10-minute cells before any check', async () => {
+      spanishLabels();
+      await probeButton();
+
+      const cells = Array.from(fixture.nativeElement.querySelectorAll('.service-access-hour')) as HTMLElement[];
+      expect(cells).toHaveLength(144);
+      expect(cells.every((cell) => cell.style.backgroundColor === 'rgb(196, 196, 196)')).toBe(true);
+      expect(cells.some((cell) => cell.title.includes(':10 ·'))).toBe(true);
+      const http = TestBed.inject(HttpTestingController);
+      expect(http.match((request) => request.method === 'POST' && request.url.includes('/access-check'))).toEqual([]);
+      expect(http.match((request) => request.url.includes('/access-summaries'))).toEqual([]);
+    });
+
+    it('shows the stored latest error when an existing service opens', async () => {
+      englishLabels();
+      component.entityID = 7;
+      component.postFetchData();
+      const http = TestBed.inject(HttpTestingController);
+      http.expectOne((request) => request.method === 'GET' && request.url.includes('/services/7/access-trend'))
+        .flush({buckets: Array.from({length: 144}, () => null)});
+      const summaries = http.expectOne((request) => request.method === 'GET' && request.url.includes('/access-summaries'));
+      expect(summaries.request.url).not.toContain('/services/7/');
+      summaries.flush([{
+        serviceId: 7,
+        status: 'client_error',
+        statusRank: 40,
+        observer: 'backend',
+        elapsedMs: 40,
+        observedAt: '2026-10-05T11:31:00',
+        detail: 'GetCapabilities geoserveis.icgc.cat/icc_bt25m/wms/service | HTTP 404',
+        hours: [],
+      }, {
+        serviceId: 9,
+        status: 'up',
+        statusRank: 0,
+        observer: 'backend',
+        elapsedMs: 1,
+        observedAt: '2026-10-05T11:00:00',
+        detail: '',
+        hours: [],
+      }]);
+      fixture.detectChanges();
+      await probeButton();
+
+      const text = fixture.nativeElement.querySelector('.sitmun-service-access-panel')?.textContent ?? '';
+      expect(text).toContain('client_error');
+      expect(text).toContain('backend');
+      expect(text).toContain('11:31');
+      expect(text).toContain('40 ms');
+      expect(text).toContain('GetCapabilities returns HTTP 404');
+      expect(http.match((request) => request.method === 'POST' && request.url.includes('/access-check'))).toEqual([]);
+    });
+
+    it('leaves the latest error hidden when the service has no stored check', async () => {
+      englishLabels();
+      component.entityID = 7;
+      component.postFetchData();
+      const http = TestBed.inject(HttpTestingController);
+      http.expectOne((request) => request.method === 'GET' && request.url.includes('/services/7/access-trend'))
+        .flush({buckets: Array.from({length: 144}, () => null)});
+      http.expectOne((request) => request.method === 'GET' && request.url.includes('/access-summaries')).flush([]);
+      fixture.detectChanges();
+      await probeButton();
+
+      expect(fixture.nativeElement.querySelector('.sitmun-service-access')).toBeNull();
+    });
+
+    it('paints the refreshed 10-minute trend, including a proxy sample', async () => {
+      spanishLabels();
+      component.entityID = 7;
+      component.postFetchData();
+      const http = TestBed.inject(HttpTestingController);
+      const buckets = Array.from({length: 144}, () => null);
+      buckets[40] = {status: 'timeout', statusRank: 70, observer: 'backend'};
+      buckets[41] = {status: 'server_error', statusRank: 50, observer: 'proxy'};
+      const trend = http.expectOne((request) => request.method === 'GET' && request.url.includes('/services/7/access-trend'));
+      expect(trend.request.params.get('bucket')).toBe('10m');
+      expect(trend.request.url).not.toContain('/access-summaries');
+      trend.flush({buckets});
+      http.expectOne((request) => request.method === 'GET' && request.url.includes('/access-summaries')).flush([]);
+      fixture.detectChanges();
+      await probeButton();
+
+      const before = Array.from(fixture.nativeElement.querySelectorAll('.service-access-hour')) as HTMLElement[];
+      const beforeColors = before.map((cell) => cell.style.backgroundColor);
+      expect(beforeColors).toHaveLength(144);
+      expect(beforeColors[40]).toBe('rgb(198, 40, 40)');
+      expect(beforeColors[41]).toBe('rgb(198, 40, 40)');
+      expect(beforeColors.filter((color) => color !== 'rgb(196, 196, 196)')).toEqual([
+        'rgb(198, 40, 40)',
+        'rgb(198, 40, 40)',
+      ]);
+
+      (await probeButton()).click();
+      const posted = http.expectOne((request) => request.method === 'POST' && request.url.includes('/access-check'));
+      expect(posted.request.context.get(SUPPRESS_HTTP_NOTIFICATION)).toBe(true);
+      posted.flush({
+        status: 'up',
+        statusRank: 0,
+        observer: 'backend',
+        elapsedMs: 12,
+        observedAt: '2026-10-05T15:10:00',
+        detail: '',
+      });
+      const refreshed = Array.from({length: 144}, () => null);
+      refreshed[40] = {status: 'timeout', statusRank: 70};
+      refreshed[143] = {status: 'up', statusRank: 0};
+      http.expectOne((request) => request.method === 'GET' && request.url.includes('/services/7/access-trend')).flush({
+        buckets: refreshed,
+      });
+      fixture.detectChanges();
+
+      const after = Array.from(fixture.nativeElement.querySelectorAll('.service-access-hour')) as HTMLElement[];
+      expect(after).toHaveLength(144);
+      expect(after[40].style.backgroundColor).toBe('rgb(198, 40, 40)');
+      expect(after[143].style.backgroundColor).toBe('rgb(46, 125, 50)');
+      expect(fixture.nativeElement.textContent).toContain('Ninguno');
+    });
+
+    it('shows the status code when no label exists', async () => {
+      spanishLabels();
+      component.entityID = -1;
+      (await probeButton()).click();
+
+      const http = TestBed.inject(HttpTestingController);
+      const posted = http.match((request) => request.method === 'POST' && request.url.includes('/access-check'));
+      expect(posted).toHaveLength(1);
+      posted[0].flush({
+        status: 'maintenance',
+        observer: 'backend',
+        elapsedMs: 4,
+        observedAt: '2026-10-05T11:30:00',
+      });
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.textContent).toContain('maintenance');
+    });
+
+    async function flushAccess(body: Record<string, unknown>): Promise<string> {
+      component.entityID = -1;
+      (await probeButton()).click();
+      const http = TestBed.inject(HttpTestingController);
+      const posted = http.match((request) => request.method === 'POST' && request.url.includes('/access-check'));
+      expect(posted).toHaveLength(1);
+      posted[0].flush(body);
+      fixture.detectChanges();
+      const detail = fixture.nativeElement.querySelector('.service-access-detail-text');
+      return detail?.textContent ?? '';
+    }
+
+    it.each([
+      ['empty', ''],
+      ['blank', '   '],
+      ['null', null],
+    ])('shows Ninguno when an up check detail is %s', async (_label, detail) => {
+      spanishLabels();
+      const latestError = await flushAccess({
+        status: 'up',
+        observer: 'backend',
+        elapsedMs: 12,
+        observedAt: '2026-10-05T11:30:00',
+        detail,
+      });
+
+      expect(latestError.trim()).toBe('Ninguno');
+    });
+
+    it('shows a stored latest error as a sentence without the host', async () => {
+      englishLabels();
+      const latestError = await flushAccess({
+        status: 'client_error',
+        observer: 'backend',
+        elapsedMs: 40,
+        observedAt: '2026-10-05T11:31:00',
+        detail: 'GetCapabilities geoserveis.icgc.cat/icc_bt25m/wms/service | HTTP 404',
+      });
+
+      expect(latestError.trim()).toBe('GetCapabilities returns HTTP 404');
+      expect(latestError).not.toContain('geoserveis');
+    });
+
+    it('shows UnknownHostException as a sentence without the class or the host', async () => {
+      englishLabels();
+      const latestError = await flushAccess({
+        status: 'unreachable',
+        observer: 'backend',
+        elapsedMs: 8,
+        observedAt: '2026-10-05T11:32:00',
+        detail: 'GetCapabilities blocked.example.com/wms | UnknownHostException blocked.example.com',
+      });
+
+      expect(latestError.trim()).toBe('GetCapabilities could not resolve the host');
+      expect(latestError).not.toContain('UnknownHostException');
+      expect(latestError).not.toContain('blocked.example.com');
+    });
+
+    it('shows None when an up check detail is empty', async () => {
+      englishLabels();
+      const latestError = await flushAccess({
+        status: 'up',
+        observer: 'backend',
+        elapsedMs: 12,
+        observedAt: '2026-10-05T11:30:00',
+        detail: '',
+      });
+
+      expect(latestError.trim()).toBe('None');
+    });
+
+    it('shows the request alone when a stored detail has no evidence', async () => {
+      englishLabels();
+      const latestError = await flushAccess({
+        status: 'client_error',
+        observer: 'backend',
+        elapsedMs: 40,
+        observedAt: '2026-10-05T11:31:00',
+        detail: 'GetCapabilities geoserveis.icgc.cat/icc_bt25m/wms/service | ',
+      });
+
+      expect(latestError.trim()).toBe('GetCapabilities');
+      expect(latestError).not.toContain('returns');
+      expect(latestError).not.toContain('geoserveis');
+    });
+
+    it('shows the evidence alone when a stored detail has no request', async () => {
+      englishLabels();
+      const latestError = await flushAccess({
+        status: 'client_error',
+        observer: 'backend',
+        elapsedMs: 40,
+        observedAt: '2026-10-05T11:31:00',
+        detail: ' | HTTP 404',
+      });
+
+      expect(latestError.trim()).toBe('HTTP 404');
+    });
+  });
+
+  describe('usage lists', () => {
+    it('lists every application and drops only ViewerConfig from operations', () => {
+      const applications = Array.from({length: 11}, (_, index) => ({
+        applicationId: index + 1,
+        name: `App ${index + 1}`,
+        requests: 100 - index,
+        failed: 0,
+        viewerLoads: 0,
+      }));
+      component.usage = {
+        measured: true,
+        viewerLoads: 3,
+        operations: [
+          {operation: 'ViewerConfig', requests: 3, failed: 0},
+          {operation: 'GetMap', requests: 8, failed: 1},
+          {operation: 'GetLegendGraphic', requests: 2, failed: 0},
+        ],
+        applications,
+      };
+
+      expect(component.usageApplications().map((row) => row.applicationId)).toEqual(
+        applications.map((row) => row.applicationId),
+      );
+      expect(component.usageOperations().map((row) => row.operation)).toEqual([
+        'GetMap',
+        'GetLegendGraphic',
+      ]);
+    });
+
+    it('stacks successful and failed requests so each day sums to its total', () => {
+      component.usage = {
+        measured: true,
+        viewerLoads: 0,
+        series: [
+          {index: '2026-10-05', value: 0, failed: 0},
+          {index: '2026-10-06', value: 129, failed: 31},
+        ],
+      };
+
+      const [successful, failed] = component.usageChartSeries();
+
+      expect(successful.name).toBe('entity.service.usage.successful');
+      expect(failed.name).toBe('entity.service.usage.failed');
+      expect(successful.data.map((point) => point.value)).toEqual([0, 98]);
+      expect(failed.data.map((point) => point.value)).toEqual([0, 31]);
+      expect(component.usageChartTotalLabel()).toBe('entity.service.usage.requests');
+    });
+
+    it('keeps the same chart series between change detections so the bars can finish animating', () => {
+      component.usage = {measured: true, viewerLoads: 0, series: [{index: '2026-10', value: 129, failed: 31}]};
+      const first = component.usageChartSeries();
+
+      expect(component.usageChartSeries()).toBe(first);
+
+      component.usage = {measured: true, viewerLoads: 0, series: [{index: '2026-10-06', value: 129, failed: 31}]};
+
+      expect(component.usageChartSeries()).not.toBe(first);
+    });
+
+    it('labels monthly buckets per month for the 12 month range', () => {
+      component.usageRange = '90d';
+      expect(component.usageChartTitleKey()).toBe('entity.service.usage.perDay');
+      expect(component.usageChartPeriod()).toBe('day');
+      expect(component.usageSlotsKey()).toBe('entity.service.usage.daysWithUse');
+
+      component.usageRange = '12m';
+      expect(component.usageChartTitleKey()).toBe('entity.service.usage.perMonth');
+      expect(component.usageChartPeriod()).toBe('month');
+      expect(component.usageSlotsKey()).toBe('entity.service.usage.monthsWithUse');
+    });
+
+    it('formats chart days in the interface language', () => {
+      TestBed.inject(TranslateService).use('fr');
+
+      expect(component.usageChartLocale()).toBe('fr');
+    });
+  });
+
+  describe('latency chart', () => {
+    const sample = {
+      observedAt: '2026-10-06T10:00:00',
+      elapsedMs: 40,
+      status: 'up',
+      statusRank: 0,
+      observer: 'backend',
+    };
+
+    it('keeps the same latency series until samples or the limit change', () => {
+      component.accessSamples = [sample];
+      component.sampleTimeoutMs = 10000;
+      const first = component.latencySeries();
+
+      expect(component.latencySeries()).toBe(first);
+      expect(component.latencyReference()).toBe(component.latencyReference());
+      expect(component.latencyReference()?.value).toBe(10000);
+
+      component.sampleTimeoutMs = 8000;
+      const afterLimit = component.latencySeries();
+      expect(afterLimit).not.toBe(first);
+
+      component.accessSamples = [{...sample, elapsedMs: 90}];
+      expect(component.latencySeries()).not.toBe(afterLimit);
+    });
+
+    function englishTimeoutLabels(): void {
+      const translate = TestBed.inject(TranslateService);
+      translate.setDefaultLang('en');
+      translate.use('en');
+      translate.setTranslation('en', {
+        'entity.service.access.observer.backend': 'Backend',
+        'entity.service.access.observer.proxy': 'Proxy',
+        'entity.service.access.status.timeout': 'Timeout',
+        'entity.service.access.status.up': 'Up',
+        'entity.service.access.timedOut': 'timed out',
+        'entity.service.access.timedOutAfter': 'Timed out after {{seconds}} s',
+        'entity.service.access.lastCheck': 'Last check {{time}} · {{observer}} · {{elapsed}} ms',
+        'entity.service.access.lastCheckTimeout': 'Last check {{time}} · {{observer}} · timed out at {{seconds}} s',
+        'entity.service.access.timedOutAt': 'Timed out · {{time}} · {{observer}}',
+        'entity.service.access.timedOutCount': '{{count}} checks timed out',
+        'entity.service.access.timedOutOne': '1 check timed out',
+      }, true);
+    }
+
+    const timeoutObservation = {
+      status: 'timeout',
+      statusRank: 70,
+      observer: 'backend',
+      elapsedMs: 10008,
+      observedAt: '2026-10-07T00:07:00',
+      detail: 'GetCapabilities host.example/wms | SocketTimeoutException Read timed out',
+    };
+
+    it('says the check timed out after the limit instead of the elapsed time', () => {
+      englishTimeoutLabels();
+      component.accessObservation = timeoutObservation;
+      component.sampleTimeoutMs = 10000;
+      const facts = component.monitoring()!;
+
+      expect(component.accessVerdictText(facts)).toBe('Timed out after 10 s');
+      expect(component.lastCheckText(facts)).toContain('Backend · timed out at 10 s');
+      expect(component.lastCheckText(facts)).not.toContain('10008');
+
+      component.accessObservation = {...timeoutObservation, status: 'up', elapsedMs: 717};
+      const up = component.monitoring()!;
+      expect(component.accessVerdictText(up)).toBe('Up');
+      expect(component.lastCheckText(up)).toContain('Backend · 717 ms');
+    });
+
+    it('breaks the latency line at timeouts and marks them on the limit', () => {
+      englishTimeoutLabels();
+      component.accessObservation = timeoutObservation;
+      component.sampleTimeoutMs = 10000;
+      component.accessSamples = [
+        {...sample, observedAt: '2026-10-06T10:00:00', elapsedMs: 700},
+        {...sample, observedAt: '2026-10-06T10:10:00', elapsedMs: 10008, status: 'timeout', statusRank: 70},
+        {...sample, observedAt: '2026-10-06T10:20:00', elapsedMs: 730},
+      ];
+
+      const [line, markers] = component.latencySeries();
+
+      expect(line.kind).toBe('line');
+      expect(line.data.map((point) => point.value)).toEqual([700, null, 730]);
+      expect(markers.kind).toBe('scatter');
+      expect(markers.color).toBe('#c62828');
+      expect(markers.data).toEqual([
+        {index: '2026-10-06T10:10:00', value: 10000, note: 'Timed out · 10:10 · Backend'},
+      ]);
+      expect(component.monitoring()?.p50).toBe(715);
+      expect(component.timedOutText(component.monitoring()!)).toBe('1 check timed out');
+    });
+
+    it('names the check and the observer on each recent change', () => {
+      englishTimeoutLabels();
+      component.accessObservation = timeoutObservation;
+      const hours: Array<ServiceAccessHour | null> = Array.from({length: 144}, () => null);
+      hours[140] = {status: 'up', statusRank: 0, observers: ['backend']};
+      hours[141] = {status: 'timeout', statusRank: 70, observers: ['proxy']};
+      hours[142] = {status: 'up', statusRank: 0, observers: ['backend']};
+      hours[143] = {status: 'timeout', statusRank: 70, observers: ['backend']};
+      component.accessHours = hours;
+
+      const rows = component.recentChanges();
+
+      expect(rows.map((row) => row.what)).toEqual([
+        'GetCapabilities timed out · Backend',
+        'Backend',
+        'Proxy',
+      ]);
+      expect(rows[0].failed).toBe(true);
+      expect(component.loneDetail()).toBe(false);
     });
   });
 });

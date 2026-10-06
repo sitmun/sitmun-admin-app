@@ -1,0 +1,16 @@
+<mat-card class="chart-card" appearance="outlined">
+  <mat-card-header>
+    <mat-card-title class="chart-title">{{ title }}</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <app-empty-state
+      *ngIf="empty"
+      icon="bar_chart"
+      titleKey="common.status.notAvailable"
+      [messageKey]="emptyMessageKey">
+    </app-empty-state>
+    <ng-container *ngIf="!empty">
+      <ng-content></ng-content>
+    </ng-container>
+  </mat-card-content>
+</mat-card>

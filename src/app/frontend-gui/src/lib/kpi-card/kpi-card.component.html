@@ -1,0 +1,20 @@
+<a *ngIf="link" class="kpi-link" [routerLink]="link">
+  <ng-container *ngTemplateOutlet="card"></ng-container>
+</a>
+<ng-container *ngIf="!link">
+  <ng-container *ngTemplateOutlet="card"></ng-container>
+</ng-container>
+
+<ng-template #card>
+  <mat-card class="kpi-card" appearance="outlined" [matTooltip]="tooltip" matTooltipPosition="above">
+    <mat-card-content class="kpi-content">
+      <div class="kpi-icon-wrapper">
+        <mat-icon class="kpi-icon">{{ icon }}</mat-icon>
+      </div>
+      <div class="kpi-details">
+        <div class="kpi-title">{{ title }}</div>
+        <div class="kpi-value">{{ value }}</div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</ng-template>

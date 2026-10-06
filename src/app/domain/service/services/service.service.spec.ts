@@ -1,3 +1,4 @@
+import { HttpClient } from '@angular/common/http';
 import { Injector } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
@@ -16,7 +17,10 @@ describe('ServiceService', () => {
   beforeEach(() => {
     resourceService = { search: jest.fn() };
     TestBed.configureTestingModule({
-      providers: [{ provide: ResourceService, useValue: resourceService }],
+      providers: [
+        { provide: ResourceService, useValue: resourceService },
+        { provide: HttpClient, useValue: {} },
+      ],
     });
     service = new ServiceService(TestBed.inject(Injector));
   });
