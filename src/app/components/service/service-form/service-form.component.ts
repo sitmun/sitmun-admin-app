@@ -1,5 +1,5 @@
 import {COMMA, ENTER} from '@angular/cdk/keycodes';
-import {Component, OnDestroy, OnInit, TemplateRef, ViewChild} from '@angular/core';
+import {ChangeDetectorRef, Component, inject, NgZone, OnDestroy, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
 import {MatChipInputEvent} from '@angular/material/chips';
@@ -153,6 +153,10 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
   accessHours = accessTrendSlots(undefined, 'tenMinute');
   accessSamples: ServiceAccessSample[] = [];
   sampleTimeoutMs = 0;
+  private viewNow = new Date();
+  private viewClock: ReturnType<typeof setInterval> | null = null;
+  private readonly zone = inject(NgZone);
+  private readonly changeDetector = inject(ChangeDetectorRef);
   private latencyChart: {
     samples: ServiceAccessSample[];
     timeoutMs: number;
@@ -238,6 +242,20 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.maybeRegisterParametersTable());
     this.loadUsage(this.usageRange);
+    this.zone.runOutsideAngular(() => {
+      this.viewClock = setInterval(() => {
+        this.viewNow = new Date();
+        this.changeDetector.detectChanges();
+      }, 1000);
+    });
+  }
+
+  override ngOnDestroy(): void {
+    if (this.viewClock != null) {
+      clearInterval(this.viewClock);
+      this.viewClock = null;
+    }
+    super.ngOnDestroy();
   }
 
   /**
@@ -583,7 +601,7 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
   }
 
   monitoring(): MonitoringFacts | null {
-    return monitoringFacts(this.accessObservation, this.accessHours, this.accessSamples, new Date());
+    return monitoringFacts(this.accessObservation, this.accessHours, this.accessSamples, this.viewNow);
   }
 
   accessVerdictText(facts: MonitoringFacts): string {
@@ -620,7 +638,7 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
   }
 
   accessAgo(since: Date): string {
-    return relativeAgo(since, new Date(), this.translateService.currentLang || 'es');
+    return relativeAgo(since, this.viewNow, this.translateService.currentLang || 'es');
   }
 
   checkedText(): string {
@@ -628,7 +646,7 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
   }
 
   changeClock(index: number): string {
-    return hourMinute(bucketStart(index, new Date(), 'tenMinute'));
+    return hourMinute(bucketStart(index, this.viewNow, 'tenMinute'));
   }
 
   lastCheckText(facts: MonitoringFacts): string {
@@ -842,7 +860,7 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
     if (day == null || day === '') {
       return this.translateService.instant('entity.service.usage.unused');
     }
-    const now = new Date();
+    const now = this.viewNow;
     const today = [
       now.getFullYear(),
       String(now.getMonth() + 1).padStart(2, '0'),
