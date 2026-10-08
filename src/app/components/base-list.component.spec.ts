@@ -67,7 +67,7 @@ describe('BaseListComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  describe('default dataFetchFn behavior', () => {
+  describe('dataFetchFn is present', () => {
     it('should have dataFetchFn defined', () => {
       // Test that dataFetchFn exists on the component
       // The actual default behavior (of([])) is tested in data-tables.util.spec.ts
