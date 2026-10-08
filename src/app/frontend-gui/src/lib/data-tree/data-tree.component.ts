@@ -1089,7 +1089,7 @@ export class DataTreeComponent implements OnInit {
     }
     // CDK may emit drag-end before drop; reconstruct drag state from drop event.
     this.isDragging = true;
-    const dropPoint = (event as unknown as { dropPoint?: { x: number; y: number } }).dropPoint;
+    const dropPoint = event.dropPoint;
     const targetNodeIdFromList = this.getTargetNodeIdFromDropListData(event?.container?.data as DndNodeLike[] | undefined, event.currentIndex);
     const targetNodeIdFromPoint = this.getTargetNodeIdFromDropPoint(dropPoint);
     const sameAsSourceFromList = this.isSameId(targetNodeIdFromList, this.dragNodeId);
@@ -1251,8 +1251,8 @@ export class DataTreeComponent implements OnInit {
     if (!node || !this.currentTreeType || node.nodeType == null) return false;
     const nodeCfg = config.treeTypeNodeTypes?.[this.currentTreeType]?.nodeTypes?.[node.nodeType];
     if (!nodeCfg?.folderHintForTaskGroupContainer) return false;
-    const taskId = (node as any).taskId;
-    const viewMode = (node as any).viewMode;
+    const taskId = node.taskId;
+    const viewMode = node.viewMode;
     return (taskId == null || taskId === '') && (viewMode == null || viewMode === '');
   }
 
