@@ -175,10 +175,6 @@ export class ApplicationFormComponent extends BaseFormComponent<ApplicationProje
   @ViewChild('newParameterDialog', {static: true})
   private readonly newParameterDialog: TemplateRef<any>;
 
-  /**
-   * Reference to the dialog template used for creating new parameters.
-   * Used by the table of parameters for adding new application parameters.
-   */
   @ViewChild('newHeaderParamDialog', {static: true})
   private readonly newHeaderParamDialog: TemplateRef<any>;
 

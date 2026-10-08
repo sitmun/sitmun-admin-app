@@ -50,20 +50,6 @@ import {UtilsService} from "@app/services/utils.service";
 import { compareNullableString } from '@app/utils/compare-nullable-string';
 import {magic} from "@environments/constants";
 
-/**
- * Component for managing basic tasks in the SITMUN application.
- * Provides a form interface for creating, editing, and duplicating basic tasks.
- *
- * This component handles:
- * - Task metadata (name)
- * - Task role assignments
- * - Task availability per territory
- * - Task parameters configuration
- *
- * Each task is associated with a specific task type and task group.
- *
- * @extends BaseFormComponent<TaskProjection>
- */
 @Component({
     selector: 'app-task-edit-form',
     templateUrl: './task-edit-form.component.html',
@@ -73,10 +59,6 @@ import {magic} from "@environments/constants";
 export class TaskEditFormComponent extends BaseFormComponent<TaskProjection> {
   readonly config = Configuration.TASK_EDIT;
 
-  /**
-   * The reactive form for editing task properties.
-   * Contains form controls for name and UI selection with validation rules.
-   */
   public override entityForm: FormGroup;
 
   /**
@@ -180,18 +162,10 @@ export class TaskEditFormComponent extends BaseFormComponent<TaskProjection> {
      */
     protected cartographies: Cartography[] = [];
 
-  /**
-   * Checks if the current task scope is SQL query
-   * @returns boolean indicating if scope is SQL query
-   */
   isDBEditionScope(): boolean {
     return this.entityForm?.value?.scope === this.codeValues.editionTaskScope.dbEdition;
   }
 
-  /**
-   * Checks if the current task scope is Cartography query
-   * @returns boolean indicating if scope is Cartography query
-   */
   isCartographyEditionScope(): boolean {
     return this.entityForm?.value?.scope === this.codeValues.editionTaskScope.cartographyEdition;
   }
@@ -205,32 +179,6 @@ export class TaskEditFormComponent extends BaseFormComponent<TaskProjection> {
     return this.isDBEditionScope() || this.isCartographyEditionScope();
   }
 
-  /**
-   * Constructor for the TaskBasicFormComponent.
-   * Initializes the component with necessary services and sets up the form.
-   *
-   * @param dialog - Material dialog service for modal dialogs
-   * @param translateService - Service for handling translations
-   * @param translationService - Service for managing entity translations
-   * @param codeListService - Service for accessing code lists
-   * @param errorHandler - Service for handling errors
-   * @param activatedRoute - Service for accessing route parameters
-   * @param router - Angular router service for navigation
-   * @param loadingService
-   * @param messagesInterceptorState
-   * @param loadingService
-   * @param messagesInterceptorState
-   * @param taskService - Service for task CRUD operations
-   * @param utils - Utility service with common functions
-   * @param loggerService - Service for logging
-   * @param taskTypeService - Service for managing task types
-   * @param roleService - Service for managing roles
-   * @param taskGroupService - Service for managing task groups
-   * @param territoryService - Service for accessing territories
-   * @param taskAvailabilityService - Service for managing task availabilities
-   * @param connectionService - Service for database connections
-   * @param cartographyService - Service for cartography management
-   */
   constructor(
     dialog: MatDialog,
     translateService: TranslateService,
