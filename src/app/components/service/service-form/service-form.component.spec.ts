@@ -2036,6 +2036,47 @@ describe('ServiceFormComponent', () => {
       expect(latestError.trim()).toBe('Ninguno');
     });
 
+    it('keeps the shown access age when two clock reads in one check are 600ms apart', async () => {
+      spanishLabels();
+      TestBed.inject(TranslateService).setTranslation('es', {
+        'entity.service.access.sinceStatus': 'desde las {{time}} ({{ago}})',
+      }, true);
+      await flushAccess({
+        status: 'up',
+        observer: 'backend',
+        elapsedMs: 12,
+        observedAt: '2026-10-05T11:30:00',
+        detail: null,
+      });
+      const shown = fixture.nativeElement.querySelector('.access-since')?.textContent ?? '';
+      const ago = shown.match(/\(([^)]+)\)/)?.[1] ?? '';
+      expect(ago === 'ahora' || ago.startsWith('hace ')).toBe(true);
+
+      const RealDate = Date;
+      let accessAgoReads = 0;
+      const first = Date.parse('2026-10-05T11:30:40.400Z');
+      const second = first + 600;
+      function Clock(this: unknown, ...args: unknown[]): Date {
+        if (args.length === 0) {
+          const fromAccessAgo = new Error().stack?.includes('accessAgo') ?? false;
+          const time = fromAccessAgo && accessAgoReads++ > 0 ? second : first;
+          return new RealDate(time);
+        }
+        return new RealDate(...(args as ConstructorParameters<typeof RealDate>));
+      }
+      Clock.prototype = RealDate.prototype;
+      Clock.now = () => first;
+      Clock.parse = RealDate.parse;
+      Clock.UTC = RealDate.UTC;
+      globalThis.Date = Clock as unknown as DateConstructor;
+      try {
+        expect(() => fixture.detectChanges()).not.toThrow();
+        expect(fixture.nativeElement.querySelector('.access-since')?.textContent).toBe(shown);
+      } finally {
+        globalThis.Date = RealDate;
+      }
+    });
+
     it('shows a stored latest error as a sentence without the host', async () => {
       englishLabels();
       const latestError = await flushAccess({
