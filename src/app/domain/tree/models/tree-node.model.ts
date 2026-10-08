@@ -28,7 +28,6 @@ export class TreeNode extends Resource {
   public active: boolean;
   /** catalog visibility in the viewer */
   public visible: boolean;
-  /** parent tree node */
   public radio: boolean;
   /** parent tree node */
   public parent: TreeNode;
