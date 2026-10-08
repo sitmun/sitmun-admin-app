@@ -12,9 +12,6 @@ import { Task } from '../models/task.model';
 @Injectable()
 export class TaskService extends RestService<Task> {
 
-    /** API resource path */
-    public CONNECTION_API = 'tasks';
-
     /** constructor */
     constructor(injector: Injector, private loggerService: LoggerService) {
         super(Task, "tasks", injector);

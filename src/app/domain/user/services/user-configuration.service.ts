@@ -12,9 +12,6 @@ import { UserConfiguration } from '../models/user-configuration.model';
 @Injectable()
 export class UserConfigurationService extends RestService<UserConfiguration> {
 
-  /** API resource path */
-  public USER_CONFIGURATION_API = 'user-configurations';
-
   /** constructor */
   constructor(injector: Injector, private loggerService: LoggerService) {
     super(UserConfiguration, "user-configurations", injector);

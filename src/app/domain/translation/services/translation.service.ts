@@ -13,9 +13,6 @@ import { Translation } from '../models/translation.model';
 })
 export class TranslationService extends RestService<Translation> {
 
-  /** API resource path */
-  public TRANSLATION_API = 'translations';
-
   /** constructor */
   constructor(injector: Injector) {
     super(Translation, "translations", injector);
