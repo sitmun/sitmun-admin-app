@@ -7,7 +7,6 @@ import { Tree } from '../../tree/models/tree.model';
  * Application tree association model
  */
 export class ApplicationTree extends Resource {
-  /** id */
   public override id: number;
   public application: Application;
   public tree: Tree;

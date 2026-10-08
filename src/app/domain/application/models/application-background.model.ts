@@ -8,7 +8,6 @@ import {Background, BackgroundProjection} from '../../cartography/models/backgro
  */
 
 export class ApplicationBackground extends Resource {
-  /** id */
   public override id: number;
   public application: Application;
   public background: Background;

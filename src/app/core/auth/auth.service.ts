@@ -21,7 +21,6 @@ export class AuthService {
 
   public AUTH_METHODS_API = 'auth/enabled-methods';
 
-  /** constructor*/
   constructor(
     private readonly http: HttpClient,
     private readonly resourceService: ResourceService,

@@ -48,7 +48,6 @@ export class AuthExpiredInterceptor implements HttpInterceptor {
   private validation$: Observable<unknown> | null = null;
   private transientWarningShown = false;
 
-    /** constructor */
     constructor(
         private loginService: LoginService,
         private notificationService: NotificationService,

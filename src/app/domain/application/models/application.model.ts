@@ -14,20 +14,16 @@ import {User} from '../../user/models/user.model';
  */
 
 export class Application extends Resource {
-  /** id */
   public override id: number;
 
-  /** name*/
   public name: string;
 
   public description: string;
 
   public logo: string;
 
-  /** type*/
   public type: string;
 
-  /** title*/
   public title: string;
 
   /** theme*/
@@ -73,7 +69,6 @@ export class Application extends Resource {
   public warnings?: string[];
 
   public static readonly allProperties: string [] = [
-    // Resource properties
     'proxyUrl', 'rootUrl', '_links', '_subtypes',
     // Application properties
     'id', 'name', 'description', 'logo', 'type', 'title', 'theme',
@@ -92,7 +87,6 @@ export class Application extends Resource {
    */
   public static fromObject(source: any): Application {
     const application = new Application();
-    // Define the properties to copy
     let propertiesToCopy: string[];
     if (source.type === constants.codeValue.applicationType.internalApp) {
       propertiesToCopy = Application.internalApp
@@ -103,7 +97,6 @@ export class Application extends Resource {
     } else {
       propertiesToCopy = Application.allProperties
     }
-    // Copy only defined properties that exist in our class
     propertiesToCopy.forEach(prop => {
       if (source[prop] !== undefined) {
         application[prop] = source[prop];
@@ -113,7 +106,6 @@ export class Application extends Resource {
   }
 
   public static readonly externalApp: string [] = [
-    // Resource properties
     'proxyUrl', 'rootUrl', '_links', '_subtypes',
     // Common application properties
     'id',  'name', 'description', 'logo', 'type',
@@ -126,7 +118,6 @@ export class Application extends Resource {
   ]
 
   public static readonly internalApp: string [] = [
-    // Resource properties
     'proxyUrl', 'rootUrl', '_links', '_subtypes',
     // Common application properties
     'id',  'name', 'description', 'logo', 'type',
@@ -141,7 +132,6 @@ export class Application extends Resource {
   ]
 
   public static readonly touristicApp: string [] = [
-    // Resource properties
     'proxyUrl', 'rootUrl', '_links', '_subtypes',
     // Common application properties
     'id',  'name', 'description', 'logo', 'type',
@@ -190,7 +180,6 @@ export class ApplicationProjection extends Resource {
   public static fromObject(source: any): ApplicationProjection {
     const projection = new ApplicationProjection();
     const propertiesToCopy = [
-      // Resource properties
       'proxyUrl', 'rootUrl', '_links', '_subtypes',
       // ApplicationProjection properties
       'id', 'name', 'type', 'title', 'theme', 'scales', 'srs', 'jspTemplate',

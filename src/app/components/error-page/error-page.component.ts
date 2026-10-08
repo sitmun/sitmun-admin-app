@@ -45,7 +45,6 @@ export class ErrorPageComponent implements OnInit {
         this.errorMessage = 'backend.error.unknown';
       }
 
-      // Create detailed error information for display
       const errorInfo = {
         message: this.errorMessage,
         source: this.error.source || 'unknown',
@@ -59,7 +58,6 @@ export class ErrorPageComponent implements OnInit {
       this.errorMessage = 'backend.error.initialization';
     }
     
-    // Mark as loaded after processing
     this.loadedData = true;
   }
 

@@ -75,19 +75,15 @@ export class UserFormComponent extends BaseFormComponent<UserProjection> {
 
   protected readonly applicationsAsContactTable: DataTableDefinition<Application, Application>
 
-  /** Flag indicating if the password is set */
   passwordSet = false;
 
   /** True when the loaded entity already had a stored password (server truth). */
   private persistedPasswordSet = false;
 
-  /** Flag indicating if the password is being edited */
   isPasswordBeingEdited = false;
 
-  /** Flag indicating if the password has been modified */
   passwordModified = false;
 
-  /** The actual password value */
   actualPassword: string = null;
 
   /** True after the user changes the password field during the current focus session. */
@@ -96,10 +92,8 @@ export class UserFormComponent extends BaseFormComponent<UserProjection> {
   /** Whether the account had a password when the current password focus session started. */
   private hadPasswordBeforeFocusSession = false;
 
-  /** Flag indicating if this is the built-in admin user */
   isBuiltInAdmin = false;
 
-  /** Flag indicating if this is the built-in public user */
   isBuiltInPublic = false;
 
   leftoverPositionCount = 0;

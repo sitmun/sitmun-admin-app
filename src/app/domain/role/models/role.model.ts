@@ -7,9 +7,7 @@ import {Task} from '../../task/models/task.model';
  * Role model
  */
 export class Role extends Resource {
-  /** id */
   public override id: number;
-  /** name*/
   public name: string;
   /** comments*/
   public description: string;
@@ -31,15 +29,12 @@ export class Role extends Resource {
    */
   public static fromObject(source: any): Role {
     const role = new Role();
-    // Define the properties to copy
     const propertiesToCopy = [
-      // Resource properties
       'proxyUrl', 'rootUrl', '_links', '_subtypes',
       // Role properties
       'id', 'name', 'description', 'applications', 'tasks',
       'permissions', 'trees', 'userConfigurations'
     ];
-    // Copy only defined properties that exist in our class
     propertiesToCopy.forEach(prop => {
       if (source[prop] !== undefined) {
         role[prop] = source[prop];

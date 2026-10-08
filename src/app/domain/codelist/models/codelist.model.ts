@@ -3,13 +3,11 @@ import { Resource } from '@app/core/hal/resource/resource.model';
  * Code List Value model
  */
 export class CodeList extends Resource {
-  /** id */
   public override id: number;
   /** code list name */
   public codeListName: string;
   /** value */
   public value: string;
-  /** description */
   public description: string;
   /** default code flag */
   public defaultCode: boolean;

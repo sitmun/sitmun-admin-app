@@ -55,7 +55,6 @@ export class LanguageService extends RestService<Language> {
   /** Enabled languages for selectors (toolbar, login, translation dialogs). */
   readonly languagesToUse$ = this.languagesToUseSubject.asObservable();
 
-  /** constructor */
   constructor(injector: Injector) {
     super(Language, "languages", injector);
     this.http = injector.get(HttpClient);

@@ -174,11 +174,10 @@ export class FeatureFlagService {
   getFeaturesByCategory(category: string): Array<{ key: FeatureFlagKeys; config: FeatureFlagConfig }> {
     const categoriesMap = this.getCategoriesMap();
     const flags = categoriesMap.get(category) || [];
-    // Return a new array with fresh config references to ensure we always get the latest state
-    // This ensures Angular change detection picks up the changes
+    // Fresh config objects are what change detection compares.
     return flags.map(flag => ({
       key: flag.key,
-      config: this.featureFlags[flag.key] // Get fresh reference from current state
+      config: this.featureFlags[flag.key]
     }));
   }
 

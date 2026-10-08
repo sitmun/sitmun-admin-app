@@ -45,10 +45,6 @@ export class ConfigurationParameterFormComponent extends BaseFormComponent<Confi
     super(dialog, translateService, translationService, codeListService, loggerService, errorHandler, activatedRoute, router, loadingService, messagesInterceptorState);
   }
 
-  override async preFetchData() {
-    // No special initialization needed
-  }
-
   override fetchOriginal(): Promise<ConfigurationParameter> {
     return firstValueFrom(this.configurationParametersService.get(this.entityID));
   }

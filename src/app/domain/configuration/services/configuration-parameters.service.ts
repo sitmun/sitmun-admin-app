@@ -9,7 +9,6 @@ import { ConfigurationParameter } from '../models/configuration-parameters.model
 })
 export class ConfigurationParametersService extends RestService<ConfigurationParameter> {
 
-  /** constructor */
   constructor(injector: Injector) {
     super(ConfigurationParameter, "configuration-parameters", injector);
   }

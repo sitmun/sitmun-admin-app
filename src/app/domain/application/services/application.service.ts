@@ -10,7 +10,6 @@ import {Application} from '../models/application.model';
 @Injectable()
 export class ApplicationService extends RestService<Application> {
 
-  /** constructor */
   constructor(injector: Injector) {
     super(Application, "applications", injector);
   }

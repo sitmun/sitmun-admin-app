@@ -23,7 +23,6 @@ export interface AuthProvider {
   imagePath: string;
 }
 
-/** Login component*/
 @Component({
     selector: 'app-login',
     templateUrl: './login.component.html',
@@ -35,7 +34,6 @@ export class LoginComponent implements OnInit, OnDestroy {
   languages: Language[] = [];
   currentShortname = '';
 
-  /** bad credentials message*/
   badCredentials: string;
 
   loginMethods: WritableSignal<Map<string, AuthProvider[]>> = signal(
@@ -44,16 +42,12 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   alternativeLoginMethods: AuthProvider[] = [];
 
-  /** form */
   form: UntypedFormGroup;
 
-  /** default route after successful login */
   private readonly defaultRoute: string = '/dashboard';
 
-  /** destroy subject for cleanup */
   private readonly destroy$ = new Subject<void>();
 
-  /** constructor */
   constructor(
     private readonly fb: UntypedFormBuilder,
     private readonly loginService: LoginService,
@@ -114,7 +108,6 @@ export class LoginComponent implements OnInit, OnDestroy {
     }
   }
 
-  /** login action */
   login() {
     const val = this.form.value;
     if (val.username && val.password) {
@@ -141,7 +134,6 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.loginService.initOidcLogin(provider);
   }
 
-  /** cleanup subscriptions */
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();

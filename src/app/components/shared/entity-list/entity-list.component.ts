@@ -92,16 +92,10 @@ export class EntityListComponent<T extends Resource> implements OnInit, OnChange
     if (changes['isDataLoaded']) {
       this.dataLoaded = this.isDataLoaded;
     }
-    // Update refresh event if provided by parent
-    if (changes['refreshCommandEvent$'] && this.refreshCommandEvent$) {
-      // Parent provided refresh event, use it
-    } else if (!this.refreshCommandEvent$) {
+    if (!this.refreshCommandEvent$) {
       this.refreshCommandEvent$ = this._refreshCommandEvent$;
     }
-    // Update save state event if provided by parent
-    if (changes['saveAgGridStateEvent'] && this.saveAgGridStateEvent) {
-      // Parent provided save state event, use it
-    } else if (!this.saveAgGridStateEvent) {
+    if (!this.saveAgGridStateEvent) {
       this.saveAgGridStateEvent = this._saveAgGridStateEvent;
     }
   }

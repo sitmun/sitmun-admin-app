@@ -15,7 +15,6 @@ export class ServiceService extends RestService<Service> {
 
   private readonly http: HttpClient;
 
-  /** constructor */
   constructor(injector: Injector) {
     super(Service, "services", injector);
     this.http = injector.get(HttpClient);

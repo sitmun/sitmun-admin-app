@@ -31,14 +31,11 @@ export class UserConfiguration extends Resource {
    */
   public static fromObject(source: any): UserConfiguration {
     const config = new UserConfiguration();
-    // Define the properties to copy
     const propertiesToCopy = [
-      // Resource properties
       'proxyUrl', 'rootUrl', '_links', '_subtypes',
       // UserConfiguration properties
       'id', 'role', 'territory', 'user', 'appliesToChildrenTerritories', 'createdDate'
     ];
-    // Copy only defined properties that exist in our class
     propertiesToCopy.forEach(prop => {
       if (source[prop] !== undefined) {
         config[prop] = source[prop];
@@ -66,15 +63,12 @@ export class UserConfigurationProjection extends Resource {
    */
   public static fromObject(source: any): UserConfigurationProjection {
     const projection = new UserConfigurationProjection();
-    // Define the properties to copy
     const propertiesToCopy = [
-      // Resource properties
       'proxyUrl', 'rootUrl', '_links', '_subtypes',
       // UserConfigurationProjection properties
       'id', 'user', 'userId', 'territory', 'territoryId',
       'role', 'roleId', 'appliesToChildrenTerritories', 'createdDate'
     ];
-    // Copy only defined properties that exist in our class
     propertiesToCopy.forEach(prop => {
       if (source[prop] !== undefined) {
         projection[prop] = source[prop];

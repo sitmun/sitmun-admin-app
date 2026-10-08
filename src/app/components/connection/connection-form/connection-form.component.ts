@@ -46,10 +46,8 @@ export class ConnectionFormComponent extends BaseFormComponent<Connection> {
   readonly config = Configuration.CONNECTION;
   readonly tasksTable: DataTableDefinition<TaskProjection, TaskProjection>
 
-  /** Flag indicating if the password is set */
   passwordSet = false;
 
-  /** Flag indicating if the password is being edited */
   isPasswordBeingEdited = false;
 
   /** True after the user changes the password field during the current focus session. */
