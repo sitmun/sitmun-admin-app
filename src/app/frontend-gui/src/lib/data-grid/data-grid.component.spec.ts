@@ -691,7 +691,15 @@ describe('DataGridComponent', () => {
       component.rowModelMode = 'infinite';
       component.progressiveLocalFilter = true;
       component.backendSearch = true;
-      component.infiniteBlockFetcher = jest.fn();
+      component.searchValue = 'roads';
+      const fetcher = jest.fn().mockReturnValue(of({
+        rows: [],
+        pageNumber: 0,
+        pageSize: 10,
+        totalElements: 0,
+        totalPages: 0,
+      }));
+      component.infiniteBlockFetcher = fetcher;
       component.gridApi = {
         setGridOption: jest.fn(),
         isDestroyed: () => false,
@@ -702,7 +710,16 @@ describe('DataGridComponent', () => {
       const datasourceCall = component.gridApi.setGridOption.mock.calls.find(
         call => call[0] === 'datasource'
       );
-      expect(datasourceCall).toBeDefined();
+      datasourceCall[1].getRows({
+        startRow: 0,
+        endRow: 10,
+        successCallback: jest.fn(),
+        failCallback: jest.fn(),
+        sortModel: [],
+        filterModel: {},
+      });
+
+      expect(fetcher).toHaveBeenCalledWith(expect.objectContaining({searchText: 'roads'}));
     });
 
     it('debounces rapid search inputs to reduce backend requests', fakeAsync(() => {
@@ -720,15 +737,24 @@ describe('DataGridComponent', () => {
       expect(mockGridApi.purgeInfiniteCache).toHaveBeenCalledTimes(1);
     }));
 
-    it('search box visibility condition includes backendSearch in infinite mode', () => {
+    it('shows the toolbar for infinite backend search and hides it when search is off', () => {
       component.rowModelMode = 'infinite';
-      component.backendSearch = true;
+      component.hideDuplicateButton = true;
+      component.hideExportButton = true;
+      component.applyChangesButton = false;
+      component.deleteButton = false;
+      component.newButton = false;
+      component.addButton = false;
+      component.registerButton = false;
       component.globalSearch = true;
+      component.backendSearch = true;
 
-      const isInfiniteMode = component.isInfiniteMode;
-      const shouldShowSearch = component.globalSearch && (!isInfiniteMode || component.progressiveLocalFilter || component.backendSearch);
+      expect(component.showToolbar).toBe(true);
 
-      expect(shouldShowSearch).toBe(true);
+      component.globalSearch = false;
+      component.backendSearch = false;
+
+      expect(component.showToolbar).toBe(false);
     });
   });
 });

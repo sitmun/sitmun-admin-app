@@ -158,10 +158,9 @@ describe('SystemInfoMenuComponent', () => {
     });
 
     it('should subscribe to feature flags in constructor if not production', () => {
-      fixture.detectChanges();
-      
-      // Feature flags subscription should be set up
-      expect(featureFlagService.getCategories).toHaveBeenCalled();
+      const markForCheck = jest.spyOn(component['cdr'], 'markForCheck');
+      (featureFlagService.featureFlags$ as BehaviorSubject<unknown>).next({});
+      expect(markForCheck).toHaveBeenCalled();
     });
 
     it('should not error on destroy', () => {

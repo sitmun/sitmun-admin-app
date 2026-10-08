@@ -195,7 +195,7 @@ describe('ServiceFormComponent', () => {
     expect(component.entityForm.get('blocked')).toBeTruthy();
   });
 
-  it('Update data button unavailable with type different to WMS', () => {
+  it('hides the capabilities button when the type is not WMS', () => {
     component.entityForm.patchValue({
       name: 'test',
       type: 'WFS',
@@ -205,11 +205,8 @@ describe('ServiceFormComponent', () => {
 
     fixture.detectChanges();
 
-    // The button might not exist in the DOM if type is not WMS
     const button = fixture.debugElement.query(By.css('#capabilitiesButton'));
-    // If button doesn't exist, the test passes (button unavailable)
-    // If button exists but is disabled, that's also acceptable
-    expect(button === null || (button && button.nativeElement.disabled)).toBeTruthy();
+    expect(button).toBeNull();
   });
 
   /*
