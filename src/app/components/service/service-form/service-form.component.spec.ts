@@ -103,7 +103,6 @@ describe('ServiceFormComponent', () => {
     _serviceParameterService = TestBed.inject(ServiceParameterService);
     _roleService = TestBed.inject(RoleService);
 
-    // Initialize form if not already initialized
     if (!component.entityForm) {
       component.entityToEdit = component.empty();
       component.postFetchData();

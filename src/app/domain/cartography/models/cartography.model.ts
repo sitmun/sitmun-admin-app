@@ -15,7 +15,6 @@ import {TreeNode} from '../../tree/models/tree-node.model';
  * @extends Resource
  */
 export class Cartography extends Resource {
-  /** id */
   public override id: number;
 
   /** Display name of the cartography */
@@ -126,9 +125,7 @@ export class Cartography extends Resource {
    */
   public static fromObject(source: any): Cartography {
     const cartography = new Cartography();
-    // Define the properties to copy
     const propertiesToCopy = [
-      // Resource properties
       'proxyUrl', 'rootUrl', '_links', '_subtypes',
       // Cartography properties
       'id', 'name', 'description', 'layers', 'minimumScale', 'maximumScale',
@@ -141,7 +138,6 @@ export class Cartography extends Resource {
       'styles', 'useAllStyles', 'defaultStyleName', 'blocked', 'filters',
       'parameters', 'treeNodes', 'permission'
     ];
-    // Copy only defined properties that exist in our class
     propertiesToCopy.forEach(prop => {
       if (source[prop] !== undefined) {
         cartography[prop] = source[prop];
@@ -194,9 +190,7 @@ export class CartographyProjection extends Resource {
    */
   public static fromObject(source: any): CartographyProjection {
     const projection = new CartographyProjection();
-    // Define the properties to copy
     const propertiesToCopy = [
-      // Resource properties
       'proxyUrl', 'rootUrl', '_links', '_subtypes',
       // CartographyProjection properties
       'id', 'name', 'description', 'layers', 'minimumScale', 'maximumScale',
@@ -209,7 +203,6 @@ export class CartographyProjection extends Resource {
       'spatialSelectionServiceName', 'useAllStyles', 'stylesNames',
       'spatialSelectionConnectionId', 'spatialSelectionConnectionName'
     ];
-    // Copy only defined properties that exist in our class
     propertiesToCopy.forEach(prop => {
       if (source[prop] !== undefined) {
         projection[prop] = source[prop];

@@ -25,12 +25,10 @@ export class ErrorDetailsSidebarComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // Subscribe to sidebar manager to refresh errors when sidebar becomes active
     this.sidebarManager.activeSidebar$
       .pipe(
         filter(active => active === 'error'),
         tap(() => {
-          // Refresh errors when sidebar opens
           if (!this.initialized) {
             this.initialized = true;
           }

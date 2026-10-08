@@ -250,7 +250,6 @@ export abstract class BaseListComponent<T extends Resource>
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result?.event === DIALOG_EVENTS.ACCEPT) {
-        // Wrap batch delete operation with loading overlay
         this.loadingOverlay.wrap(
           async () => {
             // Use allSettled instead of all to handle partial failures
@@ -259,10 +258,8 @@ export abstract class BaseListComponent<T extends Resource>
               data.map((item) => this.dataDeleteFn(item))
             );
 
-            // Check for any failures and log them
             const failures = results.filter((result) => result.status === 'rejected');
             if (failures.length > 0) {
-              // Log errors for failed deletions
               failures.forEach((failure, index) => {
                 if (failure.status === 'rejected') {
                   this.loggerService.error(`Failed to delete item at index ${index}:`, failure.reason);

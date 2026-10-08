@@ -8,7 +8,6 @@ import {Territory} from '../models/territory.model';
 @Injectable()
 export class TerritoryService extends RestService<Territory> {
 
-  /** constructor */
   constructor(injector: Injector) {
     super(Territory, "territories", injector);
   }

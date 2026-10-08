@@ -7,10 +7,8 @@ export class TaskType extends Resource {
 
   public override id: number;
 
-  /** name */
   public name: string;
 
-  /** title */
   public title: string;
 
   /** enabled flag */
@@ -22,7 +20,6 @@ export class TaskType extends Resource {
   /** parent task type ID (from API) */
   public parentId: number;
 
-  /** order */
   public order: number;
 
   /** specification (JSON) */
@@ -58,10 +55,8 @@ export class TaskTypeProjection extends Resource {
 
   public override id: number;
 
-  /** name */
   public name: string;
 
-  /** title */
   public title: string;
 
   /** enabled flag */
@@ -73,7 +68,6 @@ export class TaskTypeProjection extends Resource {
   /** parent task type ID (from API) */
   public parentId: number;
 
-  /** order */
   public order: number;
 
   /** specification (JSON) */

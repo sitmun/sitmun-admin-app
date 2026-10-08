@@ -7,7 +7,6 @@ import {TaskAvailability} from '../models/task-availability.model';
 /** Task availability manager service */
 @Injectable()
 export class TaskAvailabilityService extends RestService<TaskAvailability> {
-  /** constructor */
   constructor(injector: Injector) {
     super(TaskAvailability, "task-availabilities", injector);
   }

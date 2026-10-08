@@ -16,7 +16,6 @@ export class TreeNodeService extends RestService<TreeNode> {
   /** API resource path */
   public TREE_NODE_API = 'tree-nodes';
 
-  /** constructor */
   constructor(injector: Injector, private loggerService: LoggerService) {
     super(TreeNode, "tree-nodes", injector);
   }

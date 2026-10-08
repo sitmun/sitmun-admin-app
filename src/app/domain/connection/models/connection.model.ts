@@ -4,9 +4,7 @@ import {Resource} from '@app/core/hal/resource/resource.model';
  * Connection model
  */
 export class Connection extends Resource {
-  /** id */
   public override id: number;
-  /** name*/
   public name: string;
   /** driver */
   public driver: string;
@@ -26,14 +24,11 @@ export class Connection extends Resource {
    */
   public static fromObject(source: any): Connection {
     const connection = new Connection();
-    // Define the properties to copy
     const propertiesToCopy = [
-      // Resource properties
       'proxyUrl', 'rootUrl', '_links', '_subtypes',
       // Connection properties
       'id', 'name', 'driver', 'url', 'user', 'password', 'passwordSet'
     ];
-    // Copy only defined properties that exist in our class
     propertiesToCopy.forEach(prop => {
       if (source[prop] !== undefined) {
         connection[prop] = source[prop];

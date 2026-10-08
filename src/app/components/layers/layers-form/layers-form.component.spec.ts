@@ -225,7 +225,6 @@ describe('LayersFormComponent', () => {
   });
 
   it('form invalid when empty', () => {
-    // Initialize form if not already initialized
     if (!component.entityForm) {
       component.entityToEdit = component.empty();
       component.postFetchData();
@@ -234,7 +233,6 @@ describe('LayersFormComponent', () => {
   });
 
   it('form invalid when mid-empty', () => {
-    // Initialize form if not already initialized
     if (!component.entityForm) {
       component.entityToEdit = component.empty();
       component.postFetchData();
@@ -270,7 +268,6 @@ describe('LayersFormComponent', () => {
   });
 
   it('form valid', () => {
-    // Initialize form if not already initialized
     if (!component.entityForm) {
       component.entityToEdit = component.empty();
       component.postFetchData();
@@ -306,7 +303,6 @@ describe('LayersFormComponent', () => {
   });
 
   it('Layer form fields', () => {
-    // Initialize form if not already initialized
     if (!component.entityForm) {
       component.entityToEdit = component.empty();
       component.postFetchData();

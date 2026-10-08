@@ -8,7 +8,6 @@ import {CartographyAvailability} from '../models/cartography-availability.model'
 @Injectable()
 export class CartographyAvailabilityService extends RestService<CartographyAvailability> {
 
-  /** constructor */
   constructor(injector: Injector) {
     super(CartographyAvailability, "cartography-availabilities", injector);
   }

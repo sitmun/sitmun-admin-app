@@ -12,7 +12,6 @@ import { UserConfiguration } from '../models/user-configuration.model';
 @Injectable()
 export class UserConfigurationService extends RestService<UserConfiguration> {
 
-  /** constructor */
   constructor(injector: Injector, private loggerService: LoggerService) {
     super(UserConfiguration, "user-configurations", injector);
   }

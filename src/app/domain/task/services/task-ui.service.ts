@@ -8,7 +8,6 @@ import { TaskUI } from '../models/task-ui.model';
 @Injectable()
 export class TaskUIService extends RestService<TaskUI> {
 
-  /** constructor */
   constructor(injector: Injector) {
     super(TaskUI, "task-uis", injector);
   }

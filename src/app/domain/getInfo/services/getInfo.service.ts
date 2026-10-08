@@ -16,7 +16,6 @@ export class GetInfoService extends RestService<Info> {
   /** API resource path */
   public INFO_API = 'helpers/feature-type?url=';
 
-  /** constructor */
   constructor(injector: Injector, private http: HttpClient) {
     super(Info, "helpers/feature-type?url=", injector);
   }

@@ -141,13 +141,11 @@ export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
   availableNodeTypes: CodeList[] = []; // Cache for available node types
   fieldsConfigTreeGenerated = false;
 
-  // Cartography autocomplete properties
   filteredCartographies: any[] = [];
   allCartographies: any[] = [];
   cartographiesLoaded = false;
   cartographiesLoading = false;
 
-  // Task autocomplete properties
   filteredTasks: any[] = [];
   allTasks: any[] = [];
   tasksLoaded = false;
@@ -158,7 +156,6 @@ export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
   cartographyAutocompleteTrigger?: MatAutocompleteTrigger;
   @ViewChild('taskInput') taskInputRef?: ElementRef<HTMLInputElement>;
 
-  // Style dropdown properties
   availableStyles: CartographyStyle[] = [];
   defaultStyleSentinel = 'null'; // Sentinel value for null/default style (only used when no default style exists)
   currentCartographyStyles: CartographyStyle[] = [];
@@ -182,7 +179,6 @@ export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
   }) private fieldsConfigDialog: TemplateRef<any>;
   @ViewChild(MatAccordion) accordion: MatAccordion;
 
-  // Track current node ID for panel state management
   currentNodeId: number | null = null;
   /** Last tree row id focused before detail close (accessibility return focus). */
   private lastFocusedNodeId: number | null = null;
@@ -236,7 +232,6 @@ export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
   private cachedTaskOutputParameters: { key: string; label: string }[] = [];
   private cachedTaskOutputMode = '';
 
-  // Resizable layout properties
   treePanelWidth = 45; // Percentage
   isResizing = false;
   minTreeWidth = 20; // Minimum width percentage
@@ -265,7 +260,6 @@ export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   async ngOnInit(): Promise<void> {
-    // Load saved preferences from localStorage
     if (typeof localStorage !== 'undefined') {
       const savedWidth = localStorage.getItem('treePanelWidth');
       if (savedWidth !== null) {
@@ -280,10 +274,8 @@ export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
 
     this.layersList = await firstValueFrom(this.getAllCartographies());
 
-    // Load and cache cartographies for autocomplete
     await this.loadCartographies();
 
-    // Set up cartography autocomplete filtering
     this.treeNodeForm.get(constants.treeDomainKey.cartography)?.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(value => {
@@ -292,15 +284,12 @@ export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
       if (typeof value === 'string') {
         this.filterCartographies(value.toLowerCase());
       } else if (value && typeof value === 'object') {
-        // Reset to show all when an object is selected
         this.filteredCartographies = [...this.allCartographies];
       }
     });
 
-    // Load and cache tasks for autocomplete
     await this.loadTasks();
 
-    // Set up task autocomplete filtering
     this.treeNodeForm.get(constants.treeDomainKey.task)?.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(value => {
@@ -338,7 +327,6 @@ export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
       this.utils.getStatusColumnDef()
     ];
 
-    // Load node-level translations if editing
     if (this.isEdition() && this.tree) {
       this.translationService.fetchAllItems()
         .pipe(
@@ -355,7 +343,6 @@ export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
         });
     }
 
-    // Subscribe to save requests
     this.getAllElementsNodes
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(event => {
@@ -1281,7 +1268,6 @@ export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
     this.currentFolderHasChildren = !!(this.currentNodeIsFolder && node.children?.length);
     this.getAvailableNodeTypes();
 
-    // Set current node ID for panel state management
     this.currentNodeId = node.id;
 
     this.currentNodeType = nodeType;
@@ -1302,13 +1288,11 @@ export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
           ?? this.getAvailableFolderTypes()[0]?.value ?? constants.treeRenderType.folder)
       : (this.treeRulesService.getDefaultLeafTypeFromRules(this.currentTreeType, this.getAvailableLeafTypes())
           ?? this.getAvailableLeafTypes()[0]?.value ?? constants.treeDomainKey.cartography));
-    // Find cartography object from cache if cartographyId is available
     let cartographyObj = null;
     if (node.cartographyId && this.allCartographies.length > 0) {
       cartographyObj = this.allCartographies.find(c => c.id === node.cartographyId);
     }
 
-    // Find task object from cache if taskId is available
     let taskObj = null;
     if (node.taskId && this.allTasks.length > 0) {
       taskObj = this.allTasks.find(t => t.id === node.taskId);
@@ -1358,7 +1342,6 @@ export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
     this.syncFormControlsDisabledState();
     this.nodeImagePreviewState = 'stored';
 
-    // If cartography not found in cache yet, load cartographies and then set it
     if (node.cartographyId && !cartographyObj) {
       this.loadCartographies().then(async () => {
         if (!this.isCurrentNodeDetail(node.id)) {
@@ -1372,19 +1355,15 @@ export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
             cartographyId: loadedCartography.id
           }, { emitEvent: false });
           this.currentNodeCartography = loadedCartography;
-          // Load styles for the cartography
           await this.updateAvailableStyles(loadedCartography.id);
         }
       });
     } else if (cartographyObj) {
       this.currentNodeCartography = cartographyObj;
-      // Load styles for the cartography
       await this.updateAvailableStyles(cartographyObj.id);
     } else if (node.cartographyId) {
-      // Cartography ID exists but not in cache - load styles directly
       await this.updateAvailableStyles(node.cartographyId);
     } else {
-      // No cartography - clear styles
       await this.updateAvailableStyles(null);
     }
 
@@ -1399,7 +1378,6 @@ export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
       }
     }
 
-    // If task not found in cache yet, load tasks and then set it
     if (node.taskId && !taskObj) {
       this.loadTasks().then(async () => {
         if (!this.isCurrentNodeDetail(node.id)) {
@@ -1447,7 +1425,6 @@ export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
 
     // Image preview is now handled by the ImagePreviewComponent via imageSource input
 
-    // Load translations lazily without blocking selection rendering.
     const shouldLoadNodeTranslations = node.id >= 0 &&
       !this.translationLoadsCompleted.has(node.id) &&
       (!this.nameTranslations.has(node.id) || !this.descriptionTranslations.has(node.id));
@@ -1469,11 +1446,9 @@ export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
       }, { emitEvent: false });
     }
 
-    // Store original values for change detection
     this.currentNodeName = node.name || '';
     this.currentNodeDescription = node.description || '';
 
-    // Mark form as pristine after loading node data (so dirty state only reflects user changes)
     this.treeNodeForm.markAsPristine();
 
     setTimeout(() => {
@@ -1558,7 +1533,6 @@ export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   onTreeNodeTypeChange(type) {
-    // Validate that type is not empty
     if (!type || type.trim() === '') {
       return;
     }
@@ -1607,7 +1581,6 @@ export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
       return 4000; // Default fallback
     }
 
-    // Extract from maxLength validator
     const validator = control.validator;
     if (validator) {
       const errors = validator(new FormControl({ length: Infinity }));

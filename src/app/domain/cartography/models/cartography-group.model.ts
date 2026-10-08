@@ -8,11 +8,8 @@ import {Role} from '../../role/models/role.model';
  * Cartography group
  */
 export class CartographyGroup extends Resource {
-  /** id */
   public override id: number;
-  /** name*/
   public name: string;
-  /** type*/
   public type: string;
   /** members*/
   public members: Cartography[];
@@ -30,15 +27,12 @@ export class CartographyGroup extends Resource {
    */
   public static fromObject(source: any): CartographyGroup {
     const group = new CartographyGroup();
-    // Define the properties to copy
     const propertiesToCopy = [
-      // Resource properties
       'proxyUrl', 'rootUrl', '_links', '_subtypes',
       // CartographyGroup properties
       'id', 'name', 'type', 'members', 'roles',
       'backgrounds', 'applications'
     ];
-    // Copy only defined properties that exist in our class
     propertiesToCopy.forEach(prop => {
       if (source[prop] !== undefined) {
         group[prop] = source[prop];
@@ -64,14 +58,11 @@ export class CartographyGroupProjection extends Resource {
    */
   public static fromObject(source: any): CartographyGroupProjection {
     const projection = new CartographyGroupProjection();
-    // Define the properties to copy
     const propertiesToCopy = [
-      // Resource properties
       'proxyUrl', 'rootUrl', '_links', '_subtypes',
       // CartographyGroupProjection properties
       'id', 'name', 'type', 'roleNames'
     ];
-    // Copy only defined properties that exist in our class
     propertiesToCopy.forEach(prop => {
       if (source[prop] !== undefined) {
         projection[prop] = source[prop];

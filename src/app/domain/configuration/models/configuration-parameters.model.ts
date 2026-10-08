@@ -4,9 +4,7 @@ import {Resource} from '@app/core/hal/resource/resource.model';
  * Configuration Parameter model
  */
 export class ConfigurationParameter extends Resource {
-  /** id */
   public override id: number;
-  /** name */
   public name: string;
   /** value */
   public value: string;

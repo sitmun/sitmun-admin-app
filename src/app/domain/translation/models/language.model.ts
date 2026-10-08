@@ -3,7 +3,6 @@ import { Resource } from '@app/core/hal/resource/resource.model';
 
 /** Language model */
 export class Language extends Resource {
-  /** id */
   public override id: number;
   /** BCP 47 language tag */
   public shortname: string;

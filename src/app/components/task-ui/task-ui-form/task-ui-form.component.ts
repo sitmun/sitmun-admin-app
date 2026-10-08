@@ -122,7 +122,6 @@ export class TaskUIFormComponent extends BaseFormComponent<TaskUI> {
   /**
    * Creates a TaskUI object from the current form values.
    * Applies the form values to a copy of the current entity and converts it to a TaskUI domain object.
-   * This method ensures that entity data is not directly modified until explicitly saved.
    *
    * @param id - Optional ID for the new object, used when updating
    * @returns New TaskUI instance populated with form values

@@ -8,7 +8,6 @@ import { ServiceParameter } from '../models/service-parameter.model';
 @Injectable()
 export class ServiceParameterService extends RestService<ServiceParameter> {
 
-  /** constructor */
   constructor(injector: Injector) {
     super(ServiceParameter, "service-parameters", injector);
   }
