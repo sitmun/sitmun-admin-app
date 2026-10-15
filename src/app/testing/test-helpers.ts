@@ -41,8 +41,8 @@ export function suppressAgGridConsoleWarnings(): () => void {
  * Call inside `beforeAll` to compile the testing module once for the entire suite.
  * Pair with `destroyFixtureAfterEach` and `resetTestingModuleAfterAll` in each spec.
  *
- * Uses `teardown: { destroyAfterEach: false }` so the compiled module is not reset
- * between tests, making `beforeAll` compilation effective.
+ * The helper passes `destroyAfterEach: 0` on purpose. The comment above
+ * `TestBed.configureTestingModule` says why `0` skips both cleanup hooks.
  */
 export async function configureTestingModuleOnce(
   config: TestModuleMetadata
