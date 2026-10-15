@@ -1155,10 +1155,8 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
           this.applyPreRenderColumnWidths(nextRowData);
           this.rowData = nextRowData;
 
-          // Set the data
           this.gridApi.setGridOption('rowData', this.rowData);
 
-          // Wait for next frame to ensure DOM is updated
           requestAnimationFrame(() => {
             if (this.gridApi && !this.gridApi.isDestroyed()) {
               this.applyColumnSizing();
@@ -1497,20 +1495,17 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
       return;
     }
 
-    // Use requestAnimationFrame for better timing
     requestAnimationFrame(() => {
       if (this.gridApi && !this.gridApi.isDestroyed()) {
         try {
           // Only use autoSizeAllColumns to avoid the width warning
           this.gridApi.autoSizeAllColumns();
         } catch (error) {
-          // If autoSizeAllColumns fails, try again after a delay
           setTimeout(() => {
             if (this.gridApi && !this.gridApi.isDestroyed()) {
               try {
                 this.gridApi.autoSizeAllColumns();
               } catch (retryError) {
-                // Final fallback - do nothing if all else fails
                 console.warn(`AG Grid: Could not auto-size columns: first fail ${error}, next ${retryError}`);
               }
             }
@@ -1743,7 +1738,6 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
       return;
     }
 
-    // Store current grid state
     const currentFilterModel = this.gridApi.getFilterModel();
     const currentQuickFilter = this.searchValue;
     const currentSortModel = this.gridApi.getColumnState();

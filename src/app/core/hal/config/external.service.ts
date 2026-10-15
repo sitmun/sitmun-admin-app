@@ -10,7 +10,6 @@ import {ResourceHelper} from '../resource/resource-helper';
 @Injectable()
 export class ExternalService {
 
-    /** constructor */
     constructor(@Inject('ExternalConfigurationService') private externalConfigurationService: ExternalConfigurationHandlerInterface) {
         ResourceHelper.setProxyUri(externalConfigurationService.getProxyUri());
         ResourceHelper.setRootUri(externalConfigurationService.getRootUri());

@@ -15,7 +15,6 @@ export class DashboardService {
     public DASHBOARD_API = 'dashboard/info';
     public DASHBOARD_EMBEDDED = 'dashboard';
 
-    /** constructor */
     constructor(
       private http: HttpClient,
       private resourceService: ResourceService

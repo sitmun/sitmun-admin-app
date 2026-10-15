@@ -92,17 +92,14 @@ export class MessagesInterceptor implements HttpInterceptor {
                       if (isProblemDetail(error)) {
                         const params: Record<string, any> = {};
                         
-                        // Extract and translate operation from HTTP method
                         const operation = this.getTranslatedOperation(request.method);
                         if (operation) {
                           params['operation'] = operation;
                         }
                         
-                        // Extract entity type and name from HTTP context
                         const entityTypeKey = request.context.get(ENTITY_TYPE_KEY);
                         const entityName = request.context.get(ENTITY_NAME_KEY);
                         
-                        // Extract and translate entity type if present
                         if (entityTypeKey) {
                           const translatedEntityType = this.getTranslatedName(entityTypeKey);
                           if (translatedEntityType) {
@@ -110,12 +107,10 @@ export class MessagesInterceptor implements HttpInterceptor {
                           }
                         }
                         
-                        // Add entity name if present
                         if (entityName) {
                           params['entityName'] = entityName;
                         }
                         
-                        // Extract and translate referencing entity name (from backend)
                         const referencingKey = error.error?.properties?.referencingEntityTranslationKey;
                         if (referencingKey) {
                           const translatedRef = this.getTranslatedName(referencingKey);
@@ -124,10 +119,8 @@ export class MessagesInterceptor implements HttpInterceptor {
                           }
                         }
                         
-                        // Choose translation key based on available params and error type
                         const translationKey = this.getConstraintTranslationKey(error, params);
                         
-                        // Translate the error message
                         let translated = this.translateService.instant(translationKey, params);
                         
                         // If translation returns the key itself, use backend detail
@@ -135,7 +128,6 @@ export class MessagesInterceptor implements HttpInterceptor {
                           translated = getErrorMessage(error);
                         }
                         
-                        // Replace any remaining placeholders and clean up
                         translated = this.replacePlaceholders(translated, params);
                         translated = this.removeUnreplacedPlaceholders(translated);
                         
@@ -167,7 +159,6 @@ export class MessagesInterceptor implements HttpInterceptor {
                         title = 'backend.error.title';
                       }
                       
-                      // Track HTTP error in ErrorTrackingService (with additional null check)
                       try {
                         if (!this.errorTrackingService) {
                           this.errorTrackingService = this.injector.get(ErrorTrackingService, null);

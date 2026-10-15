@@ -8,7 +8,6 @@ import { CodeList } from '../models/codelist.model';
 @Injectable()
 export class CodeListService extends RestService<CodeList> {
 
-  /** constructor */
   constructor(injector: Injector) {
     super(CodeList, "codelist-values", injector);
   }

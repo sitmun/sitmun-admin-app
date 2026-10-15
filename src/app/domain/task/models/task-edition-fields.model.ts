@@ -20,13 +20,11 @@ export class TaskEditionField {
   /** editable */
   public editable: boolean;
 
-  /** name */
   public name: string;
 
   /** label */
   public label: string;
 
-  /** type */
   public type: TaskFieldType;
 
   /** value */
@@ -71,11 +69,9 @@ export class TaskEditionField {
    */
   public static fromObject(source: any): TaskEditionField {
     const field = new TaskEditionField();
-    // Define the properties to copy
     const propertiesToCopy = [
       'name', 'label', 'type', 'value', 'selectable', 'editable', 'required'
     ];
-    // Copy only defined properties that exist in our class
     propertiesToCopy.forEach(prop => {
       if (source[prop] !== undefined) {
         field[prop] = source[prop];

@@ -9,7 +9,6 @@ import { CartographyStyle } from '../models/cartography-style.model';
 })
 export class CartographyStyleService extends RestService<CartographyStyle> {
 
-  /** constructor */
   constructor(injector: Injector) {
     super(CartographyStyle, "cartography-styles", injector);
   }

@@ -11,7 +11,6 @@ export class Layer {
   opacity = 1.0;
 
   // Configuration data
-  /** title*/
   title: string;
 
   /** Id to index*/
@@ -151,11 +150,6 @@ export class MapConfigurationManagerService {
 
   private mapComponentStatusSubject = new BehaviorSubject([]);
 
-  /** constructor*/
-  constructor() {
-   //
-  }
-
   /** layer count */
   count = 0;
 
@@ -184,7 +178,6 @@ export class MapConfigurationManagerService {
   }
 
   private refreshBaseLayerGroups() {
-    // Send the new values so that all subscribers are updated
     this.baseLayerGroupsSubject.next(this.baseLayerGroups);
   }
 
@@ -257,7 +250,6 @@ export class MapConfigurationManagerService {
 
   /** refresh layers */
   private refreshLayers() {
-    // Send the new values so that all subscribers are updated
     this.layersSubject.next(this.layers);
   }
 
@@ -267,7 +259,6 @@ export class MapConfigurationManagerService {
   }
 
   private refreshAddLayers(layer:Layer) {
-    // Send the new values so that all subscribers are updated
     this.addLayersSubject.next([layer]);
   }
 
@@ -276,7 +267,6 @@ export class MapConfigurationManagerService {
   }
 
   private refreshRemoveLayers(layer:Layer) {
-    // Send the new values so that all subscribers are updated
     this.removeLayersSubject.next([layer]);
   }
 
@@ -319,7 +309,6 @@ export class MapConfigurationManagerService {
   }
 
   private refreshLayerConfiguration(id, opacity, visibility, position) {
-    // Send the new values so that all subscribers are updated
     const layer = new LayerConfiguration();
     layer.id = id;
     layer.opacity = opacity;
@@ -334,7 +323,6 @@ export class MapConfigurationManagerService {
 
   /** configure the situation map of the map component by passing as a parameter an array of objects of type LayerGroup, each of them with the corresponding Layer objects defining the layers to load as situation map.*/
   loadSituationMapConfiguration(layers:Array<Layer>) {
-    // Send the new values so that all subscribers are updated
     this.situationMapConfigurationSubject.next(layers);
   }
 
@@ -344,7 +332,6 @@ export class MapConfigurationManagerService {
 
   /** load map options configuration */
   loadMapOptionsConfiguration(configuration:MapOptionsConfiguration) {
-    // Send the new values so that all subscribers are updated
     this.mapOptionsConfigurationSubject.next([configuration]);
   }
 
@@ -354,7 +341,6 @@ export class MapConfigurationManagerService {
 
   /** set map component status */
   setMapComponentStatus(status:MapComponentStatus) {
-    //Notify the map component status
     this.mapComponentStatusSubject.next([status]);
   }
 

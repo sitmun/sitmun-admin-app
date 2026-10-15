@@ -8,7 +8,6 @@ import { TaskType } from '../models/task-type.model';
 @Injectable()
 export class TaskTypeService extends RestService<TaskType> {
 
-  /** constructor */
   constructor(injector: Injector) {
     super(TaskType, "task-types", injector);
   }

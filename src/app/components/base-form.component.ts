@@ -336,11 +336,9 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
    */
   afterSave() {
     this.resetToFormModifiedState(this.entityForm);
-    // Mark form as pristine to disable save button until new changes are made
     if (this.entityForm) {
       this.entityForm.markAsPristine();
     }
-    // Reset data table changes flag
     this.dataTablesHaveChanges = false;
   }
 
@@ -1142,33 +1140,27 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
     const promises: Promise<any>[] = [];
 
     translationMap.forEach((value: Translation, key: string) => {
-      // Skip if it is not defined the default language and no modifications needed
       if (key !== defaultLanguage && !modifications) {
         this.loggerService.debug(`Skipping non-default language translation for ${key}: no modifications needed`);
         return;
       }
 
-      // Skip non-default languages with empty translations
       if (key !== defaultLanguage && !value?.translation) {
         this.loggerService.debug(`Skipping non-default language translation for ${key}: no translation value`);
         return;
       }
 
-      // Skip default language with no international value
       if (key === defaultLanguage && !internationalValue) {
         this.loggerService.debug(`Skipping default language translation for ${key}: no value provided`);
         return;
       }
 
-      // Set element ID
       value.element = id;
 
-      // Set translation for the default language
       if (key === defaultLanguage) {
         value.translation = internationalValue;
       }
 
-      // Save translation
       promises.push(firstValueFrom(
         this.translationService.save(value).pipe(
           tap(result => translationMap.set(key, result))
@@ -1193,7 +1185,6 @@ export class BaseFormComponent<T extends Resource> implements OnInit, AfterViewI
       return 4000; // Default fallback
     }
 
-    // Extract from maxLength validator
     const validator = control.validator;
     if (validator) {
       const errors = validator(new FormControl({ length: Infinity }));

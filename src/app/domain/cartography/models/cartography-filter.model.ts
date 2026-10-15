@@ -7,16 +7,13 @@ import { TerritoryType } from '../../territory/models/territory-type.model';
  */
 export class CartographyFilter extends Resource {
 
-  /** id*/
   public override id: number;
 
-  /** name*/
   public name: string;
 
   /** required */
   public required: boolean;
 
-  /** type*/
   public type: string;
 
   /** Territorial level. */
@@ -41,15 +38,12 @@ export class CartographyFilter extends Resource {
    */
   public static fromObject(source: any): CartographyFilter {
     const filter = new CartographyFilter();
-    // Define the properties to copy
     const propertiesToCopy = [
-      // Resource properties
       'proxyUrl', 'rootUrl', '_links', '_subtypes',
       // CartographyFilter properties
       'id', 'name', 'required', 'type', 'territorialLevel',
       'column', 'values', 'valueType', 'cartography'
     ];
-    // Copy only defined properties that exist in our class
     propertiesToCopy.forEach(prop => {
       if (source[prop] !== undefined) {
         filter[prop] = source[prop];
@@ -87,15 +81,12 @@ export class CartographyFilterProjection extends Resource {
    */
   public static fromObject(source: any): CartographyFilterProjection {
     const projection = new CartographyFilterProjection();
-    // Define the properties to copy
     const propertiesToCopy = [
-      // Resource properties
       'proxyUrl', 'rootUrl', '_links', '_subtypes',
       // CartographyFilterProjection properties
       'id', 'name', 'required', 'type', 'territorialLevelId',
       'territorialLevelName', 'column', 'values', 'valueType'
     ];
-    // Copy only defined properties that exist in our class
     propertiesToCopy.forEach(prop => {
       if (source[prop] !== undefined) {
         projection[prop] = source[prop];

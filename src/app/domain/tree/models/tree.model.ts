@@ -8,13 +8,9 @@ import {Role} from '../../role/models/role.model';
  * Tree model
  */
 export class Tree extends Resource {
-  /** id */
   public override id: number;
-  /** name */
   public name: string;
-  /** description */
   public description: string;
-  /** type */
   public type: string;
   /** image */
   public image: string;
@@ -34,15 +30,12 @@ export class Tree extends Resource {
    */
   public static fromObject(source: any): Tree {
     const tree = new Tree();
-    // Define the properties to copy
     const propertiesToCopy = [
-      // Resource properties
       'proxyUrl', 'rootUrl', '_links', '_subtypes',
       // Tree properties
       'id', 'name', 'description', 'type', 'image', 'imageName',
       'allNodes', 'availableRoles', 'availableApplications'
     ];
-    // Copy only defined properties that exist in our class
     propertiesToCopy.forEach(prop => {
       if (source[prop] !== undefined) {
         tree[prop] = source[prop];

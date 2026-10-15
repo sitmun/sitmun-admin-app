@@ -8,7 +8,6 @@ import { CartographyParameter } from '../models/cartography-parameter.model';
 @Injectable()
 export class CartographySpatialSelectionParameterService extends RestService<CartographyParameter> {
 
-  /** constructor */
   constructor(injector: Injector) {
     super(CartographyParameter, "cartography-spatial-selection-parameters", injector);
   }

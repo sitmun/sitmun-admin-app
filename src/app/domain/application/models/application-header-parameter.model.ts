@@ -13,7 +13,6 @@ export class ApplicationHeaderParameter extends Resource {
     const param = new ApplicationHeaderParameter();
 
     const propertiesToCopy = [
-      // Resource properties
       'proxyUrl', 'rootUrl', '_links', '_subtypes',
       // ApplicationParameter properties
       'id', 'name', 'visible', 'url', 'section'

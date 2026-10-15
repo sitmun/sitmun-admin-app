@@ -8,12 +8,9 @@ import {Connection} from '../../connection/models/connection.model';
  * Service model
  */
 export class Service extends Resource {
-  /** id */
   public override id: number;
-  /** name*/
   public name: string;
 
-  /** type*/
   public type: string;
 
   /** url*/
@@ -60,9 +57,7 @@ export class Service extends Resource {
    */
   public static fromObject(source: any): Service {
     const service = new Service();
-    // Define the properties to copy
     const propertiesToCopy = [
-      // Resource properties
       'proxyUrl', 'rootUrl', '_links', '_subtypes',
       // Service properties
       'id', 'name', 'type', 'serviceURL', 'supportedSRS',
@@ -70,7 +65,6 @@ export class Service extends Resource {
       'parameters', 'blocked', 'isProxied', 'description',
       'getInformationURL', 'user', 'password', 'authenticationMode'
     ];
-    // Copy only defined properties that exist in our class
     propertiesToCopy.forEach(prop => {
       if (source[prop] !== undefined) {
         service[prop] = source[prop];

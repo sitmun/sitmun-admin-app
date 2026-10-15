@@ -20,7 +20,6 @@ export class LoginService {
 
   private sessionRefreshSubscription: Subscription | null = null;
 
-  /** constructor */
   constructor(
     private readonly authServerProvider: AuthService,
     private readonly principal: Principal,

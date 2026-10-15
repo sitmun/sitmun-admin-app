@@ -27,13 +27,10 @@ export class Point {
  * Territory model
  */
 export class Territory extends Resource {
-  /** id */
   public override id: number;
   /** code */
   public code: string;
-  /** name */
   public name: string;
-  /** description */
   public description: string;
   /** address*/
   public territorialAuthorityAddress: string;
@@ -57,7 +54,6 @@ export class Territory extends Resource {
   // public organizationName: string;
   /** scope*/
   public scope: string;
-  /** type */
   public type: TerritoryType;
   /** group type */
   public groupType: TerritoryGroupType;
@@ -79,9 +75,7 @@ export class Territory extends Resource {
    */
   public static fromObject(source: any): Territory {
     const territory = new Territory();
-    // Define the properties to copy
     const propertiesToCopy = [
-      // Resource properties
       'proxyUrl', 'rootUrl', '_links', '_subtypes',
       // Territory properties
       'id', 'code', 'name', 'description', 'territorialAuthorityAddress',
@@ -91,7 +85,6 @@ export class Territory extends Resource {
       'srs', 'membersOf', 'taskAvailability', 'positions', 'userConfigurations',
       'applications'
     ];
-    // Copy only defined properties that exist in our class
     propertiesToCopy.forEach(prop => {
       if (source[prop] !== undefined) {
         territory[prop] = source[prop];
@@ -135,9 +128,7 @@ export class TerritoryProjection extends Resource {
    */
   public static fromObject(source: any): TerritoryProjection {
     const projection = new TerritoryProjection();
-    // Define the properties to copy
     const propertiesToCopy = [
-      // Resource properties
       'proxyUrl', 'rootUrl', '_links', '_subtypes',
       // TerritoryProjection properties
       'id', 'code', 'name', 'description', 'territorialAuthorityName',
@@ -146,7 +137,6 @@ export class TerritoryProjection extends Resource {
       'groupTypeId', 'groupTypeName', 'typeId', 'typeName', 'typeTopType',
       'typeBottomType', 'center', 'defaultZoomLevel', 'srs'
     ];
-    // Copy only defined properties that exist in our class
     propertiesToCopy.forEach(prop => {
       if (source[prop] !== undefined) {
         projection[prop] = source[prop];

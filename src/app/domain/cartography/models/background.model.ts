@@ -8,13 +8,10 @@ import {ApplicationBackground} from '../../application/models/application-backgr
  */
 
 export class Background extends Resource {
-  /** id */
   public override id: number;
 
-  /** name*/
   public name: string;
 
-  /** description*/
   public description: string;
 
   /** image */
@@ -38,15 +35,12 @@ export class Background extends Resource {
    */
   public static fromObject(source: any): Background {
     const background = new Background();
-    // Define the properties to copy
     const propertiesToCopy = [
-      // Resource properties
       'proxyUrl', 'rootUrl', '_links', '_subtypes',
       // Background properties
       'id', 'name', 'description', 'image', 'active',
       'createdDate', 'cartographyGroup', 'applications'
     ];
-    // Copy only defined properties that exist in our class
     propertiesToCopy.forEach(prop => {
       if (source[prop] !== undefined) {
         background[prop] = source[prop];
@@ -68,15 +62,12 @@ export class BackgroundProjection extends Resource {
   image: string
   public static fromObject(source: any): BackgroundProjection {
     const background = new BackgroundProjection();
-    // Define the properties to copy
     const propertiesToCopy = [
-      // Resource properties
       'proxyUrl', 'rootUrl', '_links', '_subtypes',
       // Background properties
       'id', 'name', 'description', 'image', 'active',
       'createdDate', 'cartographyGroupName', 'cartographyGroupId'
     ];
-    // Copy only defined properties that exist in our class
     propertiesToCopy.forEach(prop => {
       if (source[prop] !== undefined) {
         background[prop] = source[prop];

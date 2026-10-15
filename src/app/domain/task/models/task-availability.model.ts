@@ -7,7 +7,6 @@ import {Territory, TerritoryProjection} from '../../territory/models/territory.m
  * Task availability model
  */
 export class TaskAvailability extends Resource {
-  /** id */
   public override id: number;
 
   public createdDate: string;

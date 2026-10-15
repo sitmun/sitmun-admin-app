@@ -95,7 +95,6 @@ describe('LayersPermitsFormComponent', () => {
     translationService= TestBed.inject(TranslationService);
     resourceService= TestBed.inject(ResourceService);
     externalService= TestBed.inject(ExternalService);
-    // Initialize form if not already initialized
     if (!component.entityForm) {
       component.entityToEdit = component.empty();
       component.postFetchData();

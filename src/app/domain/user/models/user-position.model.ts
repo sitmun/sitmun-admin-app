@@ -8,7 +8,6 @@ import {Territory} from '../../territory/models/territory.model';
  */
 export class UserPosition extends Resource {
 
-  /** name */
   public name: string;
   /** email */
   public email: string;
@@ -32,15 +31,12 @@ export class UserPosition extends Resource {
 
   public static fromObject(source: any): UserPosition {
     const user = new UserPosition();
-    // Define the properties to copy
     const propertiesToCopy = [
-      // Resource properties
       'proxyUrl', 'rootUrl', '_links', '_subtypes',
       // User properties
       'id', 'name', 'email', 'organization', 'createdDate', 'lastModifiedDate',
       'expirationDate', 'type', 'territory', 'user'
     ];
-    // Copy only defined properties that exist in our class
     propertiesToCopy.forEach(prop => {
       if (source[prop] !== undefined) {
         user[prop] = source[prop];
@@ -73,15 +69,12 @@ export class UserPositionProjection extends Resource {
 
   public static fromObject(source: any): UserPositionProjection {
     const user = new UserPositionProjection();
-    // Define the properties to copy
     const propertiesToCopy = [
-      // Resource properties
       'proxyUrl', 'rootUrl', '_links', '_subtypes',
       // User properties
       'id', 'name', 'email', 'organization', 'createdDate',
       'expirationDate', 'type', 'territoryName', 'userId', 'territoryId'
     ];
-    // Copy only defined properties that exist in our class
     propertiesToCopy.forEach(prop => {
       if (source[prop] !== undefined) {
         user[prop] = source[prop];

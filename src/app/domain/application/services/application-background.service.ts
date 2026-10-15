@@ -8,7 +8,6 @@ import { ApplicationBackground } from '../models/application-background.model';
 @Injectable()
 export class ApplicationBackgroundService extends RestService<ApplicationBackground> {
 
-  /** constructor */
   constructor(injector: Injector) {
     super(ApplicationBackground, "application-backgrounds", injector);
   }

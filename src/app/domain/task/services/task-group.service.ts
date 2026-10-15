@@ -8,7 +8,6 @@ import { TaskGroup } from '../models/task-group.model';
 @Injectable()
 export class TaskGroupService extends RestService<TaskGroup> {
 
-  /** constructor */
   constructor(injector: Injector) {
     super(TaskGroup, "task-groups", injector);
   }

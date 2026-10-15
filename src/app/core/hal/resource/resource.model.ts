@@ -47,7 +47,6 @@ export abstract class Resource {
     this._subtypes = _subtypes;
   }
 
-  /** constructor*/
   // Empty constructor required by TypeScript
 
   public getRelationArrayEx<T extends Resource>(type: { new(): T }, relation: string, options: {
@@ -58,10 +57,8 @@ export abstract class Resource {
       const template = utpl(this._links[relation].href);
       const url = template.fillFromObject(options);
 
-      // Extract variables used in the template
       const templateVariables = template.varNames;
 
-      // Filter out template variables from options to get remaining options
       const remainingOptions = Object.keys(options).reduce((acc, key) => {
         if (!templateVariables.includes(key)) {
           acc[key] = options[key];
@@ -122,10 +119,8 @@ export abstract class Resource {
       const template = utpl(this._links[relation].href);
       const url = template.fillFromObject(options);
 
-      // Extract variables used in the template
       const templateVariables = template.varNames;
 
-      // Filter out template variables from options to get remaining options
       const remainingOptions = Object.keys(options).reduce((acc, key) => {
         if (!templateVariables.includes(key)) {
           acc[key] = options[key];
@@ -227,10 +222,8 @@ export abstract class Resource {
       const template = utpl(this._links[relation].href);
       const url = template.fillFromObject(options);
 
-      // Extract variables used in the template
       const templateVariables = template.varNames;
 
-      // Filter out template variables from options to get remaining options
       const remainingOptions = Object.keys(options).reduce((acc, key) => {
         if (!templateVariables.includes(key)) {
           acc[key] = options[key];

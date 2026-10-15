@@ -8,7 +8,6 @@ import { CartographyGroup } from '../models/cartography-group.model';
 @Injectable()
 export class CartographyGroupService extends RestService<CartographyGroup> {
 
-  /** constructor */
   constructor(injector: Injector) {
     super(CartographyGroup, "cartography-groups", injector);
   }

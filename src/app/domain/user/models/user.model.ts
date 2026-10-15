@@ -7,7 +7,6 @@ import {UserPosition} from './user-position.model';
  * User model
  */
 export class User extends Resource {
-  /** id */
   public override id: number;
   /** username */
   public username: string;
@@ -39,15 +38,12 @@ export class User extends Resource {
    */
   public static fromObject(source: any): User {
     const user = new User();
-    // Define the properties to copy
     const propertiesToCopy = [
-      // Resource properties
       'proxyUrl', 'rootUrl', '_links', '_subtypes',
       // User properties
       'id', 'username', 'password', 'firstName', 'lastName', 'email',
       'blocked', 'administrator', 'passwordSet', 'positions', 'permissions'
     ];
-    // Copy only defined properties that exist in our class
     propertiesToCopy.forEach(prop => {
       if (source[prop] !== undefined) {
         user[prop] = source[prop];
@@ -61,7 +57,6 @@ export class User extends Resource {
  * User model
  */
 export class UserProjection extends Resource {
-  /** id */
   public override id: number;
 
   /** username */
@@ -98,15 +93,12 @@ export class UserProjection extends Resource {
    */
   public static fromObject(source: any): UserProjection {
     const user = new UserProjection();
-    // Define the properties to copy
     const propertiesToCopy = [
-      // Resource properties
       'proxyUrl', 'rootUrl', '_links', '_subtypes',
       // User properties
       'id', 'username', 'password', 'firstName', 'lastName', 'email',
       'blocked', 'administrator', 'passwordSet', 'warnings'
     ];
-    // Copy only defined properties that exist in our class
     propertiesToCopy.forEach(prop => {
       if (source[prop] !== undefined) {
         user[prop] = source[prop];

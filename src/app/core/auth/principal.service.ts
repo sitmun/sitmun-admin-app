@@ -12,7 +12,6 @@ export class Principal {
   private authenticated = false;
   private authenticationState = new Subject<any>();
 
-  /** constructor */
   constructor(
     private account: AccountService
   ) {}

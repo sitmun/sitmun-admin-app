@@ -10,7 +10,6 @@ export enum TaskParameterType {
  * Task parameter model
  */
 export class TaskEditionParameter {
-  /** name */
   public name: string;
 
   /** label */
@@ -28,7 +27,6 @@ export class TaskEditionParameter {
   /** value */
   public value: string;
 
-  /** order */
   public order: number;
 
   /** provided - backend-only secret variable (not sent to client) */
@@ -61,11 +59,9 @@ export class TaskEditionParameter {
    */
   public static fromObject(source: any): TaskEditionParameter {
     const parameter = new TaskEditionParameter();
-    // Define the properties to copy
     const propertiesToCopy = [
       'name', 'label', 'type', 'value', 'provided'
     ];
-    // Copy only defined properties that exist in our class
     propertiesToCopy.forEach(prop => {
       if (source[prop] !== undefined) {
         parameter[prop] = source[prop];

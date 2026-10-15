@@ -29,14 +29,11 @@ export class CartographyAvailability extends Resource {
 
   public static fromObject(source: any): CartographyAvailability {
     const availability = new CartographyAvailability();
-    // Define the properties to copy
     const propertiesToCopy = [
-      // Resource properties
       'proxyUrl', 'rootUrl', '_links', '_subtypes',
       // CartographyAvailability properties
       'id', 'territory', 'createdDate', 'cartography'
     ];
-    // Copy only defined properties that exist in our class
     propertiesToCopy.forEach(prop => {
       if (source[prop] !== undefined) {
         availability[prop] = source[prop];
@@ -94,16 +91,13 @@ export class CartographyAvailabilityProjection extends Resource {
    */
   public static fromObject(source: any): CartographyAvailabilityProjection {
     const projection = new CartographyAvailabilityProjection();
-    // Define the properties to copy
     const propertiesToCopy = [
-      // Resource properties
       'proxyUrl', 'rootUrl', '_links', '_subtypes',
       // CartographyAvailabilityProjection properties
       'id', 'createdDate', 'owner', 'territoryId', 'territoryName',
       'territoryCode', 'territoryType', 'cartographyId', 'cartographyName',
       'cartographyLayers', 'cartographyServiceName', 'cartographyServiceId'
     ];
-    // Copy only defined properties that exist in our class
     propertiesToCopy.forEach(prop => {
       if (source[prop] !== undefined) {
         projection[prop] = source[prop];

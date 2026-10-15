@@ -5,13 +5,11 @@ export class TaskMoreInfoParameter {
   /** label */
   public label: string;
 
-  /** order */
   public order: number | null;
 
   /** value */
   public value: string;
 
-  /** description */
   public description?: string;
 
   /** whether the parameter value is provided/fixed (not from client) */

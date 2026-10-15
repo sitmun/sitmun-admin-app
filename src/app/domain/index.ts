@@ -2,7 +2,6 @@
  * Public API Surface of domain module
  */
 
-// Export the domain module
 export * from './domain.module';
 
 // Export all feature modules
@@ -23,7 +22,6 @@ export * from './getInfo';
 export * from './map';
 export * from './codelist';
 
-// Explicitly export all services to ensure they're available
 // Territory
 export { TerritoryService } from './territory/services/territory.service';
 export { TerritoryTypeService } from './territory/services/territory-type.service';

@@ -9,7 +9,6 @@ export class TaskRelation extends Resource {
 
   public override id: number;
 
-  /** name*/
   public task: Task;
 
   public relationType: string;

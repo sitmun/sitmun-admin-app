@@ -131,7 +131,6 @@ export class TaskGroupFormComponent extends BaseFormComponent<TaskGroup> {
   /**
    * Creates a Task  object from the current form values.
    * Applies the form values to a copy of the current entity and converts it to a Task  domain object.
-   * This method ensures that entity data is not directly modified until explicitly saved.
    *
    * @param id - Optional ID for the new object, used when updating
    * @returns New Task instance populated with form values

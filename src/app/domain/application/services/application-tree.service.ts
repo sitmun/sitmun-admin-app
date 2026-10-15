@@ -8,7 +8,6 @@ import { ApplicationTree } from '../models/application-tree.model';
 @Injectable()
 export class ApplicationTreeService extends RestService<ApplicationTree> {
 
-  /** constructor */
   constructor(injector: Injector) {
     super(ApplicationTree, 'application-trees', injector);
   }

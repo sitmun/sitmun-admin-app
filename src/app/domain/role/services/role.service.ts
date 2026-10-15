@@ -9,7 +9,6 @@ import { Role } from '../models/role.model';
 @Injectable()
 export class RoleService extends RestService<Role> {
 
-  /** constructor */
   constructor(injector: Injector,private http: HttpClient) {
     super(Role, "roles", injector);
   }

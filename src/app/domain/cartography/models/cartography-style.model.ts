@@ -6,16 +6,12 @@ import {Cartography} from './cartography.model';
  */
 export class CartographyStyle extends Resource {
 
-  /** id*/
   public override id: number;
 
-  /** name*/
   public name: string;
 
-  /** title*/
   public title: string;
 
-  /** description*/
   public description: string;
 
   /** cartography*/

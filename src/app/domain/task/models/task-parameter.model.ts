@@ -2,10 +2,8 @@
  * Task parameter model
  */
 export class TaskParameter {
-  /** name*/
   public name: string;
 
-  /** type*/
   public type: string;
 
   /** value*/
@@ -30,11 +28,9 @@ export class TaskParameter {
    */
   public static fromObject(source: any): TaskParameter {
     const parameter = new TaskParameter();
-    // Define the properties to copy
     const propertiesToCopy = [
       'name', 'type', 'value'
     ];
-    // Copy only defined properties that exist in our class
     propertiesToCopy.forEach(prop => {
       if (source[prop] !== undefined) {
         parameter[prop] = source[prop];

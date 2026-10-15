@@ -83,7 +83,6 @@ describe('TreesFormComponent', () => {
     // Mock treeNodesComponent BEFORE any getter access (canSaveEntity is called during detectChanges)
     assignTreeNodesStub(component);
 
-    // Initialize form if not already initialized
     if (!component.entityForm) {
       component.entityToEdit = component.empty();
       component.postFetchData();

@@ -56,16 +56,13 @@ export class CartographyParameter extends Resource {
 
   public override id: number;
 
-  /** name*/
   public name: string;
 
-  /** type*/
   public type: string;
 
   /** value*/
   public value: string;
 
-  /** order*/
   public order: string;
 
   /** format*/

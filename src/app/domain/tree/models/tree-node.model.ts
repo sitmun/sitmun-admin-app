@@ -8,21 +8,16 @@ import {Task} from '../../task/models/task.model';
  * Tree node model
  */
 export class TreeNode extends Resource {
-  /** id */
   public override id: number;
-  /** name */
   public name: string;
-  /** type */
   public type: string;
   /** tooltip*/
   public tooltip: string;
-  /** description*/
   public description: string;
   /** datasetURL*/
   public datasetURL: string;
   /** metadataURL*/
   public metadataURL: string;
-  /** order*/
   public order : number;
   /** load-by-default in layer catalog (cartography leaf; requires visible) */
   public active: boolean;
@@ -60,9 +55,7 @@ export class TreeNode extends Resource {
    */
   public static fromObject(source: any): TreeNode {
     const node = new TreeNode();
-    // Define the properties to copy
     const propertiesToCopy = [
-      // Resource properties
       'proxyUrl', 'rootUrl', '_links', '_subtypes',
       // TreeNode properties
       'id', 'name', 'type', 'tooltip', 'description', 'datasetURL', 'metadataURL',
@@ -70,7 +63,6 @@ export class TreeNode extends Resource {
       'filterGetMap', 'filterSelectable', 'style', 'loadData', 'queryableActive',
       'image', 'imageName', 'task', 'viewMode', 'filterable', 'mapping'
     ];
-    // Copy only defined properties that exist in our class
     propertiesToCopy.forEach(prop => {
       if (source[prop] !== undefined) {
         node[prop] = source[prop];
@@ -122,9 +114,7 @@ export class TreeNodeProjection extends Resource {
    */
   public static fromObject(source: any): TreeNodeProjection {
     const projection = new TreeNodeProjection();
-    // Define the properties to copy
     const propertiesToCopy = [
-      // Resource properties
       'proxyUrl', 'rootUrl', '_links', '_subtypes',
       // TreeNodeProjection properties
       'parent', 'id', 'name', 'description', 'nodeType', 'tooltip', 'active', 'visible',
@@ -134,7 +124,6 @@ export class TreeNodeProjection extends Resource {
       'treeName', 'style', 'image', 'imageName', 'viewMode', 'filterable', 'mapping',
       'loadData'
     ];
-    // Copy only defined properties that exist in our class
     propertiesToCopy.forEach(prop => {
       if (source[prop] !== undefined) {
         projection[prop] = source[prop];

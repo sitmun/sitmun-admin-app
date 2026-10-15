@@ -8,7 +8,6 @@ import { CartographyFilter } from '../models/cartography-filter.model';
 @Injectable()
 export class CartographyFilterService extends RestService<CartographyFilter> {
 
-  /** constructor */
   constructor(injector: Injector) {
     super(CartographyFilter, "cartography-filters", injector);
   }

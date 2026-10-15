@@ -14,11 +14,8 @@ import { Service } from '../../service/models/service.model';
 
 /** Task model */
 export class Task extends Resource {
-  /** id */
   public override id: number;
-  /** name */
   public name?: string;
-  /** order*/
   public order?: number;
   /** system created date*/
   public createdDate?: any;
@@ -50,22 +47,18 @@ export class Task extends Resource {
    */
   public static fromObject(source: any): Task {
     const task = new Task();
-    // Define the properties to copy
     const propertiesToCopy = [
-      // Resource properties
       'proxyUrl', 'rootUrl', '_links', '_subtypes',
       // Task properties
       'id', 'name', 'order', 'createdDate', 'group', 'type',
       'ui', 'parameters', 'connection', 'roles',
       'availabilities', 'cartography', 'service', 'properties'
     ];
-    // Copy only defined properties that exist in our class
     propertiesToCopy.forEach(prop => {
       if (source[prop] !== undefined) {
         task[prop] = source[prop];
       }
     });
-    // Ensure properties are initialized as opaque record.
     task.properties = TaskPropertiesContract.fromRaw(source.properties);
     return task;
   }
@@ -97,9 +90,7 @@ export class TaskProjection extends Resource {
    */
   public static fromObject(source: any): TaskProjection {
     const projection = new TaskProjection();
-    // Define the properties to copy
     const propertiesToCopy = [
-      // Resource properties
       'proxyUrl', 'rootUrl', '_links', '_subtypes',
       // TaskProjection properties
       'id', 'name', 'createdDate', 'order', 'groupName', 'groupId',
@@ -107,13 +98,11 @@ export class TaskProjection extends Resource {
       'cartographyId', 'cartographyName', 'typeId', 'typeName', 'typeTitle',
       'connectionId', 'connectionName'
     ];
-    // Copy only defined properties that exist in our class
     propertiesToCopy.forEach(prop => {
       if (source[prop] !== undefined) {
         projection[prop] = source[prop];
       }
     });
-    // Ensure properties are initialized as opaque record.
     projection.properties = TaskPropertiesContract.fromRaw(source.properties);
     return projection;
   }
