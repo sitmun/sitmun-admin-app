@@ -314,7 +314,7 @@ describe('TerritoryFormComponent', () => {
 
       it('should accept code with 50 characters', () => {
         component.entityForm.patchValue({ code: 'a'.repeat(50), name: 'Test', typeId: 1 });
-        expect(component.entityForm.get('code')?.hasError('maxlength')).toBeFalsy();
+        expect(component.entityForm.get('code').hasError('maxlength')).toBe(false);
       });
 
       it('should reject name longer than 250 characters', () => {
@@ -325,7 +325,7 @@ describe('TerritoryFormComponent', () => {
 
       it('should accept name with 250 characters', () => {
         component.entityForm.patchValue({ code: '1', name: 'a'.repeat(250), typeId: 1 });
-        expect(component.entityForm.get('name')?.hasError('maxlength')).toBeFalsy();
+        expect(component.entityForm.get('name').hasError('maxlength')).toBe(false);
       });
 
       it('should reject description longer than 4000 characters', () => {
@@ -345,7 +345,7 @@ describe('TerritoryFormComponent', () => {
           description: 'a'.repeat(4000),
           typeId: 1 
         });
-        expect(component.entityForm.get('description')?.hasError('maxlength')).toBeFalsy();
+        expect(component.entityForm.get('description').hasError('maxlength')).toBe(false);
       });
 
       it('should reject note longer than 250 characters', () => {
@@ -397,7 +397,7 @@ describe('TerritoryFormComponent', () => {
           territorialAuthorityLogo: 'http://example.com/logo.png',
           typeId: 1 
         });
-        expect(component.entityForm.get('territorialAuthorityLogo')?.hasError('invalidUrl')).toBeFalsy();
+        expect(component.entityForm.get('territorialAuthorityLogo').hasError('invalidUrl')).toBe(false);
       });
 
       it('should accept valid https URL', () => {
@@ -407,7 +407,7 @@ describe('TerritoryFormComponent', () => {
           territorialAuthorityLogo: 'https://example.com/logo.png',
           typeId: 1 
         });
-        expect(component.entityForm.get('territorialAuthorityLogo')?.hasError('invalidUrl')).toBeFalsy();
+        expect(component.entityForm.get('territorialAuthorityLogo').hasError('invalidUrl')).toBe(false);
       });
 
       it('should reject ftp URL', () => {
@@ -439,7 +439,7 @@ describe('TerritoryFormComponent', () => {
           territorialAuthorityLogo: '',
           typeId: 1 
         });
-        expect(component.entityForm.get('territorialAuthorityLogo')?.hasError('invalidUrl')).toBeFalsy();
+        expect(component.entityForm.get('territorialAuthorityLogo').hasError('invalidUrl')).toBe(false);
       });
 
       it('should accept null territorialAuthorityLogo', () => {
@@ -449,7 +449,7 @@ describe('TerritoryFormComponent', () => {
           territorialAuthorityLogo: null,
           typeId: 1 
         });
-        expect(component.entityForm.get('territorialAuthorityLogo')?.hasError('invalidUrl')).toBeFalsy();
+        expect(component.entityForm.get('territorialAuthorityLogo').hasError('invalidUrl')).toBe(false);
       });
     });
 
@@ -461,7 +461,7 @@ describe('TerritoryFormComponent', () => {
           srs: 'EPSG:4326',
           typeId: 1 
         });
-        expect(component.entityForm.get('srs')?.hasError('invalidSrs')).toBeFalsy();
+        expect(component.entityForm.get('srs').hasError('invalidSrs')).toBe(false);
       });
 
       it('should accept valid SRS format with hyphens', () => {
@@ -471,7 +471,7 @@ describe('TerritoryFormComponent', () => {
           srs: 'EPSG-TEST:25830',
           typeId: 1 
         });
-        expect(component.entityForm.get('srs')?.hasError('invalidSrs')).toBeFalsy();
+        expect(component.entityForm.get('srs').hasError('invalidSrs')).toBe(false);
       });
 
       it('should reject SRS without colon', () => {
@@ -514,7 +514,7 @@ describe('TerritoryFormComponent', () => {
           srs: '',
           typeId: 1 
         });
-        expect(component.entityForm.get('srs')?.hasError('invalidSrs')).toBeFalsy();
+        expect(component.entityForm.get('srs').hasError('invalidSrs')).toBe(false);
       });
 
       it('should accept null SRS', () => {
@@ -524,7 +524,7 @@ describe('TerritoryFormComponent', () => {
           srs: null,
           typeId: 1 
         });
-        expect(component.entityForm.get('srs')?.hasError('invalidSrs')).toBeFalsy();
+        expect(component.entityForm.get('srs').hasError('invalidSrs')).toBe(false);
       });
     });
 
@@ -675,7 +675,7 @@ describe('TerritoryFormComponent', () => {
           typeId: 1,
           defaultZoomLevel: 10
         });
-        expect(component.entityForm.get('defaultZoomLevel')?.hasError('pattern')).toBeFalsy();
+        expect(component.entityForm.get('defaultZoomLevel').hasError('pattern')).toBe(false);
       });
 
       it('should accept zero', () => {
@@ -685,7 +685,7 @@ describe('TerritoryFormComponent', () => {
           typeId: 1,
           defaultZoomLevel: 0
         });
-        expect(component.entityForm.get('defaultZoomLevel')?.hasError('pattern')).toBeFalsy();
+        expect(component.entityForm.get('defaultZoomLevel').hasError('pattern')).toBe(false);
       });
 
       it('should accept negative integer', () => {
@@ -695,7 +695,7 @@ describe('TerritoryFormComponent', () => {
           typeId: 1,
           defaultZoomLevel: -5
         });
-        expect(component.entityForm.get('defaultZoomLevel')?.hasError('pattern')).toBeFalsy();
+        expect(component.entityForm.get('defaultZoomLevel').hasError('pattern')).toBe(false);
       });
 
       it('should reject decimal number', () => {
@@ -727,7 +727,7 @@ describe('TerritoryFormComponent', () => {
           typeId: 1,
           defaultZoomLevel: null
         });
-        expect(component.entityForm.get('defaultZoomLevel')?.hasError('pattern')).toBeFalsy();
+        expect(component.entityForm.get('defaultZoomLevel').hasError('pattern')).toBe(false);
       });
     });
   });

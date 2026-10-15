@@ -705,10 +705,12 @@ describe('TreesFormComponent', () => {
     });
 
     describe('onTabChange', () => {
-      it('handles tab change event', () => {
+      it('sets the active tab index', () => {
         const event = { index: 1 } as any;
 
-        expect(() => component.onTabChange(event)).not.toThrow();
+        component.onTabChange(event);
+
+        expect(component.activeTabIndex).toBe(1);
       });
     });
 

@@ -428,7 +428,7 @@ describe('TreeNodeService', () => {
       service.save(node).subscribe({
         next: () => {
           expect(createProxySpy).toHaveBeenCalledWith(5);
-          expect(node._links).toBeDefined();
+          expect(node._links.self.href).toBe('/tree-nodes/5');
           done();
         }
       });
