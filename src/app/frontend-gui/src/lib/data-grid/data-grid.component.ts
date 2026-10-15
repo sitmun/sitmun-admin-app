@@ -2425,21 +2425,8 @@ export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
     this.changesMap = changesMap;
     const row = this.gridApi.getDisplayedRowAtIndex(params.rowIndex);
 
-    // this.changeCellStyleColumns(params, changesMap, '#E8F1DE');
     this.gridApi.redrawRows({rowNodes: [row]});
-    // this.changeCellStyleColumns(params, changesMap, '#FFFFFF');
-    // We will define cellStyle white to future modifications (like filter)
   }
-
-  // changeCellStyleColumns(params: any, changesMap: Map<number, Map<string, number>>, color: string) {
-
-  //   for (const key of changesMap.get(params.node.id).keys()) {
-  //     const columnNumber = this.getColumnIndexByColId(this.gridColumnApi, key);
-  //     this.gridColumnApi.columnController.gridColumns[columnNumber].colDef.cellStyle = { backgroundColor: color };
-  //   }
-
-
-  // }
 
   @Input() redraw!: boolean;
 

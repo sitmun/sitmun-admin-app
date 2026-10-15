@@ -13,10 +13,6 @@ import { UserPosition } from '../models/user-position.model';
 @Injectable()
 export class UserPositionService  extends RestService<UserPosition> {
 
-
-  /** API resource path */
-  public USER_POSITION_API = 'user-positions';
-
   /** constructor */
   constructor(injector: Injector, private loggerService: LoggerService) {
     super(UserPosition, "user-positions", injector);

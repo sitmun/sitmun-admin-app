@@ -11,9 +11,6 @@ import { User } from '../models/user.model';
 @Injectable()
 export class UserService extends RestService<User> {
 
-  /** API resource path */
-  public USER_API = 'users';
-
   /** constructor */
   constructor(injector: Injector) {
     super(User, "users", injector);

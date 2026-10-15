@@ -12,10 +12,6 @@ import { Role } from '../../role/models/role.model';
 import { Service } from '../../service/models/service.model';
 
 
-//FIXME ensure task creation in admin app upon initialization (as it is done with Roles and default Users)
-/** GEOADMIN_task id */
-export const GEOADMIN_TREE_TASK_ID = "geoadmin";
-
 /** Task model */
 export class Task extends Resource {
   /** id */
