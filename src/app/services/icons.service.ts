@@ -34,9 +34,9 @@ export class IconsService {
    * Loads flag icons for language selection
    */
   private loadFlagIcons(): void {
-    const flagIcons = ['spain', 'united-kingdom', 'france', 'catalan', 'val-aran'];
+    const flagIcons = ['spain', 'united-kingdom', 'france', 'catalan', 'val-aran', 'portugal'];
     const flagBasePath = 'assets/flags/';
-    
+
     for (const iconName of flagIcons) {
       try {
         this.matIconRegistry.addSvgIcon(
