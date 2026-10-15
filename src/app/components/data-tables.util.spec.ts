@@ -307,7 +307,7 @@ describe('DataTableDefinitionBuilder', () => {
   describe('withFieldRestriction', () => {
     it('exposes a single scalar restriction as a string', () => {
       const definition = builder.withFieldRestriction('name').build();
-      expect((definition as any).addFieldRestriction).toBe('name');
+      expect(definition.addFieldRestriction).toBe('name');
     });
   });
 
@@ -316,12 +316,12 @@ describe('DataTableDefinitionBuilder', () => {
       const definition = builder
         .withFieldRestrictions(['userId', 'territoryId', 'appliesToChildrenTerritories'])
         .build();
-      expect((definition as any).addFieldRestriction).toEqual(['userId', 'territoryId', 'appliesToChildrenTerritories']);
+      expect(definition.addFieldRestriction).toEqual(['userId', 'territoryId', 'appliesToChildrenTerritories']);
     });
 
     it('returns undefined when no restrictions are configured', () => {
       const definition = builder.build();
-      expect((definition as any).addFieldRestriction).toBeUndefined();
+      expect(definition.addFieldRestriction).toBeUndefined();
     });
   });
 });
@@ -469,7 +469,7 @@ describe('DataTable2DefinitionBuilder', () => {
   describe('withFieldRestriction', () => {
     it('exposes a single scalar restriction as a string', () => {
       const definition = builder.withFieldRestriction('name').build();
-      expect((definition as any).addFieldRestriction).toBe('name');
+      expect(definition.addFieldRestriction).toBe('name');
     });
   });
 
@@ -478,12 +478,12 @@ describe('DataTable2DefinitionBuilder', () => {
       const definition = builder
         .withFieldRestrictions(['userId', 'territoryId', 'appliesToChildrenTerritories'])
         .build();
-      expect((definition as any).addFieldRestriction).toEqual(['userId', 'territoryId', 'appliesToChildrenTerritories']);
+      expect(definition.addFieldRestriction).toEqual(['userId', 'territoryId', 'appliesToChildrenTerritories']);
     });
 
     it('returns undefined when no restrictions are configured', () => {
       const definition = builder.build();
-      expect((definition as any).addFieldRestriction).toBeUndefined();
+      expect(definition.addFieldRestriction).toBeUndefined();
     });
   });
 });

@@ -54,7 +54,7 @@ describe('TreeNodeService', () => {
 
       const updated = new TreeNode();
       updated.id = 1;
-      updated._links = { self: { href: '/tree-nodes/1' } } as any;
+      updated._links = { self: { href: '/tree-nodes/1' } };
 
       const fetched = new TreeNode();
       fetched.id = 1;
@@ -64,7 +64,7 @@ describe('TreeNodeService', () => {
         tree: { href: '/tree-nodes/1/tree' },
         cartography: { href: '/tree-nodes/1/cartography' },
         task: { href: '/tree-nodes/1/task' }
-      } as any;
+      };
 
       resourceService.update.mockReturnValue(of(updated));
 
@@ -109,7 +109,7 @@ describe('TreeNodeService', () => {
         cartography: { href: '/tree-nodes/1/cartography' },
         task: { href: '/tree-nodes/1/task' },
         parent: { href: '/tree-nodes/1/parent' }
-      } as any;
+      };
 
       resourceService.update.mockReturnValue(of(updated));
       const relationSpy = jest.spyOn(service as any, 'applyRelationUpdate').mockReturnValue(of(null));
@@ -145,7 +145,7 @@ describe('TreeNodeService', () => {
         cartography: { href: '/tree-nodes/1/cartography' },
         task: { href: '/tree-nodes/1/task' },
         parent: { href: '/tree-nodes/1/parent' }
-      } as any;
+      };
       updated.updateRelationEx = jest.fn().mockReturnValue(of(null));
       updated.substituteRelation = jest.fn().mockReturnValue(of(null));
 
@@ -173,7 +173,7 @@ describe('TreeNodeService', () => {
         cartography: { href: '/tree-nodes/1/cartography' },
         task: { href: '/tree-nodes/1/task' },
         parent: { href: '/tree-nodes/1/parent' }
-      } as any;
+      };
 
       (service as any).ensureRelationLinks(target, ['tree', 'cartography', 'task', 'parent']).subscribe({
         next: (result: TreeNode) => {
@@ -186,14 +186,14 @@ describe('TreeNodeService', () => {
     it('fetches node when links are missing', (done) => {
       const target = new TreeNode();
       target.id = 1;
-      target._links = { self: { href: '/tree-nodes/1' } } as any;
+      target._links = { self: { href: '/tree-nodes/1' } };
 
       const fetched = new TreeNode();
       fetched.id = 1;
       fetched._links = {
         self: { href: '/tree-nodes/1' },
         tree: { href: '/tree-nodes/1/tree' }
-      } as any;
+      };
 
       const getSpy = jest.spyOn(service, 'get').mockReturnValue(of(fetched));
 
@@ -209,7 +209,7 @@ describe('TreeNodeService', () => {
     it('handles fetch error gracefully', (done) => {
       const target = new TreeNode();
       target.id = 1;
-      target._links = {} as any;
+      target._links = {};
 
       jest.spyOn(service, 'get').mockReturnValue(throwError(() => new Error('Not found')));
 
@@ -237,7 +237,7 @@ describe('TreeNodeService', () => {
   describe('applyRelationUpdate', () => {
     it('skips null tree relation', (done) => {
       const target = new TreeNode();
-      target._links = { tree: { href: '/tree-nodes/1/tree' } } as any;
+      target._links = { tree: { href: '/tree-nodes/1/tree' } };
 
       (service as any).applyRelationUpdate(target, 'tree', null, {}).subscribe({
         next: (result: any) => {
@@ -249,7 +249,7 @@ describe('TreeNodeService', () => {
 
     it('deletes null task relation', (done) => {
       const target = new TreeNode();
-      target._links = { task: { href: '/tree-nodes/1/task' } } as any;
+      target._links = { task: { href: '/tree-nodes/1/task' } };
       target.updateRelationEx = jest.fn().mockReturnValue(of(null));
 
       (service as any).applyRelationUpdate(target, 'task', null, {}).subscribe({
@@ -262,7 +262,7 @@ describe('TreeNodeService', () => {
 
     it('deletes null cartography relation', (done) => {
       const target = new TreeNode();
-      target._links = { cartography: { href: '/tree-nodes/1/cartography' } } as any;
+      target._links = { cartography: { href: '/tree-nodes/1/cartography' } };
       target.updateRelationEx = jest.fn().mockReturnValue(of(null));
 
       (service as any).applyRelationUpdate(target, 'cartography', null, {}).subscribe({
@@ -275,7 +275,7 @@ describe('TreeNodeService', () => {
 
     it('handles delete relation error', (done) => {
       const target = new TreeNode();
-      target._links = { task: { href: '/tree-nodes/1/task' } } as any;
+      target._links = { task: { href: '/tree-nodes/1/task' } };
       target.updateRelationEx = jest.fn().mockReturnValue(throwError(() => new Error('Delete failed')));
 
       (service as any).applyRelationUpdate(target, 'task', null, {}).subscribe({
@@ -289,7 +289,7 @@ describe('TreeNodeService', () => {
 
     it('substitutes relation when resource is valid', (done) => {
       const target = new TreeNode();
-      target._links = { tree: { href: '/tree-nodes/1/tree' } } as any;
+      target._links = { tree: { href: '/tree-nodes/1/tree' } };
       target.substituteRelation = jest.fn().mockReturnValue(of(null));
 
       const resource = { id: 10, _links: { self: { href: '/trees/10' } } };
@@ -305,7 +305,7 @@ describe('TreeNodeService', () => {
 
     it('skips substitution when resource has no self link', (done) => {
       const target = new TreeNode();
-      target._links = { tree: { href: '/tree-nodes/1/tree' } } as any;
+      target._links = { tree: { href: '/tree-nodes/1/tree' } };
 
       const resource = { id: 10 };
       jest.spyOn(ResourceHelper, 'canBeUpdated').mockReturnValue(false);
@@ -321,7 +321,7 @@ describe('TreeNodeService', () => {
 
     it('handles substitute relation error', (done) => {
       const target = new TreeNode();
-      target._links = { tree: { href: '/tree-nodes/1/tree' } } as any;
+      target._links = { tree: { href: '/tree-nodes/1/tree' } };
       target.substituteRelation = jest.fn().mockReturnValue(throwError(() => new Error('Substitute failed')));
 
       const resource = { id: 10, _links: { self: { href: '/trees/10' } } };
@@ -340,7 +340,7 @@ describe('TreeNodeService', () => {
   describe('applyParentUpdate', () => {
     it('deletes parent when null', (done) => {
       const target = new TreeNode();
-      target._links = { parent: { href: '/tree-nodes/1/parent' } } as any;
+      target._links = { parent: { href: '/tree-nodes/1/parent' } };
       target.updateRelationEx = jest.fn().mockReturnValue(of(null));
 
       (service as any).applyParentUpdate(target, null).subscribe({
@@ -353,7 +353,7 @@ describe('TreeNodeService', () => {
 
     it('handles delete parent error', (done) => {
       const target = new TreeNode();
-      target._links = { parent: { href: '/tree-nodes/1/parent' } } as any;
+      target._links = { parent: { href: '/tree-nodes/1/parent' } };
       target.updateRelationEx = jest.fn().mockReturnValue(throwError(() => new Error('Delete failed')));
 
       (service as any).applyParentUpdate(target, null).subscribe({
@@ -367,7 +367,7 @@ describe('TreeNodeService', () => {
 
     it('applies parent relation update when not null', (done) => {
       const target = new TreeNode();
-      target._links = { parent: { href: '/tree-nodes/1/parent' } } as any;
+      target._links = { parent: { href: '/tree-nodes/1/parent' } };
       
       const parent = { id: 40, _links: { self: { href: '/tree-nodes/40' } } };
       const applySpy = jest.spyOn(service as any, 'applyRelationUpdate').mockReturnValue(of(null));
@@ -385,7 +385,7 @@ describe('TreeNodeService', () => {
     it('calls update when node can be updated', (done) => {
       const node = new TreeNode();
       node.id = 1;
-      node._links = { self: { href: '/tree-nodes/1' } } as any;
+      node._links = { self: { href: '/tree-nodes/1' } };
 
       jest.spyOn(ResourceHelper, 'canBeUpdated').mockReturnValue(true);
       const updateSpy = jest.spyOn(service, 'update').mockReturnValue(of(node));
@@ -439,7 +439,7 @@ describe('TreeNodeService', () => {
     it('deletes node by id', (done) => {
       const proxy = new TreeNode();
       proxy.id = 1;
-      proxy._links = { self: { href: '/tree-nodes/1' } } as any;
+      proxy._links = { self: { href: '/tree-nodes/1' } };
 
       jest.spyOn(service, 'createProxy').mockReturnValue(proxy);
       const deleteSpy = jest.spyOn(service, 'delete').mockReturnValue(of(null));
@@ -469,7 +469,7 @@ describe('TreeNodeService', () => {
     it('does nothing when node can be updated', () => {
       const node = new TreeNode();
       node.id = 1;
-      node._links = { self: { href: '/tree-nodes/1' } } as any;
+      node._links = { self: { href: '/tree-nodes/1' } };
 
       jest.spyOn(ResourceHelper, 'canBeUpdated').mockReturnValue(true);
 
@@ -504,7 +504,7 @@ describe('TreeNodeService', () => {
       node.id = 5;
 
       const proxy = new TreeNode();
-      proxy._links = { self: { href: '/tree-nodes/5' } } as any;
+      proxy._links = { self: { href: '/tree-nodes/5' } };
 
       jest.spyOn(ResourceHelper, 'canBeUpdated').mockReturnValue(false);
       jest.spyOn(service, 'createProxy').mockReturnValue(proxy);
