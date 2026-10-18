@@ -7,7 +7,7 @@ import {ExternalService, ResourceService} from '@app/core/hal';
 // Import services from feature folders
 import { ApplicationBackgroundService, ApplicationParameterService, ApplicationService, ApplicationTreeService } from '@app/domain/application';
 import { CapabilitiesService } from '@app/domain/capabilities';
-import { BackgroundService , CartographyAvailabilityService , CartographyFilterService , CartographyGroupService , CartographyParameterService , CartographySpatialSelectionParameterService , CartographyStyleService , CartographyService } from '@app/domain/cartography';
+import { BackgroundService , CartographyAvailabilityService , CartographyFilterService , CartographyGroupService , CartographyParameterService , CartographyServiceParameterService , CartographySpatialSelectionParameterService , CartographyStyleService , CartographyService } from '@app/domain/cartography';
 import { CodeListService } from '@app/domain/codelist';
 import { ConfigurationParametersService } from '@app/domain/configuration';
 import { ConnectionService } from '@app/domain/connection';
@@ -63,6 +63,7 @@ export class DomainModule {
         CartographyGroupService,
         CartographyAvailabilityService,
         CartographyParameterService,
+        CartographyServiceParameterService,
         CartographySpatialSelectionParameterService,
         CartographyStyleService,
         CartographyFilterService,

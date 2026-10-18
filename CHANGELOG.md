@@ -13,6 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Services / Layers**: The parameter type list follows the service protocol: WMS, GetMap, GetFeatureInfo, viewer tile settings, WFS, and OpenLayers. A stored code outside that set stays visible on the row being edited.
+- **Layers**: The layer form edits fixed service parameters when the service is proxied. The tab is `LAYERS_SERVICE_PARAMETERS_FEATURE` and stays disabled while the service is not proxied ([sitmun-application-stack#90](https://github.com/sitmun/sitmun-application-stack/issues/90)).
+
 - **Trees**: The folder metadata and dataset hints say the viewer information button appears when a description, a metadata URL, or a dataset URL is set ([sitmun-viewer-app#173](https://github.com/sitmun/sitmun-viewer-app/issues/173)).
 - **Layers**: The feature-information field grid is on the cartography form without the experimental query-layer flag. The value column is the default-language label and can be translated per parameter. `N` and `P` edit fraction digits and padding. `F` chooses date or date and time, with a preview in the administrator language. A WFS DescribeFeatureType request seeds top-level element names ([sitmun-application-stack#77](https://github.com/sitmun/sitmun-application-stack/issues/77)).
 - **Auth**: Sliding `POST /api/authenticate/refresh` every 2 minutes. Resource 401s prove life with `/refresh`, not `/account` ([sitmun-backend-core#264](https://github.com/sitmun/sitmun-backend-core/issues/264)).

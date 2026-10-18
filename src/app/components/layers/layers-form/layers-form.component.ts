@@ -21,6 +21,7 @@ import {BaseFormComponent} from '@app/components/base-form.component';
 import {DataTableDefinition, TemplateDialog} from '@app/components/data-tables.util';
 import {RelationGridComponent} from '@app/components/shared/relation-grid/relation-grid.component';
 import {Configuration} from "@app/core/config/configuration";
+import {FeatureFlagService} from '@app/core/features/feature-flag.service';
 import {MessagesInterceptorStateService, SKIP_MESSAGES_INTERCEPTOR} from '@app/core/interceptors/messages.interceptor';
 import {
   Cartography,
@@ -34,6 +35,11 @@ import {
   CartographyGroupService,
   CartographyParameter,
   CartographyParameterService,
+  CartographyServiceParameter,
+  CartographyServiceParameterService,
+  CodeList,
+  codesInScope,
+  parameterLeadProtocol,
   persistedCartographyParameter,
   withEditableFormatOptions,
   GetInfoService,
@@ -104,6 +110,7 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
   protected readonly stylesTable: DataTableDefinition<CartographyStyle, CartographyStyle>;
   protected readonly territorialFiltersTable: DataTableDefinition<CartographyFilterProjection, CartographyFilterProjection>;
   protected readonly parametersTable: DataTableDefinition<CartographyParameter, CartographyParameter>;
+  protected readonly serviceParametersTable: DataTableDefinition<CartographyServiceParameter, CartographyServiceParameter>;
 
   services: any[] = [];
 
@@ -120,6 +127,10 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
   @ViewChild('newParameterDialog', {
     static: true
   }) private readonly newParameterDialog: TemplateRef<any>;
+
+  @ViewChild('newServiceParameterDialog', {
+    static: true
+  }) private readonly newServiceParameterDialog: TemplateRef<any>;
 
   @ViewChild('newTerritorialFilterDialog', {
     static: true
@@ -147,6 +158,8 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
     protected territoryService: TerritoryService,
     protected cartographyGroupService: CartographyGroupService,
     protected cartographyParameterService: CartographyParameterService,
+    protected cartographyServiceParameterService: CartographyServiceParameterService,
+    private readonly featureFlagService: FeatureFlagService,
     protected cartographyStyleService: CartographyStyleService,
     protected http: HttpClient,
     protected utils: UtilsService,
@@ -158,6 +171,7 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
     this.stylesTable = this.defineStylesTable();
     this.territorialFiltersTable = this.defineTerritorialFiltersTable();
     this.parametersTable = this.defineParametersTable();
+    this.serviceParametersTable = this.defineServiceParametersTable();
     this.destroyRef.onDestroy(() => this.joinedLayersValidationSub?.unsubscribe());
   }
 
@@ -169,10 +183,14 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
     this.dataTables.register(this.cartographyPermissionsTable)
       .register(this.territoryAvailabilitiesTable).register(this.stylesTable)
       .register(this.territorialFiltersTable).register(this.parametersTable);
+    if (this.featureFlagService.isFeatureEnabled('LAYERS_SERVICE_PARAMETERS_FEATURE')) {
+      this.dataTables.register(this.serviceParametersTable);
+    }
     this.initTranslations('Cartography', ['name', 'description'])
     await this.initCodeLists([
       'cartography.geometryType', 'cartography.legendType',
       'cartographyFilter.type','cartographyFilter.valueType', 'cartographyParameter.format',
+      'cartographyServiceParameter.type',
     ]);
     this.territorialTypes = await firstValueFrom(this.territoryTypeService.fetchAllItems())
     this.territorialTypes.sort((a, b) => compareNullableString(a.name, b.name));
@@ -789,6 +807,91 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
 
     const availableLayers = joinedLayers.filter(layer => !queryableLayers.includes(layer));
     return availableLayers.join(', ');
+  }
+
+  serviceParameterTypes(): CodeList[] {
+    const service = this.services.find((item) => item.id === this.entityForm?.get('serviceId')?.value);
+    const selected = this.serviceParametersTable
+      ?.templateDialog('newServiceParameterDialog')
+      ?.form
+      ?.get('type')
+      ?.value;
+    return this.serviceParameterTypesFor(service?.type, selected);
+  }
+
+  serviceParameterTypeDescription(type: string | undefined | null): string {
+    if (type == null || type === '') {
+      return '';
+    }
+    return this.findInCodeList('cartographyServiceParameter.type', type)?.description ?? type;
+  }
+
+  private serviceParameterTypesFor(
+    serviceType: string | null | undefined,
+    selected: string | null | undefined,
+  ): CodeList[] {
+    return codesInScope(this.codeList('cartographyServiceParameter.type'), serviceType, selected);
+  }
+
+  serviceParameterLeadKey(audience: 'viewer' | 'proxy'): string | null {
+    const service = this.services.find((item) => item.id === this.entityForm?.get('serviceId')?.value);
+    const protocol = parameterLeadProtocol(service?.type);
+    return protocol == null ? null : `entity.cartography.serviceParameters.${audience}.${protocol}`;
+  }
+
+  serviceIsProxied(): boolean {
+    const serviceId = this.entityForm?.get('serviceId')?.value;
+    return this.services.find((service) => service.id === serviceId)?.isProxied === true;
+  }
+
+  private defineServiceParametersTable(): DataTableDefinition<CartographyServiceParameter, CartographyServiceParameter> {
+    return DataTableDefinition.builder<CartographyServiceParameter, CartographyServiceParameter>(this.dialog, this.errorHandler, this.loadingService)
+      .withRelationsColumns([
+        this.utils.getSelCheckboxColumnDef(),
+        Object.assign(this.utils.getEditableColumnDef('common.form.name', 'name', 150), {flex: 1, minWidth: 140}),
+        Object.assign(this.utils.getNonEditableColumnDef('common.form.type', 'typeDescription', 220), {flex: 1, minWidth: 200}),
+        Object.assign(this.utils.getEditableColumnDef('common.form.value', 'value', 150), {flex: 2, minWidth: 160}),
+        this.utils.getStatusColumnDef()
+      ])
+      .withRelationsOrder('name')
+      .withRelationsFetcher(() => {
+        if (this.isNew()) {
+          return of([]);
+        }
+        return this.entityToEdit.getRelationArrayEx(CartographyServiceParameter, 'serviceParameters')
+          .pipe(map((rows) => rows.map((element) => Object.assign(new CartographyServiceParameter(), {
+            ...element,
+            typeDescription: this.serviceParameterTypeDescription(element.type),
+          }))));
+      })
+      .withRelationsUpdater(async (rows: (CartographyServiceParameter & Status)[]) => {
+        await onCreate(rows).forEach((item) => {
+          item.cartography = this.cartographyService.createProxy(this.entityID);
+          return this.cartographyServiceParameterService.create(item);
+        });
+        await onUpdate(rows).forEach((item) => {
+          item.cartography = this.cartographyService.createProxy(this.entityID);
+          return this.cartographyServiceParameterService.update(item);
+        });
+        await onDelete(rows).forEach((item) =>
+          this.cartographyServiceParameterService.delete(this.cartographyServiceParameterService.createProxy(item.id)));
+      })
+      .withTemplateDialog('newServiceParameterDialog', () => TemplateDialog.builder()
+        .withReference(this.newServiceParameterDialog)
+        .withTitle('entity.cartography.serviceParameters.title')
+        .withForm(new FormGroup({
+          name: new FormControl(null, [Validators.required, Validators.maxLength(50)]),
+          type: new FormControl(null, [Validators.required]),
+          value: new FormControl(null, [Validators.maxLength(250)]),
+        }))
+        .withPreOpenFunction((form: FormGroup) => {
+          const service = this.services.find((item) => item.id === this.entityForm?.get('serviceId')?.value);
+          const allowed = this.serviceParameterTypesFor(service?.type, null);
+          const initialType = allowed.find((item) => item.value === service?.type)?.value ?? allowed[0]?.value ?? null;
+          form.reset({name: '', type: initialType, value: ''});
+        })
+        .build())
+      .build();
   }
 
   getServiceName(serviceId: number): string {

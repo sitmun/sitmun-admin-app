@@ -241,6 +241,31 @@
       </mat-card>
     </ng-template>
   </mat-tab>
+  <ng-container *appFeatureFlag="'LAYERS_SERVICE_PARAMETERS_FEATURE'">
+    <mat-tab [disabled]="!serviceIsProxied()">
+      <ng-template mat-tab-label>
+        <app-feature-flag [text]="'entity.cartography.serviceParameters.header' | translate" [flag]="'LAYERS_SERVICE_PARAMETERS_FEATURE'"></app-feature-flag>
+      </ng-template>
+      <ng-template matTabContent>
+        <mat-card appearance="outlined" class="sitmun-mat-card-margin">
+          <mat-card-header>
+            <app-card-lead
+              [viewerKey]="serviceParameterLeadKey('viewer')"
+              [proxyKey]="serviceParameterLeadKey('proxy')">
+            </app-card-lead>
+          </mat-card-header>
+          <mat-card-content>
+            <app-relation-grid
+              *ngIf="dataLoaded && serviceIsProxied()"
+              [table]="serviceParametersTable"
+              [allNewElements]="isNewOrDuplicated()"
+              templateDialogName="newServiceParameterDialog"
+            ></app-relation-grid>
+          </mat-card-content>
+        </mat-card>
+      </ng-template>
+    </mat-tab>
+  </ng-container>
   <ng-container *appFeatureFlag="'LAYERS_FEATURE_INFORMATION_TAB_FEATURE'">
     <mat-tab>
       <ng-template mat-tab-label>
@@ -493,6 +518,35 @@
         <mat-form-field appearance="outline" class="full">
           <mat-label>{{ 'entity.cartography.styles.parameters.height' | translate }}</mat-label>
           <input matInput type="number" formControlName="height">
+        </mat-form-field>
+      </mat-card-content>
+    </mat-card>
+  </form>
+</ng-template>
+
+<ng-template #newServiceParameterDialog>
+  <form [formGroup]="serviceParametersTable.templateDialog('newServiceParameterDialog').form">
+    <mat-card appearance="outlined">
+      <mat-card-content>
+        <mat-form-field appearance="outline" class="full">
+          <mat-label>{{ 'common.form.name' | translate }}</mat-label>
+          <input matInput type="text" formControlName="name" required [maxlength]="50">
+          <mat-hint align="end">{{ serviceParametersTable.templateDialog('newServiceParameterDialog').form.get('name') | characterCount }}
+          </mat-hint>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="full">
+          <mat-label>{{ 'common.form.type' | translate }}</mat-label>
+          <mat-select formControlName="type" required>
+            <mat-option [value]="parameterType.value" *ngFor="let parameterType of serviceParameterTypes()">
+              {{ serviceParameterTypeDescription(parameterType.value) }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="full">
+          <mat-label>{{ 'common.form.value' | translate }}</mat-label>
+          <input matInput type="text" formControlName="value" [maxlength]="250">
+          <mat-hint align="end">{{ serviceParametersTable.templateDialog('newServiceParameterDialog').form.get('value') | characterCount }}
+          </mat-hint>
         </mat-form-field>
       </mat-card-content>
     </mat-card>

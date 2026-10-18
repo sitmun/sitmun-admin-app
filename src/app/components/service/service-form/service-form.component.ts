@@ -34,6 +34,8 @@ import {
   ServiceCapabilitiesProbe,
   ServiceParameter,
   ServiceParameterService,
+  codesInScope,
+  parameterLeadProtocol,
   ServiceService,
   TranslationService,
 } from '@app/domain';
@@ -52,7 +54,6 @@ import {LoadingOverlayService} from "@app/services/loading-overlay.service";
 import {LoggerService} from '@app/services/logger.service';
 import {UtilsService} from '@app/services/utils.service';
 import {WMSCapabilitiesService, WMSLayersCapabilities} from "@app/services/wms-capabilities.service";
-import { compareNullableString } from '@app/utils/compare-nullable-string';
 import {config} from '@config';
 import {constants} from '@environments/constants';
 
@@ -1148,36 +1149,9 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
       .build();
   }
 
-  /**
-   * {@code serviceParameter.type} minus {@code service.type} values, except:
-   * the service’s selected type (e.g. WMS on a WMS service), non-service codes (e.g. VARY), and the dialog’s current parameter type.
-   * The service’s protocol type is listed first; remaining entries follow sorted by description.
-   */
   private parameterTypesForNewParameterDialog(selectedParameterType: string | null | undefined): CodeList[] {
-    const parameterTypes = this.codeList('serviceParameter.type');
-    const serviceTypeValues = new Set(this.codeList('service.type').map((c) => c.value));
     const selectedServiceType = this.entityForm?.get('type')?.value ?? this.entityToEdit?.type ?? null;
-    const filtered = parameterTypes.filter((pt) => {
-      if (!serviceTypeValues.has(pt.value)) {
-        return true;
-      }
-      return pt.value === selectedServiceType || pt.value === selectedParameterType;
-    });
-    return this.orderNewParameterTypesWithServiceTypeFirst(filtered, selectedServiceType);
-  }
-
-  /** Puts the service protocol type first when present; otherwise sorts by description. */
-  private orderNewParameterTypesWithServiceTypeFirst(
-    filtered: CodeList[],
-    selectedServiceType: string | null | undefined,
-  ): CodeList[] {
-    const byDescription = (a: CodeList, b: CodeList) => compareNullableString(a.description, b.description);
-    if (!selectedServiceType) {
-      return [...filtered].sort(byDescription);
-    }
-    const primary = filtered.find((pt) => pt.value === selectedServiceType);
-    const rest = filtered.filter((pt) => pt.value !== selectedServiceType).sort(byDescription);
-    return primary ? [primary, ...rest] : [...filtered].sort(byDescription);
+    return codesInScope(this.codeList('serviceParameter.type'), selectedServiceType, selectedParameterType);
   }
 
   /** Options for the new-parameter dialog type control (see {@link parameterTypesForNewParameterDialog}). */
@@ -1186,18 +1160,14 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
     return this.parameterTypesForNewParameterDialog(selected);
   }
 
-  /**
-   * Label for the parameters grid and dialog: ngx-translate when {@code entity.serviceParameter.typeLabel.*}
-   * exists, otherwise codelist description (API / DB, may follow another language).
-   */
+  parameterLeadKey(audience: 'viewer' | 'proxy'): string | null {
+    const protocol = parameterLeadProtocol(this.entityForm?.get('type')?.value);
+    return protocol == null ? null : `entity.service.card.parametersLead.${audience}.${protocol}`;
+  }
+
   serviceParameterTypeDescription(type: string | undefined | null): string {
     if (type == null || type === '') {
       return '';
-    }
-    const key = `entity.serviceParameter.typeLabel.${type}`;
-    const translated = this.translateService.instant(key);
-    if (translated !== key) {
-      return translated;
     }
     return this.findInCodeList('serviceParameter.type', type)?.description ?? type;
   }
@@ -1213,8 +1183,8 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
       .withRelationsColumns([
         this.utils.getSelCheckboxColumnDef(),
         Object.assign(this.utils.getEditableColumnDef('common.form.name', 'name', 150), {flex: 1, minWidth: 140}),
+        Object.assign(this.utils.getNonEditableColumnDef('common.form.type', 'typeDescription', 220), {flex: 1, minWidth: 200}),
         Object.assign(this.utils.getEditableColumnDef('common.form.value', 'value', 150), {flex: 2, minWidth: 160}),
-        Object.assign(this.utils.getNonEditableColumnDef('common.form.type', 'typeDescription', 150), {flex: 0, minWidth: 120}),
         this.utils.getStatusColumnDef()
       ])
       .withRelationsOrder('name')

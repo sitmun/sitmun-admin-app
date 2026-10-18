@@ -13,6 +13,7 @@ import { RouterModule } from '@angular/router';
 import {TranslateLoader, TranslateModule} from '@ngx-translate/core';
 import {of, throwError} from 'rxjs';
 
+import {CardLeadComponent} from '@app/components/shared/card-lead/card-lead.component';
 import {EntityFormAlertsComponent} from '@app/components/shared/entity-form-alerts/entity-form-alerts.component';
 import {FormToolbarComponent} from '@app/components/shared/form-toolbar/form-toolbar.component';
 import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
@@ -26,6 +27,7 @@ import {
   CartographyFilterService,
   CartographyGroupService,
   CartographyParameterService,
+  CartographyServiceParameterService,
   CartographyProjection,
   CartographyService,
   CartographySpatialSelectionParameterService,
@@ -82,7 +84,7 @@ describe('LayersFormComponent', () => {
         FeatureFlagComponent,
         FeatureFlagPipe
       ],
-      imports: [FormsModule, ReactiveFormsModule, RouterModule.forRoot([], {}), SitmunFrontendGuiModule, EntityFormAlertsComponent,
+      imports: [FormsModule, ReactiveFormsModule, RouterModule.forRoot([], {}), SitmunFrontendGuiModule, EntityFormAlertsComponent, CardLeadComponent,
         MaterialModule, RouterModule, MatIconTestingModule, BrowserAnimationsModule,
         TranslateModule.forRoot({
           loader: {
@@ -108,6 +110,7 @@ describe('LayersFormComponent', () => {
         CartographyGroupService,
         CartographyAvailabilityService,
         CartographyParameterService,
+        CartographyServiceParameterService,
         CartographySpatialSelectionParameterService,
         CodeListService,
         CartographyFilterService,

@@ -210,8 +210,8 @@
       <mat-card appearance="outlined" class="sitmun-service-form-parameters-card">
         <mat-card-header>
           <app-card-lead
-            viewerKey="entity.service.card.parametersLead.viewer"
-            proxyKey="entity.service.card.parametersLead.proxy">
+            [viewerKey]="parameterLeadKey('viewer')"
+            [proxyKey]="parameterLeadKey('proxy')">
           </app-card-lead>
         </mat-card-header>
         <mat-card-content>

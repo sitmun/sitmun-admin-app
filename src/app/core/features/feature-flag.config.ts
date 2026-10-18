@@ -27,6 +27,8 @@ export const FEATURE_FLAGS = {
   LAYERS_FILTERS_TAB_FEATURE: 'layers-filters-tab',
   /** Layers form: queryable layer subset. The feature-information field list is always shown. */
   LAYERS_FEATURE_INFORMATION_TAB_FEATURE: 'layers-feature-information-tab',
+  /** Layers form: fixed OGC parameters applied when the owning service is proxied. */
+  LAYERS_SERVICE_PARAMETERS_FEATURE: 'layers-service-parameters',
   /** Application form: comma-separated scale denominators (not in viewer client profile yet). */
   APPLICATION_SCALES_FEATURE: 'application-scales',
   /** Application form: tree auto-refresh toggle (not in viewer client profile yet). */
@@ -89,6 +91,12 @@ export const PROD_FEATURE_FLAGS: Record<FeatureFlagKeys, FeatureFlagConfig> = {
     enabled: false,
     experimental: true,
     description: 'featureFlags.layersFeatureInformationTab.description',
+    category: 'Layers'
+  },
+  LAYERS_SERVICE_PARAMETERS_FEATURE: {
+    key: FEATURE_FLAGS.LAYERS_SERVICE_PARAMETERS_FEATURE,
+    enabled: true,
+    description: 'featureFlags.layersServiceParameters.description',
     category: 'Layers'
   },
   APPLICATION_SCALES_FEATURE: {
@@ -165,6 +173,13 @@ export const DEV_FEATURE_FLAGS: Record<FeatureFlagKeys, FeatureFlagConfig> = {
     enabled: true,
     experimental: true,
     description: 'featureFlags.layersFeatureInformationTab.description',
+    category: 'Layers'
+  },
+  LAYERS_SERVICE_PARAMETERS_FEATURE: {
+    key: FEATURE_FLAGS.LAYERS_SERVICE_PARAMETERS_FEATURE,
+    enabled: true,
+    experimental: false,
+    description: 'featureFlags.layersServiceParameters.description',
     category: 'Layers'
   },
   APPLICATION_SCALES_FEATURE: {
