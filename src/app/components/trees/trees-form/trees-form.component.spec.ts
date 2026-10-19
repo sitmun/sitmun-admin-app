@@ -583,7 +583,7 @@ describe('TreesFormComponent', () => {
     });
 
     describe('onImageSelected', () => {
-      it('reads and sets image data URL for valid image file', (done) => {
+      it('reads and sets image data URL for valid image file', async () => {
         const file = new File(['dummy content'], 'test.png', { type: 'image/png' });
         const fileInput = document.createElement('input');
         Object.defineProperty(fileInput, 'files', {
@@ -591,14 +591,21 @@ describe('TreesFormComponent', () => {
           writable: false
         });
         const event = { target: fileInput } as any;
+        const dataUrl = 'data:image/png;base64,ZmFrZQ==';
+        const readSpy = jest
+          .spyOn(FileReader.prototype, 'readAsDataURL')
+          .mockImplementation(function (this: FileReader) {
+            Object.defineProperty(this, 'result', {configurable: true, value: dataUrl});
+            this.onload?.(new ProgressEvent('load') as unknown as ProgressEvent<FileReader>);
+          });
 
-        component.onImageSelected('tree', event);
-
-        setTimeout(() => {
-          expect(component.entityForm.value.image).toBeTruthy();
+        try {
+          await component.onImageSelected('tree', event);
+          expect(component.entityForm.value.image).toBe(dataUrl);
           expect(component.entityForm.value.imageName).toBe('test.png');
-          done();
-        }, 100);
+        } finally {
+          readSpy.mockRestore();
+        }
       });
 
       it('shows error for non-image files', async () => {

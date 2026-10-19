@@ -2,44 +2,46 @@
   <span class="spacer"></span>
   <h4>
     <span>
-    <mat-icon aria-hidden="true" fontSet="{{ config.font }}">{{ config.iconName }}</mat-icon>
+      <mat-icon aria-hidden="true" fontSet="{{ config.font }}">{{ config.iconName }}</mat-icon>
       {{ config.entityLabel | translate }}
     </span>
   </h4>
 </mat-toolbar>
 <mat-card class="sitmun-mat-card-margin" appearance="outlined">
   <mat-card-content>
-    <app-data-grid
-      [columnDefs]="columnDefs"
-      [getAll]='dataFetchFn'
-      [rowModelMode]="config.rowModelMode ?? 'clientSide'"
-      [pageSize]="config.pageSize"
-      [infiniteBlockFetcher]="config.infiniteBlockFetcher"
-      [infiniteGridHeight]="config.infiniteGridHeight ?? '60vh'"
-      [progressiveLocalFilter]="config.progressiveLocalFilter ?? false"
-      [backendSearch]="config.backendSearch ?? false"
-      [extraComponents]="config.gridComponents"
-      [globalSearch]="gridOptions.globalSearch"
-      [eventRefreshSubscription]='refreshCommandEvent$.asObservable()'
-      [eventSaveAgGridStateSubscription]='saveAgGridStateEvent.asObservable()'
-      [discardChangesButton]="gridOptions.discardChangesButton"
-      [redoButton]="gridOptions.redoButton"
-      [undoButton]="gridOptions.undoButton"
-      [applyChangesButton]="gridOptions.applyChangesButton"
-      [deleteButton]="gridOptions.deleteButton"
-      [newButton]="gridOptions.newButton"
-      [actionButton]="gridOptions.actionButton"
-      [hideReplaceButton]="gridOptions.hideReplaceButton"
-      [hideDuplicateButton]="gridOptions.hideDuplicateButton"
-      [rowDragManaged]="rowDragManaged"
-      (remove)="onRemove($event)"
-      (new)='onNew($event)'
-      [defaultColumnSorting]="defaultColumnSorting"
-      (gridModified)='onGridModified($event)'
-      (rowOrderChanged)="onRowOrderChanged($event)"
-      (sendChanges)='onSendChanges($event)'
-      (duplicate)='onDuplicate($event)'
-      *ngIf="dataLoaded">
-    </app-data-grid>
+    @if (dataLoaded) {
+      <app-data-grid
+        [columnDefs]="columnDefs"
+        [getAll]='dataFetchFn'
+        [rowModelMode]="config.rowModelMode ?? 'clientSide'"
+        [pageSize]="config.pageSize"
+        [infiniteBlockFetcher]="config.infiniteBlockFetcher"
+        [infiniteGridHeight]="config.infiniteGridHeight ?? '60vh'"
+        [progressiveLocalFilter]="config.progressiveLocalFilter ?? false"
+        [backendSearch]="config.backendSearch ?? false"
+        [extraComponents]="config.gridComponents"
+        [globalSearch]="gridOptions.globalSearch"
+        [eventRefreshSubscription]='refreshCommandEvent$.asObservable()'
+        [eventSaveAgGridStateSubscription]='saveAgGridStateEvent.asObservable()'
+        [discardChangesButton]="gridOptions.discardChangesButton"
+        [redoButton]="gridOptions.redoButton"
+        [undoButton]="gridOptions.undoButton"
+        [applyChangesButton]="gridOptions.applyChangesButton"
+        [deleteButton]="gridOptions.deleteButton"
+        [newButton]="gridOptions.newButton"
+        [actionButton]="gridOptions.actionButton"
+        [hideReplaceButton]="gridOptions.hideReplaceButton"
+        [hideDuplicateButton]="gridOptions.hideDuplicateButton"
+        [rowDragManaged]="rowDragManaged"
+        (remove)="onRemove($event)"
+        (new)='onNew($event)'
+        [defaultColumnSorting]="defaultColumnSorting"
+        (gridModified)='onGridModified($event)'
+        (rowOrderChanged)="onRowOrderChanged($event)"
+        (sendChanges)='onSendChanges($event)'
+        (duplicate)='onDuplicate($event)'
+        >
+      </app-data-grid>
+    }
   </mat-card-content>
 </mat-card>

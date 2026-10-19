@@ -1,4 +1,4 @@
-import {Component, Injector, ViewChild, afterNextRender, inject} from '@angular/core';
+import {Component, Injector, ViewChild, afterNextRender, inject, ChangeDetectionStrategy} from '@angular/core';
 import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
 import {MatDialog} from '@angular/material/dialog';
 import {MatTabChangeEvent, MatTabGroup} from '@angular/material/tabs';
@@ -48,6 +48,7 @@ import {TreeNodesComponent} from './tree-nodes/tree-nodes.component';
     selector: 'app-trees-form',
     templateUrl: './trees-form.component.html',
     styleUrls: ['./trees-form.component.scss'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class TreesFormComponent extends BaseFormComponent<Tree> {

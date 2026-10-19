@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
-import { Component, Input, ViewChild } from '@angular/core';
+
+import { Component, Input, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 
 import { DataGridComponent } from '@app/frontend-gui/src/lib/data-grid/data-grid.component';
 
@@ -17,7 +17,8 @@ import { RelationGridTable } from '../../data-tables.util';
 @Component({
   selector: 'app-relation-grid',
   standalone: true,
-  imports: [CommonModule, DataGridComponent],
+  imports: [DataGridComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './relation-grid.component.html'
 })
 export class RelationGridComponent {

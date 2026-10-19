@@ -3,7 +3,9 @@
     <span class="spacer">
       <mat-icon aria-hidden="true" fontSet="{{ font }}">{{ icon }}</mat-icon>
       {{ isNew ? (entityType | translate) + ' (' + ('common.button.new' | translate) + ')' : itemName }}
-      <ng-container *ngIf="additionalText"> - {{ additionalText }}</ng-container>
+      @if (additionalText) {
+        - {{ additionalText }}
+      }
     </span>
   </h4>
   <span class="spacer"></span>

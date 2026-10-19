@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, ElementRef, NgZone, QueryList, TemplateRef, ViewChild, ViewChildren } from '@angular/core';
+import { Component, ElementRef, NgZone, QueryList, TemplateRef, ViewChild, ViewChildren, ChangeDetectionStrategy } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatDialog } from '@angular/material/dialog';
@@ -97,6 +97,7 @@ export function shouldOpenPreviewHrefInNewTab(href: string | null | undefined): 
   selector: 'app-task-template-form',
   templateUrl: './task-template-form.component.html',
   styleUrl: './task-template-form.component.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
 export class TaskTemplateFormComponent extends BaseFormComponent<TaskProjection> {

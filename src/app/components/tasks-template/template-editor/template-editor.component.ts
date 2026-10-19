@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnChanges, OnDestroy, Output, SimpleChanges, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnChanges, OnDestroy, Output, SimpleChanges, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 
 import { TranslateService } from '@ngx-translate/core';
 import { Editor } from '@tiptap/core';
@@ -344,6 +344,7 @@ type TableSelectionMode = 'none' | 'cell' | 'row' | 'column' | 'table';
   selector: 'app-template-editor',
   templateUrl: './template-editor.component.html',
   styleUrl: './template-editor.component.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
 export class TemplateEditorComponent implements AfterViewInit, OnChanges, OnDestroy {

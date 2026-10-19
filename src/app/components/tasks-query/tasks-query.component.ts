@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, ChangeDetectionStrategy} from '@angular/core';
 import {MatDialog} from '@angular/material/dialog';
 import {ActivatedRoute, Router} from '@angular/router';
 
@@ -21,6 +21,7 @@ import {config} from '@config';
     selector: 'app-tasks-query',
     templateUrl: './tasks-query.component.html',
     styles: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class TasksQueryComponent extends BaseListComponent<Task> {

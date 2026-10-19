@@ -1,4 +1,4 @@
-import { Component, OnDestroy} from '@angular/core';
+import { Component, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 
 import { ICellRendererAngularComp } from '@ag-grid-community/angular';
 
@@ -7,6 +7,7 @@ import { ICellRendererAngularComp } from '@ag-grid-community/angular';
     selector: 'app-btn-edit-rendered',
     templateUrl: './btn-edit-rendered.component.html',
     styles: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class BtnEditRenderedComponent implements ICellRendererAngularComp, OnDestroy {

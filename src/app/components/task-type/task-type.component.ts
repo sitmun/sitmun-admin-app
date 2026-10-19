@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, ChangeDetectionStrategy} from '@angular/core';
 import {MatDialog} from '@angular/material/dialog';
 import {ActivatedRoute, Router} from '@angular/router';
 
@@ -22,6 +22,7 @@ import {formatTaskTypeIdentifier} from './task-type.util';
     selector: 'app-task-type',
     templateUrl: './task-type.component.html',
     styles: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class TaskTypeComponent extends BaseListComponent<TaskType> {

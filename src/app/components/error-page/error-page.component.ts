@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { TranslateService } from '@ngx-translate/core';
@@ -9,6 +9,7 @@ import { LoggerService } from '@app/services/logger.service';
     selector: 'app-error-page',
     templateUrl: './error-page.component.html',
     styleUrls: ['./error-page.component.scss'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ErrorPageComponent implements OnInit {
@@ -66,6 +67,11 @@ export class ErrorPageComponent implements OnInit {
   }
 
   retry(): void {
+    this.reloadPage();
+  }
+
+  /** Separated so unit tests can spy without replacing jsdom's frozen Location. */
+  reloadPage(): void {
     window.location.reload();
   }
 } 

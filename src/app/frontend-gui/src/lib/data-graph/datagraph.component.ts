@@ -1,4 +1,4 @@
-import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
+import {Component, Input, OnChanges, OnInit, SimpleChanges, ChangeDetectionStrategy} from '@angular/core';
 
 import * as echarts from 'echarts';
 import {EChartsOption} from 'echarts';
@@ -11,6 +11,7 @@ export type DataSeries = { name: string; data: DataPoint[]; color?: string; kind
     selector: 'app-datagraph',
     templateUrl: './datagraph.component.html',
     styleUrls: ['./datagraph.component.scss'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class DatagraphComponent implements OnInit, OnChanges {

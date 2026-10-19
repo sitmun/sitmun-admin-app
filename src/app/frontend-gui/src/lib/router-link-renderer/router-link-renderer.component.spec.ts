@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { By } from '@angular/platform-browser';
-import { provideRouter } from '@angular/router';
+import { provideRouter, RouterLink } from '@angular/router';
 
 import { TranslateModule } from '@ngx-translate/core';
 
@@ -48,8 +48,7 @@ describe('RouterLinkRendererComponent', () => {
     const expectedRoute = ['', 'connection', 2, 'connectionForm'];
 
     expect(textLink.nativeElement.textContent.trim()).toBe('Demo connection');
-    expect(textLink.attributes['ng-reflect-router-link'] ?? textLink.properties['routerLink'])
-      .toBeTruthy();
+    expect(textLink.injector.get(RouterLink)).toBeTruthy();
     expect(component.getRouterLink()).toEqual(expectedRoute);
     expect(textLink.attributes['target']).toBeUndefined();
     expect(textLink.nativeElement.getAttribute('target')).toBeNull();

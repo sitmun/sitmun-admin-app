@@ -1,9 +1,10 @@
-import { AfterViewInit, Component, ElementRef, Input, OnChanges, Renderer2, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Input, OnChanges, Renderer2, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
   selector: 'app-safe-html-preview',
   templateUrl: './safe-html-preview.component.html',
   styleUrl: './safe-html-preview.component.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
 export class SafeHtmlPreviewComponent implements AfterViewInit, OnChanges {

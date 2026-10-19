@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, ChangeDetectionStrategy} from '@angular/core';
 import {MatDialog} from '@angular/material/dialog';
 import {ActivatedRoute, Router} from '@angular/router';
 
@@ -23,6 +23,7 @@ import {ServiceHealth, ServiceHealthFilterComponent} from './service-health-filt
     selector: 'app-service',
     templateUrl: './service.component.html',
     styles: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ServiceComponent extends BaseListComponent<Service> {

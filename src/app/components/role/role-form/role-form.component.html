@@ -10,69 +10,77 @@
   (back)="utils.navigateBack()">
 </app-form-toolbar>
 
-<app-entity-form-alerts
-  *ngIf="dataLoaded"
-  [form]="entityForm"
-  entityLabelPrefix="entity.role">
-</app-entity-form-alerts>
+@if (dataLoaded) {
+  <app-entity-form-alerts
+    [form]="entityForm"
+    entityLabelPrefix="entity.role">
+  </app-entity-form-alerts>
+}
 
 <mat-tab-group
   mat-stretch-tabs="false"
   mat-align-tabs="end"
   [dynamicHeight]="true"
   preserveContent="true"
->
+  >
   <mat-tab label="{{ 'common.form.details' | translate }}">
-    <form [formGroup]="entityForm" *ngIf="dataLoaded">
-      <mat-card class="sitmun-mat-card-margin" appearance="outlined">
-        <mat-card-content>
-          <mat-form-field appearance="outline" class="full">
-            <mat-label>{{ 'common.form.name' | translate }}</mat-label>
-            <input matInput type="text" formControlName="name" [maxlength]="50" required>
-            <mat-hint align="end">{{entityForm.get('name') | characterCount}}</mat-hint>
-            <mat-error *ngIf="entityForm.get('name')?.hasError('required') && entityForm.get('name')?.touched">
-              {{ 'common.error.required' | translate }}
-            </mat-error>
-          </mat-form-field>
-          <mat-form-field appearance="outline" class="full">
-            <mat-label>{{ 'common.form.description' | translate }}</mat-label>
-            <textarea matInput type="text" formControlName="description" [maxlength]="4000"></textarea>
-            <mat-hint align="end">{{entityForm.get('description') | characterCount}}</mat-hint>
-          </mat-form-field>
-        </mat-card-content>
-      </mat-card>
-    </form>
+    @if (dataLoaded) {
+      <form [formGroup]="entityForm">
+        <mat-card class="sitmun-mat-card-margin" appearance="outlined">
+          <mat-card-content>
+            <mat-form-field appearance="outline" class="full">
+              <mat-label>{{ 'common.form.name' | translate }}</mat-label>
+              <input matInput type="text" formControlName="name" [maxlength]="50" required>
+              <mat-hint align="end">{{entityForm.get('name') | characterCount}}</mat-hint>
+              @if (entityForm.get('name')?.hasError('required') && entityForm.get('name')?.touched) {
+                <mat-error>
+                  {{ 'common.error.required' | translate }}
+                </mat-error>
+              }
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="full">
+              <mat-label>{{ 'common.form.description' | translate }}</mat-label>
+              <textarea matInput type="text" formControlName="description" [maxlength]="4000"></textarea>
+              <mat-hint align="end">{{entityForm.get('description') | characterCount}}</mat-hint>
+            </mat-form-field>
+          </mat-card-content>
+        </mat-card>
+      </form>
+    }
   </mat-tab>
   <mat-tab label="{{ 'entity.role.users.header' | translate }}">
     <mat-card class="sitmun-mat-card-margin" appearance="outlined">
       <mat-card-content>
-        <app-relation-grid
-          *ngIf="dataLoaded"
-          [table]="userConfigurationsTable"
-          [allNewElements]="isNewOrDuplicated()">
-        </app-relation-grid>
+        @if (dataLoaded) {
+          <app-relation-grid
+            [table]="userConfigurationsTable"
+            [allNewElements]="isNewOrDuplicated()">
+          </app-relation-grid>
+        }
       </mat-card-content>
     </mat-card>
   </mat-tab>
   <mat-tab label="{{ 'entity.role.tasks.header' | translate }}">
     <mat-card class="sitmun-mat-card-margin" appearance="outlined">
       <mat-card-content>
-        <app-relation-grid
-          *ngIf="dataLoaded"
-          [table]="tasksTable"
-          [allNewElements]="isNewOrDuplicated()">
-        </app-relation-grid>
+        @if (dataLoaded) {
+          <app-relation-grid
+            [table]="tasksTable"
+            [allNewElements]="isNewOrDuplicated()">
+          </app-relation-grid>
+        }
       </mat-card-content>
     </mat-card>
   </mat-tab>
   <mat-tab label="{{ 'entity.role.applications.header' | translate }}">
     <mat-card class="sitmun-mat-card-margin" appearance="outlined">
       <mat-card-content>
-        <app-relation-grid
-          *ngIf="dataLoaded"
-          [table]="applicationsTable"
-          [allNewElements]="isNewOrDuplicated()">
-        </app-relation-grid>
+        @if (dataLoaded) {
+          <app-relation-grid
+            [table]="applicationsTable"
+            [allNewElements]="isNewOrDuplicated()">
+          </app-relation-grid>
+        }
       </mat-card-content>
     </mat-card>
   </mat-tab>

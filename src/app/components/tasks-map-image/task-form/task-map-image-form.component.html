@@ -2,7 +2,7 @@
   entityType="{{ config.labelSingular }}"
   font="{{ config.font }}"
   icon="{{ config.icon }}"
-  [itemName]="entityForm?.get('name')?.value"
+  [itemName]="$safeNavigationMigration(entityForm?.get('name')?.value)"
   [isNew]="isNew()"
   [additionalText]="'entity.task.mapImage.label' | translate"
   [canSave]="canSaveEntity"
@@ -11,149 +11,157 @@
   (back)="utils.navigateBack()">
 </app-form-toolbar>
 
-<app-entity-form-alerts
-  *ngIf="dataLoaded"
-  [form]="entityForm"
-  entityLabelPrefix="entity.task.mapImage"
-  [fieldLabelKeys]="validationFieldLabels">
-</app-entity-form-alerts>
+@if (dataLoaded) {
+  <app-entity-form-alerts
+    [form]="entityForm"
+    entityLabelPrefix="entity.task.mapImage"
+    [fieldLabelKeys]="validationFieldLabels">
+  </app-entity-form-alerts>
+}
 
 <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="end" [dynamicHeight]="true" preserveContent="true">
   <mat-tab label="{{ 'common.form.details' | translate }}">
-    <form [formGroup]="entityForm" *ngIf="dataLoaded">
-      <mat-card class="sitmun-mat-card-margin" appearance="outlined">
-        <mat-card-content>
-          <mat-form-field appearance="outline" class="full">
-            <mat-label>{{ 'common.form.name' | translate }} ({{ defaultLang }})</mat-label>
-            <input matInput type="text" formControlName="name" [maxlength]="512" required>
-            <mat-hint align="end">{{ entityForm.get('name') | characterCount }}</mat-hint>
-            <mat-icon matSuffix class="iconTranslate" (click)="onTranslated('name')">translate</mat-icon>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="full">
-            <mat-label>{{ 'entity.taskGroup.label' | translate }}</mat-label>
-            <mat-select formControlName="taskGroupId" required>
-              <mat-option *ngFor="let group of taskGroupList" [value]="group.id">
-                {{ group.name }}
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
-
-          <div class="row-fields">
-            <mat-form-field appearance="outline" class="half">
-              <mat-label>{{ 'entity.task.mapImage.format' | translate }}</mat-label>
-              <mat-select formControlName="format" required>
-                <mat-option *ngFor="let format of imageFormats" [value]="format">{{ format }}</mat-option>
+    @if (dataLoaded) {
+      <form [formGroup]="entityForm">
+        <mat-card class="sitmun-mat-card-margin" appearance="outlined">
+          <mat-card-content>
+            <mat-form-field appearance="outline" class="full">
+              <mat-label>{{ 'common.form.name' | translate }} ({{ defaultLang }})</mat-label>
+              <input matInput type="text" formControlName="name" [maxlength]="512" required>
+              <mat-hint align="end">{{ entityForm.get('name') | characterCount }}</mat-hint>
+              <mat-icon matSuffix class="iconTranslate" (click)="onTranslated('name')">translate</mat-icon>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="full">
+              <mat-label>{{ 'entity.taskGroup.label' | translate }}</mat-label>
+              <mat-select formControlName="taskGroupId" required>
+                @for (group of taskGroupList; track group) {
+                  <mat-option [value]="group.id">
+                    {{ group.name }}
+                  </mat-option>
+                }
               </mat-select>
             </mat-form-field>
-
-            <mat-form-field appearance="outline" class="half">
-              <mat-label>{{ 'entity.task.mapImage.srs' | translate }}</mat-label>
-              <input matInput type="text" formControlName="srs" required>
-            </mat-form-field>
-          </div>
-
-          <div class="row-fields">
-            <mat-form-field appearance="outline" class="half">
-              <mat-label>{{ 'entity.task.mapImage.width' | translate }}</mat-label>
-              <input matInput type="number" formControlName="width" required>
-            </mat-form-field>
-
-            <mat-form-field appearance="outline" class="half">
-              <mat-label>{{ 'entity.task.mapImage.height' | translate }}</mat-label>
-              <input matInput type="number" formControlName="height" required>
-            </mat-form-field>
-          </div>
-
-          <div class="row-fields">
-            <mat-form-field appearance="outline" class="half">
-              <mat-label>{{ 'entity.task.mapImage.bboxMarginPercent' | translate }}</mat-label>
-              <input matInput type="number" formControlName="bboxMarginPercent" min="0" required>
-              <span matTextSuffix>%</span>
-              <mat-hint>{{ 'entity.task.mapImage.bboxMarginHint' | translate }}</mat-hint>
-            </mat-form-field>
-          </div>
-
-          <div class="map-source-section">
-            <h3 class="map-source-title">{{ 'entity.task.mapImage.layers.addSection' | translate }}</h3>
-
-            <div class="map-source-filters">
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'entity.task.mapImage.layers.serviceFilter' | translate }}</mat-label>
-                <mat-select [value]="selectedServiceFilter" (selectionChange)="onServiceFilterChange($event.value)">
-                  <mat-option [value]="null">-</mat-option>
-                  <mat-option *ngFor="let service of services" [value]="service.id">
-                    {{ service.name }}
-                  </mat-option>
+            <div class="row-fields">
+              <mat-form-field appearance="outline" class="half">
+                <mat-label>{{ 'entity.task.mapImage.format' | translate }}</mat-label>
+                <mat-select formControlName="format" required>
+                  @for (format of imageFormats; track format) {
+                    <mat-option [value]="format">{{ format }}</mat-option>
+                  }
                 </mat-select>
               </mat-form-field>
-
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'entity.task.mapImage.layers.search' | translate }}</mat-label>
-                <input
-                  matInput
-                  type="text"
-                  [formControl]="layerSearchControl"
-                  [matAutocomplete]="layerOptionsAuto">
-                <mat-hint *ngIf="!selectedServiceFilter && !layerSearchControl.value">{{ 'entity.task.mapImage.layers.selectServiceHint' | translate }}</mat-hint>
-                <mat-hint *ngIf="loadingSelectedServiceLayers">{{ 'entity.task.mapImage.layers.loading' | translate }}</mat-hint>
-                <mat-autocomplete #layerOptionsAuto="matAutocomplete" (optionSelected)="onLayerOptionSelected($event)" [displayWith]="displayLayerOption">
-                  <mat-option *ngFor="let option of filteredLayerOptions$ | async" [value]="option">
-                    {{ option.layerName }} ({{ option.layerIdLabel }}) - {{ option.serviceName }}
-                  </mat-option>
-                </mat-autocomplete>
+              <mat-form-field appearance="outline" class="half">
+                <mat-label>{{ 'entity.task.mapImage.srs' | translate }}</mat-label>
+                <input matInput type="text" formControlName="srs" required>
               </mat-form-field>
-
-              <div class="map-source-filter-action">
-                <button mat-icon-button type="button" [matTooltip]="'entity.task.mapImage.layers.clearFilters' | translate" [attr.aria-label]="'entity.task.mapImage.layers.clearFilters' | translate" (click)="clearLayerFilters()">
-                  <mat-icon>filter_alt_off</mat-icon>
-                </button>
-              </div>
             </div>
-
-            <h3 class="map-source-title">{{ 'entity.task.mapImage.layers.selectedSection' | translate }}</h3>
-            <app-data-grid
-              class="selected-layers-grid"
-              [changeHeightButton]="true"
-              [columnDefs]="selectedLayersColumnDefs"
-              [getAll]="fetchSelectedLayersGridRows"
-              [eventRefreshSubscription]="selectedLayersRefresh$.asObservable()"
-              [deleteButton]="true"
-              [discardChangesButton]="false"
-              [undoButton]="false"
-              [redoButton]="false"
-              [newButton]="false"
-              [actionButton]="false"
-              [addButton]="false"
-              [rowDragManaged]="true"
-              [hideDuplicateButton]="true"
-              [hideReplaceButton]="true"
-              [hideExportButton]="true"
-              [globalSearch]="false"
-              (remove)="removeSelectedLayerRows($event)"
-              (rowOrderChanged)="onSelectedLayerOrderChanged($event)"
-              *ngIf="selectedLayerRows.length > 0; else noSources">
-            </app-data-grid>
-
-            <ng-template #noSources>
-              <div class="map-source-empty">{{ 'entity.task.mapImage.sources.empty' | translate }}</div>
-            </ng-template>
-          </div>
-        </mat-card-content>
-      </mat-card>
-    </form>
+            <div class="row-fields">
+              <mat-form-field appearance="outline" class="half">
+                <mat-label>{{ 'entity.task.mapImage.width' | translate }}</mat-label>
+                <input matInput type="number" formControlName="width" required>
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="half">
+                <mat-label>{{ 'entity.task.mapImage.height' | translate }}</mat-label>
+                <input matInput type="number" formControlName="height" required>
+              </mat-form-field>
+            </div>
+            <div class="row-fields">
+              <mat-form-field appearance="outline" class="half">
+                <mat-label>{{ 'entity.task.mapImage.bboxMarginPercent' | translate }}</mat-label>
+                <input matInput type="number" formControlName="bboxMarginPercent" min="0" required>
+                <span matTextSuffix>%</span>
+                <mat-hint>{{ 'entity.task.mapImage.bboxMarginHint' | translate }}</mat-hint>
+              </mat-form-field>
+            </div>
+            <div class="map-source-section">
+              <h3 class="map-source-title">{{ 'entity.task.mapImage.layers.addSection' | translate }}</h3>
+              <div class="map-source-filters">
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ 'entity.task.mapImage.layers.serviceFilter' | translate }}</mat-label>
+                  <mat-select [value]="selectedServiceFilter" (selectionChange)="onServiceFilterChange($event.value)">
+                    <mat-option [value]="null">-</mat-option>
+                    @for (service of services; track service) {
+                      <mat-option [value]="service.id">
+                        {{ service.name }}
+                      </mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ 'entity.task.mapImage.layers.search' | translate }}</mat-label>
+                  <input
+                    matInput
+                    type="text"
+                    [formControl]="layerSearchControl"
+                    [matAutocomplete]="layerOptionsAuto">
+                  @if (!selectedServiceFilter && !layerSearchControl.value) {
+                    <mat-hint>{{ 'entity.task.mapImage.layers.selectServiceHint' | translate }}</mat-hint>
+                  }
+                  @if (loadingSelectedServiceLayers) {
+                    <mat-hint>{{ 'entity.task.mapImage.layers.loading' | translate }}</mat-hint>
+                  }
+                  <mat-autocomplete #layerOptionsAuto="matAutocomplete" (optionSelected)="onLayerOptionSelected($event)" [displayWith]="displayLayerOption">
+                    @for (option of filteredLayerOptions$ | async; track option) {
+                      <mat-option [value]="option">
+                        {{ option.layerName }} ({{ option.layerIdLabel }}) - {{ option.serviceName }}
+                      </mat-option>
+                    }
+                  </mat-autocomplete>
+                </mat-form-field>
+                <div class="map-source-filter-action">
+                  <button mat-icon-button type="button" [matTooltip]="'entity.task.mapImage.layers.clearFilters' | translate" [attr.aria-label]="'entity.task.mapImage.layers.clearFilters' | translate" (click)="clearLayerFilters()">
+                    <mat-icon>filter_alt_off</mat-icon>
+                  </button>
+                </div>
+              </div>
+              <h3 class="map-source-title">{{ 'entity.task.mapImage.layers.selectedSection' | translate }}</h3>
+              @if (selectedLayerRows.length > 0) {
+                <app-data-grid
+                  class="selected-layers-grid"
+                  [changeHeightButton]="true"
+                  [columnDefs]="selectedLayersColumnDefs"
+                  [getAll]="fetchSelectedLayersGridRows"
+                  [eventRefreshSubscription]="selectedLayersRefresh$.asObservable()"
+                  [deleteButton]="true"
+                  [discardChangesButton]="false"
+                  [undoButton]="false"
+                  [redoButton]="false"
+                  [newButton]="false"
+                  [actionButton]="false"
+                  [addButton]="false"
+                  [rowDragManaged]="true"
+                  [hideDuplicateButton]="true"
+                  [hideReplaceButton]="true"
+                  [hideExportButton]="true"
+                  [globalSearch]="false"
+                  (remove)="removeSelectedLayerRows($event)"
+                  (rowOrderChanged)="onSelectedLayerOrderChanged($event)"
+                  >
+                </app-data-grid>
+              } @else {
+                <div class="map-source-empty">{{ 'entity.task.mapImage.sources.empty' | translate }}</div>
+              }
+              <ng-template #noSources>
+                <div class="map-source-empty">{{ 'entity.task.mapImage.sources.empty' | translate }}</div>
+              </ng-template>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </form>
+    }
   </mat-tab>
 
   <mat-tab label="{{ 'entity.task.parameters.header' | translate }}">
     <mat-card class="sitmun-mat-card-margin" appearance="outlined">
       <mat-card-content>
-        <app-relation-grid
-          #parametersGrid
-          *ngIf="dataLoaded"
-          [table]="parametersTable"
-          [allNewElements]="isNewOrDuplicated()"
-          templateDialogName="newParameterDialog"
-        ></app-relation-grid>
+        @if (dataLoaded) {
+          <app-relation-grid
+            #parametersGrid
+            [table]="parametersTable"
+            [allNewElements]="isNewOrDuplicated()"
+            templateDialogName="newParameterDialog"
+          ></app-relation-grid>
+        }
       </mat-card-content>
     </mat-card>
   </mat-tab>
@@ -161,26 +169,28 @@
   <mat-tab label="{{ 'entity.task.roles.header' | translate }}">
     <mat-card class="sitmun-mat-card-margin" appearance="outlined">
       <mat-card-content>
-        <app-data-grid
-          [changeHeightButton]="true"
-          [allNewElements]="isNewOrDuplicated()"
-          [columnDefs]="rolesTable.relationsColumnsDefs"
-          [getAll]="rolesTable.relationsFetchFn"
-          [eventAddItemsSubscription]="rolesTable.addCommandEvent$.asObservable()"
-          [eventGetAllRowsSubscription]="rolesTable.saveCommandEvent$.asObservable()"
-          [eventRefreshSubscription]="rolesTable.refreshCommandEvent$.asObservable()"
-          [actionButton]="true"
-          [discardChangesButton]="true"
-          [redoButton]="true"
-          [undoButton]="true"
-          [deleteButton]="true"
-          [addButton]="true"
-          [defaultColumnSorting]="rolesTable.defaultRelationsSorting()"
-          [hideDuplicateButton]="true"
-          (getAllRows)="rolesTable.handleSaveRelations($event)"
-          (add)="rolesTable.openDialog($event)"
-          *ngIf="dataLoaded">
-        </app-data-grid>
+        @if (dataLoaded) {
+          <app-data-grid
+            [changeHeightButton]="true"
+            [allNewElements]="isNewOrDuplicated()"
+            [columnDefs]="rolesTable.relationsColumnsDefs"
+            [getAll]="rolesTable.relationsFetchFn"
+            [eventAddItemsSubscription]="rolesTable.addCommandEvent$.asObservable()"
+            [eventGetAllRowsSubscription]="rolesTable.saveCommandEvent$.asObservable()"
+            [eventRefreshSubscription]="rolesTable.refreshCommandEvent$.asObservable()"
+            [actionButton]="true"
+            [discardChangesButton]="true"
+            [redoButton]="true"
+            [undoButton]="true"
+            [deleteButton]="true"
+            [addButton]="true"
+            [defaultColumnSorting]="rolesTable.defaultRelationsSorting()"
+            [hideDuplicateButton]="true"
+            (getAllRows)="rolesTable.handleSaveRelations($event)"
+            (add)="rolesTable.openDialog($event)"
+            >
+          </app-data-grid>
+        }
       </mat-card-content>
     </mat-card>
   </mat-tab>
@@ -188,27 +198,29 @@
   <mat-tab label="{{ 'entity.task.territories.header' | translate }}">
     <mat-card class="sitmun-mat-card-margin" appearance="outlined">
       <mat-card-content>
-        <app-data-grid
-          [changeHeightButton]="true"
-          [allNewElements]="isNewOrDuplicated()"
-          [columnDefs]="availabilitiesTable.relationsColumnsDefs"
-          [getAll]="availabilitiesTable.relationsFetchFn"
-          [eventAddItemsSubscription]="availabilitiesTable.addCommandEvent$.asObservable()"
-          [eventGetAllRowsSubscription]="availabilitiesTable.saveCommandEvent$.asObservable()"
-          [eventRefreshSubscription]="availabilitiesTable.refreshCommandEvent$.asObservable()"
-          [actionButton]="true"
-          [discardChangesButton]="true"
-          [redoButton]="true"
-          [undoButton]="true"
-          [deleteButton]="true"
-          [addButton]="true"
-          [hideReplaceButton]="true"
-          [defaultColumnSorting]="availabilitiesTable.defaultRelationsSorting()"
-          [hideDuplicateButton]="true"
-          (getAllRows)="availabilitiesTable.handleSaveRelations($event)"
-          (add)="availabilitiesTable.openDialog($event)"
-          *ngIf="dataLoaded">
-        </app-data-grid>
+        @if (dataLoaded) {
+          <app-data-grid
+            [changeHeightButton]="true"
+            [allNewElements]="isNewOrDuplicated()"
+            [columnDefs]="availabilitiesTable.relationsColumnsDefs"
+            [getAll]="availabilitiesTable.relationsFetchFn"
+            [eventAddItemsSubscription]="availabilitiesTable.addCommandEvent$.asObservable()"
+            [eventGetAllRowsSubscription]="availabilitiesTable.saveCommandEvent$.asObservable()"
+            [eventRefreshSubscription]="availabilitiesTable.refreshCommandEvent$.asObservable()"
+            [actionButton]="true"
+            [discardChangesButton]="true"
+            [redoButton]="true"
+            [undoButton]="true"
+            [deleteButton]="true"
+            [addButton]="true"
+            [hideReplaceButton]="true"
+            [defaultColumnSorting]="availabilitiesTable.defaultRelationsSorting()"
+            [hideDuplicateButton]="true"
+            (getAllRows)="availabilitiesTable.handleSaveRelations($event)"
+            (add)="availabilitiesTable.openDialog($event)"
+            >
+          </app-data-grid>
+        }
       </mat-card-content>
     </mat-card>
   </mat-tab>
@@ -232,9 +244,11 @@
         </mat-form-field>
         <mat-radio-group formControlName="type" class="full">
           <mat-label class="requiredInput">{{ 'common.form.type' | translate }}</mat-label>
-          <mat-radio-button [value]="paramType.value" *ngFor="let paramType of codeList('queryTask.parameterType')">
-            {{ paramType.description }}
-          </mat-radio-button>
+          @for (paramType of codeList('queryTask.parameterType'); track paramType) {
+            <mat-radio-button [value]="paramType.value">
+              {{ paramType.description }}
+            </mat-radio-button>
+          }
         </mat-radio-group>
         <br/>
         <mat-label>{{ 'common.form.required' | translate }}</mat-label>

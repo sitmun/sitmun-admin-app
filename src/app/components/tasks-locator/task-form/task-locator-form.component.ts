@@ -1,4 +1,4 @@
-import {Component, OnInit} from "@angular/core";
+import {Component, OnInit, ChangeDetectionStrategy} from "@angular/core";
 import {FormArray, FormControl, FormGroup, FormGroupDirective, NgForm, Validators} from "@angular/forms";
 import {MatAutocompleteSelectedEvent} from "@angular/material/autocomplete";
 import {ErrorStateMatcher} from "@angular/material/core";
@@ -52,6 +52,7 @@ import {magic} from "@environments/constants";
   selector: 'app-task-locator-form',
   templateUrl: './task-locator-form.component.html',
   styleUrl: './task-locator-form.component.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class TaskLocatorFormComponent extends BaseFormComponent<TaskProjection> implements OnInit {

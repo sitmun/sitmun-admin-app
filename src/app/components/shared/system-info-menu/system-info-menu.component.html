@@ -1,7 +1,7 @@
 <div class="toolbar-control">
-  <button 
-    mat-button 
-    [matMenuTriggerFor]="systemMenu" 
+  <button
+    mat-button
+    [matMenuTriggerFor]="systemMenu"
     class="toolbar-button"
     [matTooltip]="'systemInfo.title' | translate"
     [attr.aria-label]="'systemInfo.title' | translate"
@@ -19,86 +19,93 @@
     <mat-divider></mat-divider>
 
     <!-- Non-production features: Log Level, Recent Errors -->
-    <ng-container *ngIf="!environment.production">
+    @if (!environment.production) {
       <!-- Log Level -->
       <button mat-menu-item [matMenuTriggerFor]="logLevelMenu">
         <mat-icon>{{ getIconForLevel(currentLogLevel()) }}</mat-icon>
         <span>{{ 'systemInfo.logLevel' | translate }}: {{ getLogLevelName(currentLogLevel()) }}</span>
       </button>
       <mat-menu #logLevelMenu="matMenu">
-        <button mat-menu-item *ngFor="let level of logLevels" (click)="onLogLevelChange(level.value)">
-          <mat-icon>{{ getIconForLevel(level.value) }}</mat-icon>
-          <span>{{ level.name }}</span>
-          <mat-icon *ngIf="level.value === currentLogLevel()" class="check-icon">check</mat-icon>
-        </button>
+        @for (level of logLevels; track level) {
+          <button mat-menu-item (click)="onLogLevelChange(level.value)">
+            <mat-icon>{{ getIconForLevel(level.value) }}</mat-icon>
+            <span>{{ level.name }}</span>
+            @if (level.value === currentLogLevel()) {
+              <mat-icon class="check-icon">check</mat-icon>
+            }
+          </button>
+        }
       </mat-menu>
-
       <!-- Recent Errors -->
       <button mat-menu-item (click)="openErrorSidebar()">
         <mat-icon>bug_report</mat-icon>
         <span>{{ 'systemInfo.recentErrors' | translate }}</span>
-        <span class="badge" *ngIf="(unreviewedErrorCount() ?? 0) > 0">{{ unreviewedErrorCount() }}</span>
+        @if ((unreviewedErrorCount() ?? 0) > 0) {
+          <span class="badge">{{ unreviewedErrorCount() }}</span>
+        }
       </button>
-
       <!-- Missing Translations -->
       <button mat-menu-item (click)="openMissingTranslationsSidebar()">
         <mat-icon>translate</mat-icon>
         <span>{{ 'systemInfo.missingTranslations' | translate }}</span>
-        <span class="badge" *ngIf="(missingTranslationCount() ?? 0) > 0">{{ missingTranslationCount() }}</span>
+        @if ((missingTranslationCount() ?? 0) > 0) {
+          <span class="badge">{{ missingTranslationCount() }}</span>
+        }
       </button>
-
       <!-- Debug: trigger test error -->
-      <button mat-menu-item *ngIf="shouldShowDebugFeatures()" (click)="triggerTestError()">
-        <mat-icon>bug_report</mat-icon>
-        <span>{{ 'systemInfo.triggerTestError' | translate }}</span>
-      </button>
-
+      @if (shouldShowDebugFeatures()) {
+        <button mat-menu-item (click)="triggerTestError()">
+          <mat-icon>bug_report</mat-icon>
+          <span>{{ 'systemInfo.triggerTestError' | translate }}</span>
+        </button>
+      }
       <!-- Feature Flags -->
-      <button mat-menu-item [matMenuTriggerFor]="featureFlagsMenu" *ngIf="getCategories().length > 0">
-        <mat-icon>science</mat-icon>
-        <span>{{ 'systemInfo.featureFlags' | translate }}</span>
-      </button>
+      @if (getCategories().length > 0) {
+        <button mat-menu-item [matMenuTriggerFor]="featureFlagsMenu">
+          <mat-icon>science</mat-icon>
+          <span>{{ 'systemInfo.featureFlags' | translate }}</span>
+        </button>
+      }
       <mat-menu #featureFlagsMenu="matMenu" class="feature-flags-menu">
         <!-- Dynamic category buttons -->
-        <ng-container *ngFor="let category of getCategories()">
-          <button mat-menu-item 
-                  [matMenuTriggerFor]="categorySubmenu"
-                  (mouseenter)="setCurrentCategory(category)"
-                  (click)="setCurrentCategory(category)">
+        @for (category of getCategories(); track category) {
+          <button mat-menu-item
+            [matMenuTriggerFor]="categorySubmenu"
+            (mouseenter)="setCurrentCategory(category)"
+            (click)="setCurrentCategory(category)">
             <span style="flex: 1;">{{ getCategoryName(category) }}</span>
             <mat-icon class="submenu-icon">chevron_right</mat-icon>
           </button>
-        </ng-container>
-        
+        }
         <mat-divider></mat-divider>
-        
         <button mat-menu-item (click)="resetFeatureFlags()">
           <mat-icon>refresh</mat-icon>
           <span>{{ 'systemInfo.featureFlags.reset' | translate }}</span>
         </button>
       </mat-menu>
-
       <!-- Single reusable category submenu -->
       <mat-menu #categorySubmenu="matMenu" class="feature-flags-category-menu">
-        <button mat-menu-item 
-                *ngFor="let flag of getFeaturesByCategory(currentCategory); trackBy: trackByFeatureKey" 
-                (click)="toggleFeatureFlag(flag.key, $event)" 
-                class="feature-flag-item">
-          <mat-icon class="check-icon-left" [class.invisible]="!isFeatureEnabled(flag.key)">check</mat-icon>
-          <div class="feature-flag-content">
-            <span class="feature-flag-name">{{ flag.config.description | translate }}</span>
-          </div>
-        </button>
+        @for (flag of getFeaturesByCategory(currentCategory); track trackByFeatureKey($index, flag)) {
+          <button mat-menu-item
+            (click)="toggleFeatureFlag(flag.key, $event)"
+            class="feature-flag-item">
+            <mat-icon class="check-icon-left" [class.invisible]="!isFeatureEnabled(flag.key)">check</mat-icon>
+            <div class="feature-flag-content">
+              <span class="feature-flag-name">{{ flag.config.description | translate }}</span>
+            </div>
+          </button>
+        }
       </mat-menu>
-
       <mat-divider></mat-divider>
-    </ng-container>
+    }
 
     <!-- User Section -->
-    <button mat-menu-item disabled class="user-info-item" *ngIf="currentUser()">
-      <mat-icon>person</mat-icon>
-      <span>{{ getUserFullName() }}</span>
-    </button>
+    @if (currentUser()) {
+      <button mat-menu-item disabled class="user-info-item">
+        <mat-icon>person</mat-icon>
+        <span>{{ getUserFullName() }}</span>
+      </button>
+    }
 
     <!-- Logout -->
     <button mat-menu-item (click)="logout()">

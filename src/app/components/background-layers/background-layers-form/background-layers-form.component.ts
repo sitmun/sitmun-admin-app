@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, ChangeDetectionStrategy} from '@angular/core';
 import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
 import {MatDialog} from '@angular/material/dialog';
 import {ActivatedRoute, Router} from '@angular/router';
@@ -85,6 +85,7 @@ import {constants} from "@environments/constants";
 @Component({
     selector: 'app-background-layers-form',
     templateUrl: './background-layers-form.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class BackgroundLayersFormComponent extends BaseFormComponent<BackgroundProjection> {

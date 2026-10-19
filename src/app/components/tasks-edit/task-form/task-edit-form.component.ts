@@ -1,4 +1,4 @@
-import {Component, TemplateRef, ViewChild} from "@angular/core";
+import {Component, TemplateRef, ViewChild, ChangeDetectionStrategy} from "@angular/core";
 import {FormControl, FormGroup, Validators} from "@angular/forms";
 import {MatDialog} from "@angular/material/dialog";
 import {MatSelectChange} from "@angular/material/select";
@@ -54,6 +54,7 @@ import {magic} from "@environments/constants";
     selector: 'app-task-edit-form',
     templateUrl: './task-edit-form.component.html',
     styles: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class TaskEditFormComponent extends BaseFormComponent<TaskProjection> {

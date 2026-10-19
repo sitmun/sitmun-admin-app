@@ -78,6 +78,7 @@ export function createJestConfig(
     preset: 'jest-preset-angular',
     clearMocks: true,
     restoreMocks: true,
+    testTimeout: 30_000,
     collectCoverage: mode.collectCoverage,
     coverageDirectory: contract.coverageDirectory,
     coverageProvider: 'v8',

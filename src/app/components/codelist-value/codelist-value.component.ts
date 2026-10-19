@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, ChangeDetectionStrategy} from '@angular/core';
 import {MatDialog} from '@angular/material/dialog';
 import {ActivatedRoute, Router} from '@angular/router';
 
@@ -20,6 +20,7 @@ import {UtilsService} from '@app/services/utils.service';
     selector: 'app-codelist-value',
     templateUrl: './codelist-value.component.html',
     styles: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class CodelistValueComponent extends BaseListComponent<CodeList> {

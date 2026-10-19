@@ -2,55 +2,57 @@
   <mat-card-content class="tree-card-content">
     <mat-toolbar>
       <button type="button"
-              matTooltip="{{ 'common.expandAll' | translate }}"
-              mat-mini-fab class="add-half-gap"
-              color="primary"
-              (click)="expandAll()">
+        matTooltip="{{ 'common.expandAll' | translate }}"
+        mat-mini-fab class="add-half-gap"
+        color="primary"
+        (click)="expandAll()">
         <mat-icon fontSet="material-icons-round">unfold_more</mat-icon>
       </button>
       <button type="button"
-              matTooltip="{{ 'common.collapseAll' | translate }}"
-              mat-mini-fab class="add-half-gap"
-              color="primary"
-              (click)="collapseToFirstLevel()">
+        matTooltip="{{ 'common.collapseAll' | translate }}"
+        mat-mini-fab class="add-half-gap"
+        color="primary"
+        (click)="collapseToFirstLevel()">
         <mat-icon fontSet="material-icons-round">unfold_less</mat-icon>
       </button>
       <mat-form-field subscriptSizing="dynamic" class="add-half-gap tree-search-field">
         <mat-label>{{ 'common.button.search' | translate }}</mat-label>
         <input matInput type="text" placeholder="" (keyup)="onFilterKeyup($event)" [value]="filterValue">
       </mat-form-field>
-      <button type="button"
-              *ngFor="let nodeType of getAllowedRootTypes()"
-              [matTooltip]="nodeTypeLabelCached(nodeType)"
-              mat-mini-fab class="add-half-gap"
-              color="primary"
-              (click)="addRootNode(nodeType)">
-        <mat-icon [fontSet]="getNodeIconFontForType(nodeType) || 'material-icons-round'">{{ getNodeIconForType(nodeType) }}</mat-icon>
-      </button>
-      <button type="button"
-              matTooltip="{{ 'entity.tree.loadGroupLayers' | translate }}"
-              mat-mini-fab class="add-half-gap"
-              color="primary"
-              *ngIf="loadDataButton"
-              (click)="loadDataButtonClicked()">
-        <mat-icon fontSet="material-icons-round">settings</mat-icon>
-      </button>
+      @for (nodeType of getAllowedRootTypes(); track nodeType) {
+        <button type="button"
+          [matTooltip]="nodeTypeLabelCached(nodeType)"
+          mat-mini-fab class="add-half-gap"
+          color="primary"
+          (click)="addRootNode(nodeType)">
+          <mat-icon [fontSet]="getNodeIconFontForType(nodeType) || 'material-icons-round'">{{ getNodeIconForType(nodeType) }}</mat-icon>
+        </button>
+      }
+      @if (loadDataButton) {
+        <button type="button"
+          matTooltip="{{ 'entity.tree.loadGroupLayers' | translate }}"
+          mat-mini-fab class="add-half-gap"
+          color="primary"
+          (click)="loadDataButtonClicked()">
+          <mat-icon fontSet="material-icons-round">settings</mat-icon>
+        </button>
+      }
     </mat-toolbar>
 
     <div class="tree-wrapper">
-    <mat-tree [dataSource]="treeDataSourceBindingCompat"
-              [childrenAccessor]="childrenAccessorBindingCompat"
-              cdkDropList
-              [cdkDropListSortingDisabled]="true"
-              [cdkDropListData]="visibleNodes()"
-              (cdkDropListSorted)="handleDragSort($event)"
-              (cdkDropListDropped)="handleDrop($event)">
-      <mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle
-        cdkDrag
-        [cdkDragData]="node"
-        (cdkDragStarted)="handleDragStart($event)"
-        (cdkDragEnded)="handleDragEnd($event)"
-        [attr.data-node-id]="node.id"
+      <mat-tree [dataSource]="treeDataSourceBindingCompat"
+        [childrenAccessor]="childrenAccessorBindingCompat"
+        cdkDropList
+        [cdkDropListSortingDisabled]="true"
+        [cdkDropListData]="visibleNodes()"
+        (cdkDropListSorted)="handleDragSort($event)"
+        (cdkDropListDropped)="handleDrop($event)">
+        <mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle
+          cdkDrag
+          [cdkDragData]="node"
+          (cdkDragStarted)="handleDragStart($event)"
+          (cdkDragEnded)="handleDragEnd($event)"
+          [attr.data-node-id]="node.id"
         [ngClass]="{'drop-above': isDropAreaActiveForNode(node.id, 'above'),
         'drop-below': isDropAreaActiveForNode(node.id, 'below'),
         'drop-center': isDropAreaActiveForNode(node.id, 'center'),
@@ -60,105 +62,133 @@
         'hidden-in-viewer-node': isHiddenInViewerProfile(node),
         'selected': selectedNodeId === node.id,
         'root-descendant': isRootDescendant(node)}"
-        [class.root-node-hidden]="isRootNode(node)"
-        [style.padding-left]="getAdjustedPadding(node)"
-        class="tree-node-row">
-        <button mat-icon-button disabled aria-hidden="true">
-          <mat-icon style="display: none;"></mat-icon>
-        </button>
-        <mat-icon *ngIf="node.name !== ''" [attr.aria-label]="(node.nodeType || node.type) + ' icon'"
-                  class="type-icon" [fontSet]="getNodeIconFont(node)" [style.color]="node.status === 'pendingDelete' ? '#d32f2f' : null"
-                  [matTooltip]="nodeTypeLabelCached(node.nodeType || node.type)">
-          {{ getNodeIcon(node) }}
-        </mat-icon>
-        <mat-icon *ngIf="(node.status==='Modified' || node.status==='pendingCreation') && node.name !== '' && node.status !== 'pendingDelete'" 
-                  class="status-indicator-icon"
-                  [matTooltip]="node.status === 'Modified' ? ('common.modified' | translate) : ('pendingCreation' | translate)">
-          {{node.status === 'Modified' ? 'edit' : 'add_circle'}}
-        </mat-icon>
-        <mat-icon *ngIf="resolveNode(node)?.viewMode && showMappingInTaskPanelForNodeType(node.nodeType)" class="view-mode-hint-icon"
-                  [matTooltip]="getViewModeLabel ? getViewModeLabel(resolveNode(node)?.viewMode) : resolveNode(node)?.viewMode">
-          {{ getViewModeIcon(resolveNode(node)?.viewMode) }}
-        </mat-icon>
-        <mat-icon *ngIf="showFolderHintForTaskGroupContainer(resolveNode(node))" class="folder-hint-icon"
-                  [matTooltip]="'entity.tree.taskGroupContainerHint' | translate">
-          folder
-        </mat-icon>
-        <mat-icon *ngIf="isHiddenInViewerProfile(node)"
-                  class="hidden-in-viewer-icon"
-                  [matTooltip]="hiddenInViewerTooltip(node)">
-          visibility_off
-        </mat-icon>
-        <mat-icon *ngIf="showRadioFolderIndicator(node)"
-                  class="radio-folder-indicator-icon"
-                  [matTooltip]="radioFolderIndicatorTooltip()">
-          radio_button_checked
-        </mat-icon>
-        <mat-icon *ngIf="showLoadDataFolderIndicator(node)"
-                  class="load-data-folder-indicator-icon"
-                  [matTooltip]="loadDataFolderIndicatorTooltip()">
-          check_box
-        </mat-icon>
-        <mat-icon *ngIf="showLoadByDefaultIndicator(node)"
-                  class="load-by-default-indicator-icon"
-                  fontSet="material-icons-round"
-                  [matTooltip]="loadByDefaultIndicatorTooltip()">
-          push_pin
-        </mat-icon>
-        <span *ngIf="showQueryableActiveIndicator(node)"
+          [class.root-node-hidden]="isRootNode(node)"
+          [style.padding-left]="getAdjustedPadding(node)"
+          class="tree-node-row">
+          <button mat-icon-button disabled aria-hidden="true">
+            <mat-icon style="display: none;"></mat-icon>
+          </button>
+          @if (node.name !== '') {
+            <mat-icon [attr.aria-label]="(node.nodeType || node.type) + ' icon'"
+              class="type-icon" [fontSet]="getNodeIconFont(node)" [style.color]="node.status === 'pendingDelete' ? '#d32f2f' : null"
+              [matTooltip]="nodeTypeLabelCached(node.nodeType || node.type)">
+              {{ getNodeIcon(node) }}
+            </mat-icon>
+          }
+          @if ((node.status==='Modified' || node.status==='pendingCreation') && node.name !== '' && node.status !== 'pendingDelete') {
+            <mat-icon
+              class="status-indicator-icon"
+              [matTooltip]="node.status === 'Modified' ? ('common.modified' | translate) : ('pendingCreation' | translate)">
+              {{node.status === 'Modified' ? 'edit' : 'add_circle'}}
+            </mat-icon>
+          }
+          @if (resolveNode(node)?.viewMode && showMappingInTaskPanelForNodeType(node.nodeType)) {
+            <mat-icon class="view-mode-hint-icon"
+              [matTooltip]="getViewModeLabel ? getViewModeLabel($safeNavigationMigration(resolveNode(node)?.viewMode)) : $safeNavigationMigration(resolveNode(node)?.viewMode)">
+              {{ getViewModeIcon($safeNavigationMigration(resolveNode(node)?.viewMode)) }}
+            </mat-icon>
+          }
+          @if (showFolderHintForTaskGroupContainer(resolveNode(node))) {
+            <mat-icon class="folder-hint-icon"
+              [matTooltip]="'entity.tree.taskGroupContainerHint' | translate">
+              folder
+            </mat-icon>
+          }
+          @if (isHiddenInViewerProfile(node)) {
+            <mat-icon
+              class="hidden-in-viewer-icon"
+              [matTooltip]="hiddenInViewerTooltip(node)">
+              visibility_off
+            </mat-icon>
+          }
+          @if (showRadioFolderIndicator(node)) {
+            <mat-icon
+              class="radio-folder-indicator-icon"
+              [matTooltip]="radioFolderIndicatorTooltip()">
+              radio_button_checked
+            </mat-icon>
+          }
+          @if (showLoadDataFolderIndicator(node)) {
+            <mat-icon
+              class="load-data-folder-indicator-icon"
+              [matTooltip]="loadDataFolderIndicatorTooltip()">
+              check_box
+            </mat-icon>
+          }
+          @if (showLoadByDefaultIndicator(node)) {
+            <mat-icon
+              class="load-by-default-indicator-icon"
+              fontSet="material-icons-round"
+              [matTooltip]="loadByDefaultIndicatorTooltip()">
+              push_pin
+            </mat-icon>
+          }
+          @if (showQueryableActiveIndicator(node)) {
+            <span
               class="queryable-active-indicator"
               [matTooltip]="queryableActiveIndicatorTooltip()"
-              aria-hidden="true">i</span>
-        <span class="node-name" (click)="onButtonClicked(node.id, 'edit')" (keyup.enter)="onButtonClicked(node.id, 'edit')" tabindex="0" role="button" [attr.aria-label]="('common.edit' | translate) + ': ' + node.name" *ngIf="node.id !== undefined && node.status!=='pendingDelete'">{{node.name}}</span>
-        <span class="node-name" *ngIf="node.id === undefined || node.status==='pendingDelete'">{{node.name}}</span>
+            aria-hidden="true">i</span>
+          }
+          @if (node.id !== undefined && node.status!=='pendingDelete') {
+            <span class="node-name" (click)="onButtonClicked(node.id, 'edit')" (keyup.enter)="onButtonClicked(node.id, 'edit')" tabindex="0" role="button" [attr.aria-label]="('common.edit' | translate) + ': ' + node.name">{{node.name}}</span>
+          }
+          @if (node.id === undefined || node.status==='pendingDelete') {
+            <span class="node-name">{{node.name}}</span>
+          }
 
-        <div class="node-actions">
-          <ng-container *ngIf="node.status!=='pendingDelete' && (!canNodeHaveChildren || canNodeHaveChildren(node.nodeType))">
-            <button *ngFor="let nodeType of getAllowedChildTypes(resolveNode(node))"
-                    (click)="onAddChildNode(resolveNode(node), nodeType)"
-                    mat-icon-button
-                    [matTooltip]="nodeTypeLabelCached(nodeType)"
-                    [attr.aria-label]="nodeTypeLabelCached(nodeType)">
-              <mat-icon [fontSet]="getNodeIconFontForType(nodeType)">{{ getNodeIconForType(nodeType) }}</mat-icon>
-            </button>
-          </ng-container>
-          <button (click)="onButtonClicked(node.id, 'delete')"
-                  *ngIf="node.id !== undefined && node.status!=='pendingDelete' && node.status!=='pendingCreation'"
-                  mat-icon-button 
-                  [matTooltip]="'common.delete' | translate"
-                  [attr.aria-label]="'common.delete' | translate">
-            <mat-icon>delete</mat-icon>
-          </button>
-          <button (click)="onButtonClicked(node.id, 'restore')" 
-                  *ngIf="node.id !== undefined && node.status==='pendingDelete'"
-                  mat-icon-button 
-                  [matTooltip]="'common.restore' | translate"
-                  [attr.aria-label]="'common.restore' | translate">
-            <mat-icon>undo</mat-icon>
-          </button>
-          <button (click)="onButtonClicked(node.id, 'revert')" 
-                  *ngIf="node.id !== undefined && node.id >= 0 && node.status==='Modified'"
-                  mat-icon-button 
-                  [matTooltip]="'common.revert' | translate"
-                  [attr.aria-label]="'common.revert' | translate">
-            <mat-icon>restore</mat-icon>
-          </button>
-          <button (click)="onButtonClicked(node.id, 'remove')" 
-                  *ngIf="node.id !== undefined && node.status==='pendingCreation'"
-                  mat-icon-button 
-                  [matTooltip]="'common.remove' | translate"
-                  [attr.aria-label]="'common.remove' | translate">
-            <mat-icon>cancel</mat-icon>
-          </button>
-        </div>
-      </mat-tree-node>
+          <div class="node-actions">
+            @if (node.status!=='pendingDelete' && (!canNodeHaveChildren || canNodeHaveChildren(node.nodeType))) {
+              @for (nodeType of getAllowedChildTypes(resolveNode(node)); track nodeType) {
+                <button
+                  (click)="onAddChildNode(resolveNode(node), nodeType)"
+                  mat-icon-button
+                  [matTooltip]="nodeTypeLabelCached(nodeType)"
+                  [attr.aria-label]="nodeTypeLabelCached(nodeType)">
+                  <mat-icon [fontSet]="getNodeIconFontForType(nodeType)">{{ getNodeIconForType(nodeType) }}</mat-icon>
+                </button>
+              }
+            }
+            @if (node.id !== undefined && node.status!=='pendingDelete' && node.status!=='pendingCreation') {
+              <button (click)="onButtonClicked(node.id, 'delete')"
+                mat-icon-button
+                [matTooltip]="'common.delete' | translate"
+                [attr.aria-label]="'common.delete' | translate">
+                <mat-icon>delete</mat-icon>
+              </button>
+            }
+            @if (node.id !== undefined && node.status==='pendingDelete') {
+              <button (click)="onButtonClicked(node.id, 'restore')"
+                mat-icon-button
+                [matTooltip]="'common.restore' | translate"
+                [attr.aria-label]="'common.restore' | translate">
+                <mat-icon>undo</mat-icon>
+              </button>
+            }
+            @if (node.id !== undefined && node.id >= 0 && node.status==='Modified') {
+              <button (click)="onButtonClicked(node.id, 'revert')"
+                mat-icon-button
+                [matTooltip]="'common.revert' | translate"
+                [attr.aria-label]="'common.revert' | translate">
+                <mat-icon>restore</mat-icon>
+              </button>
+            }
+            @if (node.id !== undefined && node.status==='pendingCreation') {
+              <button (click)="onButtonClicked(node.id, 'remove')"
+                mat-icon-button
+                [matTooltip]="'common.remove' | translate"
+                [attr.aria-label]="'common.remove' | translate">
+                <mat-icon>cancel</mat-icon>
+              </button>
+            }
+          </div>
+        </mat-tree-node>
 
-      <mat-tree-node *matTreeNodeDef="let node;when: hasChild"
-        cdkDrag
-        [cdkDragData]="node"
-        (cdkDragStarted)="handleDragStart($event)"
-        (cdkDragEnded)="handleDragEnd($event)"
-        [attr.data-node-id]="node.id"
+        <mat-tree-node *matTreeNodeDef="let node;when: hasChild"
+          cdkDrag
+          [cdkDragData]="node"
+          (cdkDragStarted)="handleDragStart($event)"
+          (cdkDragEnded)="handleDragEnd($event)"
+          [attr.data-node-id]="node.id"
         [ngClass]="{'drop-above': isDropAreaActiveForNode(node.id, 'above'),
         'drop-below': isDropAreaActiveForNode(node.id, 'below'),
         'drop-center': isDropAreaActiveForNode(node.id, 'center'),
@@ -168,102 +198,130 @@
         'hidden-in-viewer-node': isHiddenInViewerProfile(node),
         'selected': selectedNodeId === node.id,
         'root-descendant': isRootDescendant(node)}"
-        [class.root-node-hidden]="isRootNode(node)"
-        [style.padding-left]="getAdjustedPadding(node)"
-        class="tree-node-row">
-        <button mat-icon-button matTreeNodeToggle (click)="onToggleNodeById(node.id)"
-          [matTooltip]="(isNodeExpandedById(node.id) ? ('common.collapseAll' | translate) : ('common.expandAll' | translate))"
-          [attr.aria-label]="'toggle ' + node.name">
-          <mat-icon class="mat-icon-rtl-mirror">
-            {{isNodeExpandedById(node.id) ? 'expand_more' : 'chevron_right'}}
-          </mat-icon>
-        </button>
-        <mat-icon *ngIf="node.name !== ''" class="type-icon" [attr.aria-label]="(node.nodeType || node.type) + ' icon'"
-                  [fontSet]="getNodeIconFont(node)" [style.color]="node.status === 'pendingDelete' ? '#d32f2f' : null"
-                  [matTooltip]="nodeTypeLabelCached(node.nodeType || node.type)">
-          {{ getNodeIcon(node) }}
-        </mat-icon>
-        <mat-icon *ngIf="(node.status==='Modified' || node.status==='pendingCreation') && node.name !== '' && node.status !== 'pendingDelete'" 
-                  class="status-indicator-icon"
-                  [matTooltip]="node.status === 'Modified' ? ('common.modified' | translate) : ('pendingCreation' | translate)">
-          {{node.status === 'Modified' ? 'edit' : 'add_circle'}}
-        </mat-icon>
-        <mat-icon *ngIf="resolveNode(node)?.viewMode && showMappingInTaskPanelForNodeType(node.nodeType)" class="view-mode-hint-icon"
-                  [matTooltip]="getViewModeLabel ? getViewModeLabel(resolveNode(node)?.viewMode) : resolveNode(node)?.viewMode">
-          {{ getViewModeIcon(resolveNode(node)?.viewMode) }}
-        </mat-icon>
-        <mat-icon *ngIf="showFolderHintForTaskGroupContainer(resolveNode(node))" class="folder-hint-icon"
-                  [matTooltip]="'entity.tree.taskGroupContainerHint' | translate">
-          folder
-        </mat-icon>
-        <mat-icon *ngIf="isHiddenInViewerProfile(node)"
-                  class="hidden-in-viewer-icon"
-                  [matTooltip]="hiddenInViewerTooltip(node)">
-          visibility_off
-        </mat-icon>
-        <mat-icon *ngIf="showRadioFolderIndicator(node)"
-                  class="radio-folder-indicator-icon"
-                  [matTooltip]="radioFolderIndicatorTooltip()">
-          radio_button_checked
-        </mat-icon>
-        <mat-icon *ngIf="showLoadDataFolderIndicator(node)"
-                  class="load-data-folder-indicator-icon"
-                  [matTooltip]="loadDataFolderIndicatorTooltip()">
-          check_box
-        </mat-icon>
-        <mat-icon *ngIf="showLoadByDefaultIndicator(node)"
-                  class="load-by-default-indicator-icon"
-                  fontSet="material-icons-round"
-                  [matTooltip]="loadByDefaultIndicatorTooltip()">
-          push_pin
-        </mat-icon>
-        <span *ngIf="showQueryableActiveIndicator(node)"
+          [class.root-node-hidden]="isRootNode(node)"
+          [style.padding-left]="getAdjustedPadding(node)"
+          class="tree-node-row">
+          <button mat-icon-button matTreeNodeToggle (click)="onToggleNodeById(node.id)"
+            [matTooltip]="(isNodeExpandedById(node.id) ? ('common.collapseAll' | translate) : ('common.expandAll' | translate))"
+            [attr.aria-label]="'toggle ' + node.name">
+            <mat-icon class="mat-icon-rtl-mirror">
+              {{isNodeExpandedById(node.id) ? 'expand_more' : 'chevron_right'}}
+            </mat-icon>
+          </button>
+          @if (node.name !== '') {
+            <mat-icon class="type-icon" [attr.aria-label]="(node.nodeType || node.type) + ' icon'"
+              [fontSet]="getNodeIconFont(node)" [style.color]="node.status === 'pendingDelete' ? '#d32f2f' : null"
+              [matTooltip]="nodeTypeLabelCached(node.nodeType || node.type)">
+              {{ getNodeIcon(node) }}
+            </mat-icon>
+          }
+          @if ((node.status==='Modified' || node.status==='pendingCreation') && node.name !== '' && node.status !== 'pendingDelete') {
+            <mat-icon
+              class="status-indicator-icon"
+              [matTooltip]="node.status === 'Modified' ? ('common.modified' | translate) : ('pendingCreation' | translate)">
+              {{node.status === 'Modified' ? 'edit' : 'add_circle'}}
+            </mat-icon>
+          }
+          @if (resolveNode(node)?.viewMode && showMappingInTaskPanelForNodeType(node.nodeType)) {
+            <mat-icon class="view-mode-hint-icon"
+              [matTooltip]="getViewModeLabel ? getViewModeLabel($safeNavigationMigration(resolveNode(node)?.viewMode)) : $safeNavigationMigration(resolveNode(node)?.viewMode)">
+              {{ getViewModeIcon($safeNavigationMigration(resolveNode(node)?.viewMode)) }}
+            </mat-icon>
+          }
+          @if (showFolderHintForTaskGroupContainer(resolveNode(node))) {
+            <mat-icon class="folder-hint-icon"
+              [matTooltip]="'entity.tree.taskGroupContainerHint' | translate">
+              folder
+            </mat-icon>
+          }
+          @if (isHiddenInViewerProfile(node)) {
+            <mat-icon
+              class="hidden-in-viewer-icon"
+              [matTooltip]="hiddenInViewerTooltip(node)">
+              visibility_off
+            </mat-icon>
+          }
+          @if (showRadioFolderIndicator(node)) {
+            <mat-icon
+              class="radio-folder-indicator-icon"
+              [matTooltip]="radioFolderIndicatorTooltip()">
+              radio_button_checked
+            </mat-icon>
+          }
+          @if (showLoadDataFolderIndicator(node)) {
+            <mat-icon
+              class="load-data-folder-indicator-icon"
+              [matTooltip]="loadDataFolderIndicatorTooltip()">
+              check_box
+            </mat-icon>
+          }
+          @if (showLoadByDefaultIndicator(node)) {
+            <mat-icon
+              class="load-by-default-indicator-icon"
+              fontSet="material-icons-round"
+              [matTooltip]="loadByDefaultIndicatorTooltip()">
+              push_pin
+            </mat-icon>
+          }
+          @if (showQueryableActiveIndicator(node)) {
+            <span
               class="queryable-active-indicator"
               [matTooltip]="queryableActiveIndicatorTooltip()"
-              aria-hidden="true">i</span>
-        <span class="node-name" (click)="onButtonClicked(node.id, 'edit')" (keyup.enter)="onButtonClicked(node.id, 'edit')" tabindex="0" role="button" [attr.aria-label]="('common.edit' | translate) + ': ' + node.name" *ngIf="node.id !== undefined && node.id !== null && node.status!=='pendingDelete'">{{node.name}}</span>
-        <span class="node-name" *ngIf="node.id === undefined || node.id === null || node.status==='pendingDelete'">{{node.name}}</span>
-        <div class="node-actions">
-          <ng-container *ngIf="node.status!=='pendingDelete' && (!canNodeHaveChildren || canNodeHaveChildren(node.nodeType))">
-            <button *ngFor="let nodeType of getAllowedChildTypes(resolveNode(node))"
-                    (click)="onAddChildNode(resolveNode(node), nodeType)"
-                    mat-icon-button
-                    [matTooltip]="nodeTypeLabelCached(nodeType)"
-                    [attr.aria-label]="nodeTypeLabelCached(nodeType)">
-              <mat-icon [fontSet]="getNodeIconFontForType(nodeType)">{{ getNodeIconForType(nodeType) }}</mat-icon>
-            </button>
-          </ng-container>
-          <button (click)="onButtonClicked(node.id, 'delete')"
-                  *ngIf="node.id !== undefined && node.id !== null && node.status!=='pendingDelete' && node.status!=='pendingCreation'"
-                  mat-icon-button 
-                  [matTooltip]="'common.delete' | translate"
-                  [attr.aria-label]="'common.delete' | translate">
-            <mat-icon>delete</mat-icon>
-          </button>
-          <button (click)="onButtonClicked(node.id, 'restore')" 
-                  *ngIf="node.id !== undefined && node.id !== null && node.status==='pendingDelete'"
-                  mat-icon-button 
-                  [matTooltip]="'common.restore' | translate"
-                  [attr.aria-label]="'common.restore' | translate">
-            <mat-icon>undo</mat-icon>
-          </button>
-          <button (click)="onButtonClicked(node.id, 'revert')" 
-                  *ngIf="node.id !== undefined && node.id !== null && node.id >= 0 && node.status==='Modified'"
-                  mat-icon-button 
-                  [matTooltip]="'common.revert' | translate"
-                  [attr.aria-label]="'common.revert' | translate">
-            <mat-icon>restore</mat-icon>
-          </button>
-          <button (click)="onButtonClicked(node.id, 'remove')" 
-                  *ngIf="node.id !== undefined && node.id !== null && node.status==='pendingCreation'"
-                  mat-icon-button 
-                  [matTooltip]="'common.remove' | translate"
-                  [attr.aria-label]="'common.remove' | translate">
-            <mat-icon>cancel</mat-icon>
-          </button>
-        </div>
-      </mat-tree-node>
-    </mat-tree>
+            aria-hidden="true">i</span>
+          }
+          @if (node.id !== undefined && node.id !== null && node.status!=='pendingDelete') {
+            <span class="node-name" (click)="onButtonClicked(node.id, 'edit')" (keyup.enter)="onButtonClicked(node.id, 'edit')" tabindex="0" role="button" [attr.aria-label]="('common.edit' | translate) + ': ' + node.name">{{node.name}}</span>
+          }
+          @if (node.id === undefined || node.id === null || node.status==='pendingDelete') {
+            <span class="node-name">{{node.name}}</span>
+          }
+          <div class="node-actions">
+            @if (node.status!=='pendingDelete' && (!canNodeHaveChildren || canNodeHaveChildren(node.nodeType))) {
+              @for (nodeType of getAllowedChildTypes(resolveNode(node)); track nodeType) {
+                <button
+                  (click)="onAddChildNode(resolveNode(node), nodeType)"
+                  mat-icon-button
+                  [matTooltip]="nodeTypeLabelCached(nodeType)"
+                  [attr.aria-label]="nodeTypeLabelCached(nodeType)">
+                  <mat-icon [fontSet]="getNodeIconFontForType(nodeType)">{{ getNodeIconForType(nodeType) }}</mat-icon>
+                </button>
+              }
+            }
+            @if (node.id !== undefined && node.id !== null && node.status!=='pendingDelete' && node.status!=='pendingCreation') {
+              <button (click)="onButtonClicked(node.id, 'delete')"
+                mat-icon-button
+                [matTooltip]="'common.delete' | translate"
+                [attr.aria-label]="'common.delete' | translate">
+                <mat-icon>delete</mat-icon>
+              </button>
+            }
+            @if (node.id !== undefined && node.id !== null && node.status==='pendingDelete') {
+              <button (click)="onButtonClicked(node.id, 'restore')"
+                mat-icon-button
+                [matTooltip]="'common.restore' | translate"
+                [attr.aria-label]="'common.restore' | translate">
+                <mat-icon>undo</mat-icon>
+              </button>
+            }
+            @if (node.id !== undefined && node.id !== null && node.id >= 0 && node.status==='Modified') {
+              <button (click)="onButtonClicked(node.id, 'revert')"
+                mat-icon-button
+                [matTooltip]="'common.revert' | translate"
+                [attr.aria-label]="'common.revert' | translate">
+                <mat-icon>restore</mat-icon>
+              </button>
+            }
+            @if (node.id !== undefined && node.id !== null && node.status==='pendingCreation') {
+              <button (click)="onButtonClicked(node.id, 'remove')"
+                mat-icon-button
+                [matTooltip]="'common.remove' | translate"
+                [attr.aria-label]="'common.remove' | translate">
+                <mat-icon>cancel</mat-icon>
+              </button>
+            }
+          </div>
+        </mat-tree-node>
+      </mat-tree>
     </div>
   </mat-card-content>
 </mat-card>

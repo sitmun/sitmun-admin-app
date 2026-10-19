@@ -1,4 +1,4 @@
-import {Component, Inject} from '@angular/core';
+import {Component, Inject, ChangeDetectionStrategy} from '@angular/core';
 import {MatDialog} from '@angular/material/dialog';
 import {MAT_SNACK_BAR_DATA, MatSnackBarRef} from '@angular/material/snack-bar';
 
@@ -33,19 +33,28 @@ export interface NotificationData {
       </div>
       <div class="notification-text">
         <div class="notification-title">{{ data.title }}</div>
-        <div class="notification-message" *ngIf="data.message">{{ data.message }}</div>
+        @if (data.message) {
+          <div class="notification-message">{{ data.message }}</div>
+        }
       </div>
-      <div class="notification-actions" *ngIf="data.showAction || data.showDetailsButton">
-        <button mat-button color="primary" *ngIf="data.showDetailsButton" (click)="showDetails()">
-          {{ 'common.button.viewDetails' | translate }}
-        </button>
-        <button mat-button color="warn" *ngIf="data.showAction" (click)="close()">
-          {{ data.actionText || 'common.button.close' | translate }}
-        </button>
-      </div>
+      @if (data.showAction || data.showDetailsButton) {
+        <div class="notification-actions">
+          @if (data.showDetailsButton) {
+            <button mat-button color="primary" (click)="showDetails()">
+              {{ 'common.button.viewDetails' | translate }}
+            </button>
+          }
+          @if (data.showAction) {
+            <button mat-button color="warn" (click)="close()">
+              {{ data.actionText || 'common.button.close' | translate }}
+            </button>
+          }
+        </div>
+      }
     </div>
-  `,
+    `,
     styleUrls: ['./notification.component.scss'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class NotificationComponent {

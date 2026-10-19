@@ -10,78 +10,97 @@
 <mat-card class="sitmun-mat-card-margin" appearance="outlined" @fadeIn>
   <mat-card-content>
     <!-- Loading skeleton for KPI cards -->
-    <mat-grid-list rowHeight="120px" cols="4" *ngIf="!dataLoaded" [gutterSize]="'16px'">
-      <mat-grid-tile *ngFor="let i of [1,2,3,4,5,6,7]">
-        <mat-card class="kpi-card skeleton-card" appearance="outlined">
-          <mat-card-content class="kpi-content">
-            <div class="skeleton-icon"></div>
-            <div class="kpi-details">
-              <div class="skeleton-text skeleton-title"></div>
-              <div class="skeleton-text skeleton-value"></div>
-            </div>
-          </mat-card-content>
-        </mat-card>
-      </mat-grid-tile>
-    </mat-grid-list>
+    @if (!dataLoaded) {
+      <mat-grid-list rowHeight="120px" cols="4" [gutterSize]="'16px'">
+        @for (i of [1,2,3,4,5,6,7]; track i) {
+          <mat-grid-tile>
+            <mat-card class="kpi-card skeleton-card" appearance="outlined">
+              <mat-card-content class="kpi-content">
+                <div class="skeleton-icon"></div>
+                <div class="kpi-details">
+                  <div class="skeleton-text skeleton-title"></div>
+                  <div class="skeleton-text skeleton-value"></div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </mat-grid-tile>
+        }
+      </mat-grid-list>
+    }
 
-    <section class="health-section" *ngIf="dataLoaded && healthCards.length" aria-labelledby="health-title">
-      <div class="section-head">
-        <h2 id="health-title">{{ 'dashboard.services' | translate }}</h2>
-        <p class="fresh" *ngIf="freshMinutes !== null">{{ 'dashboard.fresh' | translate:{minutes: freshMinutes} }}</p>
-      </div>
-      <div class="health">
-        <a *ngFor="let card of healthCards"
-           class="health-kpi"
-           [class.warn]="card.kind === 'failing'"
-           [class.neutral]="card.kind === 'unchecked'"
-           [class.quiet]="card.kind === 'healthy'"
-           [routerLink]="card.link"
-           [queryParams]="card.queryParams">
-          <span class="health-label" [class.bad]="card.kind === 'failing'" [class.ok]="card.kind === 'healthy'" [class.none]="card.kind === 'unchecked'">
-            <i aria-hidden="true"></i>{{ card.text }}
-          </span>
-          <span class="health-value">{{ card.display }}</span>
-        </a>
-      </div>
-      <p class="health-msg" *ngIf="healthMessage">{{ healthMessage | translate }}</p>
-    </section>
-    <section class="attention" *ngIf="dataLoaded && hasFailingServices" aria-labelledby="attention-title">
-      <div class="section-head">
-        <h2 id="attention-title">{{ 'dashboard.attention' | translate }}</h2>
-      </div>
-      <app-data-grid
-        [columnDefs]="attentionColumnDefs"
-        [getAll]="attentionFetch"
-        [readOnly]="dashboardGrid.readOnly"
-        [hideExportButton]="dashboardGrid.hideExportButton">
-      </app-data-grid>
-    </section>
-    <section class="affected" *ngIf="dataLoaded && hasFailingServices" aria-labelledby="affected-title">
-      <div class="section-head">
-        <h2 id="affected-title">{{ 'dashboard.affected.title' | translate }}</h2>
-        <p class="meta">{{ affectedStatus() }}</p>
-      </div>
-      <app-data-grid
-        [columnDefs]="affectedColumnDefs"
-        [getAll]="affectedFetch"
-        [readOnly]="dashboardGrid.readOnly"
-        [hideExportButton]="dashboardGrid.hideExportButton">
-      </app-data-grid>
-    </section>
-    <section class="inventory" *ngIf="dataLoaded" aria-labelledby="inventory-title">
-      <div class="section-head">
-        <h2 id="inventory-title">{{ 'dashboard.inventory' | translate }}</h2>
-      </div>
-    <div class="kpi-grid" [@listAnimation]="KPIsTable.length">
-      <app-kpi-card
-        *ngFor="let kpi of KPIsTable"
-        [icon]="kpi.icon"
-        [title]="kpi.text"
-        [value]="kpi.number"
-        [tooltip]="kpi.tooltip"
-        [link]="kpi.link">
-      </app-kpi-card>
-    </div>
-    </section>
+    @if (dataLoaded && healthCards.length) {
+      <section class="health-section" aria-labelledby="health-title">
+        <div class="section-head">
+          <h2 id="health-title">{{ 'dashboard.services' | translate }}</h2>
+          @if (freshMinutes !== null) {
+            <p class="fresh">{{ 'dashboard.fresh' | translate:{minutes: freshMinutes} }}</p>
+          }
+        </div>
+        <div class="health">
+          @for (card of healthCards; track card) {
+            <a
+              class="health-kpi"
+              [class.warn]="card.kind === 'failing'"
+              [class.neutral]="card.kind === 'unchecked'"
+              [class.quiet]="card.kind === 'healthy'"
+              [routerLink]="card.link"
+              [queryParams]="card.queryParams">
+              <span class="health-label" [class.bad]="card.kind === 'failing'" [class.ok]="card.kind === 'healthy'" [class.none]="card.kind === 'unchecked'">
+                <i aria-hidden="true"></i>{{ card.text }}
+              </span>
+              <span class="health-value">{{ card.display }}</span>
+            </a>
+          }
+        </div>
+        @if (healthMessage) {
+          <p class="health-msg">{{ healthMessage | translate }}</p>
+        }
+      </section>
+    }
+    @if (dataLoaded && hasFailingServices) {
+      <section class="attention" aria-labelledby="attention-title">
+        <div class="section-head">
+          <h2 id="attention-title">{{ 'dashboard.attention' | translate }}</h2>
+        </div>
+        <app-data-grid
+          [columnDefs]="attentionColumnDefs"
+          [getAll]="attentionFetch"
+          [readOnly]="dashboardGrid.readOnly"
+          [hideExportButton]="dashboardGrid.hideExportButton">
+        </app-data-grid>
+      </section>
+    }
+    @if (dataLoaded && hasFailingServices) {
+      <section class="affected" aria-labelledby="affected-title">
+        <div class="section-head">
+          <h2 id="affected-title">{{ 'dashboard.affected.title' | translate }}</h2>
+          <p class="meta">{{ affectedStatus() }}</p>
+        </div>
+        <app-data-grid
+          [columnDefs]="affectedColumnDefs"
+          [getAll]="affectedFetch"
+          [readOnly]="dashboardGrid.readOnly"
+          [hideExportButton]="dashboardGrid.hideExportButton">
+        </app-data-grid>
+      </section>
+    }
+    @if (dataLoaded) {
+      <section class="inventory" aria-labelledby="inventory-title">
+        <div class="section-head">
+          <h2 id="inventory-title">{{ 'dashboard.inventory' | translate }}</h2>
+        </div>
+        <div class="kpi-grid" [@listAnimation]="KPIsTable.length">
+          @for (kpi of KPIsTable; track kpi) {
+            <app-kpi-card
+              [icon]="kpi.icon"
+              [title]="kpi.text"
+              [value]="kpi.number"
+              [tooltip]="kpi.tooltip"
+              [link]="kpi.link">
+            </app-kpi-card>
+          }
+        </div>
+      </section>
+    }
   </mat-card-content>
 </mat-card>

@@ -62,8 +62,8 @@ This frontend integrates seamlessly with the [SITMUN Backend Core](https://githu
 
 ### Prerequisites
 
-- **Node.js**: 20.19.0+ ([Download](https://nodejs.org/)); use `nvm use 20.19.0` if using nvm (see [.nvmrc](.nvmrc)). Build and tests verified with **Node.js v20.19.0+**.
-- **npm**: Version 8.x or higher (comes with Node.js)
+- **Node.js**: 24.22.0+ ([Download](https://nodejs.org/)); use `nvm use 24.22.0` if using nvm (see [.nvmrc](.nvmrc)). Engines allow `^24.22.0 || ^26.0.0`. Build and tests verified with **Node.js v24.22.0+**.
+- **npm**: Version 11.x or higher (comes with Node.js)
 - **SITMUN Backend Core**: Running instance ([Setup Guide](https://github.com/sitmun/sitmun-backend-core))
 
 ### Quick Setup

@@ -2,36 +2,62 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
+    "ignoreDeprecations": "6.0",
     "baseUrl": "./",
     "outDir": "./dist/out-tsc",
     "sourceMap": true,
     "declaration": false,
     "downlevelIteration": true,
     "experimentalDecorators": true,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "importHelpers": true,
     "target": "ES2022",
     "module": "es2020",
     "esModuleInterop": true,
-    "lib": [
-      "es2022",
-      "dom"
+    "types": [
+      "jest",
+      "node"
     ],
-    "types": ["jest", "node"],
     "paths": {
-      "@app/*": ["src/app/*"],
-      "@app/domain": ["src/app/domain"],
-      "@app/domain/*": ["src/app/domain/*"],
-      "@app/core/hal/services": ["src/app/core/hal/services"],
-      "@app/core/hal/*": ["src/app/core/hal/*"],
-      "@app/core/auth/*": ["src/app/core/auth/*"],
-      "@app/core/account/*": ["src/app/core/account/*"],
-      "@app/core/config/*": ["src/app/core/config/*"],
-      "@app/components/shared/*": ["src/app/components/shared/*"],
-      "@app/frontend-gui/*": ["src/app/frontend-gui/*"],
-      "@app/material-module": ["src/app/material-module"],
-      "@config": ["src/config.ts"],
-      "@environments/*": ["src/environments/*"]
+      "@app/*": [
+        "src/app/*"
+      ],
+      "@app/domain": [
+        "src/app/domain"
+      ],
+      "@app/domain/*": [
+        "src/app/domain/*"
+      ],
+      "@app/core/hal/services": [
+        "src/app/core/hal/services"
+      ],
+      "@app/core/hal/*": [
+        "src/app/core/hal/*"
+      ],
+      "@app/core/auth/*": [
+        "src/app/core/auth/*"
+      ],
+      "@app/core/account/*": [
+        "src/app/core/account/*"
+      ],
+      "@app/core/config/*": [
+        "src/app/core/config/*"
+      ],
+      "@app/components/shared/*": [
+        "src/app/components/shared/*"
+      ],
+      "@app/frontend-gui/*": [
+        "src/app/frontend-gui/*"
+      ],
+      "@app/material-module": [
+        "src/app/material-module"
+      ],
+      "@config": [
+        "src/config.ts"
+      ],
+      "@environments/*": [
+        "src/environments/*"
+      ]
     },
     "useDefineForClassFields": false,
     "forceConsistentCasingInFileNames": true,

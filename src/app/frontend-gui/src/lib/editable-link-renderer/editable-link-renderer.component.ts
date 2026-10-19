@@ -1,5 +1,5 @@
-import { NgIf } from '@angular/common';
-import { Component } from '@angular/core';
+
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 
 import { ICellRendererAngularComp } from '@ag-grid-community/angular';
 
@@ -11,17 +11,21 @@ import { ICellRendererAngularComp } from '@ag-grid-community/angular';
     selector: 'app-editable-link-renderer',
     template: `
     <div class="editable-link-container">
-      <a *ngIf="!isEditing" 
-         [href]="params.value" 
-         [target]="openInNewTab ? '_blank' : '_self'"
-         [rel]="openInNewTab ? 'noopener noreferrer' : ''"
-         class="editable-link"
-         (click)="onLinkClick($event)">
-        {{ params.value }}
-      </a>
-      <span *ngIf="isEditing">{{ params.value }}</span>
+      @if (!isEditing) {
+        <a
+          [href]="params.value"
+          [target]="openInNewTab ? '_blank' : '_self'"
+          [rel]="openInNewTab ? 'noopener noreferrer' : ''"
+          class="editable-link"
+          (click)="onLinkClick($event)">
+          {{ params.value }}
+        </a>
+      }
+      @if (isEditing) {
+        <span>{{ params.value }}</span>
+      }
     </div>
-  `,
+    `,
     styles: [`
     .editable-link-container {
       width: 100%;
@@ -44,7 +48,8 @@ import { ICellRendererAngularComp } from '@ag-grid-community/angular';
     }
   `],
     standalone: true,
-    imports: [NgIf]
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: []
 })
 export class EditableLinkRendererComponent implements ICellRendererAngularComp {
   /** AG Grid cell renderer parameters */

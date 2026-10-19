@@ -1,5 +1,5 @@
 import {HttpClient} from "@angular/common/http";
-import {Component, TemplateRef, ViewChild} from "@angular/core";
+import {Component, TemplateRef, ViewChild, ChangeDetectionStrategy} from "@angular/core";
 import {FormControl, FormGroup, Validators} from "@angular/forms";
 import {MatDialog} from "@angular/material/dialog";
 import {MatSelectChange} from "@angular/material/select";
@@ -74,6 +74,7 @@ import {environment} from "@environments/environment";
     selector: 'app-task-query-form',
     templateUrl: './task-query-form.component.html',
     styles: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class TaskQueryFormComponent extends BaseFormComponent<TaskProjection> {

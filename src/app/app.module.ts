@@ -1,5 +1,5 @@
 import {NgOptimizedImage} from "@angular/common";
-import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi, withXhr } from '@angular/common/http';
 import {ErrorHandler, inject, LOCALE_ID, NgModule, provideAppInitializer} from '@angular/core';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {MAT_TABS_CONFIG} from '@angular/material/tabs';
@@ -420,7 +420,7 @@ export function initializeConfiguration(
         ApplicationTreeService,
         TreeNodeService,
         UserPositionService,
-        provideHttpClient(withInterceptorsFromDi())
+        provideHttpClient(withXhr(), withInterceptorsFromDi())
     ] })
 export class AppModule {
 }

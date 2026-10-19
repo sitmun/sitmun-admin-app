@@ -1,4 +1,4 @@
-import { Component, OnInit, TemplateRef, inject} from '@angular/core';
+import { Component, OnInit, TemplateRef, inject, ChangeDetectionStrategy } from '@angular/core';
 import {UntypedFormGroup} from '@angular/forms';
 import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material/dialog';
 
@@ -26,6 +26,7 @@ export interface DialogFormResult {
     selector: 'app-dialog-form',
     templateUrl: './dialog-form.component.html',
     styles: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class DialogFormComponent implements OnInit {

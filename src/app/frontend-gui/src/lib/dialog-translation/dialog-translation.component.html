@@ -3,50 +3,56 @@
 <form [formGroup]='translationForm' (ngSubmit)="doAccept()">
   <mat-dialog-content>
     <!-- Default Language (Read-only Reference) -->
-    <mat-form-field appearance="outline" class="full" *ngIf="defaultLanguageValue">
-      <mat-label>{{ getDefaultLanguageName() }}</mat-label>
-      
-      <textarea *ngIf="useTextarea"
-                matInput 
-                [value]="defaultLanguageValue"
-                readonly
-                cdkTextareaAutosize
-                cdkAutosizeMinRows="3"
-                cdkAutosizeMaxRows="10"
-                rows="3">
-      </textarea>
-      
-      <input *ngIf="!useTextarea"
-             matInput 
-             type="text"
-             [value]="defaultLanguageValue"
-             readonly>
-      
-      <mat-hint>{{ 'common.dialog.translation.sourceValueHint' | translate }}</mat-hint>
-    </mat-form-field>
+    @if (defaultLanguageValue) {
+      <mat-form-field appearance="outline" class="full">
+        <mat-label>{{ getDefaultLanguageName() }}</mat-label>
+        @if (useTextarea) {
+          <textarea
+            matInput
+            [value]="defaultLanguageValue"
+            readonly
+            cdkTextareaAutosize
+            cdkAutosizeMinRows="3"
+            cdkAutosizeMaxRows="10"
+            rows="3">
+          </textarea>
+        }
+        @if (!useTextarea) {
+          <input
+            matInput
+            type="text"
+            [value]="defaultLanguageValue"
+            readonly>
+        }
+        <mat-hint>{{ 'common.dialog.translation.sourceValueHint' | translate }}</mat-hint>
+      </mat-form-field>
+    }
 
     <!-- Translation Fields (Editable) -->
-    <mat-form-field appearance="outline" class="full" *ngFor="let lang of availableLanguages">
-      <mat-label>{{ languageLabel(lang.shortname) }}</mat-label>
-      
-      <textarea *ngIf="useTextarea"
-                matInput 
-                [formControlName]="getFormControlName(lang.shortname)" 
-                [maxlength]="maxLength"
-                cdkTextareaAutosize
-                cdkAutosizeMinRows="3"
-                cdkAutosizeMaxRows="10"
-                rows="3">
-      </textarea>
-      
-      <input *ngIf="!useTextarea"
-             matInput 
-             type="text"
-             [formControlName]="getFormControlName(lang.shortname)" 
-             [maxlength]="maxLength">
-      
-      <mat-hint align="end">{{ getFormControl(lang.shortname) | characterCount:maxLength }}</mat-hint>
-    </mat-form-field>
+    @for (lang of availableLanguages; track lang) {
+      <mat-form-field appearance="outline" class="full">
+        <mat-label>{{ languageLabel(lang.shortname) }}</mat-label>
+        @if (useTextarea) {
+          <textarea
+            matInput
+            [formControlName]="getFormControlName(lang.shortname)"
+            [maxlength]="maxLength"
+            cdkTextareaAutosize
+            cdkAutosizeMinRows="3"
+            cdkAutosizeMaxRows="10"
+            rows="3">
+          </textarea>
+        }
+        @if (!useTextarea) {
+          <input
+            matInput
+            type="text"
+            [formControlName]="getFormControlName(lang.shortname)"
+            [maxlength]="maxLength">
+        }
+        <mat-hint align="end">{{ getFormControl(lang.shortname) | characterCount:maxLength }}</mat-hint>
+      </mat-form-field>
+    }
   </mat-dialog-content>
 
   <mat-dialog-actions align="end">

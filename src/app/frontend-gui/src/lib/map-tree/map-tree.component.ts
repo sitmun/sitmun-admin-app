@@ -1,5 +1,5 @@
 import { FlatTreeControl } from '@angular/cdk/tree';
-import {Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
+import {Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild, ChangeDetectionStrategy} from '@angular/core';
 import {MatTreeFlatDataSource, MatTreeFlattener} from '@angular/material/tree';
 
 import jsonpath from 'jsonpath';
@@ -29,6 +29,7 @@ export class TreeNode {
     selector: 'app-map-tree',
     templateUrl: 'map-tree.component.html',
     styleUrls: ['map-tree.component.scss'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class MapTreeComponent implements OnInit {

@@ -1,4 +1,4 @@
-import {Component, TemplateRef, ViewChild} from '@angular/core';
+import {Component, TemplateRef, ViewChild, ChangeDetectionStrategy} from '@angular/core';
 import {FormControl, FormGroup, UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
 import {MatDialog} from '@angular/material/dialog';
 import {ActivatedRoute, Router} from '@angular/router';
@@ -65,6 +65,7 @@ import {constants} from '@environments/constants';
     selector: 'app-application-form',
     templateUrl: './application-form.component.html',
     styleUrls: ['./application-form.component.scss'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ApplicationFormComponent extends BaseFormComponent<ApplicationProjection> {

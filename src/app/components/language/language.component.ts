@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import {MatDialog} from '@angular/material/dialog';
 import {ActivatedRoute, Router} from '@angular/router';
 
@@ -23,6 +23,7 @@ import {UtilsService} from '@app/services/utils.service';
     selector: 'app-language',
     templateUrl: './language.component.html',
     styles: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class LanguageComponent extends BaseListComponent<Language> implements OnInit {

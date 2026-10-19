@@ -1,4 +1,4 @@
-import {Component, DestroyRef, EventEmitter, inject, OnInit, Output} from '@angular/core';
+import {Component, DestroyRef, EventEmitter, inject, OnInit, Output, ChangeDetectionStrategy} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {Router} from '@angular/router';
 
@@ -14,6 +14,7 @@ import {config} from '@config';
     selector: 'app-toolbar',
     templateUrl: './toolbar.component.html',
     styleUrls: ['./toolbar.component.scss'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ToolbarComponent implements OnInit {

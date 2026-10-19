@@ -171,9 +171,9 @@ describe('Relation selector navigation markup', () => {
     expect(template).not.toMatch(/\[readonly\]="showCartographyAsLink"/);
     expect(template).not.toMatch(/\[readonly\]="showTaskAsLink"/);
 
-    expect(template).toContain('getCartographyFormLink() as cartographyLink');
+    expect(template).toContain('getCartographyFormLink(); as cartographyLink');
     expect(template).toContain("'entity.tree.openCartography'");
-    expect(template).toContain('getTaskFormLink() as taskLink');
+    expect(template).toContain('getTaskFormLink(); as taskLink');
     expect(template).toContain("'entity.tree.openTask'");
     expect(template).toMatch(/related-entity-link-icon[\s\S]*open_in_new|open_in_new[\s\S]*related-entity-link-icon/);
     expect(template).toContain('target="_blank"');

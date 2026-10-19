@@ -1,4 +1,4 @@
-import {CommonModule} from '@angular/common';
+
 import {
   Component,
   ElementRef,
@@ -11,7 +11,8 @@ import {
   SimpleChanges,
   ViewChild,
   DestroyRef,
-  inject
+  inject,
+  ChangeDetectionStrategy
 } from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormsModule} from '@angular/forms';
@@ -239,21 +240,21 @@ export class Executor<T> {
 
     `],
   standalone: true,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
-        CommonModule,
-        MatButtonModule,
-        MatTooltipModule,
-        MatDialogModule,
-        MatToolbarModule,
-        MatMenuModule,
-        MatIconModule,
-        MatInputModule,
-        TranslateModule,
-        AgGridModule,
-        MatButtonToggleModule,
-        MatCardModule,
-        FormsModule,
-    ]
+    MatButtonModule,
+    MatTooltipModule,
+    MatDialogModule,
+    MatToolbarModule,
+    MatMenuModule,
+    MatIconModule,
+    MatInputModule,
+    TranslateModule,
+    AgGridModule,
+    MatButtonToggleModule,
+    MatCardModule,
+    FormsModule
+]
 })
 export class DataGridComponent implements OnInit, OnDestroy, OnChanges {
   /** Tracks if this is the first time loading data */

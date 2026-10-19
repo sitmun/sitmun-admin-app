@@ -7,7 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Dependencies**: Node.js `24.22.0` (engines `^24.22.0 || ^26.0.0`), Angular `22.2.3`, and AG Grid Community `32.3.9`.
+
 ### Fixed
+
+- **Tests**: Jest specs match Angular 22 realities (`ng-reflect-*` opt-in, HostListener rename, `@if (; as)` syntax, jsdom Location, FileReader under Node 24) and use a 30s default timeout.
 
 - **Layers**: An Image feature-information field stores max width and max height in its options. The picture address stays unchanged.
 - **Layers**: Image options label max width and max height. An empty value stays unset, so the viewer sizes the picture automatically.

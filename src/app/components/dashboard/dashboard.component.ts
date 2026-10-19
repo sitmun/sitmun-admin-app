@@ -6,7 +6,7 @@ import {
   query,
   stagger
 } from '@angular/animations';
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, ChangeDetectionStrategy} from '@angular/core';
 
 
 import {TranslateService} from '@ngx-translate/core';
@@ -51,6 +51,7 @@ const FILTER_MENU = {menu: '<span class="ag-icon ag-icon-filter" role="presentat
             ])
         ])
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class DashboardComponent implements OnInit {

@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
@@ -11,38 +11,40 @@ import { toSafeHttpUrl } from '@app/components/shared/external-url-link/http-url
 @Component({
   selector: 'app-external-url-renderer',
   template: `
-    <ng-container *ngIf="editable; else readOnlyLink">
+    @if (editable) {
       <div class="external-url-cell external-url-cell--editable">
         <span class="external-url-text">{{ displayValue }}</span>
-        <a *ngIf="safeUrl"
-           [href]="safeUrl"
-           target="_blank"
-           rel="noopener"
-           class="external-url-open-link"
-           [matTooltip]="'common.url.openNewTab' | translate"
-           [attr.aria-label]="accessibleLabel"
-           (click)="$event.stopPropagation()">
+        @if (safeUrl) {
+          <a
+            [href]="safeUrl"
+            target="_blank"
+            rel="noopener"
+            class="external-url-open-link"
+            [matTooltip]="'common.url.openNewTab' | translate"
+            [attr.aria-label]="accessibleLabel"
+            (click)="$event.stopPropagation()">
+            <mat-icon aria-hidden="true">open_in_new</mat-icon>
+          </a>
+        }
+      </div>
+    } @else {
+      @if (safeUrl) {
+        <a
+          [href]="safeUrl"
+          target="_blank"
+          rel="noopener"
+          class="url-link external-url-cell"
+          [matTooltip]="'common.url.openNewTab' | translate"
+          [attr.aria-label]="accessibleLabel"
+          [attr.title]="displayValue">
+          <span class="external-url-text">{{ displayValue }}</span>
           <mat-icon aria-hidden="true">open_in_new</mat-icon>
         </a>
-      </div>
-    </ng-container>
-    <ng-template #readOnlyLink>
-      <a *ngIf="safeUrl; else plainValue"
-         [href]="safeUrl"
-         target="_blank"
-         rel="noopener"
-         class="url-link external-url-cell"
-         [matTooltip]="'common.url.openNewTab' | translate"
-         [attr.aria-label]="accessibleLabel"
-         [attr.title]="displayValue">
-        <span class="external-url-text">{{ displayValue }}</span>
-        <mat-icon aria-hidden="true">open_in_new</mat-icon>
-      </a>
-      <ng-template #plainValue>
+      } @else {
         <span class="external-url-plain">{{ displayValue }}</span>
-      </ng-template>
-    </ng-template>
-  `,
+      }
+    }
+    `,
   styles: [`
     :host {
       display: block;
@@ -103,7 +105,8 @@ import { toSafeHttpUrl } from '@app/components/shared/external-url-link/http-url
     }
   `],
   standalone: true,
-  imports: [CommonModule, MatIconModule, MatTooltipModule, TranslateModule]
+  changeDetection: ChangeDetectionStrategy.Eager,
+  imports: [MatIconModule, MatTooltipModule, TranslateModule]
 })
 export class ExternalUrlRendererComponent implements ICellRendererAngularComp {
   public displayValue = '';

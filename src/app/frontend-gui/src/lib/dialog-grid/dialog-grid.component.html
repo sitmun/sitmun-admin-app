@@ -1,68 +1,79 @@
 <h2 class="titleDialog" mat-dialog-title>{{ title | translate }}</h2>
 <mat-dialog-content>
-  <div *ngIf="!contentVisible" class="loading-container">
-    <mat-spinner diameter="50"></mat-spinner>
-  </div>
-  <div *ngIf="contentVisible" class="content-container">
-    <mat-card *ngIf="getAllsTable.length === 1" appearance="outlined">
-    <div *ngFor="let getAll of getAllsTable; let i = index">
-      <mat-card-content>
-        <app-data-grid
-          (getSelectedRows)='joinRowsReceived($event)'
-          (selectionChanged)='onSelectionChanged(i, $event)'
-          [addFieldRestriction]='getAddFieldRestriction(i)'
-          [changeHeightButton]='changeHeightButton'
-          [columnDefs]="columnDefsTable[i]"
-          [currentData]='getCurrentData(i)'
-          [defaultColumnSorting]='getOrderTable(i) ? [getOrderTable(i)] : null'
-          [defaultHeight]='heightByDefault'
-          [eventGetSelectedRowsSubscription]="getAllRows.asObservable()"
-          [fieldRestrictionWithDifferentName]='getFieldRestrictionWithDifferentName(i)'
-          [getAll]='getAll'
-          [globalSearch]=true
-          [hideDuplicateButton]=true
-          [hideExportButton]=true
-          [hideReplaceButton]=true
-          [nonEditable]='nonEditable'
-          [singleSelection]="singleSelectionTable[i]"
-          [title]="titlesTable[i]"
-        >
-        </app-data-grid>
-      </mat-card-content>
+  @if (!contentVisible) {
+    <div class="loading-container">
+      <mat-spinner diameter="50"></mat-spinner>
     </div>
-  </mat-card>
-  <mat-tab-group *ngIf="getAllsTable.length>1" preserveContent="true">
-    <mat-tab
-      *ngFor="let getAll of getAllsTable; let i = index"
-      [label]="(titlesTable[i] | translate) || ''">
-      <mat-card appearance="outlined">
-        <mat-card-content>
-          <app-data-grid
-            [columnDefs]="columnDefsTable[i]"
-            [changeHeightButton]='changeHeightButton'
-            [defaultHeight]='heightByDefault'
-            [getAll]='getAll'
-            [globalSearch]=true
-            [singleSelection]="singleSelectionTable[i]"
-            [title]="titlesTable[i]"
-            [defaultColumnSorting]='getOrderTable(i) ? [getOrderTable(i)] : null'
-            [nonEditable]='nonEditable'
-            [eventGetSelectedRowsSubscription]="getAllRows.asObservable()"
-            [addFieldRestriction]='getAddFieldRestriction(i)'
-            [currentData]='getCurrentData(i)'
-            [hideReplaceButton]=true
-            [hideDuplicateButton]=true
-            [hideExportButton]=true
-            [fieldRestrictionWithDifferentName]='getFieldRestrictionWithDifferentName(i)'
-            (getSelectedRows)='joinRowsReceived($event)'
-            (selectionChanged)='onSelectionChanged(i, $event)'
-          >
-          </app-data-grid>
-        </mat-card-content>
-      </mat-card>
-    </mat-tab>
-  </mat-tab-group>
-  </div>
+  }
+  @if (contentVisible) {
+    <div class="content-container">
+      @if (getAllsTable.length === 1) {
+        <mat-card appearance="outlined">
+          @for (getAll of getAllsTable; track getAll; let i = $index) {
+            <div>
+              <mat-card-content>
+                <app-data-grid
+                  (getSelectedRows)='joinRowsReceived($event)'
+                  (selectionChanged)='onSelectionChanged(i, $event)'
+                  [addFieldRestriction]='getAddFieldRestriction(i)'
+                  [changeHeightButton]='changeHeightButton'
+                  [columnDefs]="columnDefsTable[i]"
+                  [currentData]='getCurrentData(i)'
+                  [defaultColumnSorting]='getOrderTable(i) ? [getOrderTable(i)] : null'
+                  [defaultHeight]='heightByDefault'
+                  [eventGetSelectedRowsSubscription]="getAllRows.asObservable()"
+                  [fieldRestrictionWithDifferentName]='getFieldRestrictionWithDifferentName(i)'
+                  [getAll]='getAll'
+                  [globalSearch]=true
+                  [hideDuplicateButton]=true
+                  [hideExportButton]=true
+                  [hideReplaceButton]=true
+                  [nonEditable]='nonEditable'
+                  [singleSelection]="singleSelectionTable[i]"
+                  [title]="titlesTable[i]"
+                  >
+                </app-data-grid>
+              </mat-card-content>
+            </div>
+          }
+        </mat-card>
+      }
+      @if (getAllsTable.length>1) {
+        <mat-tab-group preserveContent="true">
+          @for (getAll of getAllsTable; track getAll; let i = $index) {
+            <mat-tab
+              [label]="(titlesTable[i] | translate) || ''">
+              <mat-card appearance="outlined">
+                <mat-card-content>
+                  <app-data-grid
+                    [columnDefs]="columnDefsTable[i]"
+                    [changeHeightButton]='changeHeightButton'
+                    [defaultHeight]='heightByDefault'
+                    [getAll]='getAll'
+                    [globalSearch]=true
+                    [singleSelection]="singleSelectionTable[i]"
+                    [title]="titlesTable[i]"
+                    [defaultColumnSorting]='getOrderTable(i) ? [getOrderTable(i)] : null'
+                    [nonEditable]='nonEditable'
+                    [eventGetSelectedRowsSubscription]="getAllRows.asObservable()"
+                    [addFieldRestriction]='getAddFieldRestriction(i)'
+                    [currentData]='getCurrentData(i)'
+                    [hideReplaceButton]=true
+                    [hideDuplicateButton]=true
+                    [hideExportButton]=true
+                    [fieldRestrictionWithDifferentName]='getFieldRestrictionWithDifferentName(i)'
+                    (getSelectedRows)='joinRowsReceived($event)'
+                    (selectionChanged)='onSelectionChanged(i, $event)'
+                    >
+                  </app-data-grid>
+                </mat-card-content>
+              </mat-card>
+            </mat-tab>
+          }
+        </mat-tab-group>
+      }
+    </div>
+  }
 </mat-dialog-content>
 <mat-dialog-actions align="end">
   <button

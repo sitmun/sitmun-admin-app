@@ -73,7 +73,7 @@
 
 :host ::ng-deep .template-editor-toolbar .mat-mdc-icon-button,
 :host ::ng-deep .template-table-toolbar .mat-mdc-icon-button {
-  --mdc-icon-button-state-layer-size: var(--template-toolbar-control-size);
+  --mat-icon-button-state-layer-size: var(--template-toolbar-control-size);
   width: var(--template-toolbar-control-size);
   height: var(--template-toolbar-control-size);
   padding: 0;

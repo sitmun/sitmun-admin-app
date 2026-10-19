@@ -1,4 +1,4 @@
-import {Component, TemplateRef, ViewChild} from '@angular/core';
+import {Component, TemplateRef, ViewChild, ChangeDetectionStrategy} from '@angular/core';
 import {FormControl, FormGroup, FormGroupDirective, NgForm, Validators} from '@angular/forms';
 import {MatAutocompleteSelectedEvent} from '@angular/material/autocomplete';
 import {ErrorStateMatcher} from '@angular/material/core';
@@ -118,6 +118,7 @@ interface IncludedTaskMappingView {
   selector: 'app-task-more-info-advanced-form',
   templateUrl: './task-more-info-advanced-form.component.html',
   styleUrl: './task-more-info-advanced-form.component.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class TaskMoreInfoAdvancedFormComponent extends BaseFormComponent<TaskProjection> {

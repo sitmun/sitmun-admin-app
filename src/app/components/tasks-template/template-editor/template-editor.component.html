@@ -1,6 +1,6 @@
 <div class="template-editor-shell" (focusin)="onComponentFocusIn()" (focusout)="onComponentFocusOut($event)">
   <div class="template-editor-toolbar" role="toolbar"
-       [attr.aria-label]="'entity.task.template.editor.elementsGroup' | translate">
+    [attr.aria-label]="'entity.task.template.editor.elementsGroup' | translate">
     <div class="toolbar-cluster">
       <button
         mat-icon-button
@@ -37,367 +37,384 @@
       </button>
     </div>
 
-    <div class="toolbar-cluster" *ngIf="editorMode === 'html'">
-      <button
-        mat-icon-button
-        type="button"
-        data-testid="template-format-html"
-        [disabled]="readonly"
-        [matTooltip]="'entity.task.template.editor.formatHtml' | translate"
-        [attr.aria-label]="'entity.task.template.editor.formatHtml' | translate"
-        (click)="formatHtmlSource()">
-        <mat-icon fontSet="material-icons-round">wrap_text</mat-icon>
-      </button>
-    </div>
+    @if (editorMode === 'html') {
+      <div class="toolbar-cluster">
+        <button
+          mat-icon-button
+          type="button"
+          data-testid="template-format-html"
+          [disabled]="readonly"
+          [matTooltip]="'entity.task.template.editor.formatHtml' | translate"
+          [attr.aria-label]="'entity.task.template.editor.formatHtml' | translate"
+          (click)="formatHtmlSource()">
+          <mat-icon fontSet="material-icons-round">wrap_text</mat-icon>
+        </button>
+      </div>
+    }
 
-    <ng-container *ngIf="editorMode === 'visual'">
-    <div class="toolbar-cluster">
-      <button mat-icon-button type="button" class="toolbar-glyph"
-              [class.toolbar-active]="isActive('paragraph')"
-              [disabled]="readonly"
-              [matTooltip]="'entity.task.template.editor.paragraph' | translate"
-              (click)="setParagraph()">
-        <span aria-hidden="true">P</span>
-      </button>
-      <button mat-icon-button type="button" class="toolbar-glyph"
-              [class.toolbar-active]="isActive('heading', { level: 1 })"
-              [disabled]="readonly"
-              [matTooltip]="'entity.task.template.editor.heading1' | translate"
-              (click)="toggleHeading(1)">
-        <span aria-hidden="true">H1</span>
-      </button>
-      <button mat-icon-button type="button" class="toolbar-glyph"
-              [class.toolbar-active]="isActive('heading', { level: 2 })"
-              [disabled]="readonly"
-              [matTooltip]="'entity.task.template.editor.heading2' | translate"
-              (click)="toggleHeading(2)">
-        <span aria-hidden="true">H2</span>
-      </button>
-      <button mat-icon-button type="button" class="toolbar-glyph"
-              [class.toolbar-active]="isActive('heading', { level: 3 })"
-              [disabled]="readonly"
-              [matTooltip]="'entity.task.template.editor.heading3' | translate"
-              (click)="toggleHeading(3)">
-        <span aria-hidden="true">H3</span>
-      </button>
-    </div>
-
-    <div class="toolbar-cluster">
-      <button mat-icon-button type="button" [class.toolbar-active]="isActive('bold')"
-              [disabled]="readonly" [matTooltip]="'entity.task.template.editor.bold' | translate"
-              (click)="toggleBold()">
-        <mat-icon>format_bold</mat-icon>
-      </button>
-      <button mat-icon-button type="button" [class.toolbar-active]="isActive('italic')"
-              [disabled]="readonly" [matTooltip]="'entity.task.template.editor.italic' | translate"
-              (click)="toggleItalic()">
-        <mat-icon>format_italic</mat-icon>
-      </button>
-      <button mat-icon-button type="button" [class.toolbar-active]="isActive('underline')"
-              [disabled]="readonly" [matTooltip]="'entity.task.template.editor.underline' | translate"
-              (click)="toggleUnderline()">
-        <mat-icon>format_underlined</mat-icon>
-      </button>
-      <button mat-icon-button type="button" [class.toolbar-active]="isTextAlignActive('left')"
-              [disabled]="readonly" [matTooltip]="'entity.task.template.editor.alignLeft' | translate"
-              (click)="toggleTextAlign('left')">
-        <mat-icon>format_align_left</mat-icon>
-      </button>
-      <button mat-icon-button type="button" [class.toolbar-active]="isTextAlignActive('center')"
-              [disabled]="readonly" [matTooltip]="'entity.task.template.editor.alignCenter' | translate"
-              (click)="toggleTextAlign('center')">
-        <mat-icon>format_align_center</mat-icon>
-      </button>
-      <button mat-icon-button type="button" [class.toolbar-active]="isTextAlignActive('right')"
-              [disabled]="readonly" [matTooltip]="'entity.task.template.editor.alignRight' | translate"
-              (click)="toggleTextAlign('right')">
-        <mat-icon>format_align_right</mat-icon>
-      </button>
-      <button mat-icon-button type="button" [class.toolbar-active]="isTextAlignActive('justify')"
-              [disabled]="readonly" [matTooltip]="'entity.task.template.editor.alignJustify' | translate"
-              (click)="toggleTextAlign('justify')">
-        <mat-icon>format_align_justify</mat-icon>
-      </button>
-    </div>
-
-    <div class="toolbar-cluster">
-      <button mat-icon-button type="button" [class.toolbar-active]="isActive('bulletList')"
-              [disabled]="readonly" [matTooltip]="'entity.task.template.editor.bulletList' | translate"
-              (click)="toggleBulletList()">
-        <mat-icon>format_list_bulleted</mat-icon>
-      </button>
-      <button mat-icon-button type="button" [class.toolbar-active]="isActive('orderedList')"
-              [disabled]="readonly" [matTooltip]="'entity.task.template.editor.orderedList' | translate"
-              (click)="toggleOrderedList()">
-        <mat-icon>format_list_numbered</mat-icon>
-      </button>
-      <button mat-icon-button type="button" [class.toolbar-active]="isActive('link')"
-              [disabled]="readonly" [matTooltip]="'entity.task.template.editor.link' | translate"
-              (click)="toggleLink()">
-        <mat-icon>link</mat-icon>
-      </button>
-      <button mat-icon-button type="button" [disabled]="readonly"
-              [matTooltip]="'entity.task.template.editor.image' | translate" (click)="insertImage()">
-        <mat-icon>image</mat-icon>
-      </button>
-      <button mat-icon-button type="button" [class.toolbar-active]="isActive('table')"
-              [disabled]="readonly" [matTooltip]="'entity.task.template.editor.table' | translate"
-              (click)="insertTable()">
-        <mat-icon>table_chart</mat-icon>
-      </button>
-      <button mat-icon-button type="button" [class.toolbar-active]="pdfHeaderSelected"
-              [disabled]="readonly || !canMarkPdfRegion"
-              [matTooltip]="'entity.task.template.editor.pdfHeader' | translate"
-              [attr.aria-label]="'entity.task.template.editor.pdfHeader' | translate"
-              [attr.aria-pressed]="pdfHeaderSelected"
-              (click)="togglePdfHeader()">
-        <mat-icon>vertical_align_top</mat-icon>
-      </button>
-      <button mat-icon-button type="button" [class.toolbar-active]="pdfFooterSelected"
-              [disabled]="readonly || !canMarkPdfRegion"
-              [matTooltip]="'entity.task.template.editor.pdfFooter' | translate"
-              [attr.aria-label]="'entity.task.template.editor.pdfFooter' | translate"
-              [attr.aria-pressed]="pdfFooterSelected"
-              (click)="togglePdfFooter()">
-        <mat-icon>vertical_align_bottom</mat-icon>
-      </button>
-      <button mat-icon-button type="button" [class.toolbar-active]="pdfFullBleedHeaderSelected"
-              [disabled]="readonly || !canMarkPdfRegion"
-              [matTooltip]="'entity.task.template.editor.pdfFullBleedHeader' | translate"
-              [attr.aria-label]="'entity.task.template.editor.pdfFullBleedHeader' | translate"
-              [attr.aria-pressed]="pdfFullBleedHeaderSelected"
-              (click)="togglePdfFullBleedHeader()">
-        <mat-icon fontSet="material-symbols-outlined">page_header</mat-icon>
-      </button>
-      <button mat-icon-button type="button" [class.toolbar-active]="pdfFullBleedFooterSelected"
-              [disabled]="readonly || !canMarkPdfRegion"
-              [matTooltip]="'entity.task.template.editor.pdfFullBleedFooter' | translate"
-              [attr.aria-label]="'entity.task.template.editor.pdfFullBleedFooter' | translate"
-              [attr.aria-pressed]="pdfFullBleedFooterSelected"
-              (click)="togglePdfFullBleedFooter()">
-        <mat-icon fontSet="material-symbols-outlined">page_footer</mat-icon>
-      </button>
-      <button mat-icon-button type="button" [class.toolbar-active]="isActive('translationLiteral')"
-              [disabled]="readonly" [matTooltip]="'entity.task.template.editor.translationLiteral' | translate"
-              (click)="wrapSelectionInTranslationLiteral()">
-        <mat-icon>translate</mat-icon>
-      </button>
-      <button mat-icon-button type="button" color="warn"
-              [disabled]="readonly || !canDeleteSelection"
-              [matTooltip]="'entity.task.template.editor.deleteSelection' | translate"
-              (click)="deleteSelectedElement()">
-        <mat-icon>delete</mat-icon>
-      </button>
-    </div>
-
-    <div class="toolbar-cluster toolbar-cluster--styles">
-      <label class="toolbar-color" [matTooltip]="'entity.task.template.editor.textColor' | translate">
-        <mat-icon>format_color_text</mat-icon>
-        <input type="color" [disabled]="readonly" [value]="selectedTextColor"
-               (input)="setTextColor($any($event.target).value)">
-      </label>
-      <button mat-icon-button type="button" [disabled]="readonly"
-              [matTooltip]="'entity.task.template.editor.clearTextColor' | translate"
-              (click)="clearTextColor()">
-        <mat-icon>format_color_reset</mat-icon>
-      </button>
-      <label class="toolbar-color" [matTooltip]="'entity.task.template.editor.backgroundColor' | translate">
-        <mat-icon>format_color_fill</mat-icon>
-        <input type="color" [disabled]="readonly" [value]="selectedHighlightColor"
-               (input)="setHighlightColor($any($event.target).value)">
-      </label>
-      <button mat-icon-button type="button" [disabled]="readonly"
-              [matTooltip]="'entity.task.template.editor.clearBackgroundColor' | translate"
-              (click)="clearHighlightColor()">
-        <mat-icon>highlight_off</mat-icon>
-      </button>
-      <select
-        class="toolbar-control toolbar-control--select"
-        [disabled]="readonly"
-        [ngModel]="selectedFontSize"
-        (ngModelChange)="setFontSize($event)"
-        [attr.aria-label]="'entity.task.template.editor.fontSize' | translate"
-        [matTooltip]="'entity.task.template.editor.fontSize' | translate">
-        <option value="">{{ 'entity.task.template.editor.fontSizeDefault' | translate }}</option>
-        <option *ngFor="let option of fontSizeOptions" [value]="option">{{ option }}</option>
-      </select>
-    </div>
-    </ng-container>
+    @if (editorMode === 'visual') {
+      <div class="toolbar-cluster">
+        <button mat-icon-button type="button" class="toolbar-glyph"
+          [class.toolbar-active]="isActive('paragraph')"
+          [disabled]="readonly"
+          [matTooltip]="'entity.task.template.editor.paragraph' | translate"
+          (click)="setParagraph()">
+          <span aria-hidden="true">P</span>
+        </button>
+        <button mat-icon-button type="button" class="toolbar-glyph"
+          [class.toolbar-active]="isActive('heading', { level: 1 })"
+          [disabled]="readonly"
+          [matTooltip]="'entity.task.template.editor.heading1' | translate"
+          (click)="toggleHeading(1)">
+          <span aria-hidden="true">H1</span>
+        </button>
+        <button mat-icon-button type="button" class="toolbar-glyph"
+          [class.toolbar-active]="isActive('heading', { level: 2 })"
+          [disabled]="readonly"
+          [matTooltip]="'entity.task.template.editor.heading2' | translate"
+          (click)="toggleHeading(2)">
+          <span aria-hidden="true">H2</span>
+        </button>
+        <button mat-icon-button type="button" class="toolbar-glyph"
+          [class.toolbar-active]="isActive('heading', { level: 3 })"
+          [disabled]="readonly"
+          [matTooltip]="'entity.task.template.editor.heading3' | translate"
+          (click)="toggleHeading(3)">
+          <span aria-hidden="true">H3</span>
+        </button>
+      </div>
+      <div class="toolbar-cluster">
+        <button mat-icon-button type="button" [class.toolbar-active]="isActive('bold')"
+          [disabled]="readonly" [matTooltip]="'entity.task.template.editor.bold' | translate"
+          (click)="toggleBold()">
+          <mat-icon>format_bold</mat-icon>
+        </button>
+        <button mat-icon-button type="button" [class.toolbar-active]="isActive('italic')"
+          [disabled]="readonly" [matTooltip]="'entity.task.template.editor.italic' | translate"
+          (click)="toggleItalic()">
+          <mat-icon>format_italic</mat-icon>
+        </button>
+        <button mat-icon-button type="button" [class.toolbar-active]="isActive('underline')"
+          [disabled]="readonly" [matTooltip]="'entity.task.template.editor.underline' | translate"
+          (click)="toggleUnderline()">
+          <mat-icon>format_underlined</mat-icon>
+        </button>
+        <button mat-icon-button type="button" [class.toolbar-active]="isTextAlignActive('left')"
+          [disabled]="readonly" [matTooltip]="'entity.task.template.editor.alignLeft' | translate"
+          (click)="toggleTextAlign('left')">
+          <mat-icon>format_align_left</mat-icon>
+        </button>
+        <button mat-icon-button type="button" [class.toolbar-active]="isTextAlignActive('center')"
+          [disabled]="readonly" [matTooltip]="'entity.task.template.editor.alignCenter' | translate"
+          (click)="toggleTextAlign('center')">
+          <mat-icon>format_align_center</mat-icon>
+        </button>
+        <button mat-icon-button type="button" [class.toolbar-active]="isTextAlignActive('right')"
+          [disabled]="readonly" [matTooltip]="'entity.task.template.editor.alignRight' | translate"
+          (click)="toggleTextAlign('right')">
+          <mat-icon>format_align_right</mat-icon>
+        </button>
+        <button mat-icon-button type="button" [class.toolbar-active]="isTextAlignActive('justify')"
+          [disabled]="readonly" [matTooltip]="'entity.task.template.editor.alignJustify' | translate"
+          (click)="toggleTextAlign('justify')">
+          <mat-icon>format_align_justify</mat-icon>
+        </button>
+      </div>
+      <div class="toolbar-cluster">
+        <button mat-icon-button type="button" [class.toolbar-active]="isActive('bulletList')"
+          [disabled]="readonly" [matTooltip]="'entity.task.template.editor.bulletList' | translate"
+          (click)="toggleBulletList()">
+          <mat-icon>format_list_bulleted</mat-icon>
+        </button>
+        <button mat-icon-button type="button" [class.toolbar-active]="isActive('orderedList')"
+          [disabled]="readonly" [matTooltip]="'entity.task.template.editor.orderedList' | translate"
+          (click)="toggleOrderedList()">
+          <mat-icon>format_list_numbered</mat-icon>
+        </button>
+        <button mat-icon-button type="button" [class.toolbar-active]="isActive('link')"
+          [disabled]="readonly" [matTooltip]="'entity.task.template.editor.link' | translate"
+          (click)="toggleLink()">
+          <mat-icon>link</mat-icon>
+        </button>
+        <button mat-icon-button type="button" [disabled]="readonly"
+          [matTooltip]="'entity.task.template.editor.image' | translate" (click)="insertImage()">
+          <mat-icon>image</mat-icon>
+        </button>
+        <button mat-icon-button type="button" [class.toolbar-active]="isActive('table')"
+          [disabled]="readonly" [matTooltip]="'entity.task.template.editor.table' | translate"
+          (click)="insertTable()">
+          <mat-icon>table_chart</mat-icon>
+        </button>
+        <button mat-icon-button type="button" [class.toolbar-active]="pdfHeaderSelected"
+          [disabled]="readonly || !canMarkPdfRegion"
+          [matTooltip]="'entity.task.template.editor.pdfHeader' | translate"
+          [attr.aria-label]="'entity.task.template.editor.pdfHeader' | translate"
+          [attr.aria-pressed]="pdfHeaderSelected"
+          (click)="togglePdfHeader()">
+          <mat-icon>vertical_align_top</mat-icon>
+        </button>
+        <button mat-icon-button type="button" [class.toolbar-active]="pdfFooterSelected"
+          [disabled]="readonly || !canMarkPdfRegion"
+          [matTooltip]="'entity.task.template.editor.pdfFooter' | translate"
+          [attr.aria-label]="'entity.task.template.editor.pdfFooter' | translate"
+          [attr.aria-pressed]="pdfFooterSelected"
+          (click)="togglePdfFooter()">
+          <mat-icon>vertical_align_bottom</mat-icon>
+        </button>
+        <button mat-icon-button type="button" [class.toolbar-active]="pdfFullBleedHeaderSelected"
+          [disabled]="readonly || !canMarkPdfRegion"
+          [matTooltip]="'entity.task.template.editor.pdfFullBleedHeader' | translate"
+          [attr.aria-label]="'entity.task.template.editor.pdfFullBleedHeader' | translate"
+          [attr.aria-pressed]="pdfFullBleedHeaderSelected"
+          (click)="togglePdfFullBleedHeader()">
+          <mat-icon fontSet="material-symbols-outlined">page_header</mat-icon>
+        </button>
+        <button mat-icon-button type="button" [class.toolbar-active]="pdfFullBleedFooterSelected"
+          [disabled]="readonly || !canMarkPdfRegion"
+          [matTooltip]="'entity.task.template.editor.pdfFullBleedFooter' | translate"
+          [attr.aria-label]="'entity.task.template.editor.pdfFullBleedFooter' | translate"
+          [attr.aria-pressed]="pdfFullBleedFooterSelected"
+          (click)="togglePdfFullBleedFooter()">
+          <mat-icon fontSet="material-symbols-outlined">page_footer</mat-icon>
+        </button>
+        <button mat-icon-button type="button" [class.toolbar-active]="isActive('translationLiteral')"
+          [disabled]="readonly" [matTooltip]="'entity.task.template.editor.translationLiteral' | translate"
+          (click)="wrapSelectionInTranslationLiteral()">
+          <mat-icon>translate</mat-icon>
+        </button>
+        <button mat-icon-button type="button" color="warn"
+          [disabled]="readonly || !canDeleteSelection"
+          [matTooltip]="'entity.task.template.editor.deleteSelection' | translate"
+          (click)="deleteSelectedElement()">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
+      <div class="toolbar-cluster toolbar-cluster--styles">
+        <label class="toolbar-color" [matTooltip]="'entity.task.template.editor.textColor' | translate">
+          <mat-icon>format_color_text</mat-icon>
+          <input type="color" [disabled]="readonly" [value]="selectedTextColor"
+            (input)="setTextColor($any($event.target).value)">
+        </label>
+        <button mat-icon-button type="button" [disabled]="readonly"
+          [matTooltip]="'entity.task.template.editor.clearTextColor' | translate"
+          (click)="clearTextColor()">
+          <mat-icon>format_color_reset</mat-icon>
+        </button>
+        <label class="toolbar-color" [matTooltip]="'entity.task.template.editor.backgroundColor' | translate">
+          <mat-icon>format_color_fill</mat-icon>
+          <input type="color" [disabled]="readonly" [value]="selectedHighlightColor"
+            (input)="setHighlightColor($any($event.target).value)">
+        </label>
+        <button mat-icon-button type="button" [disabled]="readonly"
+          [matTooltip]="'entity.task.template.editor.clearBackgroundColor' | translate"
+          (click)="clearHighlightColor()">
+          <mat-icon>highlight_off</mat-icon>
+        </button>
+        <select
+          class="toolbar-control toolbar-control--select"
+          [disabled]="readonly"
+          [ngModel]="selectedFontSize"
+          (ngModelChange)="setFontSize($event)"
+          [attr.aria-label]="'entity.task.template.editor.fontSize' | translate"
+          [matTooltip]="'entity.task.template.editor.fontSize' | translate">
+          <option value="">{{ 'entity.task.template.editor.fontSizeDefault' | translate }}</option>
+          @for (option of fontSizeOptions; track option) {
+            <option [value]="option">{{ option }}</option>
+          }
+        </select>
+      </div>
+    }
   </div>
 
-  <div class="template-table-toolbar" *ngIf="editorMode === 'visual' && isTableContextVisible()" role="toolbar"
-       [attr.aria-label]="'entity.task.template.editor.tableSelection' | translate">
-    <span class="table-toolbar-label">{{ 'entity.task.template.editor.tableSelection' | translate }}</span>
-
-    <mat-button-toggle-group
-      class="toolbar-toggles table-selection-toggles"
-      [value]="tableSelectionMode === 'none' ? 'cell' : tableSelectionMode"
-      [hideSingleSelectionIndicator]="true">
-      <mat-button-toggle value="cell" [disabled]="readonly" (click)="selectCurrentCell()">
-        {{ 'entity.task.template.editor.selectCell' | translate }}
-      </mat-button-toggle>
-      <mat-button-toggle value="row" [disabled]="readonly" (click)="selectCurrentRow()">
-        {{ 'entity.task.template.editor.selectRow' | translate }}
-      </mat-button-toggle>
-      <mat-button-toggle value="column" [disabled]="readonly" (click)="selectCurrentColumn()">
-        {{ 'entity.task.template.editor.selectColumn' | translate }}
-      </mat-button-toggle>
-      <mat-button-toggle value="table" [disabled]="readonly" (click)="selectCurrentTable()">
-        {{ 'entity.task.template.editor.selectTable' | translate }}
-      </mat-button-toggle>
-    </mat-button-toggle-group>
-
-    <div class="toolbar-cluster">
-      <button mat-icon-button type="button" [disabled]="readonly"
-              [matTooltip]="'entity.task.template.editor.addColumn' | translate"
-              (click)="addColumnAfter()">
-        <mat-icon>add_box</mat-icon>
-      </button>
-      <button mat-icon-button type="button" [disabled]="readonly"
-              [matTooltip]="'entity.task.template.editor.addRow' | translate"
-              (click)="addRowAfter()">
-        <mat-icon>playlist_add</mat-icon>
-      </button>
-      <button mat-icon-button type="button" color="warn" [disabled]="readonly"
-              data-testid="template-delete-column"
-              [matTooltip]="'entity.task.template.editor.deleteColumn' | translate"
-              (click)="deleteColumn()">
-        <mat-icon>view_column</mat-icon>
-      </button>
-      <button mat-icon-button type="button" color="warn" [disabled]="readonly"
-              data-testid="template-delete-row"
-              [matTooltip]="'entity.task.template.editor.deleteRow' | translate"
-              (click)="deleteRow()">
-        <mat-icon>table_rows</mat-icon>
-      </button>
-      <button mat-icon-button type="button" color="warn" [disabled]="readonly"
-              data-testid="template-delete-table"
-              [matTooltip]="'entity.task.template.editor.deleteTable' | translate"
-              (click)="deleteTable()">
-        <mat-icon>delete_forever</mat-icon>
-      </button>
+  @if (editorMode === 'visual' && isTableContextVisible()) {
+    <div class="template-table-toolbar" role="toolbar"
+      [attr.aria-label]="'entity.task.template.editor.tableSelection' | translate">
+      <span class="table-toolbar-label">{{ 'entity.task.template.editor.tableSelection' | translate }}</span>
+      <mat-button-toggle-group
+        class="toolbar-toggles table-selection-toggles"
+        [value]="tableSelectionMode === 'none' ? 'cell' : tableSelectionMode"
+        [hideSingleSelectionIndicator]="true">
+        <mat-button-toggle value="cell" [disabled]="readonly" (click)="selectCurrentCell()">
+          {{ 'entity.task.template.editor.selectCell' | translate }}
+        </mat-button-toggle>
+        <mat-button-toggle value="row" [disabled]="readonly" (click)="selectCurrentRow()">
+          {{ 'entity.task.template.editor.selectRow' | translate }}
+        </mat-button-toggle>
+        <mat-button-toggle value="column" [disabled]="readonly" (click)="selectCurrentColumn()">
+          {{ 'entity.task.template.editor.selectColumn' | translate }}
+        </mat-button-toggle>
+        <mat-button-toggle value="table" [disabled]="readonly" (click)="selectCurrentTable()">
+          {{ 'entity.task.template.editor.selectTable' | translate }}
+        </mat-button-toggle>
+      </mat-button-toggle-group>
+      <div class="toolbar-cluster">
+        <button mat-icon-button type="button" [disabled]="readonly"
+          [matTooltip]="'entity.task.template.editor.addColumn' | translate"
+          (click)="addColumnAfter()">
+          <mat-icon>add_box</mat-icon>
+        </button>
+        <button mat-icon-button type="button" [disabled]="readonly"
+          [matTooltip]="'entity.task.template.editor.addRow' | translate"
+          (click)="addRowAfter()">
+          <mat-icon>playlist_add</mat-icon>
+        </button>
+        <button mat-icon-button type="button" color="warn" [disabled]="readonly"
+          data-testid="template-delete-column"
+          [matTooltip]="'entity.task.template.editor.deleteColumn' | translate"
+          (click)="deleteColumn()">
+          <mat-icon>view_column</mat-icon>
+        </button>
+        <button mat-icon-button type="button" color="warn" [disabled]="readonly"
+          data-testid="template-delete-row"
+          [matTooltip]="'entity.task.template.editor.deleteRow' | translate"
+          (click)="deleteRow()">
+          <mat-icon>table_rows</mat-icon>
+        </button>
+        <button mat-icon-button type="button" color="warn" [disabled]="readonly"
+          data-testid="template-delete-table"
+          [matTooltip]="'entity.task.template.editor.deleteTable' | translate"
+          (click)="deleteTable()">
+          <mat-icon>delete_forever</mat-icon>
+        </button>
+      </div>
+      <div class="toolbar-cluster toolbar-cluster--styles">
+        <select
+          class="toolbar-control toolbar-control--select toolbar-control--alias"
+          [disabled]="readonly"
+          [ngModel]="selectedTableEachAlias"
+          (ngModelChange)="setTableEachAlias($event)"
+          [attr.aria-label]="'entity.task.template.referenceAlias' | translate"
+          [matTooltip]="'entity.task.template.referenceAlias' | translate">
+          <option value="">{{ 'entity.task.template.tableEach.none' | translate }}</option>
+          @if (hasOrphanTableEachAlias) {
+            <option [value]="selectedTableEachAlias">
+              {{ selectedTableEachAlias }} ({{ 'entity.task.template.tableEach.stale' | translate }})
+            </option>
+          }
+          @for (alias of referenceAliases; track alias) {
+            <option [value]="alias">{{ alias }}</option>
+          }
+        </select>
+        <label class="toolbar-color" [matTooltip]="'entity.task.template.editor.cellBackground' | translate">
+          <mat-icon>format_color_fill</mat-icon>
+          <input type="color" [disabled]="readonly" [value]="selectedTableCellBackground"
+            (input)="setTableCellBackground($any($event.target).value)">
+        </label>
+        <button mat-icon-button type="button" [disabled]="readonly"
+          [matTooltip]="'entity.task.template.editor.clearCellBackground' | translate"
+          (click)="clearTableCellBackground()">
+          <mat-icon>format_color_reset</mat-icon>
+        </button>
+        <input
+          class="toolbar-control toolbar-control--number"
+          type="number"
+          min="0"
+          [disabled]="readonly"
+          [ngModel]="selectedTableCellBorderWidth"
+          (ngModelChange)="setTableCellBorderWidth($event)"
+          [attr.aria-label]="'entity.task.template.editor.borderWidth' | translate"
+          [matTooltip]="'entity.task.template.editor.borderWidth' | translate">
+        <label class="toolbar-color" [matTooltip]="'entity.task.template.editor.borderColor' | translate">
+          <mat-icon>border_color</mat-icon>
+          <input type="color" [disabled]="readonly" [value]="selectedTableCellBorderColor"
+            (input)="setTableCellBorderColor($any($event.target).value)">
+        </label>
+        <button mat-icon-button type="button" [disabled]="readonly"
+          [matTooltip]="'entity.task.template.editor.clearCellBorder' | translate"
+          (click)="clearTableCellBorder()">
+          <mat-icon>border_clear</mat-icon>
+        </button>
+      </div>
+      @if (isSizeControlVisible()) {
+        <div class="toolbar-cluster toolbar-cluster--styles">
+          <input
+            class="toolbar-control toolbar-control--number"
+            type="number"
+            min="1"
+            [disabled]="readonly"
+            [ngModel]="selectedElementWidth"
+            (ngModelChange)="updateSelectedElementSize('width', $event)"
+            [attr.aria-label]="'entity.task.template.editor.width' | translate"
+            [matTooltip]="'entity.task.template.editor.width' | translate">
+          <input
+            class="toolbar-control toolbar-control--number"
+            type="number"
+            min="1"
+            [disabled]="readonly"
+            [ngModel]="selectedElementHeight"
+            (ngModelChange)="updateSelectedElementSize('height', $event)"
+            [attr.aria-label]="'entity.task.template.editor.height' | translate"
+            [matTooltip]="'entity.task.template.editor.height' | translate">
+          <input
+            class="toolbar-control toolbar-control--media-attr"
+            type="text"
+            [disabled]="readonly"
+            [ngModel]="selectedElementSrc"
+            (ngModelChange)="updateSelectedMediaAttribute('src', $event)"
+            [attr.aria-label]="'entity.task.template.editor.src' | translate"
+            [matTooltip]="'entity.task.template.editor.src' | translate"
+            placeholder="src">
+          @if (isImageAttrInspectorVisible()) {
+            <input
+              class="toolbar-control toolbar-control--media-attr"
+              type="text"
+              [disabled]="readonly"
+              [ngModel]="selectedElementAlt"
+              (ngModelChange)="updateSelectedMediaAttribute('alt', $event)"
+              [attr.aria-label]="'entity.task.template.editor.alt' | translate"
+              [matTooltip]="'entity.task.template.editor.alt' | translate"
+              placeholder="alt">
+          }
+          <input
+            class="toolbar-control toolbar-control--media-attr"
+            type="text"
+            [disabled]="readonly"
+            [ngModel]="selectedElementTitle"
+            (ngModelChange)="updateSelectedMediaAttribute('title', $event)"
+            [attr.aria-label]="'entity.task.template.editor.title' | translate"
+            [matTooltip]="'entity.task.template.editor.title' | translate"
+            placeholder="title">
+        </div>
+      }
     </div>
-
-    <div class="toolbar-cluster toolbar-cluster--styles">
-      <select
-        class="toolbar-control toolbar-control--select toolbar-control--alias"
-        [disabled]="readonly"
-        [ngModel]="selectedTableEachAlias"
-        (ngModelChange)="setTableEachAlias($event)"
-        [attr.aria-label]="'entity.task.template.referenceAlias' | translate"
-        [matTooltip]="'entity.task.template.referenceAlias' | translate">
-        <option value="">{{ 'entity.task.template.tableEach.none' | translate }}</option>
-        <option *ngIf="hasOrphanTableEachAlias" [value]="selectedTableEachAlias">
-          {{ selectedTableEachAlias }} ({{ 'entity.task.template.tableEach.stale' | translate }})
-        </option>
-        <option *ngFor="let alias of referenceAliases" [value]="alias">{{ alias }}</option>
-      </select>
-      <label class="toolbar-color" [matTooltip]="'entity.task.template.editor.cellBackground' | translate">
-        <mat-icon>format_color_fill</mat-icon>
-        <input type="color" [disabled]="readonly" [value]="selectedTableCellBackground"
-               (input)="setTableCellBackground($any($event.target).value)">
-      </label>
-      <button mat-icon-button type="button" [disabled]="readonly"
-              [matTooltip]="'entity.task.template.editor.clearCellBackground' | translate"
-              (click)="clearTableCellBackground()">
-        <mat-icon>format_color_reset</mat-icon>
-      </button>
-      <input
-        class="toolbar-control toolbar-control--number"
-        type="number"
-        min="0"
-        [disabled]="readonly"
-        [ngModel]="selectedTableCellBorderWidth"
-        (ngModelChange)="setTableCellBorderWidth($event)"
-        [attr.aria-label]="'entity.task.template.editor.borderWidth' | translate"
-        [matTooltip]="'entity.task.template.editor.borderWidth' | translate">
-      <label class="toolbar-color" [matTooltip]="'entity.task.template.editor.borderColor' | translate">
-        <mat-icon>border_color</mat-icon>
-        <input type="color" [disabled]="readonly" [value]="selectedTableCellBorderColor"
-               (input)="setTableCellBorderColor($any($event.target).value)">
-      </label>
-      <button mat-icon-button type="button" [disabled]="readonly"
-              [matTooltip]="'entity.task.template.editor.clearCellBorder' | translate"
-              (click)="clearTableCellBorder()">
-        <mat-icon>border_clear</mat-icon>
-      </button>
-    </div>
-
-    <div class="toolbar-cluster toolbar-cluster--styles" *ngIf="isSizeControlVisible()">
-      <input
-        class="toolbar-control toolbar-control--number"
-        type="number"
-        min="1"
-        [disabled]="readonly"
-        [ngModel]="selectedElementWidth"
-        (ngModelChange)="updateSelectedElementSize('width', $event)"
-        [attr.aria-label]="'entity.task.template.editor.width' | translate"
-        [matTooltip]="'entity.task.template.editor.width' | translate">
-      <input
-        class="toolbar-control toolbar-control--number"
-        type="number"
-        min="1"
-        [disabled]="readonly"
-        [ngModel]="selectedElementHeight"
-        (ngModelChange)="updateSelectedElementSize('height', $event)"
-        [attr.aria-label]="'entity.task.template.editor.height' | translate"
-        [matTooltip]="'entity.task.template.editor.height' | translate">
-      <input
-        class="toolbar-control toolbar-control--media-attr"
-        type="text"
-        [disabled]="readonly"
-        [ngModel]="selectedElementSrc"
-        (ngModelChange)="updateSelectedMediaAttribute('src', $event)"
-        [attr.aria-label]="'entity.task.template.editor.src' | translate"
-        [matTooltip]="'entity.task.template.editor.src' | translate"
-        placeholder="src">
-      <input
-        *ngIf="isImageAttrInspectorVisible()"
-        class="toolbar-control toolbar-control--media-attr"
-        type="text"
-        [disabled]="readonly"
-        [ngModel]="selectedElementAlt"
-        (ngModelChange)="updateSelectedMediaAttribute('alt', $event)"
-        [attr.aria-label]="'entity.task.template.editor.alt' | translate"
-        [matTooltip]="'entity.task.template.editor.alt' | translate"
-        placeholder="alt">
-      <input
-        class="toolbar-control toolbar-control--media-attr"
-        type="text"
-        [disabled]="readonly"
-        [ngModel]="selectedElementTitle"
-        (ngModelChange)="updateSelectedMediaAttribute('title', $event)"
-        [attr.aria-label]="'entity.task.template.editor.title' | translate"
-        [matTooltip]="'entity.task.template.editor.title' | translate"
-        placeholder="title">
-    </div>
-  </div>
+  }
 
   <div class="template-editor-visual-surface"
-       [class.template-editor-visual-surface--hidden]="editorMode !== 'visual'"
-       [class.template-editor-visual-surface--inactive]="!editorFocused">
+    [class.template-editor-visual-surface--hidden]="editorMode !== 'visual'"
+    [class.template-editor-visual-surface--inactive]="!editorFocused">
     <div #editorHost class="template-editor-host"></div>
   </div>
 
-  <textarea
-    *ngIf="editorMode === 'html'"
-    class="template-editor-source"
-    [readOnly]="readonly"
-    [value]="htmlSource"
+  @if (editorMode === 'html') {
+    <textarea
+      class="template-editor-source"
+      [readOnly]="readonly"
+      [value]="htmlSource"
     (input)="onHtmlSourceChanged($any($event.target).value)"></textarea>
+  }
 
-  <div class="template-editor-errors" *ngIf="validationErrors.length > 0 || interactionErrors.length > 0">
-    <div class="template-editor-errors__title">{{ 'entity.task.template.editor.errorsTitle' | translate }}</div>
-    <ul>
-      <li *ngFor="let error of validationErrors">{{ error }}</li>
-      <li *ngFor="let error of interactionErrors">{{ error }}</li>
-    </ul>
-  </div>
+  @if (validationErrors.length > 0 || interactionErrors.length > 0) {
+    <div class="template-editor-errors">
+      <div class="template-editor-errors__title">{{ 'entity.task.template.editor.errorsTitle' | translate }}</div>
+      <ul>
+        @for (error of validationErrors; track error) {
+          <li>{{ error }}</li>
+        }
+        @for (error of interactionErrors; track error) {
+          <li>{{ error }}</li>
+        }
+      </ul>
+    </div>
+  }
 
-  <div class="template-editor-warnings" *ngIf="validationWarnings.length > 0">
-    <div class="template-editor-warnings__title">{{ 'entity.task.template.editor.warningsTitle' | translate }}</div>
-    <ul>
-      <li *ngFor="let warning of validationWarnings">{{ warning }}</li>
-    </ul>
-  </div>
+  @if (validationWarnings.length > 0) {
+    <div class="template-editor-warnings">
+      <div class="template-editor-warnings__title">{{ 'entity.task.template.editor.warningsTitle' | translate }}</div>
+      <ul>
+        @for (warning of validationWarnings; track warning) {
+          <li>{{ warning }}</li>
+        }
+      </ul>
+    </div>
+  }
 </div>

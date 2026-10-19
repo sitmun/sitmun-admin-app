@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, ChangeDetectionStrategy} from '@angular/core';
 import {AbstractControl, UntypedFormControl, UntypedFormGroup, ValidationErrors, ValidatorFn, Validators} from '@angular/forms';
 import {MatDialog} from '@angular/material/dialog';
 import {MatSelectChange} from '@angular/material/select';
@@ -98,6 +98,7 @@ function integerValidator(): ValidatorFn {
     selector: 'app-territory-form',
     templateUrl: './territory-form.component.html',
     styleUrls: ['./territory-form.component.scss'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class TerritoryFormComponent extends BaseFormComponent<TerritoryProjection> {

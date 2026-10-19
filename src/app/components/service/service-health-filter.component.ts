@@ -1,5 +1,5 @@
-import {CommonModule} from '@angular/common';
-import {Component} from '@angular/core';
+
+import {Component, ChangeDetectionStrategy} from '@angular/core';
 
 import {IFilterAngularComp} from '@ag-grid-community/angular';
 import {IFilterParams} from '@ag-grid-community/core';
@@ -19,16 +19,18 @@ let nextGroup = 0;
   standalone: true,
   template: `
     <div class="service-health-filter" role="radiogroup">
-      <label *ngFor="let option of options">
-        <input type="radio"
-               [name]="group"
-               [value]="option.id"
-               [checked]="selected === option.id"
-               (change)="choose(option.id)">
-        {{ option.label }}
-      </label>
+      @for (option of options; track option) {
+        <label>
+          <input type="radio"
+            [name]="group"
+            [value]="option.id"
+            [checked]="selected === option.id"
+            (change)="choose(option.id)">
+          {{ option.label }}
+        </label>
+      }
     </div>
-  `,
+    `,
   styles: [`
     .service-health-filter {
       display: flex;
@@ -48,7 +50,8 @@ let nextGroup = 0;
       accent-color: #ff9800;
     }
   `],
-  imports: [CommonModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  imports: [],
 })
 export class ServiceHealthFilterComponent implements IFilterAngularComp {
   readonly group = `service-health-filter-${nextGroup++}`;

@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 
 import { firstValueFrom } from 'rxjs';
@@ -10,6 +10,7 @@ import { ConfigurationParametersService } from '@app/domain/configuration/servic
     selector: 'app-configuration-parameters-dialog',
     templateUrl: './configuration-parameters-dialog.component.html',
     styleUrls: ['./configuration-parameters-dialog.component.scss'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ConfigurationParametersDialogComponent implements OnInit, OnDestroy {
