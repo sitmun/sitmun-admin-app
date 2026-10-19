@@ -1,4 +1,3 @@
-
 import { Component, Input, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 
 import { DataGridComponent } from '@app/frontend-gui/src/lib/data-grid/data-grid.component';

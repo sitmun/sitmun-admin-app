@@ -1,4 +1,3 @@
-
 import {Component, ChangeDetectionStrategy} from '@angular/core';
 
 import {IFilterAngularComp} from '@ag-grid-community/angular';

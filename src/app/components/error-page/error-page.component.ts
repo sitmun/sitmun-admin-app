@@ -70,7 +70,6 @@ export class ErrorPageComponent implements OnInit {
     this.reloadPage();
   }
 
-  /** Separated so unit tests can spy without replacing jsdom's frozen Location. */
   reloadPage(): void {
     window.location.reload();
   }

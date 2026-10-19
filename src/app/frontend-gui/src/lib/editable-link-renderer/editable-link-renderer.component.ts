@@ -1,4 +1,3 @@
-
 import { Component, ChangeDetectionStrategy } from '@angular/core';
 
 import { ICellRendererAngularComp } from '@ag-grid-community/angular';
