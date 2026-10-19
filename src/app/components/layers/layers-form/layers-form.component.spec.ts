@@ -41,6 +41,7 @@ import {
   TranslationService,
   TreeNodeService
 , CartographyGroupProjection } from '@app/domain';
+import { CartographyParameter, persistedCartographyParameter } from '@app/domain/cartography/models/cartography-parameter.model';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
 import { MaterialModule } from '@app/material-module';
 import {LoggerService} from '@app/services/logger.service';
@@ -802,6 +803,8 @@ describe('LayersFormComponent', () => {
             fractionDigits?: number | null;
             padFractionDigits?: boolean;
             dateStyle?: string | null;
+            maxWidth?: number | null;
+            maxHeight?: number | null;
             status?: string;
             newItem?: boolean;
           };
@@ -879,8 +882,48 @@ describe('LayersFormComponent', () => {
 
       expect(column.cellRenderer?.({ data: { format: 'T' } }).querySelector('input, select')).toBeNull();
       expect(column.cellRenderer?.({ data: { format: 'U' } }).querySelector('input, select')).toBeNull();
-      expect(column.cellRenderer?.({ data: { format: 'I' } }).querySelector('input, select')).toBeNull();
       expect(column.cellRenderer?.({ data: { format: 'AUTO' } }).querySelector('input, select')).toBeNull();
+
+      const imageRow = {
+        format: 'I',
+        maxWidth: 240 as number | null,
+        maxHeight: 160 as number | null,
+        status: 'statusOK',
+        newItem: false
+      };
+      const imageCell = column.cellRenderer?.({ data: imageRow, api: { refreshCells } });
+      const width = imageCell?.querySelector(
+        'input[aria-label="entity.cartography.parameters.maxWidth"]'
+      ) as HTMLInputElement;
+      const height = imageCell?.querySelector(
+        'input[aria-label="entity.cartography.parameters.maxHeight"]'
+      ) as HTMLInputElement;
+      expect(width.value).toBe('240');
+      expect(height.value).toBe('160');
+      expect(width.closest('label')?.textContent).toContain('entity.cartography.parameters.maxWidth');
+      expect(height.closest('label')?.textContent).toContain('entity.cartography.parameters.maxHeight');
+      expect(width.placeholder).toBe('auto');
+      expect(height.placeholder).toBe('auto');
+      width.value = '200';
+      width.dispatchEvent(new Event('input'));
+      expect(imageRow.maxWidth).toBe(200);
+      expect(imageRow.status).toBe('pendingModify');
+      width.value = '';
+      width.dispatchEvent(new Event('input'));
+      expect(imageRow.maxWidth).toBeNull();
+      const clearedWidth = persistedCartographyParameter(imageRow as unknown as CartographyParameter);
+      expect(clearedWidth.options).toEqual({maxHeight: 160});
+      expect(clearedWidth.maxWidth).toBeUndefined();
+      width.value = '0';
+      width.dispatchEvent(new Event('input'));
+      expect(imageRow.maxWidth).toBeNull();
+      height.value = '';
+      height.dispatchEvent(new Event('input'));
+      expect(imageRow.maxHeight).toBeNull();
+      const saved = persistedCartographyParameter(imageRow as unknown as CartographyParameter);
+      expect(saved.options).toBeNull();
+      expect(saved.maxWidth).toBeUndefined();
+      expect(saved.maxHeight).toBeUndefined();
       expect(column.cellRenderer?.({ data: { format: null } }).querySelector('input, select')).toBeNull();
 
       const dateRow = { format: 'F', dateStyle: null as string | null, status: 'statusOK', newItem: false };
@@ -903,6 +946,8 @@ describe('LayersFormComponent', () => {
       dialog.form.patchValue({ type: 'OTHER' });
       dialog.preOpenFn(dialog.form);
       expect(dialog.form.get('type')?.value).toBe('INFO');
+      expect(dialog.form.get('maxWidth')?.value).toBeNull();
+      expect(dialog.form.get('maxHeight')?.value).toBeNull();
     });
 
     it('territorialFiltersTable should have template-dialog, updater, and status capabilities', () => {
@@ -945,6 +990,10 @@ describe('LayersFormComponent', () => {
         "{{ 'entity.cartography.parameters.value' | translate }} ({{ defaultLang }})"
       );
       expect(parameterDialog).toContain('[class.iconTranslateDisabled]="!canTranslateParameterLabel()"');
+      expect(parameterDialog).toContain('parameterFormatShowsImageSize()');
+      expect(parameterDialog.match(/formControlName="maxWidth"/g)).toHaveLength(1);
+      expect(parameterDialog.match(/formControlName="maxHeight"/g)).toHaveLength(1);
+      expect(parameterDialog).toContain('placeholder="auto"');
       expect(layersFormTemplate).not.toContain('translateSelectedParameter');
     });
 

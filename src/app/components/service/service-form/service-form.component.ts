@@ -362,7 +362,7 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
     this.initAuthImpliesProxy();
 
     const currentType = this.findInCodeList('service.type', this.entityToEdit.type);
-    this.tableLoadButtonDisabled = currentType ? currentType.value !== config.capabilitiesRequest.WMSIdentificator : false;
+    this.tableLoadButtonDisabled = currentType ? !this.acceptsCapabilitiesImport(currentType.value) : false;
     this.refreshAccessTrend();
     this.loadStoredAccessObservation();
   }
@@ -510,6 +510,26 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
    */
   isWMS() {
     return this.entityForm?.value.type === constants.codeValue.serviceType.wms
+  }
+
+  isWFS() {
+    return this.entityForm?.value.type === config.capabilitiesRequest.WFSIdentificator
+  }
+
+  capabilitiesButtonLabelKey(): string {
+    const action = this.isNewOrDuplicated() ? 'getLayers' : 'updateLayers';
+    return this.isWFS()
+      ? `entity.service.button.${action}.wfs`
+      : `entity.service.button.${action}`;
+  }
+
+  cartographyTabLabelKey(): string {
+    return this.isWFS() ? 'entity.service.featureTypes' : 'entity.cartography.plural';
+  }
+
+  private acceptsCapabilitiesImport(type: string): boolean {
+    return type === config.capabilitiesRequest.WMSIdentificator
+      || type === config.capabilitiesRequest.WFSIdentificator;
   }
 
   testAccess(): void {
@@ -949,7 +969,7 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
    * @param event - The change event containing the new service type value
    */
   onTypeChange(event: { value: string; }): void {
-    this.tableLoadButtonDisabled = event.value != config.capabilitiesRequest.WMSIdentificator;
+    this.tableLoadButtonDisabled = !this.acceptsCapabilitiesImport(event.value);
   }
 
   /**
@@ -963,8 +983,12 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
     dialogRef.componentInstance.message = this.utils.getTranslate('entity.service.getCapabilitiesMessage');
     dialogRef.afterClosed().subscribe(next => {
       if (next?.event === 'Accept') {
-        if (this.entityForm.get('type').value === constants.codeValue.serviceType.wms) {
-          this.wmsCapabilitiesService.processWMSServiceMetadata(this.capabilitiesProbe())
+        const type = this.entityForm.get('type').value;
+        if (this.acceptsCapabilitiesImport(type)) {
+          const metadata = type === config.capabilitiesRequest.WFSIdentificator
+            ? this.wmsCapabilitiesService.processWFSServiceMetadata(this.capabilitiesProbe())
+            : this.wmsCapabilitiesService.processWMSServiceMetadata(this.capabilitiesProbe());
+          metadata
             .then((capabilities) => {
               this.entityForm.patchValue({
                 name: capabilities.title?.substring(0, 60),
@@ -1024,8 +1048,12 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
     dialogRef.componentInstance.message = this.utils.getTranslate('entity.service.getCapabilitiesMessage');
     dialogRef.afterClosed().subscribe(next => {
       if (next?.event === 'Accept') {
-        if (this.entityForm.get('type').value === constants.codeValue.serviceType.wms) {
-          this.wmsCapabilitiesService.processWMSServiceCapabilities(this.capabilitiesProbe())
+        const type = this.entityForm.get('type').value;
+        if (this.acceptsCapabilitiesImport(type)) {
+          const layers = type === config.capabilitiesRequest.WFSIdentificator
+            ? this.wmsCapabilitiesService.processWFSServiceCapabilities(this.capabilitiesProbe())
+            : this.wmsCapabilitiesService.processWMSServiceCapabilities(this.capabilitiesProbe());
+          layers
             .then((response: WMSLayersCapabilities) => {
               this.wmsLayersCapabilities = response
               this.layersTable.saveCommandEvent$.next("save")
@@ -1058,9 +1086,19 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
           minWidth: 150,
           editable: (params) => !params.data?.id,
         },
-        Object.assign(this.utils.getNonEditableColumnDef('entity.service.layer.name', 'layers', 150), {flex: 3, minWidth: 180}),
+        Object.assign(this.utils.getNonEditableColumnDef('entity.service.layer.name', 'layers', 150), {
+          flex: 3,
+          minWidth: 180,
+          headerValueGetter: () => this.utils.getTranslate(
+            this.isWFS() ? 'entity.service.layer.name.wfs' : 'entity.service.layer.name'
+          ),
+        }),
         Object.assign(this.utils.getEditableColumnDef('entity.service.layer.abstract', 'description', 150), {flex: 2, minWidth: 150}),
-        this.utils.getStatusColumnDef()
+        this.utils.getStatusColumnDef((status) =>
+          this.isWFS() && status === 'unregisteredLayer'
+            ? 'common.status.unregisteredFeatureType'
+            : 'common.status.' + status
+        )
       ])
       .withRelationsOrder('name')
       .withRelationsFetcher(() => {

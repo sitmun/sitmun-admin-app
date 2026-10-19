@@ -194,18 +194,64 @@ describe('ServiceFormComponent', () => {
     expect(component.entityForm.get('blocked')).toBeTruthy();
   });
 
-  it('hides the capabilities button when the type is not WMS', () => {
+  async function selectLayersTab(): Promise<void> {
+    const group = fixture.debugElement.query(By.css('mat-tab-group'));
+    group.componentInstance.selectedIndex = 1;
+    fixture.detectChanges();
+    await new Promise((resolve) => setTimeout(resolve, 150));
+    fixture.detectChanges();
+  }
+
+  it('hides the capabilities button when the type is not WMS or WFS', async () => {
     component.entityForm.patchValue({
       name: 'test',
-      type: 'WFS',
+      type: 'WMTS',
       serviceURL: 'test',
       authenticationMode: 1
     })
 
     fixture.detectChanges();
+    await selectLayersTab();
 
     const button = fixture.debugElement.query(By.css('#capabilitiesButton'));
     expect(button).toBeNull();
+  });
+
+  it('shows the capabilities button when the type is WFS', async () => {
+    component.dataLoaded = true;
+    component.entityForm.patchValue({
+      name: 'test',
+      type: 'WFS',
+      serviceURL: 'test',
+      authenticationMode: 1
+    });
+
+    fixture.detectChanges();
+
+    expect(fixture.debugElement.query(By.css('.sitmun-service-form-metadata-button'))).not.toBeNull();
+
+    await selectLayersTab();
+
+    const button = fixture.debugElement.query(By.css('#capabilitiesButton'));
+    expect(button).not.toBeNull();
+    expect(button.nativeElement.textContent).toContain('entity.service.button.getLayers.wfs');
+  });
+
+  it('keeps the WMS capabilities button text when the type is WMS', async () => {
+    component.dataLoaded = true;
+    component.entityForm.patchValue({
+      name: 'test',
+      type: 'WMS',
+      serviceURL: 'test',
+      authenticationMode: 1
+    });
+
+    fixture.detectChanges();
+    await selectLayersTab();
+
+    const button = fixture.debugElement.query(By.css('#capabilitiesButton'));
+    expect(button.nativeElement.textContent).toContain('entity.service.button.getLayers');
+    expect(button.nativeElement.textContent).not.toContain('entity.service.button.getLayers.wfs');
   });
 
   it('isWMS() should return true when type is WMS', () => {
@@ -345,6 +391,29 @@ describe('ServiceFormComponent', () => {
 
       expect(component.propertyTranslations.get('description')?.map.get('ca')?.translation).toBe('Descripcio catalana');
       expect(component.propertyTranslations.get('description')?.map.get('es')?.translation).toBe('Descripcion castellana');
+    });
+
+    it('applies WFS capabilities metadata to the service form', async () => {
+      component.entityForm.patchValue({ type: 'WFS' });
+      jest.spyOn(wmsCapabilitiesService, 'processWFSServiceMetadata').mockResolvedValue(
+        new WMSServiceCapabilities(
+          {},
+          'Roads',
+          new Map(),
+          'Road service',
+          new Map(),
+          ['EPSG:25831'],
+        )
+      );
+
+      component.onUpdateServiceMetadata();
+      await fixture.whenStable();
+      await Promise.resolve();
+
+      expect(component.entityForm.value.name).toBe('Roads');
+      expect(component.entityForm.value.description).toBe('Road service');
+      expect(component.entityForm.value.supportedSRS).toEqual(['EPSG:25831']);
+      expect(component.entityForm.dirty).toBe(true);
     });
 
     it('ignores unsupported capability languages and does not mark property modified', async () => {

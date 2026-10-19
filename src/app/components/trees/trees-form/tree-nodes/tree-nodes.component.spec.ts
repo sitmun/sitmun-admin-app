@@ -106,6 +106,9 @@ function flushTreeNodesHttpMocks(httpMock: HttpTestingController): void {
   httpMock.match((req) => req.url.includes('cartographies')).forEach((req) =>
     req.flush({ _embedded: { cartographies: [] } })
   );
+  httpMock.match((req) => req.url.includes('/services')).forEach((req) =>
+    req.flush({ _embedded: { services: [] } })
+  );
   httpMock.match((req) => req.url.includes('tasks')).forEach((req) =>
     req.flush({ _embedded: { tasks: [] } })
   );

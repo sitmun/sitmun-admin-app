@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Layers**: An Image feature-information field stores max width and max height in its options. The picture address stays unchanged.
+- **Layers**: Image options label max width and max height. An empty value stays unset, so the viewer sizes the picture automatically.
 - **Templates**: Roles and Territories assigned on the template, document-export, and map-image task forms persist after save ([#467](https://github.com/sitmun/sitmun-admin-app/issues/467)).
 
 ### Added

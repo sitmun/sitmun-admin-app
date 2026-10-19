@@ -88,6 +88,17 @@ function parseFractionDigits(raw: string): number | null | undefined {
   return Number(text);
 }
 
+function parseImageLimit(raw: string): number | null | undefined {
+  const text = raw.trim();
+  if (text === '') {
+    return null;
+  }
+  if (!/^[1-9]\d{0,3}$/.test(text)) {
+    return undefined;
+  }
+  return Number(text);
+}
+
 type StyleDialogValue = CartographyStyle & {
   url?: string | null;
   format?: string | null;
@@ -466,6 +477,10 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
             if (format !== 'F') {
               params.data.dateStyle = null;
             }
+            if (format !== 'I') {
+              params.data.maxWidth = null;
+              params.data.maxHeight = null;
+            }
             return true;
           },
           valueFormatter: (params: { value?: string | null }) => this.formatLabel(params.value),
@@ -480,7 +495,7 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
           sortable: false,
           filter: false,
           flex: 1,
-          minWidth: 280,
+          minWidth: 440,
           cellClass: 'sitmun-format-options-cell',
           cellStyle: {display: 'flex', alignItems: 'center'},
           suppressKeyboardEvent: (params: { event?: Event }) => {
@@ -529,6 +544,8 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
           fractionDigits: new FormControl(null, []),
           padFractionDigits: new FormControl(false, []),
           dateStyle: new FormControl(null, []),
+          maxWidth: new FormControl(null, []),
+          maxHeight: new FormControl(null, []),
         })).withPreOpenFunction((form: FormGroup) => {
           const defaultFormat = this.defaultValueOrNull('cartographyParameter.format');
           form.reset({
@@ -536,7 +553,9 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
             format: defaultFormat?.value || null,
             padFractionDigits: false,
             fractionDigits: null,
-            dateStyle: null
+            dateStyle: null,
+            maxWidth: null,
+            maxHeight: null
           });
         }).build())
         .build();
@@ -936,6 +955,10 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
     return this.parameterDialogValue('format') === 'F';
   }
 
+  parameterFormatShowsImageSize(): boolean {
+    return this.parameterDialogValue('format') === 'I';
+  }
+
   parameterFormatPreview(): string {
     return previewFeatureInfoFormat(
       this.parameterDialogValue('format'),
@@ -1083,7 +1106,9 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
         order: existing.size + index,
         fractionDigits: null,
         padFractionDigits: false,
-        dateStyle: null
+        dateStyle: null,
+        maxWidth: null,
+        maxHeight: null
       }));
     this.parametersGrid?.dataGrid?.addItems(drafts);
   }
@@ -1104,7 +1129,14 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
     const root = document.createElement('div');
     root.className = 'sitmun-format-options';
     const row = params.data;
-    if (!row || (row.format !== 'N' && row.format !== 'P' && row.format !== 'F')) {
+    if (!row || (row.format !== 'N' && row.format !== 'P' && row.format !== 'F' && row.format !== 'I')) {
+      return root;
+    }
+    if (row.format === 'I') {
+      root.append(
+        this.imageLimitControl(row, params, 'maxWidth', 'entity.cartography.parameters.maxWidth'),
+        this.imageLimitControl(row, params, 'maxHeight', 'entity.cartography.parameters.maxHeight')
+      );
       return root;
     }
     const preview = document.createElement('span');
@@ -1172,6 +1204,39 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
     return label;
   }
 
+  private imageLimitControl(
+    row: CartographyParameter & Partial<Status>,
+    params: FormatOptionsCellParams,
+    key: 'maxWidth' | 'maxHeight',
+    labelKey: string
+  ): HTMLLabelElement {
+    const label = document.createElement('label');
+    label.className = 'sitmun-format-image-field';
+    const caption = this.translateService.instant(labelKey);
+    const input = document.createElement('input');
+    input.type = 'number';
+    input.min = '1';
+    input.max = '9999';
+    input.step = '1';
+    input.className = 'sitmun-format-digits sitmun-format-image-limit';
+    input.placeholder = 'auto';
+    input.setAttribute('aria-label', caption);
+    const current = row[key];
+    input.value = current == null ? '' : String(current);
+    this.holdGridEvent(label);
+    this.holdGridEvent(input);
+    input.addEventListener('input', () => {
+      const next = parseImageLimit(input.value);
+      if (next === undefined || next === (row[key] ?? null)) {
+        return;
+      }
+      row[key] = next;
+      this.markFormatOptionsEdited(row, params);
+    });
+    label.append(document.createTextNode(caption), input);
+    return label;
+  }
+
   private dateStyleControl(
     row: CartographyParameter & Partial<Status>,
     params: FormatOptionsCellParams,
@@ -1217,12 +1282,14 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
   private markFormatOptionsEdited(
     row: CartographyParameter & Partial<Status>,
     params: FormatOptionsCellParams,
-    preview: HTMLElement
+    preview?: HTMLElement
   ): void {
     if (row.status !== 'pendingCreation' && !row.newItem) {
       row.status = 'pendingModify';
     }
-    preview.textContent = this.formatOptionsPreview(row);
+    if (preview) {
+      preview.textContent = this.formatOptionsPreview(row);
+    }
     params.api?.refreshCells?.({
       rowNodes: params.node ? [params.node] : [],
       columns: ['status'],

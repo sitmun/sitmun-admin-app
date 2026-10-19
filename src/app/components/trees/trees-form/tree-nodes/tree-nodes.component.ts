@@ -46,6 +46,7 @@ import {LoadingOverlayService} from '@app/services/loading-overlay.service';
 import {LoggerService} from '@app/services/logger.service';
 import {NotificationService} from '@app/services/notification.service';
 import {UtilsService} from '@app/services/utils.service';
+import {wfsCapabilityNodes} from '@app/services/wfs-capabilities';
 import { compareNullableString } from '@app/utils/compare-nullable-string';
 import {
   formatImageAccept,
@@ -275,6 +276,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
     this.layersList = await firstValueFrom(this.getAllCartographies());
 
     await this.loadCartographies();
+    await this.loadServiceTypes();
 
     this.treeNodeForm.get(constants.treeDomainKey.cartography)?.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -650,9 +652,64 @@ export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
       && this.treeRulesService.supportsNodeCapability(this.currentTreeType, 'folder', 'loadData');
   }
 
+  private readonly serviceTypeById = new Map<number, string>();
+
   get showQueryableActiveToggle(): boolean {
     return !this.currentNodeIsFolder
       && this.effectiveNodeType === constants.treeDomainKey.cartography;
+  }
+
+  get linkedCartographyIsWfs(): boolean {
+    const cartography = this.currentNodeCartography;
+    if (!cartography || typeof cartography !== 'object') {
+      return false;
+    }
+    const embeddedType = cartography.service?.type;
+    if (embeddedType === 'WFS') {
+      return true;
+    }
+    if (typeof embeddedType === 'string' && embeddedType.length > 0) {
+      return false;
+    }
+    const serviceId = this.linkedServiceId(cartography);
+    return serviceId != null && this.serviceTypeById.get(serviceId) === 'WFS';
+  }
+
+  get queryableActiveLabelKey(): string {
+    return this.linkedCartographyIsWfs
+      ? 'entity.tree.queryableActive.wfs'
+      : 'entity.tree.queryableActive';
+  }
+
+  get queryableActiveHintKey(): string {
+    return this.linkedCartographyIsWfs
+      ? 'entity.tree.hint.queryableActive.wfs'
+      : 'entity.tree.hint.queryableActive';
+  }
+
+  get queryableActiveDisabledHintKey(): string {
+    return this.linkedCartographyIsWfs
+      ? 'entity.tree.hint.queryableActive.layerDisabled.wfs'
+      : 'entity.tree.hint.queryableActive.layerDisabled';
+  }
+
+  private linkedServiceId(cartography: {
+    serviceId?: number;
+    service?: { id?: number };
+    _links?: { service?: { href?: string } };
+  }): number | null {
+    if (typeof cartography.serviceId === 'number') {
+      return cartography.serviceId;
+    }
+    if (typeof cartography.service?.id === 'number') {
+      return cartography.service.id;
+    }
+    const href = cartography._links?.service?.href;
+    if (typeof href !== 'string') {
+      return null;
+    }
+    const match = /\/services\/(\d+)/.exec(href);
+    return match ? Number(match[1]) : null;
   }
 
   /** True when the linked layer allows GetFeatureInfo (`queryableFeatureEnabled`). */
@@ -1692,6 +1749,20 @@ export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
     return this.cartographyService.fetchAllItems();
   };
 
+  private async loadServiceTypes(): Promise<void> {
+    try {
+      const services = await firstValueFrom(this.serviceService.fetchAllItems());
+      this.serviceTypeById.clear();
+      for (const service of services ?? []) {
+        if (service?.id != null && typeof service.type === 'string') {
+          this.serviceTypeById.set(service.id, service.type);
+        }
+      }
+    } catch (error) {
+      this.loggerService.error('TreeNodesComponent.loadServiceTypes', error);
+    }
+  }
+
   getAllTasks = (): Observable<any> => {
     const lang: HalParam = {key: 'lang', value: this.requestLang()};
     const queryOpts: HalOptions = {
@@ -1874,13 +1945,13 @@ export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
   getAllServices = (): Observable<any> => {
     return this.serviceService.fetchAllItems().pipe(
       map((resp) => {
-        const wmsServices = [];
+        const services = [];
         resp.forEach(service => {
-          if (service.type === 'WMS') {
-            wmsServices.push(service);
+          if (service.type === 'WMS' || service.type === 'WFS') {
+            services.push(service);
           }
         });
-        return wmsServices;
+        return services;
       })
     );
   };
@@ -2021,6 +2092,10 @@ export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   changeServiceDataByCapabilities(serviceCapabilitiesData, _refresh?): Array<any> {
+    const wfsNodes = serviceCapabilitiesData ? wfsCapabilityNodes(serviceCapabilitiesData) : null;
+    if (wfsNodes) {
+      return wfsNodes;
+    }
     const capabilitiesLayers = [];
     const data = serviceCapabilitiesData.WMT_MS_Capabilities != undefined ? serviceCapabilitiesData.WMT_MS_Capabilities : serviceCapabilitiesData.WMS_Capabilities;
     if (data != undefined) {

@@ -469,6 +469,16 @@
             <mat-option value="date">{{ 'entity.cartography.parameters.dateStyle.date' | translate }}</mat-option>
           </mat-select>
         </mat-form-field>
+        <ng-container *ngIf="parameterFormatShowsImageSize()">
+          <mat-form-field appearance="outline" class="full">
+            <mat-label>{{ 'entity.cartography.parameters.maxWidth' | translate }}</mat-label>
+            <input matInput type="number" formControlName="maxWidth" min="1" max="9999" placeholder="auto">
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="full">
+            <mat-label>{{ 'entity.cartography.parameters.maxHeight' | translate }}</mat-label>
+            <input matInput type="number" formControlName="maxHeight" min="1" max="9999" placeholder="auto">
+          </mat-form-field>
+        </ng-container>
         <p *ngIf="parameterFormatPreview()">{{ 'entity.cartography.parameters.preview' | translate }}: {{ parameterFormatPreview() }}</p>
         <mat-form-field appearance="outline" class="full">
           <mat-label>{{ 'entity.cartography.parameters.order' | translate }}</mat-label>

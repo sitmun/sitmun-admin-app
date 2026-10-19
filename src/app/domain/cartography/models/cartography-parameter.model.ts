@@ -7,7 +7,16 @@ export class FeatureInfoFormatOptions {
   public fractionDigits?: number | null;
   public padFractionDigits?: boolean | null;
   public dateStyle?: string | null;
+  public maxWidth?: number | null;
+  public maxHeight?: number | null;
   [key: string]: unknown;
+}
+
+function imageLimit(value: unknown): number | null {
+  if (typeof value === 'number' && Number.isInteger(value) && value > 0) {
+    return value;
+  }
+  return null;
 }
 
 /**
@@ -18,6 +27,8 @@ export function withEditableFormatOptions<T extends CartographyParameter>(row: T
   row.fractionDigits = typeof options.fractionDigits === 'number' ? options.fractionDigits : null;
   row.padFractionDigits = options.padFractionDigits === true;
   row.dateStyle = typeof options.dateStyle === 'string' && options.dateStyle ? options.dateStyle : null;
+  row.maxWidth = imageLimit(options.maxWidth);
+  row.maxHeight = imageLimit(options.maxHeight);
   return row;
 }
 
@@ -41,11 +52,25 @@ export function persistedCartographyParameter<T extends CartographyParameter>(ro
   } else {
     delete options.dateStyle;
   }
+  const maxWidth = imageLimit(row.maxWidth);
+  const maxHeight = imageLimit(row.maxHeight);
+  if (maxWidth == null) {
+    delete options.maxWidth;
+  } else {
+    options.maxWidth = maxWidth;
+  }
+  if (maxHeight == null) {
+    delete options.maxHeight;
+  } else {
+    options.maxHeight = maxHeight;
+  }
   const copy = Object.assign(new CartographyParameter(), row) as T;
   copy.options = Object.keys(options).length ? options : null;
   delete copy.fractionDigits;
   delete copy.padFractionDigits;
   delete copy.dateStyle;
+  delete copy.maxWidth;
+  delete copy.maxHeight;
   return copy;
 }
 
@@ -79,6 +104,12 @@ export class CartographyParameter extends Resource {
 
   /** date or datetime for F*/
   public dateStyle: string;
+
+  /** maximum image width in pixels for I. Grid field; persisted inside options.*/
+  public maxWidth: number | null;
+
+  /** maximum image height in pixels for I. Grid field; persisted inside options.*/
+  public maxHeight: number | null;
 
   /** cartography*/
   public cartography: Cartography;

@@ -81,7 +81,7 @@
             color="primary"
             type="button"
             class="sitmun-service-form-metadata-button"
-            *ngIf="isWMS()"
+            *ngIf="isWMS() || isWFS()"
             (click)="onUpdateServiceMetadata()"
           >
             {{ (isNewOrDuplicated() ? 'entity.service.button.getMetadata' : 'entity.service.button.updateMetadata') | translate }}
@@ -154,13 +154,13 @@
               <mat-form-field appearance="outline" class="half sitmun-cartography-rich-hint-field" subscriptSizing="dynamic">
                 <mat-label>{{ 'entity.service.user' | translate }}</mat-label>
                 <input matInput type="text" formControlName="user" [maxlength]="50">
-                <mat-hint align="start">{{ 'entity.service.hint.user' | translate }}</mat-hint>
+                <mat-hint align="start">{{ (isWFS() ? 'entity.service.hint.user.wfs' : 'entity.service.hint.user') | translate }}</mat-hint>
                 <mat-hint align="end">{{ entityForm.get('user') | characterCount }}</mat-hint>
               </mat-form-field>
               <mat-form-field appearance="outline" class="half sitmun-cartography-rich-hint-field" subscriptSizing="dynamic">
                 <mat-label>{{ 'entity.service.password' | translate }}</mat-label>
                 <input matInput type="password" formControlName="password" [maxlength]="50">
-                <mat-hint align="start">{{ 'entity.service.hint.password' | translate }}</mat-hint>
+                <mat-hint align="start">{{ (isWFS() ? 'entity.service.hint.password.wfs' : 'entity.service.hint.password') | translate }}</mat-hint>
                 <mat-hint align="end">{{ entityForm.get('password') | characterCount }}</mat-hint>
               </mat-form-field>
             </div>
@@ -169,7 +169,7 @@
       </mat-card>
     </form>
   </mat-tab>
-  <mat-tab label="{{ 'entity.cartography.plural' | translate }}">
+  <mat-tab label="{{ cartographyTabLabelKey() | translate }}">
     <mat-card appearance="outlined" class="sitmun-mat-card-margin">
       <mat-card-content>
         <button
@@ -178,10 +178,10 @@
           class="sitmun-mat-button-margin"
           id="capabilitiesButton"
           type="button"
-          *ngIf="isWMS()"
+          *ngIf="isWMS() || isWFS()"
           (click)="onUpdateServiceCapabilities()"
         >
-          {{ (isNewOrDuplicated() ? 'entity.service.button.getLayers' : 'entity.service.button.updateLayers') | translate }}
+          {{ capabilitiesButtonLabelKey() | translate }}
         </button>
       </mat-card-content>
     </mat-card>

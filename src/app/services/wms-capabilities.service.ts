@@ -4,6 +4,7 @@ import { firstValueFrom } from "rxjs";
 
 import { CapabilitiesService, Cartography, CartographyStyle, ServiceCapabilitiesProbe } from "@app/domain";
 import {LoggerService} from '@app/services/logger.service';
+import { mapWfsCapabilities, WfsCapabilitiesMapping } from '@app/services/wfs-capabilities';
 import { config } from "@config";
 
 /** Parsed WMS field with main text and per-language translations. */
@@ -133,6 +134,45 @@ export class WMSCapabilitiesService {
     } else {
       return Promise.reject("Error retrieving WMS capabilities");
     }
+  }
+
+  async processWFSServiceMetadata(probe: ServiceCapabilitiesProbe): Promise<WMSServiceCapabilities> {
+    const { raw, mapped } = await this.readWfsMapping(probe);
+    const title = this.parseMultilingualField(mapped.title);
+    const abstract = this.parseMultilingualField(mapped.abstract);
+    return new WMSServiceCapabilities(
+      raw,
+      title.main,
+      title.translations,
+      abstract.main,
+      abstract.translations,
+      mapped.supportedSRS
+    );
+  }
+
+  async processWFSServiceCapabilities(probe: ServiceCapabilitiesProbe): Promise<WMSLayersCapabilities> {
+    const { mapped } = await this.readWfsMapping(probe);
+    const result = new WMSLayersCapabilities();
+    mapped.layers.forEach(layer => {
+      const cartography = new Cartography();
+      cartography.name = layer.name;
+      cartography.description = layer.description;
+      cartography.layers = layer.layers;
+      result.layers.push(cartography);
+    });
+    return result;
+  }
+
+  private async readWfsMapping(probe: ServiceCapabilitiesProbe): Promise<{ raw: unknown; mapped: WfsCapabilitiesMapping }> {
+    const result = await this.wmsGetCapabilitiesRequest(probe);
+    if (!result.success) {
+      return Promise.reject("Error retrieving WFS capabilities");
+    }
+    const mapped = mapWfsCapabilities(result.asJson?.asJson);
+    if (!mapped) {
+      return Promise.reject("Not a WFS capabilities document");
+    }
+    return { raw: result.asJson, mapped };
   }
 
   /**

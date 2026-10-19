@@ -376,7 +376,7 @@ export class UtilsService {
    * Gets the column definition for a status column in AG Grid.
    * @returns Column definition object for status column.
    */
-  getStatusColumnDef() {
+  getStatusColumnDef(statusLabelKey?: (status: string) => string) {
     const statusHeader = this.getTranslate('common.form.status');
     const statusColors = {
       pendingModify: '#ff9300',
@@ -402,7 +402,8 @@ export class UtilsService {
         }
         const span = document.createElement('span');
         span.className = 'sitmun-status-dot';
-        span.title = this.getTranslate('common.status.' + key);
+        const labelKey = statusLabelKey ? statusLabelKey(key) : 'common.status.' + key;
+        span.title = this.getTranslate(labelKey);
         span.setAttribute('aria-label', span.title);
         span.style.backgroundColor = statusColors[key] ?? statusColors.pendingModify;
         return span;

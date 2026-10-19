@@ -603,7 +603,8 @@ app-login .mat-app-background {
 }
 
 .sitmun-format-digits,
-.sitmun-format-date {
+.sitmun-format-date,
+.sitmun-format-image-limit {
   box-sizing: border-box;
   height: 22px;
   margin: 0;
@@ -625,7 +626,20 @@ app-login .mat-app-background {
   padding: 0 0.1rem 0 0.35rem;
 }
 
-.sitmun-format-pad {
+.sitmun-format-image-limit {
+  width: 4.75rem;
+  min-width: 4.75rem;
+  max-width: 4.75rem;
+  flex: 0 0 4.75rem;
+}
+
+.sitmun-format-image-limit::placeholder {
+  color: rgba(0, 0, 0, 0.42);
+  opacity: 1;
+}
+
+.sitmun-format-pad,
+.sitmun-format-image-field {
   display: inline-flex;
   align-items: center;
   gap: 0.25rem;

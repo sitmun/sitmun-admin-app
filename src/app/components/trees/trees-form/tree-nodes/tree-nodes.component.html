@@ -436,11 +436,11 @@
                       </div>
                       <div class="display-option-group" *ngIf="showQueryableActiveToggle">
                         <mat-slide-toggle color="primary" formControlName="queryableActive">
-                          {{ 'entity.tree.queryableActive' | translate }}
+                          {{ queryableActiveLabelKey | translate }}
                         </mat-slide-toggle>
                         <div class="display-option-hints">
-                          <span class="mat-hint" *ngIf="canEnableQueryableActive">{{ 'entity.tree.hint.queryableActive' | translate }}</span>
-                          <span class="mat-hint" *ngIf="!canEnableQueryableActive">{{ 'entity.tree.hint.queryableActive.layerDisabled' | translate }}</span>
+                          <span class="mat-hint" *ngIf="canEnableQueryableActive">{{ queryableActiveHintKey | translate }}</span>
+                          <span class="mat-hint" *ngIf="!canEnableQueryableActive">{{ queryableActiveDisabledHintKey | translate }}</span>
                         </div>
                       </div>
                       <div class="display-option-group" *ngIf="showRadioToggle">

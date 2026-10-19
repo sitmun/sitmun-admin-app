@@ -27,6 +27,32 @@ describe('cartography parameter format options', () => {
     expect(row.fractionDigits).toBe(2);
   });
 
+  it('persists image limits and keeps unknown keys', () => {
+    const row = new CartographyParameter();
+    row.options = {width: 12};
+    row.fractionDigits = null;
+    row.padFractionDigits = false;
+    row.dateStyle = null;
+    row.maxWidth = 240;
+    row.maxHeight = 160;
+
+    const saved = persistedCartographyParameter(row);
+
+    expect(saved.options).toEqual({width: 12, maxWidth: 240, maxHeight: 160});
+    expect(saved.maxWidth).toBeUndefined();
+    expect(saved.maxHeight).toBeUndefined();
+  });
+
+  it('copies stored image limits onto the grid', () => {
+    const row = new CartographyParameter();
+    row.options = {maxWidth: 240, maxHeight: 0, width: 12};
+
+    withEditableFormatOptions(row);
+
+    expect(row.maxWidth).toBe(240);
+    expect(row.maxHeight).toBeNull();
+  });
+
   it('stores null when the grid has no options', () => {
     const row = new CartographyParameter();
     row.fractionDigits = null;
