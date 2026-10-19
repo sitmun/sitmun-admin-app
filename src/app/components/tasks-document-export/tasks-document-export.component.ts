@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -20,6 +20,7 @@ import { magic } from '@environments/constants';
   selector: 'app-tasks-document-export',
   templateUrl: './tasks-document-export.component.html',
   styles: [],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
 export class TasksDocumentExportComponent extends BaseListComponent<Task> {

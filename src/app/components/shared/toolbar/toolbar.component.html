@@ -20,12 +20,13 @@
       <span>{{ isoCode(currentShortname) }}</span>
     </button>
     <mat-menu #languageMenu="matMenu">
-      <button
-        mat-menu-item
-        *ngFor="let lang of languages"
-        (click)="changeLanguage(lang.shortname)">
-        {{ lang.name }}
-      </button>
+      @for (lang of languages; track lang) {
+        <button
+          mat-menu-item
+          (click)="changeLanguage(lang.shortname)">
+          {{ lang.name }}
+        </button>
+      }
     </mat-menu>
     <app-system-info-menu></app-system-info-menu>
   </mat-toolbar-row>

@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import {AbstractControl, UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
 import {MatDialogRef} from '@angular/material/dialog';
 
@@ -11,6 +11,7 @@ import {filterEnabledLanguages, sortByLanguageOrder} from '@app/services/ui-lang
     selector: 'app-dialog-translation',
     templateUrl: './dialog-translation.component.html',
     styleUrls: ['./dialog-translation.component.scss'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class DialogTranslationComponent implements OnInit {

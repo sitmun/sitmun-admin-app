@@ -1,4 +1,4 @@
-import { Component, HostListener } from '@angular/core';
+import { Component, HostListener, ChangeDetectionStrategy } from '@angular/core';
 
 import { MissingTranslationTrackerService } from '@app/services/missing-translation-tracker.service';
 import { SidebarManagerService } from '@app/services/sidebar-manager.service';
@@ -7,6 +7,7 @@ import { SidebarManagerService } from '@app/services/sidebar-manager.service';
   selector: 'app-missing-translations-sidebar',
   templateUrl: './missing-translations-sidebar.component.html',
   styleUrls: ['./missing-translations-sidebar.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class MissingTranslationsSidebarComponent {

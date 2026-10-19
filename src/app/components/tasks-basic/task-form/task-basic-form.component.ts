@@ -1,4 +1,4 @@
-import {Component, TemplateRef, ViewChild} from "@angular/core";
+import {Component, TemplateRef, ViewChild, ChangeDetectionStrategy} from "@angular/core";
 import {FormControl, FormGroup, Validators} from "@angular/forms";
 import {MatDialog} from "@angular/material/dialog";
 import {ActivatedRoute, Router} from "@angular/router";
@@ -64,6 +64,7 @@ import {magic} from "@environments/constants";
     selector: 'app-task-basic-form',
     templateUrl: './task-basic-form.component.html',
     styles: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class TaskBasicFormComponent extends BaseFormComponent<TaskProjection> {

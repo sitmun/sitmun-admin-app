@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, ChangeDetectionStrategy} from '@angular/core';
 
 import {LoggerService} from '@app/services/logger.service';
 
@@ -13,6 +13,7 @@ import {LoggerService} from '@app/services/logger.service';
     </div>
   `,
     styles: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class AuthenticatedLayoutComponent implements OnInit {

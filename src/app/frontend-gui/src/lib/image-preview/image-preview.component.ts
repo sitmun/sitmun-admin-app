@@ -1,5 +1,4 @@
-import { CommonModule } from '@angular/common';
-import { Component, Input, OnChanges, SimpleChanges, ViewChild, ElementRef, AfterViewInit, ChangeDetectorRef } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges, ViewChild, ElementRef, AfterViewInit, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 
@@ -14,12 +13,12 @@ import { TranslateModule } from '@ngx-translate/core';
     templateUrl: './image-preview.component.html',
     styleUrls: ['./image-preview.component.scss'],
   standalone: true,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
-        CommonModule,
-        MatButtonModule,
-        MatIconModule,
-        TranslateModule
-    ]
+    MatButtonModule,
+    MatIconModule,
+    TranslateModule
+]
 })
 export class ImagePreviewComponent implements OnChanges, AfterViewInit {
   @Input() imageSource: string | null = null;

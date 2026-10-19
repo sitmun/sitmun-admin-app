@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, ChangeDetectionStrategy} from '@angular/core';
 import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
 import {MatDialog} from '@angular/material/dialog';
 import {ActivatedRoute, Router} from '@angular/router';
@@ -25,6 +25,7 @@ import {DefaultLanguageChangeDialogComponent} from '../default-language-change-d
     selector: 'app-language-form',
     templateUrl: './language-form.component.html',
     styleUrls: ['./language-form.component.scss'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class LanguageFormComponent extends BaseFormComponent<Language> {

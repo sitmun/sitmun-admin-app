@@ -1,5 +1,5 @@
 import { HttpClient, HttpContext } from "@angular/common/http";
-import {Component, inject, TemplateRef, ViewChild} from '@angular/core';
+import {Component, inject, TemplateRef, ViewChild, ChangeDetectionStrategy} from '@angular/core';
 import {
   AbstractControl,
   FormControl,
@@ -110,6 +110,7 @@ type StyleDialogValue = CartographyStyle & {
     selector: 'app-layers-form',
     templateUrl: './layers-form.component.html',
     styleUrls: ['./layers-form.component.scss'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class LayersFormComponent extends BaseFormComponent<CartographyProjection> {

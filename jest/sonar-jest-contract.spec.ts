@@ -1,9 +1,14 @@
 import {readFileSync} from 'node:fs';
 import {posix} from 'node:path';
 
-import coverageConfig from '../jest.coverage.config';
-import jestConfig from '../jest.config';
-import {loadSonarJestContract, parseSonarJestContract} from './create-jest-config';
+import {
+  createJestConfig,
+  loadSonarJestContract,
+  parseSonarJestContract,
+} from './create-jest-config';
+
+const jestConfig = createJestConfig({collectCoverage: false});
+const coverageConfig = createJestConfig({collectCoverage: true});
 
 function sonarValue(key: string): string {
   const match = readFileSync('sonar-project.properties', 'utf8').match(
@@ -84,6 +89,15 @@ describe('Sonar Jest contract', () => {
     expect(scripts['test:coverage']).toBeDefined();
     expect(scripts['test:coverage']).not.toMatch(/(?:^|\s)--coverage(?:\s|$)/);
     expect(scripts['test:coverage']).toMatch(/jest\.coverage\.config/);
+  });
+
+  it('keeps thin jest config entrypoints wired to the factory', () => {
+    expect(readFileSync('jest.config.ts', 'utf8')).toContain(
+      "createJestConfig({collectCoverage: false})"
+    );
+    expect(readFileSync('jest.coverage.config.ts', 'utf8')).toContain(
+      "createJestConfig({collectCoverage: true})"
+    );
   });
 
   it('maps AG Grid, echarts, and Material barrels onto Jest stubs', () => {

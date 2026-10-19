@@ -95,21 +95,12 @@ describe('ErrorPageComponent', () => {
   });
 
   it('should call window.location.reload on retry', () => {
-    // Create a mock location object
-    const mockReload = jest.fn();
-    const originalLocation = window.location;
-    
-    // Replace window.location with a mock
-    delete (window as any).location;
-    (window as any).location = {
-      ...originalLocation,
-      reload: mockReload
-    };
-    
-    component.retry();
-    expect(mockReload).toHaveBeenCalled();
-    
-    // Restore original location
-    (window as any).location = originalLocation;
+    const reloadSpy = jest.spyOn(component, 'reloadPage').mockImplementation(() => undefined);
+    try {
+      component.retry();
+      expect(reloadSpy).toHaveBeenCalled();
+    } finally {
+      reloadSpy.mockRestore();
+    }
   });
 }); 

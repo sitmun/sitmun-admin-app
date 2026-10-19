@@ -1,4 +1,3 @@
-import {CommonModule} from '@angular/common';
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
@@ -27,7 +26,7 @@ import {
 @Component({
   selector: 'app-entity-form-alerts',
   standalone: true,
-  imports: [CommonModule, MatCardModule, WarningsPanelComponent],
+  imports: [MatCardModule, WarningsPanelComponent],
   templateUrl: './entity-form-alerts.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

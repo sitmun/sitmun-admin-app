@@ -1,5 +1,5 @@
 import {COMMA, ENTER} from '@angular/cdk/keycodes';
-import {ChangeDetectorRef, Component, inject, NgZone, OnDestroy, OnInit, TemplateRef, ViewChild} from '@angular/core';
+import {ChangeDetectorRef, Component, inject, NgZone, OnDestroy, OnInit, TemplateRef, ViewChild, ChangeDetectionStrategy} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
 import {MatChipInputEvent} from '@angular/material/chips';
@@ -87,6 +87,7 @@ import {
     selector: 'app-service-form',
     templateUrl: './service-form.component.html',
     styleUrls: ['./service-form.component.scss'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ServiceFormComponent extends BaseFormComponent<Service> implements OnInit, OnDestroy {

@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef, VERSION, DestroyRef, inject, signal } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, VERSION, DestroyRef, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -25,6 +25,7 @@ import { environment } from '@environments/environment';
     selector: 'app-system-info-menu',
     templateUrl: './system-info-menu.component.html',
     styleUrls: ['./system-info-menu.component.scss'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class SystemInfoMenuComponent implements OnInit {

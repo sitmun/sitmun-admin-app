@@ -17,5 +17,13 @@
     "src/app/core/config/base-configuration.component.ts",
     "src/app/domain/task/models/task-relation.model.ts",
     "src/app/models/problem-detail.model.ts"
-  ]
+  ],
+  "angularCompilerOptions": {
+    "extendedDiagnostics": {
+      "checks": {
+        "nullishCoalescingNotNullable": "suppress",
+        "optionalChainNotNullable": "suppress"
+      }
+    }
+  }
 }

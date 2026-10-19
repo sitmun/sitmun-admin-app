@@ -1,51 +1,70 @@
-<mat-sidenav-container *ngIf="loaded" class="sidenav-container">
-  <mat-sidenav #sidenav class="sidenav" mode="side" opened>
-    <ul>
-      <div *ngFor="let menuOptions of menus; let i = index" [ngClass]="i === 0 ? 'primerMenu' : 'altresMenus'">
-        <li *ngFor="let option of menuOptions" class="side-nav-option">
-          <a *ngIf="option.children === null" [routerLink]="[option.id]" routerLinkActive="active">
-            <mat-icon aria-hidden="false" fontSet="{{ option.font }}">{{ option.icon }}</mat-icon>
-            {{ option.label | translate }}
-          </a>
-          <mat-expansion-panel class="mat-elevation-z0 remove-mat-expansion-panel-padding" *ngIf="option.children !== null">
-            <mat-expansion-panel-header class="expandible-option">
-              <mat-panel-title>
-                <a class="side-nav-option">
-                  <mat-icon aria-hidden="false" fontSet="{{ option.font }}">{{ option.icon }}</mat-icon>
-                  <span>{{ option.label | translate }}</span>
-                </a>
-              </mat-panel-title>
-            </mat-expansion-panel-header>
-            <li *ngFor="let expandOption of option.children" class="side-nav-option">
-              <a *ngIf="expandOption.children === null" [routerLink]="[expandOption.id]" routerLinkActive="active">
-                <span>{{ expandOption.label | translate }}</span>
-              </a>
-              <mat-expansion-panel class="mat-elevation-z0 remove-mat-expansion-panel-padding" *ngIf="expandOption.children !== null">
-                <mat-expansion-panel-header class="expandible-option">
-                  <mat-panel-title>
-                    <a class="side-nav-option">
-                      <mat-icon aria-hidden="false" fontSet="{{ option.font }}">{{ option.icon }}</mat-icon>
-                      <a class="childrenOption">
-                        <span
-                          class="expandOptionChildren">{{ expandOption.label | translate }}
-                        </span>
-                      </a>
-                    </a>
-                  </mat-panel-title>
-                </mat-expansion-panel-header>
-                <li *ngFor="let expandOptionOfChildren of expandOption.children" class="side-nav-option">
-                  <a *ngIf="expandOptionOfChildren.children === null" [routerLink]="[expandOptionOfChildren.id]"
-                     routerLinkActive="active">
-                    <span>{{ expandOptionOfChildren.label| translate }}</span>
+@if (loaded) {
+  <mat-sidenav-container class="sidenav-container">
+    <mat-sidenav #sidenav class="sidenav" mode="side" opened>
+      <ul>
+        @for (menuOptions of menus; track $index; let i = $index) {
+          <div [ngClass]="i === 0 ? 'primerMenu' : 'altresMenus'">
+            @for (option of menuOptions; track option.id) {
+              <li class="side-nav-option">
+                @if (option.children === null) {
+                  <a [routerLink]="[option.id]" routerLinkActive="active">
+                    <mat-icon aria-hidden="false" fontSet="{{ option.font }}">{{ option.icon }}</mat-icon>
+                    {{ option.label | translate }}
                   </a>
-                </li>
-              </mat-expansion-panel>
-            </li>
-          </mat-expansion-panel>
-      </div>
-    </ul>
-  </mat-sidenav>
-  <mat-sidenav-content class="sidenav-content">
-    <router-outlet></router-outlet>
-  </mat-sidenav-content>
-</mat-sidenav-container>
+                } @else {
+                  <mat-expansion-panel class="mat-elevation-z0 remove-mat-expansion-panel-padding">
+                    <mat-expansion-panel-header class="expandible-option">
+                      <mat-panel-title>
+                        <a class="side-nav-option">
+                          <mat-icon aria-hidden="false" fontSet="{{ option.font }}">{{ option.icon }}</mat-icon>
+                          <span>{{ option.label | translate }}</span>
+                        </a>
+                      </mat-panel-title>
+                    </mat-expansion-panel-header>
+                    @for (expandOption of option.children; track expandOption.id) {
+                      <li class="side-nav-option">
+                        @if (expandOption.children === null) {
+                          <a [routerLink]="[expandOption.id]" routerLinkActive="active">
+                            <span>{{ expandOption.label | translate }}</span>
+                          </a>
+                        } @else {
+                          <mat-expansion-panel class="mat-elevation-z0 remove-mat-expansion-panel-padding">
+                            <mat-expansion-panel-header class="expandible-option">
+                              <mat-panel-title>
+                                <a class="side-nav-option">
+                                  <mat-icon aria-hidden="false" fontSet="{{ option.font }}">{{ option.icon }}</mat-icon>
+                                  <a class="childrenOption">
+                                    <span
+                                      class="expandOptionChildren">{{ expandOption.label | translate }}
+                                    </span>
+                                  </a>
+                                </a>
+                              </mat-panel-title>
+                            </mat-expansion-panel-header>
+                            @for (expandOptionOfChildren of expandOption.children; track expandOptionOfChildren.id) {
+                              <li class="side-nav-option">
+                                @if (expandOptionOfChildren.children === null) {
+                                  <a [routerLink]="[expandOptionOfChildren.id]"
+                                     routerLinkActive="active">
+                                    <span>{{ expandOptionOfChildren.label| translate }}</span>
+                                  </a>
+                                }
+                              </li>
+                            }
+                          </mat-expansion-panel>
+                        }
+                      </li>
+                    }
+                  </mat-expansion-panel>
+                }
+              </li>
+            }
+          </div>
+        }
+      </ul>
+    </mat-sidenav>
+    <mat-sidenav-content class="sidenav-content">
+      <router-outlet></router-outlet>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+}

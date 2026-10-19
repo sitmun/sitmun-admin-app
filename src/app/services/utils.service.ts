@@ -1,5 +1,5 @@
 import {Location} from '@angular/common';
-import {Component, Injectable, Injector, NgZone} from '@angular/core';
+import {Component, Injectable, Injector, NgZone, ChangeDetectionStrategy} from '@angular/core';
 import {MatDialog} from '@angular/material/dialog';
 
 import {ICellRendererAngularComp} from '@ag-grid-community/angular';
@@ -1070,6 +1070,7 @@ export class UtilsService {
 @Component({
   selector: 'app-empty-renderer',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<div></div>'
 })
 export class EmptyRendererComponent implements ICellRendererAngularComp {

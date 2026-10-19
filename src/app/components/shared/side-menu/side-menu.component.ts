@@ -1,4 +1,4 @@
-import {Component, Input, OnChanges, OnInit, ViewChild} from '@angular/core';
+import {Component, Input, OnChanges, OnInit, ViewChild, ChangeDetectionStrategy} from '@angular/core';
 import {MatSidenav} from '@angular/material/sidenav';
 
 import {Principal} from '@app/core/auth/principal.service';
@@ -11,6 +11,7 @@ import {LoggerService} from "@app/services/logger.service";
     selector: 'app-side-menu',
     templateUrl: './side-menu.component.html',
     styleUrls: ['./side-menu.component.scss'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class SideMenuComponent implements OnChanges, OnInit {

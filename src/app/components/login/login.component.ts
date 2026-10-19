@@ -1,4 +1,4 @@
-import {Component, effect, OnDestroy, OnInit, signal, WritableSignal} from '@angular/core';
+import {Component, effect, OnDestroy, OnInit, signal, WritableSignal, ChangeDetectionStrategy} from '@angular/core';
 import {UntypedFormBuilder, UntypedFormGroup, Validators} from '@angular/forms';
 import {Router} from '@angular/router';
 
@@ -27,6 +27,7 @@ export interface AuthProvider {
     selector: 'app-login',
     templateUrl: './login.component.html',
     styleUrls: ['./login.component.scss'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class LoginComponent implements OnInit, OnDestroy {

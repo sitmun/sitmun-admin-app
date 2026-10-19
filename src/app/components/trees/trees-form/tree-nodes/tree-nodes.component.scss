@@ -175,10 +175,10 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    font-size: var(--mdc-outlined-text-field-input-text-size, 16px);
-    font-weight: var(--mdc-outlined-text-field-input-text-weight, 400);
-    line-height: var(--mdc-outlined-text-field-input-text-line-height, 24px);
-    letter-spacing: var(--mdc-outlined-text-field-input-text-tracking, 0.03125em);
+    font-size: var(--mat-form-field-outlined-input-text-size, 16px);
+    font-weight: var(--mat-form-field-outlined-input-text-weight, 400);
+    line-height: var(--mat-form-field-outlined-input-text-line-height, 24px);
+    letter-spacing: var(--mat-form-field-outlined-input-text-tracking, 0.03125em);
   }
 
   .detail-header-type-icon {

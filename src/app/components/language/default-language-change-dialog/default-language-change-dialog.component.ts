@@ -1,4 +1,4 @@
-import {Component, Inject, OnInit} from '@angular/core';
+import {Component, Inject, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 
 import {
@@ -19,6 +19,7 @@ export interface DefaultLanguageChangeDialogData {
   selector: 'app-default-language-change-dialog',
   templateUrl: './default-language-change-dialog.component.html',
   styleUrls: ['./default-language-change-dialog.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class DefaultLanguageChangeDialogComponent implements OnInit {

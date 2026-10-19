@@ -15,12 +15,13 @@
       <span>{{ isoCode(currentShortname) }}</span>
     </button>
     <mat-menu #languageMenu="matMenu">
-      <button
-        mat-menu-item
-        *ngFor="let lang of languages"
-        (click)="changeLanguage(lang.shortname)">
-        {{ lang.name }}
-      </button>
+      @for (lang of languages; track lang) {
+        <button
+          mat-menu-item
+          (click)="changeLanguage(lang.shortname)">
+          {{ lang.name }}
+        </button>
+      }
     </mat-menu>
   </mat-toolbar-row>
 </mat-toolbar>
@@ -33,19 +34,21 @@
         </mat-card-title>
       </mat-card-header>
       <mat-card-content>
-          <mat-form-field appearance="outline" class="full">
-            <mat-label>{{'entity.login.username' | translate}}</mat-label>
-            <mat-icon matPrefix>person</mat-icon>
-            <input matInput type="text" formControlName="username">
-          </mat-form-field>
-          <mat-form-field appearance="outline" class="full">
-            <mat-label>{{'entity.login.password' | translate}}</mat-label>
-            <mat-icon matPrefix>lock</mat-icon>
-            <input matInput type="password" formControlName="password">
-          </mat-form-field>
-        <div class="alert alert-danger" *ngIf="badCredentials">
-          {{'entity.login.bad-credentials' | translate}}
-        </div>
+        <mat-form-field appearance="outline" class="full">
+          <mat-label>{{'entity.login.username' | translate}}</mat-label>
+          <mat-icon matPrefix>person</mat-icon>
+          <input matInput type="text" formControlName="username">
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="full">
+          <mat-label>{{'entity.login.password' | translate}}</mat-label>
+          <mat-icon matPrefix>lock</mat-icon>
+          <input matInput type="password" formControlName="password">
+        </mat-form-field>
+        @if (badCredentials) {
+          <div class="alert alert-danger">
+            {{'entity.login.bad-credentials' | translate}}
+          </div>
+        }
       </mat-card-content>
       <mat-card-actions>
         <button mat-raised-button color="primary" class="loginButton" type="submit" [disabled]="!form.valid">
@@ -65,14 +68,15 @@
               class="alternativeLoginButton"
               (click)="initAuth(provider.providerName)"
               (keydown)="initAuth(provider.providerName)"
-            >
+              >
               <span class="button-content">
-                <img
-                  *ngIf="provider.imagePath"
-                  [ngSrc]="provider.imagePath"
-                  alt="icon"
-                  width="35"
-                  height="35" />
+                @if (provider.imagePath) {
+                  <img
+                    [ngSrc]="provider.imagePath"
+                    alt="icon"
+                    width="35"
+                    height="35" />
+                }
                 <span>{{ provider.displayName }}</span>
               </span>
             </button>

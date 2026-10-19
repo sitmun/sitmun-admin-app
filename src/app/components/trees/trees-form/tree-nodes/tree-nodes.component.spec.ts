@@ -1372,7 +1372,7 @@ describe('TreeNodesComponent', () => {
       const showInfoSpy = jest.spyOn(notification, 'showInfo').mockImplementation();
       setExistingFolderDetail(component, { dirty: true });
 
-      component.onDocumentEscape(new KeyboardEvent('keydown', { key: 'Escape' }));
+      component.onDocumentKeydown(new KeyboardEvent('keydown', { key: 'Escape' }));
 
       expect(showInfoSpy).toHaveBeenCalledWith('entity.tree.saveBeforeDeselect', '');
       expect(component['currentNodeId']).toBe(5);

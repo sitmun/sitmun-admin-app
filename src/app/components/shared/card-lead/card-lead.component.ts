@@ -1,4 +1,3 @@
-import {CommonModule} from '@angular/common';
 import {ChangeDetectionStrategy, Component, Input} from '@angular/core';
 import {MatCardModule} from '@angular/material/card';
 
@@ -16,7 +15,7 @@ import {TranslateModule} from '@ngx-translate/core';
 @Component({
   selector: 'app-card-lead',
   standalone: true,
-  imports: [CommonModule, MatCardModule, TranslateModule],
+  imports: [MatCardModule, TranslateModule],
   templateUrl: './card-lead.component.html',
   styleUrls: ['./card-lead.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

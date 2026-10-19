@@ -10,12 +10,13 @@
   (back)="utils.navigateBack()">
 </app-form-toolbar>
 
-<app-entity-form-alerts
-  *ngIf="dataLoaded"
-  [form]="entityForm"
-  entityLabelPrefix="entity.tree"
-  [customAlertMessage]="treeValidationWarningMessage">
-</app-entity-form-alerts>
+@if (dataLoaded) {
+  <app-entity-form-alerts
+    [form]="entityForm"
+    entityLabelPrefix="entity.tree"
+    [customAlertMessage]="treeValidationWarningMessage">
+  </app-entity-form-alerts>
+}
 
 <mat-tab-group
   #tabGroup
@@ -25,109 +26,120 @@
   [preserveContent]="true"
   (selectedTabChange)="onTabChange($event)">
   <mat-tab label="{{ 'common.form.details' | translate }}">
-    <form [formGroup]='entityForm' *ngIf="dataLoaded">
-      <mat-card appearance="outlined">
-        <mat-card-content>
-          <mat-form-field appearance="outline" class="full">
-            <mat-label>{{ 'entity.tree.name' | translate }} ({{ defaultLang }})</mat-label>
-            <input matInput type="text" formControlName="name" [maxlength]="50" required>
-            <mat-hint align="end">{{ entityForm.get('name') | characterCount }}</mat-hint>
-            <mat-icon matSuffix class="iconTranslate"
-                      (click)="onTranslated('name')"
-                      (keydown)="onTranslated('name')">translate</mat-icon>
-          </mat-form-field>
-          <mat-form-field appearance="outline" class="full">
-            <mat-label>{{ 'entity.tree.description' | translate }} ({{ defaultLang }})</mat-label>
-            <textarea matInput type="text" formControlName="description" [maxlength]="4000"> </textarea>
-            <mat-hint align="end">{{ entityForm.get('description') | characterCount }}</mat-hint>
-            <mat-icon matSuffix class="iconTranslate"
-                      (click)="onTranslated('description')"
-                      (keydown)="onTranslated('description')">translate</mat-icon>
-          </mat-form-field>
-          <mat-form-field appearance="outline" class="quarter add-gap">
-            <mat-label>{{ 'entity.tree.type' | translate }}</mat-label>
-            <mat-select formControlName="type" class="form-control" required (selectionChange)="onTreeTypeChange($event.value)">
-              <mat-option [value]="type.value" *ngFor="let type of this.codeList('tree.type')">
-                {{ type.description }}
-              </mat-option>
-            </mat-select>
-            <mat-error *ngIf="entityForm.get('type')?.hasError('required')">
-              {{ 'common.error.required' | translate }}
-            </mat-error>
-          </mat-form-field>
-          <div class="break"></div>
-          <div class="appearance-panel-content">
-            <div class="appearance-input-section">
-              <mat-form-field appearance="outline" class="appearance-form-field">
-                <mat-label>{{ 'entity.tree.image' | translate }}</mat-label>
-                <input #treeImageNameInput matInput type="text" formControlName="imageName"
-                       (keyup)="onImageChange('tree', $event)" readonly
-                       [placeholder]="'entity.tree.imagePlaceHolder' | translate">
-              </mat-form-field>
-              <textarea matInput type="text" hidden formControlName="image"> </textarea>
-              <input #treeFileInput type="file" [accept]="treeImageAccept$ | async" hidden (change)="onImageSelected('tree', $event)">
-              <p *ngIf="treeImageResizeHintParams$ | async as params" class="image-upload-hint">{{ 'entity.tree.image.resizeHint' | translate: params }}</p>
-              <div class="appearance-actions">
-                <button mat-raised-button color="primary" type="button" (click)="treeFileInput.click()">
-                  {{ 'entity.tree.selectFile' | translate }}
-                </button>
-                <button mat-raised-button color="primary" type="button" (click)="activeImageNameInput('tree', treeImageNameInput)">
-                  {{ 'entity.tree.webUrl' | translate }}
-                </button>
-                <button mat-raised-button color="warn" type="button" (click)="removeImage('tree')">
-                  {{ 'entity.tree.delete' | translate }}
-                </button>
+    @if (dataLoaded) {
+      <form [formGroup]='entityForm'>
+        <mat-card appearance="outlined">
+          <mat-card-content>
+            <mat-form-field appearance="outline" class="full">
+              <mat-label>{{ 'entity.tree.name' | translate }} ({{ defaultLang }})</mat-label>
+              <input matInput type="text" formControlName="name" [maxlength]="50" required>
+              <mat-hint align="end">{{ entityForm.get('name') | characterCount }}</mat-hint>
+              <mat-icon matSuffix class="iconTranslate"
+                (click)="onTranslated('name')"
+              (keydown)="onTranslated('name')">translate</mat-icon>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="full">
+              <mat-label>{{ 'entity.tree.description' | translate }} ({{ defaultLang }})</mat-label>
+              <textarea matInput type="text" formControlName="description" [maxlength]="4000"> </textarea>
+              <mat-hint align="end">{{ entityForm.get('description') | characterCount }}</mat-hint>
+              <mat-icon matSuffix class="iconTranslate"
+                (click)="onTranslated('description')"
+              (keydown)="onTranslated('description')">translate</mat-icon>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="quarter add-gap">
+              <mat-label>{{ 'entity.tree.type' | translate }}</mat-label>
+              <mat-select formControlName="type" class="form-control" required (selectionChange)="onTreeTypeChange($event.value)">
+                @for (type of this.codeList('tree.type'); track type) {
+                  <mat-option [value]="type.value">
+                    {{ type.description }}
+                  </mat-option>
+                }
+              </mat-select>
+              @if (entityForm.get('type')?.hasError('required')) {
+                <mat-error>
+                  {{ 'common.error.required' | translate }}
+                </mat-error>
+              }
+            </mat-form-field>
+            <div class="break"></div>
+            <div class="appearance-panel-content">
+              <div class="appearance-input-section">
+                <mat-form-field appearance="outline" class="appearance-form-field">
+                  <mat-label>{{ 'entity.tree.image' | translate }}</mat-label>
+                  <input #treeImageNameInput matInput type="text" formControlName="imageName"
+                    (keyup)="onImageChange('tree', $event)" readonly
+                    [placeholder]="'entity.tree.imagePlaceHolder' | translate">
+                </mat-form-field>
+                <textarea matInput type="text" hidden formControlName="image"> </textarea>
+                <input #treeFileInput type="file" [accept]="treeImageAccept$ | async" hidden (change)="onImageSelected('tree', $event)">
+                @if (treeImageResizeHintParams$ | async; as params) {
+                  <p class="image-upload-hint">{{ 'entity.tree.image.resizeHint' | translate: params }}</p>
+                }
+                <div class="appearance-actions">
+                  <button mat-raised-button color="primary" type="button" (click)="treeFileInput.click()">
+                    {{ 'entity.tree.selectFile' | translate }}
+                  </button>
+                  <button mat-raised-button color="primary" type="button" (click)="activeImageNameInput('tree', treeImageNameInput)">
+                    {{ 'entity.tree.webUrl' | translate }}
+                  </button>
+                  <button mat-raised-button color="warn" type="button" (click)="removeImage('tree')">
+                    {{ 'entity.tree.delete' | translate }}
+                  </button>
+                </div>
               </div>
+              <app-image-preview
+                [imageSource]="$safeNavigationMigration(entityForm.get('image')?.value)"
+                [imageName]="$safeNavigationMigration(entityForm.get('imageName')?.value)"
+                [imageState]="treeImagePreviewState"
+                [previewId]="'treeImgPreview'"
+                [maxWidth]="80"
+                [maxHeight]="80"
+                [targetWidth]="(treeImageResizeHintParams$ | async)?.width ?? null"
+                [targetHeight]="(treeImageResizeHintParams$ | async)?.height ?? null">
+              </app-image-preview>
             </div>
-            <app-image-preview
-              [imageSource]="entityForm.get('image')?.value"
-              [imageName]="entityForm.get('imageName')?.value"
-              [imageState]="treeImagePreviewState"
-              [previewId]="'treeImgPreview'"
-              [maxWidth]="80"
-              [maxHeight]="80"
-              [targetWidth]="(treeImageResizeHintParams$ | async)?.width ?? null"
-              [targetHeight]="(treeImageResizeHintParams$ | async)?.height ?? null">
-            </app-image-preview>
-          </div>
-        </mat-card-content>
-      </mat-card>
-    </form>
+          </mat-card-content>
+        </mat-card>
+      </form>
+    }
   </mat-tab>
   <mat-tab label="{{ 'entity.tree.treeStructure' | translate }}">
     <ng-template matTabContent>
-      <app-tree-nodes
-        *ngIf="dataLoaded"
-        #treeNodesComponent
-        [tree]="entityToEdit"
-        [entityID]="entityID"
-        [duplicateID]="duplicateID"
-        [dataLoaded]="dataLoaded"
-        [currentTreeType]="currentTreeType"
-        (saveRequested)="onTreeSaveRequested()">
-      </app-tree-nodes>
+      @if (dataLoaded) {
+        <app-tree-nodes
+          #treeNodesComponent
+          [tree]="entityToEdit"
+          [entityID]="entityID"
+          [duplicateID]="duplicateID"
+          [dataLoaded]="dataLoaded"
+          [currentTreeType]="currentTreeType"
+          (saveRequested)="onTreeSaveRequested()">
+        </app-tree-nodes>
+      }
     </ng-template>
   </mat-tab>
   <mat-tab label="{{ 'entity.tree.applications.header' | translate }}">
     <mat-card class="sitmun-mat-card-margin" appearance="outlined">
       <mat-card-content>
-        <app-relation-grid
-          #applicationsGrid
-          *ngIf="dataLoaded"
-          [table]="applicationsTable"
-          [allNewElements]="isNewOrDuplicated()"
-        ></app-relation-grid>
+        @if (dataLoaded) {
+          <app-relation-grid
+            #applicationsGrid
+            [table]="applicationsTable"
+            [allNewElements]="isNewOrDuplicated()"
+          ></app-relation-grid>
+        }
       </mat-card-content>
     </mat-card>
   </mat-tab>
   <mat-tab label="{{ 'entity.tree.roles' | translate }}">
     <mat-card class="sitmun-mat-card-margin" appearance="outlined">
       <mat-card-content>
-        <app-relation-grid
-          *ngIf="dataLoaded"
-          [table]="rolesTable"
-          [allNewElements]="isNewOrDuplicated()"
-        ></app-relation-grid>
+        @if (dataLoaded) {
+          <app-relation-grid
+            [table]="rolesTable"
+            [allNewElements]="isNewOrDuplicated()"
+          ></app-relation-grid>
+        }
       </mat-card-content>
     </mat-card>
   </mat-tab>

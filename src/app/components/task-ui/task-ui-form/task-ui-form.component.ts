@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, ChangeDetectionStrategy} from '@angular/core';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {MatDialog} from '@angular/material/dialog';
 import {ActivatedRoute, Router} from '@angular/router';
@@ -24,6 +24,7 @@ import {UtilsService} from '@app/services/utils.service';
     selector: 'app-task-ui-form',
     templateUrl: './task-ui-form.component.html',
     styles: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class TaskUIFormComponent extends BaseFormComponent<TaskUI> {

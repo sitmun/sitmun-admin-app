@@ -1,23 +1,28 @@
 <div #previewContainer class="preview-container" [hidden]="!isVisible || !imageSource">
   <img #previewImage [id]="previewId" alt="preview" class="previewImage" [style.max-width.px]="maxWidth" [style.max-height.px]="maxHeight">
-  <div class="image-dimensions" *ngIf="imageSource && imageWidth && imageHeight">
-    <ng-container *ngIf="imageFormat as format; else dimensionsOnly">
-      {{ imageInfoKey | translate: { format, width: imageWidth, height: imageHeight } }}
-    </ng-container>
-    <ng-template #dimensionsOnly>
-      {{ imageDimensionsKey | translate: { width: imageWidth, height: imageHeight } }}
-    </ng-template>
-    <div *ngIf="uploadResizeHintKey as resizeHintKey">
-      {{ resizeHintKey | translate: { width: targetWidth, height: targetHeight } }}
+  @if (imageSource && imageWidth && imageHeight) {
+    <div class="image-dimensions">
+      @if (imageFormat; as format) {
+        {{ imageInfoKey | translate: { format, width: imageWidth, height: imageHeight } }}
+      } @else {
+        {{ imageDimensionsKey | translate: { width: imageWidth, height: imageHeight } }}
+      }
+      @if (uploadResizeHintKey; as resizeHintKey) {
+        <div>
+          {{ resizeHintKey | translate: { width: targetWidth, height: targetHeight } }}
+        </div>
+      }
     </div>
-  </div>
-  <button *ngIf="imageSource && showDownload" 
-          (click)="downloadImage()"
-          class="download-link"
-          mat-button
-          color="primary">
-    <mat-icon>download</mat-icon>
-    {{ 'entity.tree.downloadImage' | translate }}
-  </button>
+  }
+  @if (imageSource && showDownload) {
+    <button
+      (click)="downloadImage()"
+      class="download-link"
+      mat-button
+      color="primary">
+      <mat-icon>download</mat-icon>
+      {{ 'entity.tree.downloadImage' | translate }}
+    </button>
+  }
 </div>
 

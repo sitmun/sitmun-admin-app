@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { By } from '@angular/platform-browser';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 import { BtnCheckboxRenderedComponent } from './btn-checkbox-rendered.component';
@@ -55,7 +56,8 @@ describe('BtnCheckboxRenderedComponent', () => {
   });
 
   it('renders the Material checkbox with primary color', () => {
-    const checkbox = fixture.nativeElement.querySelector('mat-checkbox');
-    expect(checkbox.getAttribute('ng-reflect-color')).toBe('primary');
+    const checkbox = fixture.debugElement.query(By.css('mat-checkbox'));
+    expect(checkbox).toBeTruthy();
+    expect(checkbox.componentInstance.color).toBe('primary');
   });
 });

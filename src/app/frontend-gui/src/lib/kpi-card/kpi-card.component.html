@@ -1,9 +1,11 @@
-<a *ngIf="link" class="kpi-link" [routerLink]="link">
+@if (link) {
+  <a class="kpi-link" [routerLink]="link">
+    <ng-container *ngTemplateOutlet="card"></ng-container>
+  </a>
+}
+@if (!link) {
   <ng-container *ngTemplateOutlet="card"></ng-container>
-</a>
-<ng-container *ngIf="!link">
-  <ng-container *ngTemplateOutlet="card"></ng-container>
-</ng-container>
+}
 
 <ng-template #card>
   <mat-card class="kpi-card" appearance="outlined" [matTooltip]="tooltip" matTooltipPosition="above">

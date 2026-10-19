@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -21,6 +21,7 @@ import { magic } from '@environments/constants';
   selector: 'app-tasks-template',
   templateUrl: './tasks-template.component.html',
   styles: [],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
 export class TasksTemplateComponent extends BaseListComponent<Task> {

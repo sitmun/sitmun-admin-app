@@ -1,9 +1,9 @@
-import {CommonModule} from '@angular/common';
 import {
-  Component, 
+  Component,
   OnInit,
   HostBinding,
-  inject
+  inject,
+  ChangeDetectionStrategy
 } from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
 import {MatCardModule} from '@angular/material/card';
@@ -178,17 +178,17 @@ export async function openDialogGridWithPreload(
     templateUrl: './dialog-grid.component.html',
   standalone: true,
     imports: [
-        CommonModule,
-        MatDialogModule,
-        MatButtonModule,
-        MatCardModule,
-        MatIconModule,
-        MatProgressSpinnerModule,
-        MatTabsModule,
-        MatTooltipModule,
-        TranslateModule,
-        DataGridComponent
-    ],
+    MatDialogModule,
+    MatButtonModule,
+    MatCardModule,
+    MatIconModule,
+    MatProgressSpinnerModule,
+    MatTabsModule,
+    MatTooltipModule,
+    TranslateModule,
+    DataGridComponent
+],
+    changeDetection: ChangeDetectionStrategy.Eager,
     styles: [`
     :host {
       display: block;

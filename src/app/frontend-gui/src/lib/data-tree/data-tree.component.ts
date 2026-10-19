@@ -1,5 +1,5 @@
 import {CdkDragDrop, CdkDragEnd, CdkDragSortEvent, CdkDragStart} from '@angular/cdk/drag-drop';
-import {Component, DestroyRef, EventEmitter, inject, Injectable, Input, OnInit, Output, ViewChild} from '@angular/core';
+import {Component, DestroyRef, EventEmitter, inject, Injectable, Input, OnInit, Output, ViewChild, ChangeDetectionStrategy} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {MatTree} from '@angular/material/tree';
 
@@ -387,6 +387,7 @@ type NodeUpdatePayload = Partial<Omit<FileNode, 'id' | 'children'>> & {
     templateUrl: 'data-tree.component.html',
     styleUrls: ['data-tree.component.scss'],
     providers: [FileDatabase],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class DataTreeComponent implements OnInit {

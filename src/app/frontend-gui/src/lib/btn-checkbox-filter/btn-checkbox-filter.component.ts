@@ -1,4 +1,4 @@
-import { Component, HostBinding} from '@angular/core';
+import { Component, HostBinding, ChangeDetectionStrategy } from '@angular/core';
 
 import { IFloatingFilterAngularComp } from '@ag-grid-community/angular';
 import {
@@ -10,6 +10,7 @@ import {
     selector: 'app-btn-checkbox-filter',
     templateUrl: './btn-checkbox-filter.component.html',
     styles: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class BtnCheckboxFilterComponent implements IFloatingFilterAngularComp  {

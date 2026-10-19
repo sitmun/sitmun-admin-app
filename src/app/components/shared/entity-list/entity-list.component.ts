@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ChangeDetectionStrategy } from '@angular/core';
 
 import { Observable, of, Subject } from 'rxjs';
 
@@ -55,6 +55,7 @@ export interface EntityListConfig<T> {
     selector: 'app-entity-list',
     templateUrl: './entity-list.component.html',
     styles: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class EntityListComponent<T extends Resource> implements OnInit, OnChanges {

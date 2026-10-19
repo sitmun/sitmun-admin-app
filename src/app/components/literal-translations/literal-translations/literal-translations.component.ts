@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, DestroyRef, ElementRef, OnInit, ViewChild, inject } from '@angular/core';
+import { Component, DestroyRef, ElementRef, OnInit, ViewChild, inject, ChangeDetectionStrategy } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
@@ -42,6 +42,7 @@ ModuleRegistry.registerModules([InfiniteRowModelModule]);
   templateUrl: './literal-translations.component.html',
   styleUrls: ['./literal-translations.component.scss'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [CommonModule, ReactiveFormsModule, MaterialModule, TranslateModule, AgGridModule],
 })
 export class LiteralTranslationsComponent implements CanComponentDeactivate, OnInit {
@@ -339,7 +340,8 @@ export class LiteralTranslationsComponent implements CanComponentDeactivate, OnI
     this.generation += 1;
     const currentGeneration = this.generation;
     this.showGridLoadingOverlay();
-    this.gridApi.setDatasource(
+    this.gridApi.setGridOption(
+      'datasource',
       createInfiniteDatasource(
         (request) => this.literalTranslationsService.fetchPage(request, this.languageControl.value).pipe(
           tap({

@@ -1,4 +1,4 @@
-import {Component, Inject, OnInit} from '@angular/core';
+import {Component, Inject, OnInit, ChangeDetectionStrategy} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 
 import {TranslateService} from '@ngx-translate/core';
@@ -19,6 +19,7 @@ export const DIALOG_EVENTS = {
     selector: 'app-dialog-message',
     templateUrl: './dialog-message.component.html',
     styles: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class DialogMessageComponent implements OnInit {

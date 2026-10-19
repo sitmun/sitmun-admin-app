@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, DestroyRef, ElementRef, EventEmitter, HostListener, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, TemplateRef, ViewChild, inject} from '@angular/core';
+import {ChangeDetectorRef, Component, DestroyRef, ElementRef, EventEmitter, HostListener, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, TemplateRef, ViewChild, inject, ChangeDetectionStrategy} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormControl, UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
 import {MatAutocompleteSelectedEvent, MatAutocompleteTrigger} from '@angular/material/autocomplete';
@@ -71,6 +71,7 @@ interface TreeNodeTaskInputParameter {
     selector: 'app-tree-nodes',
     templateUrl: './tree-nodes.component.html',
     styleUrls: ['./tree-nodes.component.scss'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
@@ -3634,8 +3635,11 @@ export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
     this.isResizing = true;
   }
 
-  @HostListener('document:keydown.escape', ['$event'])
-  onDocumentEscape(event: KeyboardEvent): void {
+  @HostListener('document:keydown', ['$event'])
+  onDocumentKeydown(event: KeyboardEvent): void {
+    if (event.key !== 'Escape') {
+      return;
+    }
     if (!this.hasNodeSelection || this.dialog.openDialogs.length > 0) {
       return;
     }

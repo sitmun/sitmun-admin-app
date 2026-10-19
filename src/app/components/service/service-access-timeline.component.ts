@@ -1,4 +1,4 @@
-import {Component, Input} from '@angular/core';
+import {Component, Input, ChangeDetectionStrategy} from '@angular/core';
 
 import {TranslateService} from '@ngx-translate/core';
 
@@ -12,6 +12,7 @@ const TICK_INDEXES = [0, 36, 72, 108, 143];
   selector: 'app-service-access-timeline',
   templateUrl: './service-access-timeline.component.html',
   styleUrls: ['./service-access-timeline.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
 export class ServiceAccessTimelineComponent {

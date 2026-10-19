@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, ChangeDetectionStrategy} from '@angular/core';
 import {UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
 import {MatDialog} from '@angular/material/dialog';
 import {ActivatedRoute, Router} from '@angular/router';
@@ -37,6 +37,7 @@ import {config} from '@config';
     selector: 'app-connection-form',
     templateUrl: './connection-form.component.html',
     styleUrls: ['./connection-form.component.scss'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ConnectionFormComponent extends BaseFormComponent<Connection> {

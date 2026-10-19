@@ -1,5 +1,4 @@
-import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
@@ -27,26 +26,27 @@ import { TranslateModule } from '@ngx-translate/core';
 @Component({
     selector: 'app-router-link-renderer',
     template: `
-    <div *ngIf="canNavigate(); else plainValue" class="dual-internal-link-cell">
-      <a [routerLink]="getRouterLink()"
-         class="router-link dual-internal-link-cell__text"
-         (click)="$event.stopPropagation()">
-        {{ params.value }}
-      </a>
-      <a [routerLink]="getRouterLink()"
-         class="dual-internal-link-cell__new-tab related-entity-open-link"
-         target="_blank"
-         rel="noopener"
-         (click)="$event.stopPropagation()"
-         [matTooltip]="'common.relation.openNewTab' | translate"
-         [attr.aria-label]="'common.relation.openNewTab' | translate">
-        <mat-icon class="related-entity-link-icon">open_in_new</mat-icon>
-      </a>
-    </div>
-    <ng-template #plainValue>
+    @if (canNavigate()) {
+      <div class="dual-internal-link-cell">
+        <a [routerLink]="getRouterLink()"
+          class="router-link dual-internal-link-cell__text"
+          (click)="$event.stopPropagation()">
+          {{ params.value }}
+        </a>
+        <a [routerLink]="getRouterLink()"
+          class="dual-internal-link-cell__new-tab related-entity-open-link"
+          target="_blank"
+          rel="noopener"
+          (click)="$event.stopPropagation()"
+          [matTooltip]="'common.relation.openNewTab' | translate"
+          [attr.aria-label]="'common.relation.openNewTab' | translate">
+          <mat-icon class="related-entity-link-icon">open_in_new</mat-icon>
+        </a>
+      </div>
+    } @else {
       <span>{{ params?.value }}</span>
-    </ng-template>
-  `,
+    }
+    `,
     styles: [`
     :host {
       display: block;
@@ -91,7 +91,8 @@ import { TranslateModule } from '@ngx-translate/core';
     }
   `],
     standalone: true,
-    imports: [CommonModule, RouterModule, MatIconModule, MatTooltipModule, TranslateModule]
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [RouterModule, MatIconModule, MatTooltipModule, TranslateModule]
 })
 export class RouterLinkRendererComponent implements ICellRendererAngularComp {
   /** AG Grid cell renderer parameters */

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -48,6 +48,7 @@ interface DocumentExportTaskProperties {
   selector: 'app-task-document-export-form',
   templateUrl: './task-document-export-form.component.html',
   styles: ['.pdf-config-row { margin-top: 16px; }'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
 export class TaskDocumentExportFormComponent extends BaseFormComponent<TaskProjection> {
