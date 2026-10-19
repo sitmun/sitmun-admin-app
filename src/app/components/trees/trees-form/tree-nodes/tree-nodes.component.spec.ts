@@ -1,3 +1,6 @@
+import { readFileSync } from 'fs';
+import { join } from 'path';
+
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -374,6 +377,19 @@ describe('TreeNodesComponent', () => {
       expect(component.treeNodeForm.get('filterGetMap')).toBeTruthy();
       expect(component.treeNodeForm.get('filterSelectable')).toBeTruthy();
       expect(component.treeNodeForm.get('style')).toBeTruthy();
+    });
+  });
+
+  describe('filters panel labels', () => {
+    it('labels each filter select with the option it controls', () => {
+      const html = readFileSync(join(__dirname, 'tree-nodes.component.html'), 'utf8');
+      const labelFor = (control: string): string | undefined =>
+        html.match(
+          new RegExp(`<mat-label>\\{\\{ '([^']+)' \\| translate \\}\\}</mat-label>\\s*<mat-select formControlName="${control}"`)
+        )?.[1];
+
+      expect(labelFor('filterGetFeatureInfo')).toBe('entity.layer.filterInfoByMunicipality');
+      expect(labelFor('filterGetMap')).toBe('entity.layer.applyFilterToGetMap');
     });
   });
 
