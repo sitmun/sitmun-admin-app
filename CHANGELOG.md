@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Languages**: Set as Default no longer stays disabled after open. Default-language lookups use a single `/api/` slash so Spring Security 7 accepts `findByName`.
+- **Grids**: AG Grid 32 registers `CommunityFeaturesModule` so date and text cell editors mount again (Positions Alta/Baja inline edit).
 - **Tests**: Jest specs match Angular 22 realities (`ng-reflect-*` opt-in, HostListener rename, `@if (; as)` syntax, jsdom Location, FileReader under Node 24) and use a 30s default timeout.
 
 - **Layers**: An Image feature-information field stores max width and max height in its options. The picture address stays unchanged.

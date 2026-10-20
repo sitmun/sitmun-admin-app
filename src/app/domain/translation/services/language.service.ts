@@ -89,7 +89,7 @@ export class LanguageService extends RestService<Language> {
    */
   getCurrentDefaultLanguage(): Observable<string> {
     return new Observable(observer => {
-      this.http.get<{ value: string }>(`${this.resourceService.getResourceUrl()}/configuration-parameters/search/findByName?name=language.default`)
+      this.http.get<{ value: string }>(this.apiUrl('configuration-parameters/search/findByName?name=language.default'))
         .subscribe({
           next: (config) => {
             observer.next(config.value);
@@ -105,7 +105,7 @@ export class LanguageService extends RestService<Language> {
    */
   previewDefaultLanguageChange(from: string, to: string): Observable<DefaultLanguageChangePreview> {
     return this.http.post<DefaultLanguageChangePreview>(
-      `${this.resourceService.getResourceUrl()}/language-default/change-preview`,
+      this.apiUrl('language-default/change-preview'),
       { from, to },
       {context: new HttpContext().set(SUPPRESS_HTTP_NOTIFICATION, true)}
     );
@@ -116,9 +116,14 @@ export class LanguageService extends RestService<Language> {
    */
   applyDefaultLanguageChange(request: DefaultLanguageChangeRequest): Observable<DefaultLanguageChangeResult> {
     return this.http.post<DefaultLanguageChangeResult>(
-      `${this.resourceService.getResourceUrl()}/language-default/change`,
+      this.apiUrl('language-default/change'),
       request,
       {context: new HttpContext().set(SUPPRESS_HTTP_NOTIFICATION, true)}
     );
+  }
+
+  /** Avoid `…/api//path` from getResourceUrl()'s trailing slash (401 under Spring Security 7). */
+  private apiUrl(path: string): string {
+    return `${this.resourceService.getResourceUrl().replace(/\/$/, '')}/${path.replace(/^\//, '')}`;
   }
 }

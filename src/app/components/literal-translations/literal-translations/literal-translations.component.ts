@@ -6,7 +6,15 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { AgGridModule } from '@ag-grid-community/angular';
-import { CellClickedEvent, ColDef, FilterChangedEvent, GridApi, GridReadyEvent, ModuleRegistry } from '@ag-grid-community/core';
+import {
+  CellClickedEvent,
+  ColDef,
+  CommunityFeaturesModule,
+  FilterChangedEvent,
+  GridApi,
+  GridReadyEvent,
+  ModuleRegistry,
+} from '@ag-grid-community/core';
 import { InfiniteRowModelModule } from '@ag-grid-community/infinite-row-model';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { debounceTime, forkJoin, tap } from 'rxjs';
@@ -35,7 +43,7 @@ import {
 import { filterEnabledLanguages } from '@app/services/ui-language.resolver';
 import { config } from '@config';
 
-ModuleRegistry.registerModules([InfiniteRowModelModule]);
+ModuleRegistry.registerModules([CommunityFeaturesModule, InfiniteRowModelModule]);
 
 @Component({
   selector: 'app-literal-translations',

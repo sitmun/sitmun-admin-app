@@ -27,7 +27,7 @@ import {MatTooltipModule} from '@angular/material/tooltip';
 
 import {AgGridModule} from '@ag-grid-community/angular';
 import {ClientSideRowModelModule} from '@ag-grid-community/client-side-row-model';
-import {GridOptions, ModuleRegistry} from '@ag-grid-community/core';
+import {CommunityFeaturesModule, GridOptions, ModuleRegistry} from '@ag-grid-community/core';
 import {CsvExportModule} from '@ag-grid-community/csv-export';
 import {InfiniteRowModelModule} from '@ag-grid-community/infinite-row-model';
 import {TranslateModule, TranslateService} from '@ngx-translate/core';
@@ -61,9 +61,10 @@ import {DialogMessageComponent} from '../dialog-message/dialog-message.component
 import {EditableLinkRendererComponent} from '../editable-link-renderer/editable-link-renderer.component';
 import {RouterLinkRendererComponent} from '../router-link-renderer/router-link-renderer.component';
 
-// Removed jQuery dependency
-
+// AG Grid 32 moved editors/filters into CommunityFeaturesModule; without it,
+// agDateStringCellEditor never mounts and Positions Alta/Baja stay read-only.
 ModuleRegistry.registerModules([
+  CommunityFeaturesModule,
   ClientSideRowModelModule,
   InfiniteRowModelModule,
   CsvExportModule
