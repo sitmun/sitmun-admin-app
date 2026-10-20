@@ -434,6 +434,10 @@ export class UtilsService {
       filter: 'agDateColumnFilter',
       filterParams: this.getDateFilterParams(options),
       editable: editable ?? false,
+      // HAL Instant ISO strings are not AG Grid dateString (YYYY-MM-DD). Leaving
+      // cellDataType on lets DataTypeModule infer "text", then
+      // agDateStringCellEditor crashes: getDateParserFunction is not a function.
+      cellDataType: false,
       emptyValueKey: options?.emptyValueKey,
       headerTooltip: options?.headerTooltipKey
         ? this.getTranslate(options.headerTooltipKey)
@@ -444,7 +448,8 @@ export class UtilsService {
         }
         return this.getDateFormated(data);
       },
-      cellEditor: 'agDateStringCellEditor',
+      // Native datePicker parses Instant via Date(); agDateStringCellEditor does not.
+      cellEditor: 'datePicker',
       cellClass: (editable ?? false) ? null : 'read-only-cell'
     };
   }
