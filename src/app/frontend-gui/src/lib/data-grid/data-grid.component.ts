@@ -62,7 +62,8 @@ import {EditableLinkRendererComponent} from '../editable-link-renderer/editable-
 import {RouterLinkRendererComponent} from '../router-link-renderer/router-link-renderer.component';
 
 // AG Grid 32 moved editors/filters into CommunityFeaturesModule; without it,
-// agDateStringCellEditor never mounts and Positions Alta/Baja stay read-only.
+// inline editors never mount. Date columns still use the grid's datePicker
+// component (Instant-safe); CommunityFeaturesModule covers text/select editors.
 ModuleRegistry.registerModules([
   CommunityFeaturesModule,
   ClientSideRowModelModule,
