@@ -13,6 +13,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Trees**: The GetFeatureInfo filter is labeled as the feature-information filter, and the GetMap filter is labeled as the map filter ([#491](https://github.com/sitmun/sitmun-admin-app/issues/491)).
+- **Trees**: Accepting a name or description translation on a saved node marks the form dirty and sends the node update ([#504](https://github.com/sitmun/sitmun-admin-app/issues/504)).
+- **Trees**: Loading layers from a service attaches the cartography of that service when two services share a layer name ([#227](https://github.com/sitmun/sitmun-admin-app/issues/227)).
+- **More Info Advanced**: A child task mapping stores the query parameter name. The option text stays the label ([#506](https://github.com/sitmun/sitmun-admin-app/issues/506)).
+- **Services**: GetCapabilities trims surrounding spaces from the service URL and keeps the trimmed value on the form ([#233](https://github.com/sitmun/sitmun-admin-app/issues/233)).
+- **Layers**: On a WFS cartography, the development-only styles, filters, feature-information, and legend copy says feature type. WMS copy is unchanged ([#492](https://github.com/sitmun/sitmun-admin-app/issues/492)).
 - **Languages**: Set as Default no longer stays disabled after open. Default-language lookups use a single `/api/` slash so Spring Security 7 accepts `findByName`.
 - **Grids**: AG Grid 32 registers `CommunityFeaturesModule` so text/select cell editors mount. Date columns use the Instant-safe `datePicker` editor with `cellDataType: false` so Positions Alta/Baja edit no longer throws in `DateStringCellEditor`.
 - **Tests**: Jest specs match Angular 22 realities (`ng-reflect-*` opt-in, HostListener rename, `@if (; as)` syntax, jsdom Location, FileReader under Node 24) and use a 30s default timeout.
