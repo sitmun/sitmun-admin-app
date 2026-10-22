@@ -219,7 +219,7 @@
                                       @for (p of taskView.childParameters; track p) {
                                         <mat-option
                                           [attr.data-testid]="row.ids.option('child', p.label)"
-                                          [value]="p.label">
+                                          [value]="p.name">
                                           {{ p.label }}
                                         </mat-option>
                                       }
@@ -346,7 +346,7 @@
                               @for (p of node.childParameters; track p) {
                                 <mat-option
                                   [attr.data-testid]="row.ids.option('child', p.label)"
-                                  [value]="p.label">
+                                  [value]="p.name">
                                   {{ p.label }}
                                 </mat-option>
                               }
@@ -406,7 +406,7 @@
                             @for (p of node.childParameters; track p) {
                               <mat-option
                                 [attr.data-testid]="row.ids.option('child', p.label)"
-                                [value]="p.label">
+                                [value]="p.name">
                                 {{ p.label }}
                               </mat-option>
                             }
@@ -461,7 +461,7 @@
                             @for (p of node.childParameters; track p) {
                               <mat-option
                                 [attr.data-testid]="row.ids.option('child', p.label)"
-                                [value]="p.label">
+                                [value]="p.name">
                                 {{ p.label }}
                               </mat-option>
                             }
