@@ -2510,4 +2510,92 @@ describe('TreeNodesComponent', () => {
     });
   });
 
+  describe('non-default translation accept', () => {
+    function persistedLeaf(): void {
+      component['currentNodeId'] = 8;
+      component['newElement'] = false;
+      component.currentNodeType = constants.treeDomainKey.cartography;
+      component.treeNodeForm.patchValue({
+        id: 8,
+        name: 'Leaf',
+        description: 'Desc',
+        nodeType: constants.treeDomainKey.cartography,
+      });
+      component.treeNodeForm.markAsPristine();
+    }
+
+    it('sends a node update when a non-default name translation is accepted', async () => {
+      persistedLeaf();
+      component.nameTranslations.set(8, new Map());
+      const accepted = new Map([['es', { name: 'Nombre' }]]);
+      jest.spyOn(component['utils'], 'openTranslationDialog').mockResolvedValue({
+        event: 'Accept',
+        data: accepted,
+      });
+      const updates: any[] = [];
+      component.sendNodeUpdated.subscribe((node) => updates.push(node));
+
+      await component.onTreeNodeNameTranslationButtonClicked();
+
+      expect(updates).toHaveLength(1);
+      expect(updates[0].nameTranslationsModified).toBe(true);
+      expect(updates[0].status).toBe('Modified');
+    });
+
+    it('sends a node update when a non-default description translation is accepted', async () => {
+      persistedLeaf();
+      component.descriptionTranslations.set(8, new Map());
+      const accepted = new Map([['es', { description: 'Descripcion' }]]);
+      jest.spyOn(component['utils'], 'openTranslationDialog').mockResolvedValue({
+        event: 'Accept',
+        data: accepted,
+      });
+      const updates: any[] = [];
+      component.sendNodeUpdated.subscribe((node) => updates.push(node));
+
+      await component.onTreeNodeDescriptionTranslationButtonClicked();
+
+      expect(updates).toHaveLength(1);
+      expect(updates[0].descriptionTranslationsModified).toBe(true);
+      expect(updates[0].status).toBe('Modified');
+    });
+  });
+
+  describe('load from service cartography match', () => {
+    it('matches a repeated capabilities name to the cartography of the selected service', () => {
+      component.layersList = [
+        { id: 1, name: 'Other service', layers: ['AD.Address'], serviceId: 10 },
+        { id: 2, name: 'Selected service', layers: ['AD.Address'], serviceId: 20 },
+      ];
+
+      const node = component['createNewNodeWithCapabilities']({ Name: 'AD.Address', Title: 'Address' }, 20);
+
+      expect(node.cartography.id).toBe(2);
+      expect(node.cartographyName).toBe('Selected service');
+    });
+  });
+
+  describe('filter select labels', () => {
+    function labelFor(controlName: string): string {
+      const select = fixture.nativeElement.querySelector(
+        `mat-select[formcontrolname="${controlName}"]`
+      );
+      return select?.closest('mat-form-field')?.querySelector('mat-label')?.textContent?.trim() ?? '';
+    }
+
+    it('labels GetFeatureInfo as municipality information and GetMap as map requests', () => {
+      component.currentNodeCartography = {
+        applyFilterToGetFeatureInfo: true,
+        applyFilterToGetMap: true,
+      };
+      setNodeContext(constants.codeValue.treeType.cartography, constants.treeDomainKey.cartography, {
+        nodeId: 1,
+        detectChanges: true,
+      });
+
+      expect(labelFor('filterGetFeatureInfo')).toBe('entity.layer.filterInfoByMunicipality');
+      expect(labelFor('filterGetMap')).toBe('entity.layer.applyFilterToGetMap');
+    });
+  });
+
 });
