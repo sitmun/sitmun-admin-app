@@ -24,12 +24,6 @@ import { ToolbarComponent } from './toolbar.component';
 describe('ToolbarComponent', () => {
   let component: ToolbarComponent;
   let fixture: ComponentFixture<ToolbarComponent>;
-  let loginService: LoginService;
-  let authService: AuthService;
-  let accountService: AccountService;
-  let principal: Principal;
-  let resourceService: ResourceService;
-  let externalService: ExternalService;
 
   const mockUser = { id: 1, username: 't', firstName: 'T', lastName: 'U' } as User;
   let authStateSubject: BehaviorSubject<unknown>;
@@ -77,45 +71,14 @@ describe('ToolbarComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(ToolbarComponent);
     component = fixture.componentInstance;
-    loginService= TestBed.inject(LoginService);
-    authService= TestBed.inject(AuthService);
-    accountService= TestBed.inject(AccountService);
-    principal= TestBed.inject(Principal);
-    resourceService= TestBed.inject(ResourceService);
-    externalService= TestBed.inject(ExternalService);
+
     fixture.detectChanges();
   });
 
   afterEach(() => fixture?.destroy());
   afterAll(() => TestBed.resetTestingModule());
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-
-  it('should instantiate loginService', () => {
-    expect(loginService).toBeTruthy();
-  });
-
-  it('should instantiate authService', () => {
-    expect(authService).toBeTruthy();
-  });
-
-  it('should instantiate accountService', () => {
-    expect(accountService).toBeTruthy();
-  });
-
-  it('should instantiate principal', () => {
-    expect(principal).toBeTruthy();
-  });
-
-  it('should instantiate resourceService', () => {
-    expect(resourceService).toBeTruthy();
-  });
-
-  it('should instantiate externalService', () => {
-    expect(externalService).toBeTruthy();
-  });
+  
 
   it('refreshes language menu when languagesToUse changes', () => {
     const languageService = TestBed.inject(LanguageService);

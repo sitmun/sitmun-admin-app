@@ -5,7 +5,7 @@ import { of } from 'rxjs';
 
 import { BtnCheckboxFilterComponent } from './btn-checkbox-filter.component';
 
-describe('BtnCheckboxFilterRenderedComponent', () => {
+describe('BtnCheckboxFilterComponent', () => {
   let component: BtnCheckboxFilterComponent;
   let fixture: ComponentFixture<BtnCheckboxFilterComponent>;
 
@@ -35,7 +35,25 @@ describe('BtnCheckboxFilterRenderedComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
+  it('reports equals to the parent filter when the value is non-empty', () => {
+    const onFloatingFilterChanged = jest.fn();
+    component.agInit({
+      parentFilterInstance: (callback: (instance: {onFloatingFilterChanged: typeof onFloatingFilterChanged}) => void) => {
+        callback({onFloatingFilterChanged});
+      },
+    } as never);
+    component.onChange('true');
+    expect(onFloatingFilterChanged).toHaveBeenCalledWith('equals', 'true');
+  });
+
+  it('clears the parent filter when the value is empty', () => {
+    const onFloatingFilterChanged = jest.fn();
+    component.agInit({
+      parentFilterInstance: (callback: (instance: {onFloatingFilterChanged: typeof onFloatingFilterChanged}) => void) => {
+        callback({onFloatingFilterChanged});
+      },
+    } as never);
+    component.onChange('');
+    expect(onFloatingFilterChanged).toHaveBeenCalledWith(null, null);
   });
 });

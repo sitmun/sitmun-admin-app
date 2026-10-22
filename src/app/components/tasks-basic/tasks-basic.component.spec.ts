@@ -2,13 +2,15 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { provideRouter, RouterModule } from '@angular/router';
+import { provideRouter, Router, RouterModule } from '@angular/router';
 
 import {TranslateLoader, TranslateModule} from '@ngx-translate/core';
 import {of} from 'rxjs';
 
 import {EntityListComponent} from '@app/components/shared/entity-list/entity-list.component';
 import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
+import { Configuration } from '@app/core/config/configuration';
+import { config } from '@config';
 import {ExternalService, ResourceService} from '@app/core/hal';
 import {CodeListService, TaskGroupService, TaskService, TranslationService} from '@app/domain';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
@@ -19,12 +21,7 @@ import { TasksBasicComponent } from './tasks-basic.component';
 describe('TasksBasicComponent', () => {
   let component: TasksBasicComponent;
   let fixture: ComponentFixture<TasksBasicComponent>;
-  let taskService: TaskService;
-  let taskGroupService: TaskGroupService;
-  let codeListService: CodeListService;
-  let translationService: TranslationService;
-  let resourceService: ResourceService;
-  let externalService: ExternalService;
+
   let httpMock: HttpTestingController;
 
   beforeAll(async () => {
@@ -55,12 +52,7 @@ describe('TasksBasicComponent', () => {
     httpMock = TestBed.inject(HttpTestingController);
     fixture = TestBed.createComponent(TasksBasicComponent);
     component = fixture.componentInstance;
-    taskService = TestBed.inject(TaskService);
-    taskGroupService = TestBed.inject(TaskGroupService);
-    codeListService = TestBed.inject(CodeListService);
-    translationService = TestBed.inject(TranslationService);
-    resourceService = TestBed.inject(ResourceService);
-    externalService = TestBed.inject(ExternalService);
+
     fixture.detectChanges();
     await new Promise((r) => setTimeout(r, 0));
     httpMock.match((req) => req.url.includes('tasks')).forEach((req) =>
@@ -76,31 +68,11 @@ describe('TasksBasicComponent', () => {
 
   afterAll(() => TestBed.resetTestingModule());
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
+  it('lists basic tasks and opens a new basic task form', async () => {
+    expect(component.entityListConfig.entityLabel).toBe(Configuration.TASK_BASIC.labelPlural);
+    const navigate = jest.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
+    await component.newData();
+    expect(navigate).toHaveBeenCalledWith(['taskBasic', -1, config.tasksTypes.basic]);
   });
 
-  it('should instantiate taskService', () => {
-    expect(taskService).toBeTruthy();
-  });
-
-  it('should instantiate taskGroupService', () => {
-    expect(taskGroupService).toBeTruthy();
-  });
-
-  it('should instantiate codeListService', () => {
-    expect(codeListService).toBeTruthy();
-  });
-
-  it('should instantiate translationService', () => {
-    expect(translationService).toBeTruthy();
-  });
-
-  it('should instantiate resourceService', () => {
-    expect(resourceService).toBeTruthy();
-  });
-
-  it('should instantiate externalService', () => {
-    expect(externalService).toBeTruthy();
-  });
 });

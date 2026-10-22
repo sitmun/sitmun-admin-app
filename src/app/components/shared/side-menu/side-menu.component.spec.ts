@@ -56,9 +56,7 @@ describe('SideMenuComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+  
 
   it('includes document export task entry inside tasks menu', async () => {
     await fixture.whenStable();

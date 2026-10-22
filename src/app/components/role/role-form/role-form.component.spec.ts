@@ -28,16 +28,6 @@ import { RoleFormComponent } from './role-form.component';
 describe('RoleFormComponent', () => {
   let component: RoleFormComponent;
   let fixture: ComponentFixture<RoleFormComponent>;
-  let roleService: RoleService;
-  let userService: UserService;
-  let applicationService: ApplicationService;
-  let codeListService: CodeListService;
-  let cartographyGroupService: CartographyGroupService;
-  let userConfigurationService: UserConfigurationService;
-  let cartographyService: CartographyService;
-  let taskService: TaskService;
-  let resourceService: ResourceService;
-  let externalService: ExternalService;
 
   beforeAll(async () => {
      
@@ -66,16 +56,7 @@ describe('RoleFormComponent', () => {
     // Suppress debug logs in tests to reduce console noise
     const loggerService = TestBed.inject(LoggerService);
     configureLoggerForTests(loggerService);
-    roleService= TestBed.inject(RoleService);
-    userService= TestBed.inject(UserService);
-    applicationService= TestBed.inject(ApplicationService);
-    codeListService= TestBed.inject(CodeListService);
-    cartographyGroupService= TestBed.inject(CartographyGroupService);
-    userConfigurationService= TestBed.inject(UserConfigurationService);
-    cartographyService= TestBed.inject(CartographyService);
-    taskService= TestBed.inject(TaskService);
-    resourceService= TestBed.inject(ResourceService);
-    externalService= TestBed.inject(ExternalService);
+
     if (!component.entityForm) {
       component.entityToEdit = component.empty();
       component.postFetchData();
@@ -86,73 +67,25 @@ describe('RoleFormComponent', () => {
   afterEach(() => fixture?.destroy());
   afterAll(() => TestBed.resetTestingModule());
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
+  
+
+  it('requires a name', () => {
+    expect(component.entityForm.get('name')?.hasError('required')).toBe(true);
   });
 
-  it('should instantiate roleService', () => {
-    expect(roleService).toBeTruthy();
-  });
-
-  it('should instantiate userService', () => {
-    expect(userService).toBeTruthy();
-  });
-
-  it('should instantiate applicationService', () => {
-    expect(applicationService).toBeTruthy();
-  });
-
-  it('should instantiate codeListService', () => {
-    expect(codeListService).toBeTruthy();
-  });
-
-  it('should instantiate cartographyGroupService', () => {
-    expect(cartographyGroupService).toBeTruthy();
-  });
-
-  it('should instantiate userConfigurationService', () => {
-    expect(userConfigurationService).toBeTruthy();
-  });
-
-  it('should instantiate cartographyService', () => {
-    expect(cartographyService).toBeTruthy();
-  });
-
-  it('should instantiate taskService', () => {
-    expect(taskService).toBeTruthy();
-  });
-
-  it('should instantiate resourceService', () => {
-    expect(resourceService).toBeTruthy();
-  });
-
-  it('should instantiate externalService', () => {
-    expect(externalService).toBeTruthy();
-  });
-
-  it('form invalid when empty', () => {
-    expect(component.entityForm.valid).toBeFalsy();
-  });
-
-  it('form invalid when mid-empty', () => {
+  it('requires a name when a description is set', () => {
     component.entityForm.patchValue({
       description: 'missDescription',
-    })
-    //Miss name
-    expect(component.entityForm.valid).toBeFalsy();
+    });
+    expect(component.entityForm.get('name')?.hasError('required')).toBe(true);
   });
 
-  it('form valid', () => {
+  it('accepts a name and a description', () => {
     component.entityForm.patchValue({
       name: 'name',
-      description: 'description'
-    })
-    expect(component.entityForm.valid).toBeTruthy();
-  });
-
-  it('Role form fields', () => {
-    expect(component.entityForm.get('description')).toBeTruthy();
-    expect(component.entityForm.get('name')).toBeTruthy();
+      description: 'description',
+    });
+    expect(component.entityForm.valid).toBe(true);
   });
 
   describe('Grid capability classification', () => {

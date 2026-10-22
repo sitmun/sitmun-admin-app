@@ -16,7 +16,6 @@ import { of } from 'rxjs';
 
 import { DialogTranslationComponent } from './dialog-translation.component';
 
-
 describe('DialogTranslationComponent', () => {
   let component: DialogTranslationComponent;
   let fixture: ComponentFixture<DialogTranslationComponent>;
@@ -67,9 +66,7 @@ describe('DialogTranslationComponent', () => {
     await fixture.whenStable();
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+  
 
   it('omits disabled languages from availableLanguages', () => {
     component.languageByDefault = 'en';

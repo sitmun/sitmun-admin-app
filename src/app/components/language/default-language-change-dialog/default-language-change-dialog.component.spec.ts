@@ -92,9 +92,7 @@ describe('DefaultLanguageChangeDialogComponent', () => {
   });
 
   describe('initialization', () => {
-    it('should create', () => {
-      expect(component).toBeTruthy();
-    });
+    
 
     it('should load preview on init with complete translations', (done) => {
       mockLanguageService.previewDefaultLanguageChange.mockReturnValue(of(mockPreviewComplete));

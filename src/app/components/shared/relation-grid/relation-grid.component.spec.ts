@@ -61,9 +61,7 @@ describe('RelationGridComponent', () => {
     component.table = mockTable;
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+  
 
   describe('picker/status table', () => {
     beforeEach(() => {

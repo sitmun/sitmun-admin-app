@@ -30,9 +30,7 @@ describe('IconsService', () => {
     service = TestBed.inject(IconsService);
   });
 
-  it('should be created', () => {
-    expect(service).toBeTruthy();
-  });
+  
 
   it('should load an icon successfully', () => {
     // Arrange

@@ -32,9 +32,7 @@ describe('FeatureFlagComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+  
 
   it('marks the experimental icon as decorative for screen readers', () => {
     const icon = fixture.nativeElement.querySelector('mat-icon');

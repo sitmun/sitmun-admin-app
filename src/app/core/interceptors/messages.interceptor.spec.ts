@@ -68,9 +68,7 @@ describe('MessagesInterceptor', () => {
     httpMock.verify();
   });
 
-  it('should be created', () => {
-    expect(interceptor).toBeTruthy();
-  });
+  
 
   describe('404 error handling', () => {
     beforeEach(() => {

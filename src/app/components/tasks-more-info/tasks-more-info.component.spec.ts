@@ -2,13 +2,15 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { provideRouter, RouterModule } from '@angular/router';
+import { provideRouter, Router, RouterModule } from '@angular/router';
 
 import {TranslateLoader, TranslateModule} from '@ngx-translate/core';
 import {of} from 'rxjs';
 
 import {EntityListComponent} from '@app/components/shared/entity-list/entity-list.component';
 import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
+import { Configuration } from '@app/core/config/configuration';
+import { magic } from '@environments/constants';
 import {ExternalService, ResourceService} from '@app/core/hal';
 import { CodeListService, TaskService, TranslationService } from '@app/domain';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
@@ -19,11 +21,7 @@ import { TasksMoreInfoComponent } from './tasks-more-info.component';
 describe('TasksMoreInfoComponent', () => {
   let component: TasksMoreInfoComponent;
   let fixture: ComponentFixture<TasksMoreInfoComponent>;
-  let taskService: TaskService;
-  let codeListService: CodeListService;
-  let translationService: TranslationService;
-  let resourceService: ResourceService;
-  let externalService: ExternalService;
+
   let httpMock: HttpTestingController;
 
   beforeEach(async () => {
@@ -57,11 +55,7 @@ describe('TasksMoreInfoComponent', () => {
     httpMock = TestBed.inject(HttpTestingController);
     fixture = TestBed.createComponent(TasksMoreInfoComponent);
     component = fixture.componentInstance;
-    taskService = TestBed.inject(TaskService);
-    codeListService = TestBed.inject(CodeListService);
-    translationService = TestBed.inject(TranslationService);
-    resourceService = TestBed.inject(ResourceService);
-    externalService = TestBed.inject(ExternalService);
+
     fixture.detectChanges();
     await new Promise((r) => setTimeout(r, 0));
     httpMock.match((req) => req.url.includes('tasks')).forEach((req) =>
@@ -74,27 +68,11 @@ describe('TasksMoreInfoComponent', () => {
     httpMock.verify();
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
+  it('lists more-info tasks and opens a new more-info task form', async () => {
+    expect(component.entityListConfig.entityLabel).toBe(Configuration.TASK_MORE_INFO.labelPlural);
+    const navigate = jest.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
+    await component.newData();
+    expect(navigate).toHaveBeenCalledWith(['tasksMoreInfo', -1, magic.taskMoreInfoTypeId]);
   });
 
-  it('should instantiate taskService', () => {
-    expect(taskService).toBeTruthy();
-  });
-
-  it('should instantiate codeListService', () => {
-    expect(codeListService).toBeTruthy();
-  });
-
-  it('should instantiate translationService', () => {
-    expect(translationService).toBeTruthy();
-  });
-
-  it('should instantiate resourceService', () => {
-    expect(resourceService).toBeTruthy();
-  });
-
-  it('should instantiate externalService', () => {
-    expect(externalService).toBeTruthy();
-  });
 });

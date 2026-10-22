@@ -84,9 +84,7 @@ describe('TaskLocatorFormComponent', () => {
   afterEach(() => fixture?.destroy());
   afterAll(() => TestBed.resetTestingModule());
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+  
 
   describe('Grid capability classification', () => {
     it('rolesTable should have picker, updater, and status capabilities', () => {

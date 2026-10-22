@@ -36,7 +36,7 @@ describe('i18n: entity.tree.image.resizeHint', () => {
       let value: string;
       beforeAll(() => { value = loadKey(locale, 'entity.tree.image.resizeHint'); });
 
-      it('has the key defined', () => {
+      it('is a non-empty string', () => {
         expect(value).toBeDefined();
         expect(value.length).toBeGreaterThan(0);
       });
@@ -61,7 +61,7 @@ describe('i18n: entity.tree.image.error.invalidType', () => {
       let value: string;
       beforeAll(() => { value = loadKey(locale, 'entity.tree.image.error.invalidType'); });
 
-      it('has the key defined', () => {
+      it('is a non-empty string', () => {
         expect(value).toBeDefined();
         expect(value.length).toBeGreaterThan(0);
       });
@@ -78,7 +78,7 @@ describe('i18n: entity.tree.image.error.tooLarge', () => {
       let value: string;
       beforeAll(() => { value = loadKey(locale, 'entity.tree.image.error.tooLarge'); });
 
-      it('has the key defined', () => {
+      it('is a non-empty string', () => {
         expect(value).toBeDefined();
         expect(value.length).toBeGreaterThan(0);
       });
@@ -98,7 +98,7 @@ describe.each([
       let value: string;
       beforeAll(() => { value = loadKey(locale, key); });
 
-      it('has the key defined', () => {
+      it('is a non-empty string', () => {
         expect(value).toBeDefined();
         expect(value.length).toBeGreaterThan(0);
       });
@@ -120,7 +120,7 @@ describe.each([
       let value: string;
       beforeAll(() => { value = loadKey(locale, key); });
 
-      it('has the key defined', () => {
+      it('is a non-empty string', () => {
         expect(value).toBeDefined();
         expect(value.length).toBeGreaterThan(0);
       });
@@ -138,7 +138,7 @@ describe('i18n: entity.tree.uploadedImageWillBeResized', () => {
       let value: string;
       beforeAll(() => { value = loadKey(locale, 'entity.tree.uploadedImageWillBeResized'); });
 
-      it('has the key defined', () => {
+      it('is a non-empty string', () => {
         expect(value).toBeDefined();
         expect(value.length).toBeGreaterThan(0);
       });
@@ -156,7 +156,7 @@ describe('i18n: entity.tree.uploadedImageMatchesTarget', () => {
       let value: string;
       beforeAll(() => { value = loadKey(locale, 'entity.tree.uploadedImageMatchesTarget'); });
 
-      it('has the key defined', () => {
+      it('is a non-empty string', () => {
         expect(value).toBeDefined();
         expect(value.length).toBeGreaterThan(0);
       });

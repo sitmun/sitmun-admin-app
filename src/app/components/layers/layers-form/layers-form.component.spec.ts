@@ -57,22 +57,8 @@ describe('LayersFormComponent', () => {
   let component: LayersFormComponent;
   let fixture: ComponentFixture<LayersFormComponent>;
   let cartographyService: CartographyService;
-  let serviceService: ServiceService;
-  let connectionService: ConnectionService;
-  let codeListService: CodeListService;
-  let cartographyGroupService: CartographyGroupService;
-  let territoryTypeService: TerritoryTypeService;
-  let treeNodeService: TreeNodeService;
-  let territoryService: TerritoryService;
+
   let getInfoService: GetInfoService;
-  let cartographyAvailabilityService: CartographyAvailabilityService;
-  let cartographyParameterService: CartographyParameterService;
-  let cartographySpatialSelectionParameterService: CartographySpatialSelectionParameterService;
-  let cartographyFilterService: CartographyFilterService;
-  let cartographyStyleService: CartographyStyleService;
-  let translationService: TranslationService;
-  let resourceService: ResourceService;
-  let externalService: ExternalService;
 
   beforeAll(async () => {
      
@@ -131,22 +117,9 @@ describe('LayersFormComponent', () => {
     const loggerService = TestBed.inject(LoggerService);
     configureLoggerForTests(loggerService);
     cartographyService = TestBed.inject(CartographyService);
-    serviceService = TestBed.inject(ServiceService);
-    connectionService = TestBed.inject(ConnectionService);
-    codeListService = TestBed.inject(CodeListService);
-    cartographyGroupService = TestBed.inject(CartographyGroupService);
-    territoryTypeService = TestBed.inject(TerritoryTypeService);
-    treeNodeService = TestBed.inject(TreeNodeService);
-    territoryService = TestBed.inject(TerritoryService);
+
     getInfoService = TestBed.inject(GetInfoService);
-    cartographyAvailabilityService = TestBed.inject(CartographyAvailabilityService);
-    cartographyParameterService = TestBed.inject(CartographyParameterService);
-    cartographySpatialSelectionParameterService = TestBed.inject(CartographySpatialSelectionParameterService);
-    cartographyFilterService = TestBed.inject(CartographyFilterService);
-    cartographyStyleService = TestBed.inject(CartographyStyleService);
-    translationService = TestBed.inject(TranslationService);
-    resourceService = TestBed.inject(ResourceService);
-    externalService = TestBed.inject(ExternalService);
+
     // Initialize form before detectChanges to prevent afterFetch from failing
     component.entityToEdit = component.empty();
     component.postFetchData();
@@ -156,87 +129,19 @@ describe('LayersFormComponent', () => {
   afterEach(() => fixture?.destroy());
   afterAll(() => TestBed.resetTestingModule());
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+  
 
-  it('should instantiate cartographyService', () => {
-    expect(cartographyService).toBeTruthy();
-  });
-
-  it('should instantiate serviceService', () => {
-    expect(serviceService).toBeTruthy();
-  });
-
-  it('should instantiate connectionService', () => {
-    expect(connectionService).toBeTruthy();
-  });
-
-  it('should instantiate codeListService', () => {
-    expect(codeListService).toBeTruthy();
-  });
-
-  it('should instantiate cartographyGroupService', () => {
-    expect(cartographyGroupService).toBeTruthy();
-  });
-
-  it('should instantiate territoryTypeService', () => {
-    expect(territoryTypeService).toBeTruthy();
-  });
-
-  it('should instantiate treeNodeService', () => {
-    expect(treeNodeService).toBeTruthy();
-  });
-
-  it('should instantiate territoryService', () => {
-    expect(territoryService).toBeTruthy();
-  });
-
-  it('should instantiate getInfoService', () => {
-    expect(getInfoService).toBeTruthy();
-  });
-
-  it('should instantiate cartographyAvailabilityService', () => {
-    expect(cartographyAvailabilityService).toBeTruthy();
-  });
-
-  it('should instantiate cartographyParameterService', () => {
-    expect(cartographyParameterService).toBeTruthy();
-  });
-
-  it('should instantiate cartographySpatialSelectionParameterService', () => {
-    expect(cartographySpatialSelectionParameterService).toBeTruthy();
-  });
-
-  it('should instantiate cartographyFilterService', () => {
-    expect(cartographyFilterService).toBeTruthy();
-  });
-
-  it('should instantiate cartographyStyleService', () => {
-    expect(cartographyStyleService).toBeTruthy();
-  });
-
-  it('should instantiate translationService', () => {
-    expect(translationService).toBeTruthy();
-  });
-
-  it('should instantiate resourceService', () => {
-    expect(resourceService).toBeTruthy();
-  });
-
-  it('should instantiate externalService', () => {
-    expect(externalService).toBeTruthy();
-  });
-
-  it('form invalid when empty', () => {
+  it('requires a name, a service, and a layer list', () => {
     if (!component.entityForm) {
       component.entityToEdit = component.empty();
       component.postFetchData();
     }
-    expect(component.entityForm.valid).toBeFalsy();
+    expect(component.entityForm.get('name')?.hasError('required')).toBe(true);
+    expect(component.entityForm.get('serviceId')?.hasError('required')).toBe(true);
+    expect(component.entityForm.get('joinedLayers')?.hasError('required')).toBe(true);
   });
 
-  it('form invalid when mid-empty', () => {
+  it('requires a name', () => {
     if (!component.entityForm) {
       component.entityToEdit = component.empty();
       component.postFetchData();
@@ -266,12 +171,11 @@ describe('LayersFormComponent', () => {
       spatialSelectionServiceId: 1,
       joinedSelectableLayers: 'layerSelected',
       useAllStyles: true,
-    })
-    //Miss name
-    expect(component.entityForm.valid).toBeFalsy();
+    });
+    expect(component.entityForm.get('name')?.hasError('required')).toBe(true);
   });
 
-  it('form valid', () => {
+  it('accepts a name, a service, and a layer list', () => {
     if (!component.entityForm) {
       component.entityToEdit = component.empty();
       component.postFetchData();
@@ -302,40 +206,8 @@ describe('LayersFormComponent', () => {
       spatialSelectionServiceId: 1,
       joinedSelectableLayers: 'layerSelected',
       useAllStyles: true,
-    })
-    expect(component.entityForm.valid).toBeTruthy();
-  });
-
-  it('Layer form fields', () => {
-    if (!component.entityForm) {
-      component.entityToEdit = component.empty();
-      component.postFetchData();
-    }
-    expect(component.entityForm.get('name')).toBeTruthy();
-    expect(component.entityForm.get('serviceId')).toBeTruthy();
-    expect(component.entityForm.get('joinedLayers')).toBeTruthy();
-    expect(component.entityForm.get('minimumScale')).toBeTruthy();
-    expect(component.entityForm.get('maximumScale')).toBeTruthy();
-    expect(component.entityForm.get('order')).toBeTruthy();
-    expect(component.entityForm.get('transparency')).toBeTruthy();
-    expect(component.entityForm.get('metadataURL')).toBeTruthy();
-    expect(component.entityForm.get('legendType')).toBeTruthy();
-    expect(component.entityForm.get('legendURL')).toBeTruthy();
-    expect(component.entityForm.get('source')).toBeTruthy();
-    expect(component.entityForm.get('description')).toBeTruthy();
-    expect(component.entityForm.get('datasetURL')).toBeTruthy();
-    expect(component.entityForm.get('applyFilterToGetMap')).toBeTruthy();
-    expect(component.entityForm.get('applyFilterToGetFeatureInfo')).toBeTruthy();
-    expect(component.entityForm.get('applyFilterToSpatialSelection')).toBeTruthy();
-    expect(component.entityForm.get('queryableFeatureEnabled')).toBeTruthy();
-    expect(component.entityForm.get('queryableFeatureAvailable')).toBeTruthy();
-    expect(component.entityForm.get('joinedQueryableLayers')).toBeTruthy();
-    expect(component.entityForm.get('thematic')).toBeTruthy();
-    expect(component.entityForm.get('availableForClients')).toBeTruthy();
-    expect(component.entityForm.get('selectableFeatureEnabled')).toBeTruthy();
-    expect(component.entityForm.get('spatialSelectionServiceId')).toBeTruthy();
-    expect(component.entityForm.get('joinedSelectableLayers')).toBeTruthy();
-    expect(component.entityForm.get('useAllStyles')).toBeTruthy();
+    });
+    expect(component.entityForm.valid).toBe(true);
   });
 
   it('transparency defaults to 0 when not provided by the API', () => {

@@ -27,10 +27,6 @@ describe('TaskGroupFormComponent', () => {
   let fixture: ComponentFixture<TaskGroupFormComponent>;
   let taskGroupService: TaskGroupService;
   let taskService: TaskService;
-  let codeListService: CodeListService;
-  let translationService: TranslationService;
-  let resourceService: ResourceService;
-  let externalService: ExternalService;
 
   beforeAll(async () => {
      
@@ -60,10 +56,7 @@ describe('TaskGroupFormComponent', () => {
     configureLoggerForTests(loggerService);
     taskGroupService= TestBed.inject(TaskGroupService);
     taskService = TestBed.inject(TaskService);
-    codeListService= TestBed.inject(CodeListService);
-    translationService= TestBed.inject(TranslationService);
-    resourceService= TestBed.inject(ResourceService);
-    externalService= TestBed.inject(ExternalService);
+
     if (!component.entityForm) {
       component.entityToEdit = component.empty();
       component.postFetchData();
@@ -74,9 +67,7 @@ describe('TaskGroupFormComponent', () => {
   afterEach(() => fixture?.destroy());
   afterAll(() => TestBed.resetTestingModule());
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+  
 
   it('tasksTable relations request typeTitle with UI lang so backend @I18n applies', () => {
     component.entityID = 5;
@@ -111,39 +102,15 @@ describe('TaskGroupFormComponent', () => {
     );
   });
 
-  it('should instantiate taskGroupService', () => {
-    expect(taskGroupService).toBeTruthy();
+  it('requires a name', () => {
+    expect(component.entityForm.get('name')?.hasError('required')).toBe(true);
   });
 
-  it('should instantiate codeListService', () => {
-    expect(codeListService).toBeTruthy();
-  });
-
-  it('should instantiate translationService', () => {
-    expect(translationService).toBeTruthy();
-  });
-
-  it('should instantiate resourceService', () => {
-    expect(resourceService).toBeTruthy();
-  });
-
-  it('should instantiate externalService', () => {
-    expect(externalService).toBeTruthy();
-  });
-
-  it('form invalid when empty', () => {
-    expect(component.entityForm.valid).toBeFalsy();
-  });
-
-  it('form valid', () => {
+  it('accepts a name', () => {
     component.entityForm.patchValue({
-      name: 'name'
-    })
-    expect(component.entityForm.valid).toBeTruthy();
-  });
-
-  it('Task group form fields', () => {
-    expect(component.entityForm.get('name')).toBeTruthy();
+      name: 'name',
+    });
+    expect(component.entityForm.valid).toBe(true);
   });
 
   describe('Grid capability classification', () => {

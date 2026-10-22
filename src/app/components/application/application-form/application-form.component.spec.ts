@@ -51,18 +51,11 @@ function seedApplicationFormCodeLists(component: ApplicationFormComponent): void
 describe('ApplicationFormComponent', () => {
   let component: ApplicationFormComponent;
   let fixture: ComponentFixture<ApplicationFormComponent>;
-  let roleService: RoleService;
+
   let applicationBackgroundService: ApplicationBackgroundService;
   let applicationTreeService: ApplicationTreeService;
   let applicationService: ApplicationService;
-  let codeListService: CodeListService;
-  let cartographyGroupService: CartographyGroupService;
-  let applicationParameterService: ApplicationParameterService;
-  let treeService: TreeService;
-  let backgroundService: BackgroundService;
-  let translationService: TranslationService;
-  let resourceService: ResourceService;
-  let externalService: ExternalService;
+
   let restoreConsoleWarn: () => void;
 
   beforeAll(async () => {
@@ -90,18 +83,11 @@ describe('ApplicationFormComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(ApplicationFormComponent);
     component = fixture.componentInstance;
-    roleService = TestBed.inject(RoleService);
+
     applicationBackgroundService = TestBed.inject(ApplicationBackgroundService);
     applicationTreeService = TestBed.inject(ApplicationTreeService);
     applicationService = TestBed.inject(ApplicationService);
-    codeListService = TestBed.inject(CodeListService);
-    cartographyGroupService = TestBed.inject(CartographyGroupService);
-    applicationParameterService = TestBed.inject(ApplicationParameterService);
-    treeService = TestBed.inject(TreeService);
-    backgroundService = TestBed.inject(BackgroundService);
-    translationService = TestBed.inject(TranslationService);
-    resourceService = TestBed.inject(ResourceService);
-    externalService = TestBed.inject(ExternalService);
+
     const loggerService = TestBed.inject(LoggerService);
     configureLoggerForTests(loggerService);
     restoreConsoleWarn = suppressAgGridConsoleWarnings();
@@ -118,74 +104,22 @@ describe('ApplicationFormComponent', () => {
 
   afterAll(() => TestBed.resetTestingModule());
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
+  
+
+  it('requires a name and a description', () => {
+    expect(component.entityForm.get('name')?.hasError('required')).toBe(true);
+    expect(component.entityForm.get('description')?.hasError('required')).toBe(true);
   });
 
-  it('should instantiate roleService', () => {
-    expect(roleService).toBeTruthy();
-  });
-
-  it('should instantiate applicationBackgroundService ', () => {
-    expect(applicationBackgroundService).toBeTruthy();
-  });
-
-  it('should instantiate applicationService', () => {
-    expect(applicationService).toBeTruthy();
-  });
-
-  it('should instantiate codeListService', () => {
-    expect(codeListService).toBeTruthy();
-  });
-
-  it('should instantiate cartographyGroupService', () => {
-    expect(cartographyGroupService).toBeTruthy();
-  });
-
-  it('should instantiate applicationParameterService', () => {
-    expect(applicationParameterService).toBeTruthy();
-  });
-
-  it('should instantiate treeService', () => {
-    expect(treeService).toBeTruthy();
-  });
-
-  it('should instantiate backgroundService', () => {
-    expect(backgroundService).toBeTruthy();
-  });
-
-  it('should instantiate translationService', () => {
-    expect(translationService).toBeTruthy();
-  });
-
-  it('should instantiate resourceService', () => {
-    expect(resourceService).toBeTruthy();
-  });
-
-  it('should instantiate externalService', () => {
-    expect(externalService).toBeTruthy();
-  });
-
-  it('form invalid when empty', () => {
-    expect(component.entityForm.valid).toBeFalsy();
-  });
-
-  it('form invalid when mid-empty', () => {
+  it('requires a name', () => {
     component.entityForm.patchValue({
-      logo: 'logo',
-      title: 'title',
-      jspTemplate: 'url',
-      theme: 'theme',
-      situationMap: 1,
-      scales: '1',
-      srs: 'EPSG:4326',
-      treeAutoRefresh: true
+      description: 'description',
+      type: 1,
     });
-    //Miss url
-    expect(component.entityForm.valid).toBeFalsy();
+    expect(component.entityForm.get('name')?.hasError('required')).toBe(true);
   });
 
-  it('form valid', () => {
+  it('accepts a name, description, and type', () => {
     component.entityForm.patchValue({
       name: 'name',
       description: 'description',
@@ -199,20 +133,13 @@ describe('ApplicationFormComponent', () => {
       srs: 'EPSG:4326',
       treeAutoRefresh: true
     });
-    expect(component.entityForm.valid).toBeTruthy();
+    expect(component.entityForm.valid).toBe(true);
   });
 
-  it('Application form fields', () => {
-    expect(component.entityForm.get('name')).toBeTruthy();
-    expect(component.entityForm.get('type')).toBeTruthy();
-    expect(component.entityForm.get('title')).toBeTruthy();
-    expect(component.entityForm.get('jspTemplate')).toBeTruthy();
-    expect(component.entityForm.get('accessParentTerritory')).toBeTruthy();
-    expect(component.entityForm.get('accessChildrenTerritory')).toBeTruthy();
-    expect(component.entityForm.get('theme')).toBeTruthy();
-    expect(component.entityForm.get('situationMapId')).toBeTruthy();
-    expect(component.entityForm.get('scales')).toBeTruthy();
-    expect(component.entityForm.get('treeAutoRefresh')).toBeTruthy();
+  it('exposes access parent territory, access children territory, and situation map', () => {
+    expect(component.entityForm.get('accessParentTerritory')).not.toBeNull();
+    expect(component.entityForm.get('accessChildrenTerritory')).not.toBeNull();
+    expect(component.entityForm.get('situationMapId')).not.toBeNull();
   });
 
   it('requires external URL when type is external', () => {

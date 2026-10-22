@@ -2,13 +2,14 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { provideRouter, RouterModule } from '@angular/router';
+import { provideRouter, Router, RouterModule } from '@angular/router';
 
 import {TranslateLoader, TranslateModule} from '@ngx-translate/core';
 import {of} from 'rxjs';
 
 import {EntityListComponent} from '@app/components/shared/entity-list/entity-list.component';
 import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
+import { Configuration } from '@app/core/config/configuration';
 import {ExternalService, ResourceService} from '@app/core/hal';
 import {CodeListService, RoleService} from '@app/domain';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
@@ -19,10 +20,7 @@ import { RoleComponent } from './role.component';
 describe('RoleComponent', () => {
   let component: RoleComponent;
   let fixture: ComponentFixture<RoleComponent>;
-  let roleService: RoleService;
-  let codeListService: CodeListService;
-  let resourceService: ResourceService;
-  let externalService: ExternalService;
+
   let httpMock: HttpTestingController;
 
   beforeAll(async () => {
@@ -53,10 +51,7 @@ describe('RoleComponent', () => {
     httpMock = TestBed.inject(HttpTestingController);
     fixture = TestBed.createComponent(RoleComponent);
     component = fixture.componentInstance;
-    roleService = TestBed.inject(RoleService);
-    codeListService = TestBed.inject(CodeListService);
-    resourceService = TestBed.inject(ResourceService);
-    externalService = TestBed.inject(ExternalService);
+
     fixture.detectChanges();
     await new Promise((r) => setTimeout(r, 0));
     httpMock.match((req) => req.url.includes('roles')).forEach((req) =>
@@ -72,25 +67,11 @@ describe('RoleComponent', () => {
 
   afterAll(() => TestBed.resetTestingModule());
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-
-  it('should instantiate roleService', () => {
-    expect(roleService).toBeTruthy();
-  });
-
-  it('should instantiate codeListService', () => {
-    expect(codeListService).toBeTruthy();
-  });
-
-
-  it('should instantiate resourceService', () => {
-    expect(resourceService).toBeTruthy();
-  });
-
-  it('should instantiate externalService', () => {
-    expect(externalService).toBeTruthy();
+  it('lists roles and opens a new role form', async () => {
+    expect(component.entityListConfig.entityLabel).toBe(Configuration.ROLE.labelPlural);
+    const navigate = jest.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
+    await component.newData();
+    expect(navigate).toHaveBeenCalledWith(['role', -1, 'roleForm']);
   });
 
 });

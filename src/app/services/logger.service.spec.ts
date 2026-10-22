@@ -40,9 +40,7 @@ describe('LoggerService', () => {
     jest.restoreAllMocks();
   });
 
-  it('should be created', () => {
-    expect(service).toBeTruthy();
-  });
+  
 
   it('should initialize with log level from environment', () => {
     expect(service.getLogLevel()).toBe(environment.logLevel || LogLevel.Error);

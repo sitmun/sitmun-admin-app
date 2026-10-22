@@ -96,23 +96,23 @@ describe('ConnectionFormComponent', () => {
   });
   afterAll(() => TestBed.resetTestingModule());
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
+  
+
+  it('requires a name, a driver, and a url', () => {
+    expect(component.entityForm.get('name')?.hasError('required')).toBe(true);
+    expect(component.entityForm.get('driver')?.hasError('required')).toBe(true);
+    expect(component.entityForm.get('url')?.hasError('required')).toBe(true);
   });
 
-  it('form invalid when empty', () => {
-    expect(component.entityForm.valid).toBeFalsy();
-  });
-
-  it('form valid when required fields are set', () => {
+  it('accepts a name, a driver, and a url', () => {
     component.entityForm.patchValue({
       name:'testName',
       user: 'user',
       newPassword: 'password',
       url: 'url',
       driver: 'org.h2.Driver'
-    })
-    expect(component.entityForm.valid).toBeTruthy();
+    });
+    expect(component.entityForm.valid).toBe(true);
   });
 
   it('canSave respects form validity', () => {

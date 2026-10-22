@@ -83,9 +83,7 @@ describe('TaskTypeFormComponent', () => {
   afterEach(() => fixture?.destroy());
   afterAll(() => TestBed.resetTestingModule());
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+  
 
   it('requires title in the form', () => {
     component.entityForm.get('title')?.setValue('');

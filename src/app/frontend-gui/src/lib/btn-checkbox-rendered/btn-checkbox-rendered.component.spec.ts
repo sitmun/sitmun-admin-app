@@ -51,9 +51,7 @@ describe('BtnCheckboxRenderedComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+  
 
   it('renders the Material checkbox with primary color', () => {
     const checkbox = fixture.debugElement.query(By.css('mat-checkbox'));

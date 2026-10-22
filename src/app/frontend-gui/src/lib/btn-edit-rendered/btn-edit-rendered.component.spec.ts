@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatIconModule } from '@angular/material/icon';
+import { By } from '@angular/platform-browser';
 
 import { BtnEditRenderedComponent } from './btn-edit-rendered.component';
 
@@ -21,7 +22,10 @@ describe('BtnEditRenderedComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
+  it('calls clicked with the cell value when the button is clicked', () => {
+    const clicked = jest.fn();
+    component.params = {clicked, value: 'row-1'};
+    fixture.debugElement.query(By.css('button')).triggerEventHandler('click', {});
+    expect(clicked).toHaveBeenCalledWith('row-1');
   });
 });

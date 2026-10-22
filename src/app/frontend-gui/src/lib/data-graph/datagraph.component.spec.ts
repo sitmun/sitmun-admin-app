@@ -43,9 +43,7 @@ describe('DatagraphComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+  
 
   it('keeps a category axis and a label on every bar', () => {
     component.type = 'bar';

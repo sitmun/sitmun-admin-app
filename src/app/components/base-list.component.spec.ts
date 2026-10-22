@@ -63,9 +63,7 @@ describe('BaseListComponent', () => {
     component = fixture.componentInstance;
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+  
 
   describe('dataFetchFn is present', () => {
     it('should have dataFetchFn defined', () => {

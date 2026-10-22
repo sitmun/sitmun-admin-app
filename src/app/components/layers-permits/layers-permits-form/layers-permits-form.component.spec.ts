@@ -40,13 +40,7 @@ const layersPermitsFormTemplate = readFileSync(
 describe('LayersPermitsFormComponent', () => {
   let component: LayersPermitsFormComponent;
   let fixture: ComponentFixture<LayersPermitsFormComponent>;
-  let roleService: RoleService;
-  let cartographyService: CartographyService;
-  let codeListService: CodeListService;
-  let cartographyGroupService: CartographyGroupService;
-  let translationService: TranslationService;
-  let resourceService: ResourceService;
-  let externalService: ExternalService;
+
   let _consoleErrorSpy: jest.SpyInstance;
 
   beforeAll(async () => {
@@ -88,13 +82,7 @@ describe('LayersPermitsFormComponent', () => {
     // Suppress debug logs in tests to reduce console noise
     const loggerService = TestBed.inject(LoggerService);
     configureLoggerForTests(loggerService);
-    roleService= TestBed.inject(RoleService);
-    cartographyService= TestBed.inject(CartographyService);
-    codeListService= TestBed.inject(CodeListService);
-    cartographyGroupService= TestBed.inject(CartographyGroupService);
-    translationService= TestBed.inject(TranslationService);
-    resourceService= TestBed.inject(ResourceService);
-    externalService= TestBed.inject(ExternalService);
+
     if (!component.entityForm) {
       component.entityToEdit = component.empty();
       component.postFetchData();
@@ -105,61 +93,26 @@ describe('LayersPermitsFormComponent', () => {
   afterEach(() => fixture?.destroy());
   afterAll(() => TestBed.resetTestingModule());
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
+  
+
+  it('requires a name and a type', () => {
+    expect(component.entityForm.get('name')?.hasError('required')).toBe(true);
+    expect(component.entityForm.get('type')?.hasError('required')).toBe(true);
   });
 
-  it('should instantiate roleService', () => {
-    expect(roleService).toBeTruthy();
-  });
-
-  it('should instantiate cartographyService', () => {
-    expect(cartographyService).toBeTruthy();
-  });
-
-  it('should instantiate codeListService', () => {
-    expect(codeListService).toBeTruthy();
-  });
-
-  it('should instantiate cartographyGroupService', () => {
-    expect(cartographyGroupService).toBeTruthy();
-  });
-
-  it('should instantiate translationService', () => {
-    expect(translationService).toBeTruthy();
-  });
-
-  it('should instantiate resourceService', () => {
-    expect(resourceService).toBeTruthy();
-  });
-
-  it('should instantiate externalService', () => {
-    expect(externalService).toBeTruthy();
-  });
-
-  it('form invalid when empty', () => {
-    expect(component.entityForm.valid).toBeFalsy();
-  });
-
-  it('form invalid when mid-empty', () => {
+  it('requires a name', () => {
     component.entityForm.patchValue({
       type: 1,
-    })
-    //Miss name
-    expect(component.entityForm.valid).toBeFalsy();
+    });
+    expect(component.entityForm.get('name')?.hasError('required')).toBe(true);
   });
 
-  it('form valid', () => {
+  it('accepts a name and a type', () => {
     component.entityForm.patchValue({
       name: 'name',
       type: 1,
-    })
-    expect(component.entityForm.valid).toBeTruthy();
-  });
-
-  it('Layer permits form fields', () => {
-    expect(component.entityForm.get('name')).toBeTruthy();
-    expect(component.entityForm.get('type')).toBeTruthy();
+    });
+    expect(component.entityForm.valid).toBe(true);
   });
 
   it('includes the current entity type in the select options even when filtered out for new permits', () => {

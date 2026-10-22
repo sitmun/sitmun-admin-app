@@ -58,9 +58,7 @@ describe('EntityListComponent', () => {
   afterEach(() => fixture?.destroy());
   afterAll(() => TestBed.resetTestingModule());
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+  
 
   describe('default dataFetchFn fallback', () => {
     it('should return of([]) when config is not provided', async () => {

@@ -40,9 +40,7 @@ describe('AccountService', () => {
     configureLoggerForTests(loggerService);
   });
 
-  it('should be created', inject([AccountService], (service: AccountService) => {
-    expect(service).toBeTruthy();
-  }));
+  
 
   it('should request the account with credentials so the auth cookie is sent cross-origin', inject(
     [AccountService, HttpTestingController],

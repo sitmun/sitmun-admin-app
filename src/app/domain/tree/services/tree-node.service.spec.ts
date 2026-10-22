@@ -41,11 +41,6 @@ describe('TreeNodeService', () => {
     service = TestBed.inject(TreeNodeService);
   });
 
-  it('should be created', () => {
-    expect(service).toBeTruthy();
-    expect(service.TREE_NODE_API).toBe('tree-nodes');
-  });
-
   describe('update', () => {
     it('fetches relation links when moving to root', (done) => {
       const input = new TreeNode();

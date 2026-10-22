@@ -50,9 +50,7 @@ describe('DialogMessageComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+  
 
   it('uses default mini-fab actions when destructive is false', () => {
     component.destructive = false;

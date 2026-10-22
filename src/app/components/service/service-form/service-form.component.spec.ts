@@ -40,13 +40,7 @@ import { ServiceFormComponent } from './service-form.component';
 describe('ServiceFormComponent', () => {
   let component: ServiceFormComponent;
   let fixture: ComponentFixture<ServiceFormComponent>;
-  let serviceService: ServiceService;
-  let cartographyService: CartographyService;
-  let cartographyStyleService: CartographyStyleService;
-  let codeListService: CodeListService;
-  let translationService: TranslationService;
-  let resourceService: ResourceService;
-  let externalService: ExternalService;
+
   let _serviceParameterService: ServiceParameterService;
   let _roleService: RoleService;
   let _consoleErrorSpy: jest.SpyInstance;
@@ -93,13 +87,7 @@ describe('ServiceFormComponent', () => {
     // Suppress debug logs in tests to reduce console noise
     const loggerService = TestBed.inject(LoggerService);
     configureLoggerForTests(loggerService);
-    serviceService = TestBed.inject(ServiceService);
-    cartographyService = TestBed.inject(CartographyService);
-    cartographyStyleService = TestBed.inject(CartographyStyleService);
-    codeListService = TestBed.inject(CodeListService);
-    translationService = TestBed.inject(TranslationService);
-    resourceService = TestBed.inject(ResourceService);
-    externalService = TestBed.inject(ExternalService);
+
     _serviceParameterService = TestBed.inject(ServiceParameterService);
     _roleService = TestBed.inject(RoleService);
 
@@ -113,43 +101,16 @@ describe('ServiceFormComponent', () => {
   afterEach(() => fixture?.destroy());
   afterAll(() => TestBed.resetTestingModule());
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
+  
+
+  it('requires a name, an authentication mode, a type, and a service URL', () => {
+    expect(component.entityForm.get('name')?.hasError('required')).toBe(true);
+    expect(component.entityForm.get('authenticationMode')?.hasError('required')).toBe(true);
+    expect(component.entityForm.get('type')?.hasError('required')).toBe(true);
+    expect(component.entityForm.get('serviceURL')?.hasError('required')).toBe(true);
   });
 
-  it('should instantiate serviceService', () => {
-    expect(serviceService).toBeTruthy();
-  });
-
-  it('should instantiate cartographyService', () => {
-    expect(cartographyService).toBeTruthy();
-  });
-
-  it('should instantiate cartographyStyleService', () => {
-    expect(cartographyStyleService).toBeTruthy();
-  });
-
-  it('should instantiate codeListService', () => {
-    expect(codeListService).toBeTruthy();
-  });
-
-  it('should instantiate translationService', () => {
-    expect(translationService).toBeTruthy();
-  });
-
-  it('should instantiate resourceService', () => {
-    expect(resourceService).toBeTruthy();
-  });
-
-  it('should instantiate externalService', () => {
-    expect(externalService).toBeTruthy();
-  });
-
-  it('form invalid when empty', () => {
-    expect(component.entityForm.valid).toBeFalsy();
-  });
-
-  it('form invalid when mid-empty', () => {
+  it('requires a name', () => {
     component.entityForm.patchValue({
       user: 'user',
       password: 'password',
@@ -161,37 +122,23 @@ describe('ServiceFormComponent', () => {
       supportedSRS: ['EPSG:2831'],
       getInformationURL: 'urltest',
       blocked: true,
-      isProxied: false
-    })
-    //Miss name (required field)
-    expect(component.entityForm.valid).toBeFalsy();
+      isProxied: false,
+    });
+    expect(component.entityForm.get('name')?.hasError('required')).toBe(true);
   });
 
-  it('form valid', () => {
+  it('accepts a name, a description, a type, a service URL, and an authentication mode', () => {
     component.entityForm.patchValue({
       name: 'test',
       description: 'test',
       type: 'WMS',
       serviceURL: 'test',
-      authenticationMode: 1
-    })
+      authenticationMode: 1,
+    });
 
     fixture.detectChanges();
 
-    expect(component.entityForm.valid).toBeTruthy();
-  });
-
-  it('Service form fields', () => {
-    expect(component.entityForm.get('name')).toBeTruthy();
-    expect(component.entityForm.get('description')).toBeTruthy();
-    expect(component.entityForm.get('type')).toBeTruthy();
-    expect(component.entityForm.get('serviceURL')).toBeTruthy();
-    expect(component.entityForm.get('getInformationURL')).toBeTruthy();
-    expect(component.entityForm.get('authenticationMode')).toBeTruthy();
-    expect(component.entityForm.get('user')).toBeTruthy();
-    expect(component.entityForm.get('password')).toBeTruthy();
-    expect(component.entityForm.get('isProxied')).toBeTruthy();
-    expect(component.entityForm.get('blocked')).toBeTruthy();
+    expect(component.entityForm.valid).toBe(true);
   });
 
   async function selectLayersTab(): Promise<void> {

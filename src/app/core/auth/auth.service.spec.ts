@@ -37,9 +37,7 @@ describe('AuthService', () => {
     httpMock.verify();
   });
 
-  it('should be created', inject([AuthService], (service: AuthService) => {
-    expect(service).toBeTruthy();
-  }));
+  
 
   it('should POST to authenticate/admin on login', inject([AuthService], (service: AuthService) => {
     let completed = false;

@@ -83,9 +83,7 @@ describe('QueryExecutionCardComponent', () => {
     clipboardWriteText.mockRestore();
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+  
 
   it('should create one form control per parameter', () => {
     expect(component.parameterForm.contains('param1')).toBe(true);

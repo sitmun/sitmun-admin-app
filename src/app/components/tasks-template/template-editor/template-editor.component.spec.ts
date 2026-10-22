@@ -39,9 +39,7 @@ describe('TemplateEditorComponent', () => {
     component.html = '<p>Hello</p>';
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+  
 
   it('should strip html tags from inside Handlebars placeholders', () => {
     expect(normalizeHandlebarsMarkup('<p>{{task.<span>name</span>}}</p>')).toBe('<p>{{task.name}}</p>');

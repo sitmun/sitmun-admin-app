@@ -22,10 +22,7 @@ describe('TasksLocatorComponent', () => {
   let component: TasksLocatorComponent;
   let fixture: ComponentFixture<TasksLocatorComponent>;
   let taskService: TaskService;
-  let codeListService: CodeListService;
-  let translationService: TranslationService;
-  let resourceService: ResourceService;
-  let externalService: ExternalService;
+
   let httpMock: HttpTestingController;
 
   beforeAll(async () => {
@@ -66,10 +63,7 @@ describe('TasksLocatorComponent', () => {
     fixture = TestBed.createComponent(TasksLocatorComponent);
     component = fixture.componentInstance;
     taskService = TestBed.inject(TaskService);
-    codeListService = TestBed.inject(CodeListService);
-    translationService = TestBed.inject(TranslationService);
-    resourceService = TestBed.inject(ResourceService);
-    externalService = TestBed.inject(ExternalService);
+
     fixture.detectChanges();
     await new Promise((r) => setTimeout(r, 0));
     httpMock.match((req) => req.url.includes('codelist-values')).forEach((req) =>
@@ -85,29 +79,7 @@ describe('TasksLocatorComponent', () => {
 
   afterAll(() => TestBed.resetTestingModule());
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-
-  it('should instantiate taskService', () => {
-    expect(taskService).toBeTruthy();
-  });
-
-  it('should instantiate codeListService', () => {
-    expect(codeListService).toBeTruthy();
-  });
-
-  it('should instantiate translationService', () => {
-    expect(translationService).toBeTruthy();
-  });
-
-  it('should instantiate resourceService', () => {
-    expect(resourceService).toBeTruthy();
-  });
-
-  it('should instantiate externalService', () => {
-    expect(externalService).toBeTruthy();
-  });
+  
 
   it('uses locator task configuration and type id 4 filter', () => {
     expect(component.entityListConfig.entityLabel).toBe(Configuration.TASK_LOCATOR.labelPlural);

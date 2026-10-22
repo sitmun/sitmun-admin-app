@@ -41,16 +41,6 @@ const backgroundLayersFormTemplate = readFileSync(
 describe('BackgroundLayersFormComponent', () => {
   let component: BackgroundLayersFormComponent;
   let fixture: ComponentFixture<BackgroundLayersFormComponent>;
-  let roleService: RoleService;
-  let cartographyService: CartographyService;
-  let codeListService: CodeListService;
-  let cartographyGroupService: CartographyGroupService;
-  let backgroundService: BackgroundService;
-  let applicationService: ApplicationService;
-  let applicationBackgroundService: ApplicationBackgroundService;
-  let translationService: TranslationService;
-  let resourceService: ResourceService;
-  let externalService: ExternalService;
 
   beforeAll(async () => {
      
@@ -91,16 +81,7 @@ describe('BackgroundLayersFormComponent', () => {
     // Suppress debug logs in tests to reduce console noise
     const loggerService = TestBed.inject(LoggerService);
     configureLoggerForTests(loggerService);
-    roleService= TestBed.inject(RoleService);
-    cartographyService= TestBed.inject(CartographyService);
-    codeListService= TestBed.inject(CodeListService);
-    cartographyGroupService= TestBed.inject(CartographyGroupService);
-    backgroundService= TestBed.inject(BackgroundService);
-    applicationService= TestBed.inject(ApplicationService);
-    applicationBackgroundService= TestBed.inject(ApplicationBackgroundService);
-    translationService= TestBed.inject(TranslationService);
-    resourceService= TestBed.inject(ResourceService);
-    externalService= TestBed.inject(ExternalService);
+
     if (!component.entityForm) {
       component.entityToEdit = component.empty();
       component.postFetchData();
@@ -111,71 +92,29 @@ describe('BackgroundLayersFormComponent', () => {
   afterEach(() => fixture?.destroy());
   afterAll(() => TestBed.resetTestingModule());
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
+  
+
+  it('requires a name', () => {
+    expect(component.entityForm.get('name')?.hasError('required')).toBe(true);
   });
 
-  it('should instantiate roleService', () => {
-    expect(roleService).toBeTruthy();
-  });
-
-  it('should instantiate cartographyService', () => {
-    expect(cartographyService).toBeTruthy();
-  });
-
-  it('should instantiate codeListService', () => {
-    expect(codeListService).toBeTruthy();
-  });
-
-  it('should instantiate cartographyGroupService', () => {
-    expect(cartographyGroupService).toBeTruthy();
-  });
-
-  it('should instantiate backgroundService', () => {
-    expect(backgroundService).toBeTruthy();
-  });
-
-  it('should instantiate applicationService', () => {
-    expect(applicationService).toBeTruthy();
-  });
-
-  it('should instantiate applicationBackgroundService', () => {
-    expect(applicationBackgroundService).toBeTruthy();
-  });
-
-  it('should instantiate translationService', () => {
-    expect(translationService).toBeTruthy();
-  });
-
-  it('should instantiate resourceService', () => {
-    expect(resourceService).toBeTruthy();
-  });
-
-  it('should instantiate externalService', () => {
-    expect(externalService).toBeTruthy();
-  });
-  it('form invalid when empty', () => {
-    expect(component.entityForm.valid).toBeFalsy();
-  });
-
-  it('form invalid when mid-empty', () => {
+  it('requires a name when description, image, and active are set', () => {
     component.entityForm.patchValue({
       description: 'desc',
       image: 'https://example.com/bg.png',
-      active: true
-    })
-    //Miss name
-    expect(component.entityForm.valid).toBeFalsy();
+      active: true,
+    });
+    expect(component.entityForm.get('name')?.hasError('required')).toBe(true);
   });
 
-  it('form valid', () => {
+  it('accepts a name, description, image, and active flag', () => {
     component.entityForm.patchValue({
       name: 'name',
       description: 'desc',
       image: 'https://example.com/bg.png',
-      active: true
-    })
-    expect(component.entityForm.valid).toBeTruthy();
+      active: true,
+    });
+    expect(component.entityForm.valid).toBe(true);
   });
 
   it('image rejects non-http values and accepts blank or http(s) URLs', () => {
@@ -188,13 +127,6 @@ describe('BackgroundLayersFormComponent', () => {
 
     image?.setValue('https://example.com/bg.png');
     expect(image?.valid).toBe(true);
-  });
-
-  it('Background layers form fields', () => {
-    expect(component.entityForm.get('name')).toBeTruthy();
-    expect(component.entityForm.get('description')).toBeTruthy();
-    expect(component.entityForm.get('image')).toBeTruthy();
-    expect(component.entityForm.get('active')).toBeTruthy();
   });
 
   describe('Grid capability classification', () => {

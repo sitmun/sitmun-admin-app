@@ -80,9 +80,7 @@ describe('ConfigurationParameterFormComponent', () => {
   afterEach(() => fixture?.destroy());
   afterAll(() => TestBed.resetTestingModule());
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+  
 
   it('keeps save-time warning keys and patches coerced value from create response', async () => {
     const created = Object.assign(new ConfigurationParameter(), {

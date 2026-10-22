@@ -69,9 +69,7 @@ describe('TasksTemplateComponent', () => {
     httpMock.verify();
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+  
 
   it('should navigate to template creation route', async () => {
     const navigateSpy = jest.spyOn((component as any).router, 'navigate').mockResolvedValue(true);

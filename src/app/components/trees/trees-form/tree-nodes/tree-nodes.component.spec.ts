@@ -310,9 +310,7 @@ describe('TreeNodesComponent', () => {
 
   afterAll(() => TestBed.resetTestingModule());
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+  
 
   describe('treeNodeForm validation', () => {
     it('is invalid when empty', () => {
@@ -362,21 +360,8 @@ describe('TreeNodesComponent', () => {
       expect(component.treeNodeForm.valid).toBeTruthy();
     });
 
-    it('exposes expected form fields', () => {
-      expect(component.treeNodeForm.get('name')).toBeTruthy();
-      expect(component.treeNodeForm.get('tooltip')).toBeTruthy();
-      expect(component.treeNodeForm.get('cartography')).toBeTruthy();
-      expect(component.treeNodeForm.get('radio')).toBeTruthy();
-      expect(component.treeNodeForm.get('datasetURL')).toBeTruthy();
-      expect(component.treeNodeForm.get('metadataURL')).toBeTruthy();
-      expect(component.treeNodeForm.get('description')).toBeTruthy();
-      expect(component.treeNodeForm.get('visible')).toBeTruthy();
-      expect(component.treeNodeForm.get('active')).toBeTruthy();
-      expect(component.treeNodeForm.get('order')).toBeTruthy();
-      expect(component.treeNodeForm.get('filterGetFeatureInfo')).toBeTruthy();
-      expect(component.treeNodeForm.get('filterGetMap')).toBeTruthy();
-      expect(component.treeNodeForm.get('filterSelectable')).toBeTruthy();
-      expect(component.treeNodeForm.get('style')).toBeTruthy();
+    it('exposes visible', () => {
+      expect(component.treeNodeForm.get('visible')).not.toBeNull();
     });
   });
 

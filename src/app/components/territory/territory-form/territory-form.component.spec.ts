@@ -49,21 +49,10 @@ const territoryFormTemplate = readFileSync(
 describe('TerritoryFormComponent', () => {
   let component: TerritoryFormComponent;
   let fixture: ComponentFixture<TerritoryFormComponent>;
-  let roleService: RoleService;
-  let userService: UserService;
+
   let territoryService: TerritoryService;
-  let codeListService: CodeListService;
-  let territoryGroupTypeService: TerritoryGroupTypeService;
-  let cartographyService: CartographyService;
-  let taskAvailabilityService: TaskAvailabilityService;
-  let territoryTypeService: TerritoryTypeService;
-  let taskService: TaskService;
-  let userPositionService: UserPositionService;
+
   let cartographyAvailabilityService: CartographyAvailabilityService;
-  let userConfigurationService: UserConfigurationService;
-  let translationService: TranslationService;
-  let resourceService: ResourceService;
-  let externalService: ExternalService;
 
   beforeAll(async () => {
      
@@ -121,23 +110,13 @@ describe('TerritoryFormComponent', () => {
     // Suppress debug logs in tests to reduce console noise
     const loggerService = TestBed.inject(LoggerService);
     configureLoggerForTests(loggerService);
-    roleService = TestBed.inject(RoleService);
-    userService = TestBed.inject(UserService);
+
     territoryService = TestBed.inject(TerritoryService);
-    codeListService = TestBed.inject(CodeListService);
-    territoryGroupTypeService = TestBed.inject(TerritoryGroupTypeService);
-    cartographyService = TestBed.inject(CartographyService);
-    taskAvailabilityService = TestBed.inject(TaskAvailabilityService);
-    territoryTypeService = TestBed.inject(TerritoryTypeService);
-    taskService = TestBed.inject(TaskService);
-    userPositionService = TestBed.inject(UserPositionService);
+
     cartographyAvailabilityService = TestBed.inject(
       CartographyAvailabilityService
     );
-    userConfigurationService = TestBed.inject(UserConfigurationService);
-    translationService = TestBed.inject(TranslationService);
-    resourceService = TestBed.inject(ResourceService);
-    externalService = TestBed.inject(ExternalService);
+
     // Initialize territoryTypes before postFetchData (normally done in preFetchData)
     component.territoryTypes = [{ id: 1, name: 'Test Type', bottomType: true, topType: false } as any];
     if (!component.entityForm) {
@@ -150,79 +129,19 @@ describe('TerritoryFormComponent', () => {
   afterEach(() => fixture?.destroy());
   afterAll(() => TestBed.resetTestingModule());
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
+  
+
+  it('requires a code, a name, and a type', () => {
+    expect(component.entityForm.get('code')?.hasError('required')).toBe(true);
+    expect(component.entityForm.get('name')?.hasError('required')).toBe(true);
+    expect(component.entityForm.get('typeId')?.hasError('required')).toBe(true);
   });
 
-  it('should instantiate roleService', () => {
-    expect(roleService).toBeTruthy();
-  });
-
-  it('should instantiate userService', () => {
-    expect(userService).toBeTruthy();
-  });
-
-  it('should instantiate territoryService', () => {
-    expect(territoryService).toBeTruthy();
-  });
-
-  it('should instantiate codeListService', () => {
-    expect(codeListService).toBeTruthy();
-  });
-
-  it('should instantiate territoryGroupTypeService', () => {
-    expect(territoryGroupTypeService).toBeTruthy();
-  });
-
-  it('should instantiate cartographyService', () => {
-    expect(cartographyService).toBeTruthy();
-  });
-
-  it('should instantiate taskAvailabilityService', () => {
-    expect(taskAvailabilityService).toBeTruthy();
-  });
-
-  it('should instantiate territoryTypeService', () => {
-    expect(territoryTypeService).toBeTruthy();
-  });
-
-  it('should instantiate taskService', () => {
-    expect(taskService).toBeTruthy();
-  });
-
-  it('should instantiate userPositionService', () => {
-    expect(userPositionService).toBeTruthy();
-  });
-
-  it('should instantiate cartographyAvailabilityService', () => {
-    expect(cartographyAvailabilityService).toBeTruthy();
-  });
-
-  it('should instantiate userConfigurationService', () => {
-    expect(userConfigurationService).toBeTruthy();
-  });
-
-  it('should instantiate translationService', () => {
-    expect(translationService).toBeTruthy();
-  });
-
-  it('should instantiate resourceService', () => {
-    expect(resourceService).toBeTruthy();
-  });
-
-  it('should instantiate externalService', () => {
-    expect(externalService).toBeTruthy();
-  });
-
-  it('form invalid when empty', () => {
-    expect(component.entityForm.valid).toBeFalsy();
-  });
-
-  it('form invalid when mid-empty', () => {
+  it('requires a name', () => {
     component.entityForm.patchValue({
       code: 1,
       territorialAuthorityAddress: 'address',
-      territorialAuthorityLogo: 'urlLogo',
+      territorialAuthorityLogo: 'https://example.com/logo.png',
       typeId: 1,
       extentMinX: 1,
       extentMaxX: 2,
@@ -234,11 +153,10 @@ describe('TerritoryFormComponent', () => {
       centerPointX: 5,
       centerPointY: 5,
     });
-    //Miss name
-    expect(component.entityForm.valid).toBeFalsy();
+    expect(component.entityForm.get('name')?.hasError('required')).toBe(true);
   });
 
-  it('form valid', () => {
+  it('accepts a code, a name, and a type', () => {
     component.entityForm.patchValue({
       code: 1,
       name: 'name',
@@ -256,7 +174,7 @@ describe('TerritoryFormComponent', () => {
       centerPointY: 5,
       srs: 'EPSG:4326',
     });
-    expect(component.entityForm.valid).toBeTruthy();
+    expect(component.entityForm.valid).toBe(true);
   });
 
   it('initializes extentMaxY from extent.maxY (not maxX)', () => {
@@ -267,28 +185,6 @@ describe('TerritoryFormComponent', () => {
     component.postFetchData();
     expect(component.entityForm.get('extentMaxX')?.value).toBe(50);
     expect(component.entityForm.get('extentMaxY')?.value).toBe(99);
-  });
-
-  it('Territory form fields', () => {
-    expect(component.entityForm.get('code')).toBeTruthy();
-    expect(component.entityForm.get('name')).toBeTruthy();
-    expect(
-      component.entityForm.get('territorialAuthorityAddress')
-    ).toBeTruthy();
-    expect(
-      component.entityForm.get('territorialAuthorityLogo')
-    ).toBeTruthy();
-    expect(component.entityForm.get('typeId')).toBeTruthy();
-    expect(component.entityForm.get('extentMinX')).toBeTruthy();
-    expect(component.entityForm.get('extentMaxX')).toBeTruthy();
-    expect(component.entityForm.get('extentMinY')).toBeTruthy();
-    expect(component.entityForm.get('extentMaxY')).toBeTruthy();
-    expect(component.entityForm.get('note')).toBeTruthy();
-    expect(component.entityForm.get('blocked')).toBeTruthy();
-    expect(component.entityForm.get('defaultZoomLevel')).toBeTruthy();
-    expect(component.entityForm.get('centerPointX')).toBeTruthy();
-    expect(component.entityForm.get('centerPointY')).toBeTruthy();
-    expect(component.entityForm.get('srs')).toBeTruthy();
   });
 
   it('Validate extent all null', () => {

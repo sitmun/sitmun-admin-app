@@ -16,15 +16,10 @@ import { MaterialModule } from '@app/material-module';
 
 import { TasksQueryComponent } from './tasks-query.component';
 
-
 describe('TasksQueryComponent', () => {
   let component: TasksQueryComponent;
   let fixture: ComponentFixture<TasksQueryComponent>;
-  let taskService: TaskService;
-  let codeListService: CodeListService;
-  let translationService: TranslationService;
-  let resourceService: ResourceService;
-  let externalService: ExternalService;
+
   let httpMock: HttpTestingController;
 
   beforeAll(async () => {
@@ -60,11 +55,7 @@ describe('TasksQueryComponent', () => {
     httpMock = TestBed.inject(HttpTestingController);
     fixture = TestBed.createComponent(TasksQueryComponent);
     component = fixture.componentInstance;
-    taskService = TestBed.inject(TaskService);
-    codeListService = TestBed.inject(CodeListService);
-    translationService = TestBed.inject(TranslationService);
-    resourceService = TestBed.inject(ResourceService);
-    externalService = TestBed.inject(ExternalService);
+
     fixture.detectChanges();
     await new Promise((r) => setTimeout(r, 0));
     httpMock.match((req) => req.url.includes('codelist-values')).forEach((req) =>
@@ -80,29 +71,7 @@ describe('TasksQueryComponent', () => {
 
   afterAll(() => TestBed.resetTestingModule());
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-
-  it('should instantiate taskService', () => {
-    expect(taskService).toBeTruthy();
-  });
-
-  it('should instantiate codeListService', () => {
-    expect(codeListService).toBeTruthy();
-  });
-
-  it('should instantiate translationService', () => {
-    expect(translationService).toBeTruthy();
-  });
-
-  it('should instantiate resourceService', () => {
-    expect(resourceService).toBeTruthy();
-  });
-
-  it('should instantiate externalService', () => {
-    expect(externalService).toBeTruthy();
-  });
+  
 
   it('uses row-only checkbox selection in infinite mode', async () => {
     await component.postFetchData();

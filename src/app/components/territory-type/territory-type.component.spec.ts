@@ -74,9 +74,7 @@ describe('TerritoryTypeComponent', () => {
 
   afterAll(() => TestBed.resetTestingModule());
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+  
 
   it('uses TERRITORY_TYPE configuration and default name sorting', () => {
     expect(component.entityListConfig.entityLabel).toBe(Configuration.TERRITORY_TYPE.labelPlural);

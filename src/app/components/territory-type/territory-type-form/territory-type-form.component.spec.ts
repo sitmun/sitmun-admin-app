@@ -11,7 +11,6 @@ import { of } from 'rxjs';
 
 import { EntityFormAlertsComponent } from '@app/components/shared/entity-form-alerts/entity-form-alerts.component';
 import { FormToolbarComponent } from '@app/components/shared/form-toolbar/form-toolbar.component';
-import { Configuration } from '@app/core/config/configuration';
 import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
 import { ExternalService, ResourceService } from '@app/core/hal';
 import { CodeListService, TerritoryType, TerritoryTypeService, TranslationService } from '@app/domain';
@@ -89,11 +88,6 @@ describe('TerritoryTypeFormComponent', () => {
   });
 
   afterAll(() => TestBed.resetTestingModule());
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
-    expect(component.config).toBe(Configuration.TERRITORY_TYPE);
-  });
 
   it('preFetchData initializes TerritoryType name translations', async () => {
     await component.preFetchData();

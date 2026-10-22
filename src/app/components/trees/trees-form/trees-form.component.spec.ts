@@ -97,37 +97,30 @@ describe('TreesFormComponent', () => {
 
   afterAll(() => TestBed.resetTestingModule());
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
+  
+
+  it('requires a name and a type', () => {
+    expect(component.entityForm.get('name')?.hasError('required')).toBe(true);
+    expect(component.entityForm.get('type')?.hasError('required')).toBe(true);
   });
 
-  it('form tree invalid when empty', () => {
-    expect(component.entityForm.valid).toBeFalsy();
-  });
-
-  it('form tree invalid when mid-empty', () => {
+  it('requires a name', () => {
     component.entityForm.patchValue({
       description: 'description',
-      image: 'www.image.com'
-    })
-    //Miss name
-    expect(component.entityForm.valid).toBeFalsy();
+      image: 'www.image.com',
+      type: 'type',
+    });
+    expect(component.entityForm.get('name')?.hasError('required')).toBe(true);
   });
 
-  it('form tree valid', () => {
+  it('accepts a name and a type', () => {
     component.entityForm.patchValue({
       name: 'name',
       type: 'type',
       description: 'description',
-      image: 'www.image.com'
-    })
-    expect(component.entityForm.valid).toBeTruthy();
-  });
-
-  it('Tree form fields', () => {
-    expect(component.entityForm.get('name')).toBeTruthy();
-    expect(component.entityForm.get('description')).toBeTruthy();
-    expect(component.entityForm.get('image')).toBeTruthy();
+      image: 'www.image.com',
+    });
+    expect(component.entityForm.valid).toBe(true);
   });
 
   describe('treeValidations does not show errors from getters', () => {

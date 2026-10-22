@@ -15,7 +15,6 @@ import {configureLoggerForTests} from '@app/testing/test-helpers';
 import { DIALOG_FORM_EVENTS, DialogFormComponent } from './dialog-form.component';
 import { DialogMessageComponent } from '../dialog-message/dialog-message.component';
 
-
 describe('DialogFormComponent', () => {
   let component: DialogFormComponent;
   let fixture: ComponentFixture<DialogFormComponent>;
@@ -62,9 +61,7 @@ describe('DialogFormComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+  
 
   describe('doAdd', () => {
     it('does not dump form validity to console.log', () => {

@@ -29,7 +29,9 @@ describe('MapTreeComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
+  it('turns a JSON field into a root node', () => {
+    component.getAll = () => of({dataType: 'json', data: {place: 'Barcelona'}});
+    component.getElements();
+    expect(component.dataSource.data.map((node) => node.name)).toEqual(['place']);
   });
 });

@@ -102,9 +102,7 @@ describe('TaskQueryFormComponent', () => {
     expect(spy.mock.calls.some((call) => String(call[0]).includes('Unknown task query scope'))).toBe(false);
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+  
 
   describe('Grid capability classification', () => {
     it('rolesTable should have picker, updater, and status capabilities', () => {

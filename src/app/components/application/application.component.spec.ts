@@ -16,14 +16,10 @@ import { MaterialModule } from '@app/material-module';
 
 import { ApplicationComponent } from './application.component';
 
-
 describe('ApplicationComponent', () => {
   let component: ApplicationComponent;
   let fixture: ComponentFixture<ApplicationComponent>;
-  let applicationService: ApplicationService;
-  let codeListService: CodeListService;
-  let resourceService: ResourceService;
-  let externalService: ExternalService;
+
   let httpMock: HttpTestingController;
 
   beforeAll(async () => {
@@ -59,10 +55,7 @@ describe('ApplicationComponent', () => {
     httpMock = TestBed.inject(HttpTestingController);
     fixture = TestBed.createComponent(ApplicationComponent);
     component = fixture.componentInstance;
-    applicationService = TestBed.inject(ApplicationService);
-    codeListService = TestBed.inject(CodeListService);
-    resourceService = TestBed.inject(ResourceService);
-    externalService = TestBed.inject(ExternalService);
+
     fixture.detectChanges();
     await new Promise((r) => setTimeout(r, 0));
     httpMock.match((req) => req.url.includes('codelist-values')).forEach((req) =>
@@ -78,27 +71,7 @@ describe('ApplicationComponent', () => {
 
   afterAll(() => TestBed.resetTestingModule());
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-
-
-  it('should instantiate applicationService', () => {
-    expect(applicationService).toBeTruthy();
-  });
-
-  it('should instantiate codeListService', () => {
-    expect(codeListService).toBeTruthy();
-  });
-
-
-  it('should instantiate resourceService', () => {
-    expect(resourceService).toBeTruthy();
-  });
-
-  it('should instantiate externalService', () => {
-    expect(externalService).toBeTruthy();
-  });
+  
 
   describe('warnings column', () => {
     beforeEach(async () => {
@@ -157,7 +130,4 @@ describe('ApplicationComponent', () => {
   });
 
 });
-
-
-
 

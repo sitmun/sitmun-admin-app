@@ -47,9 +47,6 @@ describe('DashboardComponent', () => {
   let component: DashboardComponent;
   let fixture: ComponentFixture<DashboardComponent>;
   let dashboardService: DashboardService;
-  let codeListService: CodeListService;
-  let resourceService: ResourceService;
-  let externalService: ExternalService;
 
   beforeAll(async () => {
      
@@ -79,9 +76,7 @@ describe('DashboardComponent', () => {
     fixture = TestBed.createComponent(DashboardComponent);
     component = fixture.componentInstance;
     dashboardService= TestBed.inject(DashboardService);
-    codeListService= TestBed.inject(CodeListService);
-    resourceService= TestBed.inject(ResourceService);
-    externalService= TestBed.inject(ExternalService);
+
     
     // Mock DashboardService.getAll to return empty data to prevent async operations
     jest.spyOn(dashboardService, 'getAll').mockReturnValue(
@@ -244,24 +239,6 @@ describe('DashboardComponent', () => {
     expect(configured.textContent).toContain('dashboard.affected.configured');
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-    // Component is created without calling detectChanges to avoid animation issues
-  });
+  
 
-  it('should instantiate dashboardService', () => {
-    expect(dashboardService).toBeTruthy();
-  });
-
-  it('should instantiate codeListService', () => {
-    expect(codeListService).toBeTruthy();
-  });
-
-  it('should instantiate resourceService', () => {
-    expect(resourceService).toBeTruthy();
-  });
-
-  it('should instantiate externalService', () => {
-    expect(externalService).toBeTruthy();
-  });
 });

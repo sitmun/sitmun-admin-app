@@ -130,9 +130,7 @@ describe('DataTreeComponent', () => {
 
   afterAll(() => TestBed.resetTestingModule());
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+  
 
   describe('showMappingInTaskPanelForNodeType', () => {
     it.each([

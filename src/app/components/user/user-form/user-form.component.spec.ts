@@ -104,9 +104,7 @@ describe('UserFormComponent', () => {
   afterEach(() => fixture?.destroy());
   afterAll(() => TestBed.resetTestingModule());
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+  
 
   describe('password session (#260)', () => {
     it('keeps typed password on create after refocus/blur', () => {

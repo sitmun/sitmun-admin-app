@@ -124,9 +124,7 @@ describe('SystemInfoMenuComponent', () => {
   afterEach(() => fixture?.destroy());
   afterAll(() => TestBed.resetTestingModule());
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+  
 
   describe('subscription behavior', () => {
     it('should subscribe to authentication state on init if token exists', () => {

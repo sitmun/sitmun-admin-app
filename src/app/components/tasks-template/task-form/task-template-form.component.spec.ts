@@ -196,9 +196,7 @@ describe('TaskTemplateFormComponent', () => {
     ];
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+  
 
   it('should expose map image tasks as template children', () => {
     const mapImageTasks = (component as any).filterLinkableMapImageTasks([

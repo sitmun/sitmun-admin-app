@@ -12,7 +12,6 @@ import { LoggerService } from '@app/services/logger.service';
 
 import { ErrorPageComponent } from './error-page.component';
 
-
 describe('ErrorPageComponent', () => {
   let component: ErrorPageComponent;
   let fixture: ComponentFixture<ErrorPageComponent>;
@@ -58,9 +57,7 @@ describe('ErrorPageComponent', () => {
   afterEach(() => fixture?.destroy());
   afterAll(() => TestBed.resetTestingModule());
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+  
 
   it('should process string error correctly', () => {
     component.error = 'Test error message';

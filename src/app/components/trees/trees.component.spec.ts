@@ -26,10 +26,7 @@ describe('TreesComponent', () => {
   let component: TreesComponent;
   let fixture: ComponentFixture<TreesComponent>;
   let treeService: TreeService;
-  let codeListService: CodeListService;
-  let translationService: TranslationService;
-  let resourceService: ResourceService;
-  let externalService: ExternalService;
+
   let httpMock: HttpTestingController;
   let loadingOverlay: LoadingOverlayService;
   let dialog: MatDialog;
@@ -67,10 +64,7 @@ describe('TreesComponent', () => {
     fixture = TestBed.createComponent(TreesComponent);
     component = fixture.componentInstance;
     treeService = TestBed.inject(TreeService);
-    codeListService = TestBed.inject(CodeListService);
-    translationService = TestBed.inject(TranslationService);
-    resourceService = TestBed.inject(ResourceService);
-    externalService = TestBed.inject(ExternalService);
+
     loadingOverlay = TestBed.inject(LoadingOverlayService);
     dialog = TestBed.inject(MatDialog);
     fixture.detectChanges();
@@ -88,29 +82,7 @@ describe('TreesComponent', () => {
 
   afterAll(() => TestBed.resetTestingModule());
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-
-  it('should instantiate treeService', () => {
-    expect(treeService).toBeTruthy();
-  });
-
-  it('should instantiate codeListService', () => {
-    expect(codeListService).toBeTruthy();
-  });
-
-  it('should instantiate translationService', () => {
-    expect(translationService).toBeTruthy();
-  });
-
-  it('should instantiate resourceService', () => {
-    expect(resourceService).toBeTruthy();
-  });
-
-  it('should instantiate externalService', () => {
-    expect(externalService).toBeTruthy();
-  });
+  
 
   describe('removeData batch deletion', () => {
     it('deletes all selected trees when deletion is confirmed', async () => {
@@ -160,6 +132,5 @@ describe('TreesComponent', () => {
       }
     });
   });
-
 
 });

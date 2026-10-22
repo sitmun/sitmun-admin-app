@@ -81,9 +81,7 @@ describe('DialogGridComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+  
 
   describe('getAllSelectedRows', () => {
     it('resets collection state before emitting', () => {

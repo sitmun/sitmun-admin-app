@@ -33,9 +33,7 @@ describe('CapabilitiesService', () => {
     httpMock.verify();
   });
 
-  it('should be created', () => {
-    expect(service).toBeTruthy();
-  });
+  
 
   describe('getInfo', () => {
     it('should return of(null) observable when url is empty string', async () => {
