@@ -759,6 +759,7 @@ describe('ServiceFormComponent', () => {
       spanishLabels();
       TestBed.inject(TranslateService).setTranslation('es', {
         'entity.service.access.sinceStatus': 'desde las {{time}} ({{ago}})',
+        'entity.service.access.yesterday': 'ayer {{time}}',
       }, true);
       await flushAccess({
         status: 'up',

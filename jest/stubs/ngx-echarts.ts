@@ -9,6 +9,7 @@ import type {ModuleWithProviders} from '@angular/core';
 export class NgxEchartsDirective {
   @Input() options: unknown;
   @Input() loading: unknown;
+  @Input() autoResize: unknown;
 }
 
 @NgModule({declarations: [NgxEchartsDirective], exports: [NgxEchartsDirective]})
