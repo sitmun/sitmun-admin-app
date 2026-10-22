@@ -393,8 +393,12 @@ export class ServiceFormComponent extends BaseFormComponent<Service> implements 
 
   private capabilitiesProbe(): ServiceCapabilitiesProbe {
     const raw = this.entityForm.getRawValue();
+    const url = typeof raw.serviceURL === 'string' ? raw.serviceURL.trim() : raw.serviceURL;
+    if (url !== raw.serviceURL) {
+      this.entityForm.get('serviceURL')!.setValue(url);
+    }
     const probe: ServiceCapabilitiesProbe = {
-      url: raw.serviceURL,
+      url,
       type: raw.type,
       authenticationMode: raw.authenticationMode,
       user: raw.user,

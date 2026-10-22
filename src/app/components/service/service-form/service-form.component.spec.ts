@@ -1060,5 +1060,18 @@ describe('ServiceFormComponent', () => {
       expect(component.loneDetail()).toBe(false);
     });
   });
+
+  it('trims surrounding spaces from the service URL before GetCapabilities', () => {
+    component.entityForm.patchValue({
+      serviceURL: '  https://example.test/wms  ',
+      type: 'WMS',
+      authenticationMode: 'none',
+    });
+
+    const probe = component['capabilitiesProbe']();
+
+    expect(probe.url).toBe('https://example.test/wms');
+    expect(component.entityForm.get('serviceURL')?.value).toBe('https://example.test/wms');
+  });
 });
 
