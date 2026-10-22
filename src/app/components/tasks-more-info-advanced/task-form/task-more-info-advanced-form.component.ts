@@ -1084,15 +1084,19 @@ export class TaskMoreInfoAdvancedFormComponent extends BaseFormComponent<TaskPro
       return null;
     }
     const parameter = raw as Record<string, unknown>;
+    const explicitName = typeof parameter['name'] === 'string' && parameter['name'].length > 0
+      ? parameter['name']
+      : null;
     const label = typeof parameter['label'] === 'string' && parameter['label'].length > 0
       ? parameter['label']
-      : (typeof parameter['name'] === 'string' && parameter['name'].length > 0 ? parameter['name'] : null);
+      : explicitName;
     if (!label) {
       return null;
     }
     return {
       ...(parameter as unknown as Partial<TaskMoreInfoParameter>),
-      label
+      label,
+      name: explicitName ?? label,
     } as TaskMoreInfoParameter;
   }
 

@@ -187,6 +187,44 @@ describe('TaskMoreInfoAdvancedFormComponent', () => {
     });
   });
 
+  it('saves the query parameter name when the label differs', () => {
+    const namedQuery = {
+      id: 501,
+      name: 'Named query',
+      typeId: 5,
+      typeName: 'Consulta',
+      properties: {
+        parameters: [{name: 'code', label: 'Layer code', value: 'ignored'}]
+      }
+    };
+    component.entityToEdit = {
+      id: 100,
+      name: 'Advanced info',
+      groupId: 1,
+      cartographyId: 10,
+      properties: {
+        parameters: [{label: 'featureCode', value: 'feature_code'}],
+        childTaskOrderIds: [namedQuery.id]
+      }
+    } as any;
+    (component as any).cartographies = [{id: 10, name: 'Base map'}];
+    (component as any).allCandidateTasks = [namedQuery];
+    (component as any).templateChildTasks = new Map();
+    component.postFetchData();
+
+    const option = component.getChildParameters(namedQuery as any)[0];
+    (component as any).childTaskParameterMappings.set(namedQuery.id, [
+      {miaParam: 'featureCode', childParam: option.name}
+    ]);
+
+    const task = component.createObject(100) as any;
+
+    expect(option.label).toBe('Layer code');
+    expect(task.properties.childTaskParameters).toEqual({
+      '501': {code: 'feature_code'}
+    });
+  });
+
   it('deserializes nested template child parameter mappings on edit', () => {
     setupForm({
       childTaskOrderIds: [templateTask.id],

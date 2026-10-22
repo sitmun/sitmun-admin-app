@@ -244,7 +244,7 @@
                             @if (currentNodeCartography?.applyFilterToGetFeatureInfo) {
                               <mat-form-field appearance="outline" class="form-field-flex-1"
                                 >
-                                <mat-label>{{ 'entity.layer.applyFilterToGetMap' | translate }}</mat-label>
+                                <mat-label>{{ 'entity.layer.filterInfoByMunicipality' | translate }}</mat-label>
                                 <mat-select formControlName="filterGetFeatureInfo">
                                   @for (option of filterOptions; track option) {
                                     <mat-option [value]="option.value">
@@ -257,7 +257,7 @@
                             @if (currentNodeCartography?.applyFilterToGetMap) {
                               <mat-form-field appearance="outline" class="form-field-flex-1"
                                 >
-                                <mat-label>{{ 'entity.layer.filterInfoByMunicipality' | translate }}</mat-label>
+                                <mat-label>{{ 'entity.layer.applyFilterToGetMap' | translate }}</mat-label>
                                 <mat-select formControlName="filterGetMap">
                                   @for (option of filterOptions; track option) {
                                     <mat-option [value]="option.value">

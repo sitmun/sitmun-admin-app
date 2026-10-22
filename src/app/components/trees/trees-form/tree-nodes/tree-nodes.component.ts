@@ -1710,6 +1710,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
         nameTranslations: dialogResult.data,
         nameTranslationsModified: true
       });
+      this.markPersistedTranslationModified();
     }
   }
 
@@ -1743,7 +1744,17 @@ export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
         descriptionTranslations: dialogResult.data,
         descriptionTranslationsModified: true
       });
+      this.markPersistedTranslationModified();
     }
+  }
+
+  private markPersistedTranslationModified(): void {
+    this.treeNodeForm.markAsDirty();
+    if (this.newElement || this.treeNodeForm.get('id')?.value < 0) {
+      return;
+    }
+    this.treeNodeForm.patchValue({ status: "Modified" });
+    this.updateNode();
   }
 
   getAllCartographies = (): Observable<any> => {
@@ -1991,14 +2002,14 @@ export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
           }));
           if (capabilitiesResult.success) {
             const groupLayersResult = this.changeServiceDataByCapabilities(capabilitiesResult.asJson);
-            this.createNodesWithCapabilities(groupLayersResult, data, null);
+            this.createNodesWithCapabilities(groupLayersResult, data, null, service.id);
           }
         }
       }
     }
   }
 
-  private createNodesWithCapabilities(groupLayersResult: Array<any>, existingNodes: Array<any>, parentId?) {
+  private createNodesWithCapabilities(groupLayersResult: Array<any>, existingNodes: Array<any>, parentId: number | null | undefined, serviceId: number) {
     groupLayersResult.forEach(element => {
       let newNode: any = {};
       let name = element.Title;
@@ -2010,7 +2021,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
         if (element.Layer) {
           newNode = this.createNewFolderWithCapabilities(element);
         } else {
-          newNode = this.createNewNodeWithCapabilities(element);
+          newNode = this.createNewNodeWithCapabilities(element, serviceId);
         }
 
         if (newNode) {
@@ -2033,7 +2044,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
           }
 
           if (childrenLayers) {
-            this.createNodesWithCapabilities(childrenLayers, existingNodes, newNode.id);
+            this.createNodesWithCapabilities(childrenLayers, existingNodes, newNode.id, serviceId);
           }
         }
       }
@@ -2064,7 +2075,7 @@ export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
     return newFolder;
   }
 
-  private createNewNodeWithCapabilities(capability) {
+  private createNewNodeWithCapabilities(capability, serviceId: number) {
     const newNode: any = {};
 
     let layersLyr;
@@ -2080,7 +2091,9 @@ export class TreeNodesComponent implements OnInit, OnDestroy, OnChanges {
     if (!layersLyr) {
       return null;
     }
-    const cartography = this.layersList.find(element => element.layers.join() == layersLyr.join());
+    const cartography = this.layersList.find(element =>
+      element.layers.join() == layersLyr.join() && this.linkedServiceId(element) === serviceId
+    );
     if (!cartography) {
       return null;
     }

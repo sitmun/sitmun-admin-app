@@ -5,6 +5,9 @@ export class TaskMoreInfoParameter {
   /** label */
   public label: string;
 
+  /** Parameter name used as the mapping key. Falls back to the label when a name is absent. */
+  public name = '';
+
   public order: number | null;
 
   /** value */
@@ -34,7 +37,7 @@ export class TaskMoreInfoParameter {
   public static fromObject(source: any): TaskMoreInfoParameter {
     const parameter = new TaskMoreInfoParameter();
     const propertiesToCopy = [
-      'label', 'order', 'value', 'description', 'provided'
+      'label', 'name', 'order', 'value', 'description', 'provided'
     ];
     propertiesToCopy.forEach(prop => {
       if (source[prop] !== undefined) {
