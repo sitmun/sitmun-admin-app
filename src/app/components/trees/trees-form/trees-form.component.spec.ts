@@ -83,6 +83,7 @@ describe('TreesFormComponent', () => {
     // Mock treeNodesComponent BEFORE any getter access (canSaveEntity is called during detectChanges)
     assignTreeNodesStub(component);
 
+    (component as unknown as {codelists: Map<string, unknown[]>}).codelists.set('tree.type', []);
     if (!component.entityForm) {
       component.entityToEdit = component.empty();
       component.postFetchData();

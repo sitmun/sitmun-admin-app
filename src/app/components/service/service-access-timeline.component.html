@@ -8,7 +8,7 @@
   }
 </span>
 <div class="service-access-ticks">
-  @for (label of tickLabels; track label) {
+  @for (label of tickLabels; track $index) {
     <span class="service-access-tick">{{ label }}</span>
   }
 </div>

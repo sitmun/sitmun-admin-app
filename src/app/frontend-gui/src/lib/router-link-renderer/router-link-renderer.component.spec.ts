@@ -1,3 +1,4 @@
+import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -7,6 +8,9 @@ import { provideRouter, RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { RouterLinkRendererComponent } from './router-link-renderer.component';
+
+@Component({selector: 'app-router-link-target', template: '', standalone: true})
+class RouterLinkTargetComponent {}
 
 describe('RouterLinkRendererComponent', () => {
   let component: RouterLinkRendererComponent;
@@ -20,7 +24,9 @@ describe('RouterLinkRendererComponent', () => {
         MatTooltipModule,
         TranslateModule.forRoot(),
       ],
-      providers: [provideRouter([])],
+      providers: [provideRouter([
+        {path: 'connection/:id/connectionForm', component: RouterLinkTargetComponent},
+      ])],
     }).compileComponents();
 
     fixture = TestBed.createComponent(RouterLinkRendererComponent);

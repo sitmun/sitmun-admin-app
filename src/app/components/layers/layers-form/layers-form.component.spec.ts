@@ -121,6 +121,7 @@ describe('LayersFormComponent', () => {
     getInfoService = TestBed.inject(GetInfoService);
 
     // Initialize form before detectChanges to prevent afterFetch from failing
+    (component as unknown as {codelists: Map<string, unknown[]>}).codelists.set('cartographyParameter.format', []);
     component.entityToEdit = component.empty();
     component.postFetchData();
     fixture.detectChanges();

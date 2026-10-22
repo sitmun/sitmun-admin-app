@@ -73,15 +73,3 @@ if (typeof window !== 'undefined') {
 
   global.IntersectionObserver = MockIntersectionObserver as any;
 }
-
-const originalConsoleError = console.error.bind(console);
-console.error = (...args: unknown[]) => {
-  const message = args.map((arg) => String(arg)).join(' ');
-  if (/Code list .+ not initialized/i.test(message)) {
-    return;
-  }
-  if (/\bNG0304\b/.test(message)) {
-    return;
-  }
-  originalConsoleError(...args);
-};
