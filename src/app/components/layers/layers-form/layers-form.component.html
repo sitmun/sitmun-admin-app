@@ -311,7 +311,7 @@
             <mat-card appearance="outlined" class="sitmun-mat-card-margin">
               <mat-card-content class="sitmun-service-form-stack">
                 <mat-slide-toggle color="primary" formControlName="queryableFeatureAvailable">
-                  {{ 'entity.cartography.featureInformation.layerAll' | translate }}
+                  {{ cartographyCopyKey('entity.cartography.featureInformation.layerAll') | translate }}
                 </mat-slide-toggle>
                 @if (entityForm.get('queryableFeatureAvailable').value !== true) {
                   <mat-form-field appearance="outline" class="half add-gap"
@@ -362,7 +362,7 @@
             <mat-card appearance="outlined" class="sitmun-mat-card-margin">
               <mat-card-content class="sitmun-service-form-stack">
                 <mat-slide-toggle color="primary" formControlName="applyFilterToGetMap">
-                  {{ 'entity.cartography.filters.applyFilterToGetMap' | translate }}
+                  {{ cartographyCopyKey('entity.cartography.filters.applyFilterToGetMap') | translate }}
                 </mat-slide-toggle>
                 <mat-slide-toggle color="primary" formControlName="applyFilterToSpatialSelection">
                   {{ 'entity.cartography.filters.applyFilterToSpatialSelection' | translate }}
@@ -399,7 +399,7 @@
             <mat-icon aria-hidden="true">info</mat-icon>
             <div>
               <p>{{ 'entity.cartography.experimentalSitnaProfileNotice' | translate }}</p>
-              <p class="sitmun-experimental-notice-secondary">{{ 'entity.cartography.legend.sitnaControlCapabilities' | translate }}</p>
+              <p class="sitmun-experimental-notice-secondary">{{ cartographyCopyKey('entity.cartography.legend.sitnaControlCapabilities') | translate }}</p>
             </div>
           </mat-card-content>
         </mat-card>
@@ -452,7 +452,7 @@
               <mat-card-content class="sitmun-service-form-stack">
                 <div class="sitmun-toggle-with-hint">
                   <mat-slide-toggle color="primary" formControlName="useAllStyles">
-                    {{ 'entity.cartography.styles.useAllStyles' | translate }}
+                    {{ cartographyCopyKey('entity.cartography.styles.useAllStyles') | translate }}
                   </mat-slide-toggle>
                   <p class="sitmun-form-hint-text">{{ 'entity.cartography.styles.useAllStylesHint' | translate }}</p>
                 </div>

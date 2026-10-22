@@ -896,6 +896,38 @@ describe('LayersFormComponent', () => {
       expect(territoriesTab).not.toContain('sitmun-cartography-form-entity');
     });
 
+    it('uses feature-type wording when the linked service is WFS', () => {
+      const flags = TestBed.inject(FeatureFlagService);
+      expect(flags.isFeatureEnabled('LAYERS_LEGEND_TAB_FEATURE')).toBe(true);
+      expect(flags.isFeatureEnabled('LAYERS_CARTOGRAPHY_STYLES_TAB_FEATURE')).toBe(true);
+      expect(flags.isFeatureEnabled('LAYERS_FILTERS_TAB_FEATURE')).toBe(true);
+      expect(flags.isFeatureEnabled('LAYERS_FEATURE_INFORMATION_TAB_FEATURE')).toBe(true);
+
+      component.services = [{ id: 7, type: 'WFS' }];
+      component.entityForm.patchValue({ serviceId: 7 });
+
+      expect(component.cartographyCopyKey('entity.cartography.styles.useAllStyles'))
+        .toBe('entity.cartography.styles.useAllStyles.wfs');
+      expect(component.cartographyCopyKey('entity.cartography.filters.applyFilterToGetMap'))
+        .toBe('entity.cartography.filters.applyFilterToGetMap.wfs');
+      expect(component.cartographyCopyKey('entity.cartography.featureInformation.layerAll'))
+        .toBe('entity.cartography.featureInformation.layerAll.wfs');
+      expect(component.cartographyCopyKey('entity.cartography.legend.sitnaControlCapabilities'))
+        .toBe('entity.cartography.legend.sitnaControlCapabilities.wfs');
+      expect(layersFormTemplate).toContain("cartographyCopyKey('entity.cartography.styles.useAllStyles')");
+      expect(layersFormTemplate).toContain("cartographyCopyKey('entity.cartography.filters.applyFilterToGetMap')");
+      expect(layersFormTemplate).toContain("cartographyCopyKey('entity.cartography.featureInformation.layerAll')");
+      expect(layersFormTemplate).toContain("cartographyCopyKey('entity.cartography.legend.sitnaControlCapabilities')");
+    });
+
+    it('keeps layer wording when the linked service is WMS', () => {
+      component.services = [{ id: 7, type: 'WMS' }];
+      component.entityForm.patchValue({ serviceId: 7 });
+
+      expect(component.cartographyCopyKey('entity.cartography.styles.useAllStyles'))
+        .toBe('entity.cartography.styles.useAllStyles');
+    });
+
     it('wraps Permissions and Trees relation grids in matTabContent', () => {
       const permissionsTab = layersFormTemplate.match(
         /entity\.cartography\.permissions\.header[\s\S]*?<\/mat-tab>/,

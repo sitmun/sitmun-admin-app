@@ -859,6 +859,11 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
     return protocol == null ? null : `entity.cartography.serviceParameters.${audience}.${protocol}`;
   }
 
+  cartographyCopyKey(key: string): string {
+    const service = this.services.find((item) => item.id === this.entityForm?.get('serviceId')?.value);
+    return service?.type === 'WFS' ? `${key}.wfs` : key;
+  }
+
   serviceIsProxied(): boolean {
     const serviceId = this.entityForm?.get('serviceId')?.value;
     return this.services.find((service) => service.id === serviceId)?.isProxied === true;
