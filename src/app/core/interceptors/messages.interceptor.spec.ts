@@ -26,7 +26,6 @@ import { MessagesInterceptor, MessagesInterceptorStateService } from './messages
 describe('MessagesInterceptor', () => {
   let httpClient: HttpClient;
   let httpMock: HttpTestingController;
-  let interceptor: MessagesInterceptor;
   let stateService: MessagesInterceptorStateService;
 
   beforeEach(() => {
@@ -60,7 +59,6 @@ describe('MessagesInterceptor', () => {
 
     httpClient = TestBed.inject(HttpClient);
     httpMock = TestBed.inject(HttpTestingController);
-    interceptor = TestBed.inject(MessagesInterceptor);
     stateService = TestBed.inject(MessagesInterceptorStateService);
   });
 

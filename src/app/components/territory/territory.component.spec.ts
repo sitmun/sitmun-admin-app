@@ -8,8 +8,8 @@ import {TranslateLoader, TranslateModule} from '@ngx-translate/core';
 import {of} from 'rxjs';
 
 import {EntityListComponent} from '@app/components/shared/entity-list/entity-list.component';
-import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
 import { Configuration } from '@app/core/config/configuration';
+import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
 import {ExternalService, ResourceService} from '@app/core/hal';
 import {
   CodeListService, RoleService, TerritoryService, TerritoryTypeService,

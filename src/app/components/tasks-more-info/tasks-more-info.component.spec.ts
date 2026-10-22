@@ -8,13 +8,13 @@ import {TranslateLoader, TranslateModule} from '@ngx-translate/core';
 import {of} from 'rxjs';
 
 import {EntityListComponent} from '@app/components/shared/entity-list/entity-list.component';
-import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
 import { Configuration } from '@app/core/config/configuration';
-import { magic } from '@environments/constants';
+import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
 import {ExternalService, ResourceService} from '@app/core/hal';
 import { CodeListService, TaskService, TranslationService } from '@app/domain';
 import { SitmunFrontendGuiModule } from '@app/frontend-gui/src/lib/public_api';
 import { MaterialModule } from '@app/material-module';
+import { magic } from '@environments/constants';
 
 import { TasksMoreInfoComponent } from './tasks-more-info.component';
 

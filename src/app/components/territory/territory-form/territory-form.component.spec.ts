@@ -52,8 +52,6 @@ describe('TerritoryFormComponent', () => {
 
   let territoryService: TerritoryService;
 
-  let cartographyAvailabilityService: CartographyAvailabilityService;
-
   beforeAll(async () => {
      
     await TestBed.configureTestingModule({
@@ -112,10 +110,6 @@ describe('TerritoryFormComponent', () => {
     configureLoggerForTests(loggerService);
 
     territoryService = TestBed.inject(TerritoryService);
-
-    cartographyAvailabilityService = TestBed.inject(
-      CartographyAvailabilityService
-    );
 
     // Initialize territoryTypes before postFetchData (normally done in preFetchData)
     component.territoryTypes = [{ id: 1, name: 'Test Type', bottomType: true, topType: false } as any];
