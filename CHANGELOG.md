@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Layers**: Format `Geometry`, the geometry kind, and the preferred geometry type show the code-list description for the current language. A missing format code stays empty. A missing kind or preferred type shows the stored code.
 - **Dependencies**: Node.js `24.22.0` (engines `^24.22.0 || ^26.0.0`), Angular `22.2.3`, and AG Grid Community `32.3.9`.
 
 ### Fixed
@@ -30,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - **Layers**: The layers list and the layer form show the linked service protocol beside the service. The value is the service type (`WMS`, `WMTS`, `WFS`, and the other stored codes) and is not saved as the cartography type ([#498](https://github.com/sitmun/sitmun-admin-app/issues/498)).
+- **Layers**: Seeding feature-information fields adds geometry properties to the same parameter list as the other DescribeFeatureType attributes. A geometry row uses the same columns and editors, except its format stays `Geometry` and cannot be changed to a text, number, or date format. One geometry property is the layer geometry. Several default to the last until the administrator chooses. The options cell shows the GML type, that mark, and `preferredGeometryType` only when the GML type is generic Geometry. A specific GML type does not fill `preferredGeometryType`. Opening the form does not mark it dirty. `GEO_GEOMTYPE` is not written. The geometry-property contract is the operator's change on top of [#499](https://github.com/sitmun/sitmun-admin-app/issues/499).
 - **Services / Layers**: The parameter type list follows the service protocol: WMS, GetMap, GetFeatureInfo, viewer tile settings, WFS, and OpenLayers. A stored code outside that set stays visible on the row being edited.
 - **Layers**: The layer form edits fixed service parameters when the service is proxied. The tab is `LAYERS_SERVICE_PARAMETERS_FEATURE` and stays disabled while the service is not proxied ([sitmun-application-stack#90](https://github.com/sitmun/sitmun-application-stack/issues/90)).
 

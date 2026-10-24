@@ -2,8 +2,26 @@ import {
   describeFeatureTypeRequestUrl,
   describeLayerFeatureTypeUrl,
   describeLayerRequestUrl,
-  featureTypeElementNames
+  featureTypeElementNames,
+  featureTypeGeometryKinds,
+  featureTypeGeometryProperties
 } from './feature-type-elements';
+
+function featureType(sequence: Record<string, unknown>) {
+  return {
+    'xsd:schema': {
+      'xsd:complexType': {
+        name: 'featureType',
+        'xsd:complexContent': {
+          'xsd:extension': {
+            base: 'gml:AbstractFeatureType',
+            'xsd:sequence': sequence
+          }
+        }
+      }
+    }
+  };
+}
 
 describe('feature type seed', () => {
   const schema = {
@@ -59,6 +77,61 @@ describe('feature type seed', () => {
       }
     };
     expect(featureTypeElementNames(withGeometry)).toEqual(['longitud', 'nomruta']);
+    expect(featureTypeGeometryKinds(withGeometry)).toEqual(['MultiLineString', 'Point']);
+    expect(featureTypeGeometryProperties(withGeometry)).toEqual([
+      { name: 'the_geom', kind: 'MultiLineString' },
+      { name: 'location', kind: 'Point' }
+    ]);
+  });
+
+  it('keeps a kind for each GML geometry property, including a generic Geometry', () => {
+    const several = featureType({
+      'xsd:element': [
+        { name: 'the_geom', type: 'gml:PointPropertyType' },
+        { name: 'sites', type: 'gml:MultiPointPropertyType' },
+        { name: 'route', type: 'gml:MultiLineStringPropertyType' },
+        { name: 'area', type: 'gml:MultiPolygonPropertyType' },
+        { name: 'path', type: 'gml:MultiCurvePropertyType' },
+        { name: 'cover', type: 'gml:MultiSurfacePropertyType' },
+        { name: 'geom', type: 'gml:GeometryPropertyType' },
+        { name: 'season', type: 'xsd:string' }
+      ]
+    });
+    expect(featureTypeGeometryKinds(several)).toEqual([
+      'Point',
+      'MultiPoint',
+      'MultiLineString',
+      'MultiPolygon',
+      'MultiCurve',
+      'MultiSurface',
+      'Geometry'
+    ]);
+    expect(featureTypeElementNames(several)).toEqual(['season']);
+  });
+
+  it('does not invent a kind when the property matches only by name', () => {
+    const namedOnly = featureType({
+      'xsd:element': [
+        { name: 'the_geom', type: 'xsd:string' },
+        { name: 'geom' },
+        { name: 'shape', type: 'xsd:string' },
+        { name: 'geometry' },
+        { name: 'season', type: 'xsd:string' }
+      ]
+    });
+    expect(featureTypeGeometryKinds(namedOnly)).toEqual([]);
+    expect(featureTypeElementNames(namedOnly)).toEqual(['season']);
+  });
+
+  it('does not treat GeometryCollectionPropertyType as a geometry kind', () => {
+    const collection = featureType({
+      'xsd:element': [
+        { name: 'parts', type: 'gml:GeometryCollectionPropertyType' },
+        { name: 'season', type: 'xsd:string' }
+      ]
+    });
+    expect(featureTypeGeometryKinds(collection)).toEqual([]);
+    expect(featureTypeElementNames(collection)).toEqual(['parts', 'season']);
   });
 
   it('builds a DescribeFeatureType URL only for WFS', () => {

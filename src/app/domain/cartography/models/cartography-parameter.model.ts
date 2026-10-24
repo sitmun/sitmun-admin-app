@@ -9,6 +9,12 @@ export class FeatureInfoFormatOptions {
   public dateStyle?: string | null;
   public maxWidth?: number | null;
   public maxHeight?: number | null;
+  /** GML geometry kind. Present only on a geometry attribute. */
+  public geometryKind?: string | null;
+  /** True when the administrator chose this attribute as the layer geometry. */
+  public layerGeometry?: boolean | null;
+  /** Preferred geometry id when geometryKind is generic Geometry. */
+  public preferredGeometryType?: string | null;
   [key: string]: unknown;
 }
 

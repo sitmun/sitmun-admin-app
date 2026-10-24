@@ -504,7 +504,7 @@
           <mat-select formControlName="format">
             @for (formatType of codeList('cartographyParameter.format'); track formatType) {
               <mat-option [value]="formatType.value">
-                {{ formatType.description }}
+                {{ formatLabel(formatType.value) }}
               </mat-option>
             }
           </mat-select>
