@@ -122,12 +122,37 @@ export function describeFeatureTypeRequestUrl(
   return url.toString();
 }
 
+export type FeatureTypeGeometryProperty = {
+  name: string;
+  kind: string;
+};
+
 export function featureTypeElementNames(asJson: unknown): string[] {
+  return readFeatureTypeElements(asJson).names;
+}
+
+export function featureTypeGeometryKinds(asJson: unknown): string[] {
+  return readFeatureTypeElements(asJson).geometryKinds;
+}
+
+export function featureTypeGeometryProperties(asJson: unknown): FeatureTypeGeometryProperty[] {
+  return readFeatureTypeElements(asJson).geometryProperties;
+}
+
+function readFeatureTypeElements(asJson: unknown): {
+  names: string[];
+  geometryKinds: string[];
+  geometryProperties: FeatureTypeGeometryProperty[];
+} {
   const names: string[] = [];
+  const geometryKinds: string[] = [];
+  const geometryProperties: FeatureTypeGeometryProperty[] = [];
   const extensions: Record<string, unknown>[] = [];
   findFeatureExtensions(asJson, extensions);
-  extensions.forEach((extension) => collectElementNames(extension, names));
-  return names;
+  extensions.forEach((extension) =>
+    collectElementNames(extension, names, geometryKinds, geometryProperties)
+  );
+  return { names, geometryKinds, geometryProperties };
 }
 
 function findFeatureExtensions(node: unknown, found: Record<string, unknown>[]): void {
@@ -145,12 +170,17 @@ function findFeatureExtensions(node: unknown, found: Record<string, unknown>[]):
   Object.values(record).forEach((value) => findFeatureExtensions(value, found));
 }
 
-function collectElementNames(node: unknown, names: string[]): void {
+function collectElementNames(
+  node: unknown,
+  names: string[],
+  geometryKinds: string[],
+  geometryProperties: FeatureTypeGeometryProperty[]
+): void {
   if (!node || typeof node !== 'object') {
     return;
   }
   if (Array.isArray(node)) {
-    node.forEach((child) => collectElementNames(child, names));
+    node.forEach((child) => collectElementNames(child, names, geometryKinds, geometryProperties));
     return;
   }
   const record = node as Record<string, unknown>;
@@ -163,6 +193,11 @@ function collectElementNames(node: unknown, names: string[]): void {
         }
         const name = (element as { name?: unknown }).name;
         const type = (element as { type?: unknown }).type;
+        const kind = geometryKind(type);
+        if (kind && typeof name === 'string') {
+          geometryKinds.push(kind);
+          geometryProperties.push({ name, kind });
+        }
         if (typeof name === 'string' && !isGeometryElement(name, type)) {
           names.push(name);
         }
@@ -170,7 +205,7 @@ function collectElementNames(node: unknown, names: string[]): void {
       return;
     }
     if (isContainerKey(key)) {
-      collectElementNames(value, names);
+      collectElementNames(value, names, geometryKinds, geometryProperties);
     }
   });
 }
@@ -184,14 +219,17 @@ function localName(qualifiedName: string): string {
   return separator === -1 ? qualifiedName : qualifiedName.slice(separator + 1);
 }
 
-function isGeometryElement(name: string, type: unknown): boolean {
-  if (/^(geometry|geom|the_geom|shape)$/i.test(localName(name))) {
-    return true;
-  }
+const GEOMETRY_PROPERTY_TYPE = /^((?:Multi)?(?:Point|LineString|Polygon|Curve|Surface|Geometry))PropertyType$/i;
+
+function geometryKind(type: unknown): string | null {
   if (typeof type !== 'string') {
-    return false;
+    return null;
   }
-  return /^(?:Multi)?(?:Point|LineString|Polygon|Curve|Surface|Geometry)PropertyType$/i.test(localName(type));
+  return localName(type).match(GEOMETRY_PROPERTY_TYPE)?.[1] ?? null;
+}
+
+function isGeometryElement(name: string, type: unknown): boolean {
+  return geometryKind(type) !== null || /^(geometry|geom|the_geom|shape)$/i.test(localName(name));
 }
 
 function isContainerKey(key: string): boolean {

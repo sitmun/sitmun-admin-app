@@ -2,11 +2,10 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import { TranslateModule } from '@ngx-translate/core';
-
-import { MaterialModule } from '@app/material-module';
 import { of, throwError } from 'rxjs';
 
 import { LanguageService, DefaultLanguageChangePreview, DefaultLanguageChangeResult } from '@app/domain/translation/services/language.service';
+import { MaterialModule } from '@app/material-module';
 
 import { DefaultLanguageChangeDialogComponent, DefaultLanguageChangeDialogData } from './default-language-change-dialog.component';
 

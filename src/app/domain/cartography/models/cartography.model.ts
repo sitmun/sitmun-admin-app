@@ -176,6 +176,7 @@ export class CartographyProjection extends Resource {
   public blocked: boolean
   public serviceId: number
   public serviceName: string
+  public serviceType: string
   public spatialSelectionServiceId: number
   public spatialSelectionServiceName: string
   public useAllStyles: boolean
@@ -199,7 +200,7 @@ export class CartographyProjection extends Resource {
       'type', 'selectableFeatureEnabled', 'selectableLayers',
       'applyFilterToSpatialSelection', 'legendType', 'legendURL', 'createdDate',
       'metadataURL', 'datasetURL', 'thematic', 'geometryType', 'source',
-      'blocked', 'serviceId', 'serviceName', 'spatialSelectionServiceId',
+      'blocked', 'serviceId', 'serviceName', 'serviceType', 'spatialSelectionServiceId',
       'spatialSelectionServiceName', 'useAllStyles', 'stylesNames',
       'spatialSelectionConnectionId', 'spatialSelectionConnectionName'
     ];
