@@ -924,6 +924,11 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
     return service ? service.name : '';
   }
 
+  getServiceType(serviceId: number): string {
+    const service = this.services.find(s => s.id === serviceId);
+    return service?.type ?? '';
+  }
+
   private parseLayerList(raw: unknown): string[] {
     if (raw == null || raw === '') {
       return [];

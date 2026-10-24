@@ -58,7 +58,8 @@
         </mat-card>
         <mat-card appearance="outlined" class="sitmun-mat-card-margin">
           <mat-card-content class="sitmun-service-form-stack">
-            <mat-form-field appearance="outline" class="half">
+            <div class="sitmun-layers-service-row">
+            <mat-form-field appearance="outline" class="half add-gap">
               <mat-label>{{ 'entity.service.label' | translate }}</mat-label>
               <mat-select formControlName="serviceId" [placeholder]="'entity.cartography.serviceName.select' | translate">
                 <mat-select-trigger>
@@ -93,6 +94,11 @@
               }
               <mat-hint align="start">{{ 'entity.cartography.hint.service' | translate }}</mat-hint>
             </mat-form-field>
+            <mat-form-field appearance="outline" class="half">
+              <mat-label>{{ 'entity.service.type' | translate }}</mat-label>
+              <input matInput readonly [value]="getServiceType(entityForm.get('serviceId')?.value)">
+            </mat-form-field>
+            </div>
             <mat-form-field appearance="outline" class="full">
               <mat-label>{{ 'entity.cartography.layerSet' | translate }}</mat-label>
               <input matInput type="text" formControlName="joinedLayers" [maxlength]="800" required>

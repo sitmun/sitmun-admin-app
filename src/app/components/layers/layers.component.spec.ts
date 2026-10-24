@@ -123,6 +123,47 @@ describe('LayersComponent', () => {
     });
   });
 
+  it('shows the linked service protocol beside the service name', async () => {
+    await component.postFetchData();
+    const columns = component.entityListConfig.columnDefs as { field?: string; editable?: boolean; headerName?: string }[];
+    const serviceIndex = columns.findIndex((column) => column.field === 'serviceName');
+    const protocolColumn = columns[serviceIndex + 1];
+
+    expect(serviceIndex).toBeGreaterThan(-1);
+    expect(protocolColumn.field).toBe('serviceType');
+    expect(protocolColumn.editable).toBe(false);
+    expect(protocolColumn.headerName).toBe(component['translateService'].instant('entity.service.type'));
+  });
+
+  it('copies the service protocol without replacing the cartography type', (done) => {
+    jest.spyOn(cartographyService, 'fetchPage').mockReturnValue(of({
+      rows: [{
+        id: 3,
+        name: 'Roads',
+        type: 'I',
+        serviceId: 9,
+        serviceName: 'Base',
+        serviceType: 'WFS',
+      } as any],
+      pageNumber: 0,
+      pageSize: 10,
+      totalElements: 1,
+      totalPages: 1,
+    }));
+
+    component.entityListConfig.infiniteBlockFetcher({
+      page: 0,
+      size: 10,
+      sort: [{path: 'name', order: 'ASC'}],
+    }).subscribe((page) => {
+      const row = page.rows[0] as { type?: string; serviceType?: string; serviceName?: string };
+      expect(row.type).toBe('I');
+      expect(row.serviceType).toBe('WFS');
+      expect(row.serviceName).toBe('Base');
+      done();
+    });
+  });
+
   it('routes blank infinite block search through normal cartography paging', (done) => {
     const searchSpy = jest.spyOn(cartographyService, 'searchTextPage');
     const getPageSpy = jest.spyOn(cartographyService, 'fetchPage').mockReturnValue(of({

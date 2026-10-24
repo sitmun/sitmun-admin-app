@@ -15,6 +15,7 @@ import {of, throwError} from 'rxjs';
 
 import {CardLeadComponent} from '@app/components/shared/card-lead/card-lead.component';
 import {EntityFormAlertsComponent} from '@app/components/shared/entity-form-alerts/entity-form-alerts.component';
+import {ExternalUrlLinkComponent} from '@app/components/shared/external-url-link/external-url-link.component';
 import {FormToolbarComponent} from '@app/components/shared/form-toolbar/form-toolbar.component';
 import { ExternalConfigurationService } from '@app/core/config/external-configuration.service';
 import { FeatureFlagComponent } from '@app/core/features/feature-flag.component';
@@ -67,6 +68,7 @@ describe('LayersFormComponent', () => {
       declarations: [
         LayersFormComponent,
         FormToolbarComponent,
+        ExternalUrlLinkComponent,
         FeatureFlagDirective,
         FeatureFlagComponent,
         FeatureFlagPipe
@@ -895,6 +897,42 @@ describe('LayersFormComponent', () => {
       expect(territoriesTab).toContain('app-relation-grid');
       expect(territoriesTab).toContain('matTabContent');
       expect(territoriesTab).not.toContain('sitmun-cartography-form-entity');
+    });
+
+    it('shows the linked service protocol beside the service select and leaves the form pristine', () => {
+      component.entityID = 4393;
+      component.duplicateID = -1;
+      component.entityToEdit = Object.assign(new CartographyProjection(), {
+        id: 4393,
+        name: 'ANEI',
+        layers: ['orm02ane_anp'],
+        serviceId: 164,
+        type: 'I',
+        geometryType: null,
+      });
+      component.services = [{ id: 164, name: 'IDEMenorca - Ordenacio', type: 'WMS' }];
+      component.postFetchData();
+      component.dataLoaded = true;
+      fixture.detectChanges();
+
+      expect(component.entityForm.pristine).toBe(true);
+      expect(component.entityForm.get('serviceType')).toBeNull();
+      expect(component.entityForm.get('type')).toBeNull();
+      expect(component.entityForm.get('geometryType')).toBeNull();
+      const protocolInput = fixture.nativeElement.querySelector(
+        '.sitmun-layers-service-row input[readonly]'
+      ) as HTMLInputElement;
+      expect(protocolInput.value).toBe('WMS');
+
+      const saved = component.createObject(4393);
+      expect(saved.type).toBe('I');
+      expect(saved.geometryType).toBeNull();
+
+      const detailsTab = layersFormTemplate.match(
+        /label="\{\{ 'common\.form\.details' \| translate \}\}"[\s\S]*?(?=<mat-tab label="\{\{ 'entity\.cartography\.territories)/,
+      )?.[0] ?? '';
+      expect(detailsTab).toContain("'entity.service.type'");
+      expect(detailsTab).not.toContain('formControlName="serviceType"');
     });
 
     it('uses feature-type wording when the linked service is WFS', () => {

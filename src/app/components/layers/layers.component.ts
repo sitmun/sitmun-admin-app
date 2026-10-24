@@ -129,11 +129,15 @@ export class LayersComponent extends BaseListComponent<CartographyProjection> {
     serviceCol.minWidth = 160;
     serviceCol.tooltipField = 'serviceName';
 
+    const serviceTypeCol: any = this.utils.getNonEditableColumnDef('entity.service.type', 'serviceType', 120);
+    serviceTypeCol.flex = 1;
+
     this.entityListConfig.columnDefs = [
       this.utils.getRowCheckboxColumnDef(),
       nameCol,
       layerCol,
       serviceCol,
+      serviceTypeCol,
     ];
   }
 

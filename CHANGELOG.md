@@ -29,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Layers**: The layers list and the layer form show the linked service protocol beside the service. The value is the service type (`WMS`, `WMTS`, `WFS`, and the other stored codes) and is not saved as the cartography type ([#498](https://github.com/sitmun/sitmun-admin-app/issues/498)).
 - **Services / Layers**: The parameter type list follows the service protocol: WMS, GetMap, GetFeatureInfo, viewer tile settings, WFS, and OpenLayers. A stored code outside that set stays visible on the row being edited.
 - **Layers**: The layer form edits fixed service parameters when the service is proxied. The tab is `LAYERS_SERVICE_PARAMETERS_FEATURE` and stays disabled while the service is not proxied ([sitmun-application-stack#90](https://github.com/sitmun/sitmun-application-stack/issues/90)).
 
