@@ -50,6 +50,16 @@ import {configureLoggerForTests, provideErrorHandlerForTests} from '@app/testing
 import {constants} from '@environments/constants';
 
 import { previewFeatureInfoFormat } from './feature-info-preview';
+import {
+  NETWORK_SCHEMA,
+  NETWORK_SCHEMA_URL,
+  ROAD_LINK_DESCRIBE,
+  ROAD_LINK_DESCRIBE_URL,
+  ROAD_SCHEMA,
+  ROAD_SCHEMA_URL,
+  TRANSPORT_SCHEMA,
+  TRANSPORT_SCHEMA_URL
+} from './feature-type-schemas.fixture';
 import { LayersFormComponent } from './layers-form.component';
 
 const layersFormTemplate = readFileSync(join(__dirname, 'layers-form.component.html'), 'utf8');
@@ -1391,6 +1401,72 @@ describe('LayersFormComponent', () => {
 
       async function flushSeed(): Promise<void> {
         for (let attempt = 0; attempt < 20; attempt++) {
+          await new Promise((resolve) => setTimeout(resolve, 0));
+        }
+      }
+    });
+
+    it('seeds an INSPIRE feature type whose geometry comes from imported parent schemas', async () => {
+      const dialogRef = {
+        componentInstance: { title: '', message: '' },
+        afterClosed: () => of({ event: 'Accept' })
+      };
+      jest.spyOn(component['dialog'], 'open').mockReturnValue(dialogRef as never);
+      const addItems = jest.fn();
+      component['parametersGrid'] = {
+        dataGrid: { gridApi: {}, getAllCurrentData: () => [], addItems }
+      } as never;
+      component.services = [{ id: 8, type: 'WFS', serviceURL: 'https://servicios.idee.es/wfs-inspire/transportes' }];
+      component.entityForm.patchValue({ serviceId: 8, joinedLayers: 'tn-ro:RoadLink' });
+      component.entityForm.markAsPristine();
+      const schemas: Record<string, unknown> = {
+        [ROAD_SCHEMA_URL]: ROAD_SCHEMA,
+        [TRANSPORT_SCHEMA_URL]: TRANSPORT_SCHEMA,
+        [NETWORK_SCHEMA_URL]: NETWORK_SCHEMA
+      };
+      const getInfo = jest.spyOn(getInfoService, 'getInfo').mockImplementation((encoded: string) => {
+        const url = decodeURIComponent(encoded);
+        if (url === ROAD_LINK_DESCRIBE_URL) {
+          return throwError(() => new HttpErrorResponse({
+            status: 400,
+            error: { success: false, reason: 'Unmanaged XML response', asJson: ROAD_LINK_DESCRIBE }
+          }));
+        }
+        if (schemas[url]) {
+          return of({ success: true, asJson: schemas[url] });
+        }
+        return throwError(() => new HttpErrorResponse({
+          status: 400,
+          error: { success: false, reason: 'Not a well formed XML' }
+        }));
+      });
+
+      component.seedFeatureInfoFields();
+      await flushSeed();
+
+      const urls = getInfo.mock.calls.map((call) => decodeURIComponent(String(call[0])));
+      expect(urls).toEqual([
+        'https://servicios.idee.es/wfs-inspire/transportes?service=WFS&request=DescribeFeatureType&version=1.1.0&typeName=tn-ro%3ARoadLink',
+        ROAD_LINK_DESCRIBE_URL,
+        ROAD_SCHEMA_URL,
+        TRANSPORT_SCHEMA_URL,
+        NETWORK_SCHEMA_URL
+      ]);
+      const drafted = addItems.mock.calls.flat().flat() as {
+        name?: string;
+        format?: string | null;
+        options?: { geometryKind?: string } | null;
+      }[];
+      expect(drafted.find((row) => row.name === 'centrelineGeometry')).toEqual(expect.objectContaining({
+        format: 'Geometry',
+        options: { geometryKind: 'Curve' }
+      }));
+      expect(drafted.map((row) => row.name)).toEqual(expect.arrayContaining(['fictitious', 'inspireId', 'validTo']));
+      expect(component.featureInfoSeedMessage).toBe('');
+      expect(component.entityForm.pristine).toBe(true);
+
+      async function flushSeed(): Promise<void> {
+        for (let attempt = 0; attempt < 40; attempt++) {
           await new Promise((resolve) => setTimeout(resolve, 0));
         }
       }
