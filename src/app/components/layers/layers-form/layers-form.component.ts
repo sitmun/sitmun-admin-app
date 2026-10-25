@@ -66,11 +66,15 @@ import {constants} from '@environments/constants';
 import { previewFeatureInfoFormat } from './feature-info-preview';
 import {
   describeFeatureTypeRequestUrl,
+  describeFeatureTypeRetryUrl,
   describeLayerFeatureTypeUrl,
   describeLayerRequestUrl,
-  featureTypeElementNames,
-  featureTypeGeometryProperties
+  FeatureTypeDocument,
+  resolveFeatureType
 } from './feature-type-elements';
+
+/** INSPIRE feature types reach `gml:AbstractFeatureType` within a few schemas; this caps a runaway import chain. */
+const MAX_SCHEMA_ROUNDS = 8;
 
 type FormatOptionsCellParams = {
   data?: CartographyParameter & Partial<Status>;
@@ -1188,7 +1192,14 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
     try {
       const requestUrl = featureTypeUrl ?? await this.featureTypeUrlFromDescribeLayer(describeLayerUrl, layerName);
       if (requestUrl) {
-        await this.addFeatureTypeProperties(requestUrl);
+        const retryUrl = describeFeatureTypeRetryUrl(requestUrl);
+        const seeded = await this.addFeatureTypeProperties(requestUrl)
+          || (retryUrl !== null && await this.addFeatureTypeProperties(retryUrl));
+        if (!seeded) {
+          this.featureInfoSeedMessage = this.translateService.instant(
+            'entity.cartography.parameters.seedFeatureTypeFailed'
+          );
+        }
       }
     } finally {
       this.utils.disableLoading();
@@ -1212,15 +1223,10 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
     return null;
   }
 
-  private async addFeatureTypeProperties(url: string): Promise<void> {
-    const response = await this.fetchFeatureDocument(url);
-    const names = featureTypeElementNames(response?.asJson);
-    const properties = featureTypeGeometryProperties(response?.asJson);
+  private async addFeatureTypeProperties(url: string): Promise<boolean> {
+    const { names, geometryProperties: properties } = resolveFeatureType(await this.fetchFeatureTypeSchemas(url));
     if (names.length === 0 && properties.length === 0) {
-      this.featureInfoSeedMessage = this.translateService.instant(
-        'entity.cartography.parameters.seedFeatureTypeFailed'
-      );
-      return;
+      return false;
     }
     const current = this.parametersGrid?.dataGrid?.gridApi
       ? this.parametersGrid.dataGrid.getAllCurrentData()
@@ -1248,6 +1254,24 @@ export class LayersFormComponent extends BaseFormComponent<CartographyProjection
     if (drafts.length > 0) {
       this.parametersGrid?.dataGrid?.addItems(drafts);
     }
+    return true;
+  }
+
+  private async fetchFeatureTypeSchemas(url: string): Promise<FeatureTypeDocument[]> {
+    const documents: FeatureTypeDocument[] = [
+      { url, asJson: (await this.fetchFeatureDocument(url))?.asJson ?? null }
+    ];
+    for (let round = 0; round < MAX_SCHEMA_ROUNDS; round++) {
+      const pending = resolveFeatureType(documents).pendingSchemas;
+      if (pending.length === 0) {
+        break;
+      }
+      documents.push(...await Promise.all(pending.map(async (schemaUrl) => ({
+        url: schemaUrl,
+        asJson: (await this.fetchFeatureDocument(schemaUrl))?.asJson ?? null
+      }))));
+    }
+    return documents;
   }
 
   private async fetchFeatureDocument(url: string): Promise<{ asJson?: unknown } | null> {
