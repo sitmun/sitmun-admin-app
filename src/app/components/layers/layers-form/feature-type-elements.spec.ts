@@ -211,6 +211,70 @@ describe('feature type seed', () => {
     });
   });
 
+  it('lists a geometry declared on an ancestor of a LinkType chain in the same document', () => {
+    const net = 'http://example.test/net';
+    expect(
+      resolveFeatureType([
+        {
+          url: 'https://example.test/wfs?service=WFS&request=DescribeFeatureType&typeName=net%3ALink',
+          asJson: {
+            schema: {
+              targetNamespace: net,
+              'xmlns:net': net,
+              'xmlns:gml': 'http://www.opengis.net/gml/3.2',
+              element: { name: 'Link', type: 'net:LinkType' },
+              complexType: [
+                {
+                  name: 'NetworkElementType',
+                  complexContent: {
+                    extension: {
+                      base: 'gml:AbstractFeatureType',
+                      sequence: {
+                        element: [
+                          { name: 'position', type: 'gml:PointPropertyType' },
+                          { name: 'inspireId', type: 'xsd:string' }
+                        ]
+                      }
+                    }
+                  }
+                },
+                {
+                  name: 'GeneralisedLinkType',
+                  complexContent: {
+                    extension: { base: 'net:NetworkElementType', sequence: '' }
+                  }
+                },
+                {
+                  name: 'LinkType',
+                  complexContent: {
+                    extension: {
+                      base: 'net:GeneralisedLinkType',
+                      sequence: {
+                        element: [
+                          { name: 'centrelineGeometry', type: 'gml:CurvePropertyType' },
+                          { name: 'fictitious', type: 'boolean' },
+                          { name: 'parts', type: 'gml:GeometryCollectionPropertyType' },
+                          { name: 'the_geom', type: 'xsd:string' }
+                        ]
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ])
+    ).toEqual({
+      names: ['inspireId', 'fictitious', 'parts', 'the_geom'],
+      geometryProperties: [
+        { name: 'position', kind: 'Point' },
+        { name: 'centrelineGeometry', kind: 'Curve' }
+      ],
+      pendingSchemas: []
+    });
+  });
+
   it('stops asking for a schema that could not be read', () => {
     expect(
       resolveFeatureType([
