@@ -520,6 +520,13 @@ describe('TreeNodesComponent', () => {
       setNodeContext('testTree', 'task');
       expect(component.showMappingInTaskPanel).toBe(true);
     });
+
+    it('shows the task picker on edition cartography nodes without tourist mapping controls', () => {
+      setNodeContext(constants.codeValue.treeType.edition, constants.treeDomainKey.cartography);
+      expect(component.showTaskConfigurationPanel).toBe(true);
+      expect(component.showFilterableInTaskPanel).toBe(false);
+      expect(component.showMappingInTaskPanel).toBe(false);
+    });
   });
 
   describe('getViewModeLabelForTree', () => {
@@ -556,6 +563,15 @@ describe('TreeNodesComponent', () => {
       const taskPanel = fixture.nativeElement.querySelector('mat-expansion-panel');
       const taskConfigContent = taskPanel?.querySelector('.task-config-content');
       expect(taskConfigContent).toBeFalsy();
+    });
+
+    it('shows the task picker on an edition cartography node without the view-mode row', () => {
+      setNodeContext(constants.codeValue.treeType.edition, constants.treeDomainKey.cartography, {
+        nodeId: 1,
+        detectChanges: true,
+      });
+      expect(fixture.nativeElement.querySelector('.task-config-content')).toBeTruthy();
+      expect(fixture.nativeElement.querySelector('.task-config-mode-and-action')).toBeFalsy();
     });
   });
 
