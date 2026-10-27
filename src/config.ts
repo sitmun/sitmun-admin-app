@@ -453,7 +453,7 @@ export const config = {
           showFiltersPanel: true,
           showCartographyPanel: true,
           showAppearancePanel: false,
-          showTaskPanel: false,
+          showTaskPanel: true,
           showDisplayOptionsPanel: true
         }
       }

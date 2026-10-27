@@ -33,6 +33,8 @@ describe('TreeRulesService', () => {
   it('reads panel visibility from config', () => {
     expect(service.getNodePanelConfig('cartography', 'cartography', 'showCartographyPanel')).toBe(true);
     expect(service.getNodePanelConfig('cartography', 'folder', 'showCartographyPanel')).toBe(false);
+    expect(service.getNodePanelConfig('edition', 'cartography', 'showTaskPanel')).toBe(true);
+    expect(service.getNodePanelConfig('cartography', 'cartography', 'showTaskPanel')).toBe(false);
   });
 
   it('picks the first allowed codelist value from candidates', () => {
